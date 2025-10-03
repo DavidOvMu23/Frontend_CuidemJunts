@@ -1,3 +1,3 @@
-# frontend_cuidemjunts
+# Frontend_CuidemJunts
 
 A new Flutter project.
