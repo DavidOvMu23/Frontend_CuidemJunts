@@ -8,13 +8,14 @@ analyzer:
 linter:
   rules:
     # === Estilo de código ===
-    - always_use_package_imports: true
-    - prefer_single_quotes: true
-    - require_trailing_commas: true
-    - sort_child_properties_last: true
-    - use_key_in_widget_constructors: true
+    always_use_package_imports: true # Usar imports con "package:" en vez de relativos
+    prefer_single_quotes: true # Usar comillas simples para consistencia
+    require_trailing_commas: true # Comas al final en listas/mapas multilínea
+    sort_child_properties_last: true # child: siempre al final en widgets
+    use_key_in_widget_constructors: true # Widgets con super.key obligatorio
 
     # === Buenas prácticas ===
-    - avoid_print: true
-    - prefer_const_constructors: true
-    - prefer_final_locals: true
+    avoid_print: true # No usar print() (usar debugPrint o logging)
+    prefer_const_constructors: true # Usar const cuando se pueda
+    prefer_final_locals: true # Variables locales inmutables por defecto
+    unnecessary_this: false
