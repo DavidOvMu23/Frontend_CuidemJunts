@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'catalog/catalog_page.dart';
 
 void main() {
   runApp(const MainApp());
