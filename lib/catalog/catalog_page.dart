@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'demos/text_fields_demo.dart';
 import 'demos/buttons_demo.dart';
 import 'demos/communication_demo.dart';
+import 'demos/containers_demo.dart';
 
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key});
@@ -13,7 +14,7 @@ class CatalogPage extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
-            title: const Text('Botones'),
+            title: const Text('Buttons'),
             trailing: const Icon(Icons.arrow_forward_ios),
             //indicamos que al pulsar en esta opción del menú navege a la demo de botones
             onTap: () {
@@ -26,7 +27,7 @@ class CatalogPage extends StatelessWidget {
           Divider(height: 1),
 
           ListTile(
-            title: Text('Campos de texto'),
+            title: Text('Text Fields'),
             trailing: Icon(Icons.arrow_forward_ios),
 
             onTap: () {
@@ -38,13 +39,25 @@ class CatalogPage extends StatelessWidget {
           ),
           Divider(height: 1),
           ListTile(
-            title: Text('Mensajes de alerta'),
+            title: Text('Communication'),
             trailing: Icon(Icons.arrow_forward_ios),
 
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CommunicationDemo()),
+              );
+            },
+          ),
+          Divider(height: 1),
+          ListTile(
+            title: Text('Containers'),
+            trailing: Icon(Icons.arrow_forward_ios),
+
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ContainersDemo()),
               );
             },
           ),

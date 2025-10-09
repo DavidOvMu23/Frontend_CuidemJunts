@@ -6,50 +6,41 @@ class CommunicationDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Demo: Comunicación')),
+      appBar: AppBar(title: const Text('Demo: Communication')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
-            // BADGE SECTION
             const Text(
-              'Badges',
+              'Badge',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 12),
 
-            Wrap(
-              spacing: 16,
-              children: [
-                // Badge simple
-                Badge(
-                  label: const Text('3'),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notifications),
-                  ),
-                ),
-              ],
+            // Badge con un ícono
+            Badge(
+              label: const Text('3'),
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.notifications),
+              ),
             ),
 
-            const SizedBox(height: 40),
-
-            // SNACKBAR SECTION
             const Text(
-              'SnackBars',
+              'SnackBar',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 12),
 
+            // Botón para mostrar un SnackBar
             Center(
               child: FilledButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Este es un SnackBar de ejemplo'),
-                      action: SnackBarAction(label: 'Cerrar', onPressed: () {}),
-                    ),
+                    const SnackBar(content: Text('Este es un SnackBar')),
                   );
                 },
                 child: const Text('Mostrar SnackBar'),

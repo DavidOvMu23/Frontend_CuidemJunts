@@ -1,57 +1,39 @@
 import 'package:flutter/material.dart';
 
-class TextFieldsDemo extends StatefulWidget {
+class TextFieldsDemo extends StatelessWidget {
   const TextFieldsDemo({super.key});
-
-  @override
-  State<TextFieldsDemo> createState() => _TextFieldsDemoState();
-}
-
-class _TextFieldsDemoState extends State<TextFieldsDemo> {
-  final _controller = TextEditingController();
-  String? _errorText;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Demo: Campos de texto')),
+      appBar: AppBar(title: const Text('Demo: Text Fields')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
+
+        // ListView permite hacer scroll si hay muchos campos
         child: ListView(
-          children: [
-            // TextField básico
-            const Text('Normal', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            const TextField(
+          children: const [
+            // Campo de texto normal
+            TextField(
               decoration: InputDecoration(
-                labelText: 'Nombre',
+                labelText: 'Campo normal',
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 16),
 
-            // TextField con icono
-            const Text(
-              'Con icono',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const TextField(
+            // Campo de texto con icono
+            TextField(
               decoration: InputDecoration(
-                labelText: 'Email',
+                labelText: 'Con icono',
                 prefixIcon: Icon(Icons.email),
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 16),
 
-            // TextField tipo password
-            const Text(
-              'Password',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const TextField(
+            // Campo de texto tipo contraseña
+            TextField(
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Contraseña',
@@ -59,41 +41,13 @@ class _TextFieldsDemoState extends State<TextFieldsDemo> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 16),
 
-            // TextField con validación
-            const Text(
-              'Con validación',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+            // Campo de texto deshabilitado
             TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: 'Introduce al menos 3 caracteres',
-                border: const OutlineInputBorder(),
-                errorText: _errorText,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _errorText = value.length < 3
-                      ? 'Debe tener al menos 3 caracteres'
-                      : null;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // TextField deshabilitado
-            const Text(
-              'Deshabilitado',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const TextField(
               enabled: false,
               decoration: InputDecoration(
-                labelText: 'Campo deshabilitado',
+                labelText: 'Deshabilitado',
                 border: OutlineInputBorder(),
               ),
             ),
