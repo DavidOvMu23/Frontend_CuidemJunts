@@ -26,7 +26,7 @@ class _CuidemJuntsAppState extends State<CuidemJuntsApp> {
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Catálogo de Componentes'),
+          title: const Text('Cuidem Junts'),
           actions: [
             IconButton(
               icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
