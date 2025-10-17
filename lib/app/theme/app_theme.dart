@@ -1,177 +1,154 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
+import 'app_palette.dart';
 
-/// Clase que define los temas de la aplicación (claro y oscuro),
-/// Me lo ha hecho el chat a partir de las constantes que he definido
-/// en el app palette (lo siento pepe)
+/// Configuración global de temas para CuidemJunts
+/// Usa la paleta base (AppPalette) y define estilos de texto, inputs, botones, etc.
 class AppTheme {
-  // MODO CLARO -------------------------------------------
+  /// ==================== TEMA CLARO ====================
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppPalette.backgroundLight,
     primaryColor: AppPalette.primaryLight,
     colorScheme: const ColorScheme.light(
-      surface: AppPalette.surfaceLight,
       primary: AppPalette.primaryLight,
-      onPrimary: AppPalette.onPrimaryLight,
       secondary: AppPalette.accentLight,
+      surface: AppPalette.surfaceLight,
+      background: AppPalette.backgroundLight,
       error: AppPalette.errorLight,
-      onError: AppPalette.errorFontLight,
+      onPrimary: AppPalette.textOnPrimaryLight,
+      onSurface: AppPalette.textOnSurfaceLight,
+      onBackground: AppPalette.textPrimaryLight,
     ),
-    cardColor: AppPalette.cardLight,
-
-    // AppBar
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppPalette.surfaceLight,
-      foregroundColor: AppPalette.textPrimaryLight,
+      backgroundColor: AppPalette.backgroundLight,
+      foregroundColor: AppPalette.menuLight,
       elevation: 0,
-      centerTitle: true,
       titleTextStyle: TextStyle(
-        color: AppPalette.textPrimaryLight,
+        color: AppPalette.menuLight,
         fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
+      iconTheme: IconThemeData(color: AppPalette.menuLight),
     ),
-
-    // Textos
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
-        color: AppPalette.textPrimaryLight,
+        fontSize: 26,
         fontWeight: FontWeight.bold,
-        fontSize: 24,
+        color: AppPalette.textPrimaryLight,
       ),
-      titleMedium: TextStyle(
-        color: AppPalette.textSecondaryLight,
+      titleLarge: TextStyle(
+        fontSize: 20,
         fontWeight: FontWeight.w600,
-        fontSize: 18,
+        color: AppPalette.textPrimaryLight,
       ),
-      bodyMedium: TextStyle(color: AppPalette.textBodyLight, fontSize: 16),
-      bodySmall: TextStyle(
-        color: AppPalette.textDescriptionLight,
-        fontSize: 14,
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: AppPalette.textPrimaryLight,
       ),
-      labelSmall: TextStyle(color: AppPalette.textFootnoteLight, fontSize: 12),
+      bodyMedium: TextStyle(fontSize: 14, color: AppPalette.textSecondaryLight),
+      bodySmall: TextStyle(fontSize: 12, color: AppPalette.textMutedLight),
     ),
-
-    // Botones principales
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppPalette.cardLight,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppPalette.accentLight, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppPalette.primaryLight, width: 2),
+      ),
+      hintStyle: const TextStyle(color: AppPalette.textMutedLight),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppPalette.primaryLight,
-        foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        elevation: 1.5,
+        foregroundColor: AppPalette.textOnPrimaryLight,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
     ),
-
-    // Botones tonales
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: AppPalette.accentLight,
-        foregroundColor: AppPalette.textPrimaryLight,
-        textStyle: const TextStyle(fontWeight: FontWeight.w500),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-      ),
-    ),
-
-    // Iconos
-    iconTheme: const IconThemeData(color: AppPalette.primaryLight),
-
-    // FAB
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppPalette.primaryLight,
-      foregroundColor: Colors.white,
-    ),
-
-    // Estados personalizados
-    snackBarTheme: const SnackBarThemeData(
-      backgroundColor: AppPalette.surfaceLight,
-      contentTextStyle: TextStyle(color: AppPalette.textPrimaryLight),
-    ),
+    cardColor: AppPalette.cardLight,
+    dividerColor: AppPalette.accentLight.withOpacity(0.3),
+    iconTheme: const IconThemeData(color: AppPalette.menuLight),
   );
 
-  // MODO OSCURO -----------------------------------------
+  /// ==================== TEMA OSCURO ====================
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppPalette.backgroundDark,
     primaryColor: AppPalette.primaryDark,
     colorScheme: const ColorScheme.dark(
-      surface: AppPalette.surfaceDark,
       primary: AppPalette.primaryDark,
-      onPrimary: AppPalette.onPrimaryDark,
       secondary: AppPalette.accentDark,
+      surface: AppPalette.surfaceDark,
+      background: AppPalette.backgroundDark,
       error: AppPalette.errorDark,
-      onError: AppPalette.errorFontDark,
+      onPrimary: AppPalette.textOnPrimaryDark,
+      onSurface: AppPalette.textOnSurfaceDark,
+      onBackground: AppPalette.textPrimaryDark,
     ),
-    cardColor: AppPalette.cardDark,
-
-    // AppBar
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppPalette.surfaceDark,
-      foregroundColor: AppPalette.textPrimaryDark,
+      backgroundColor: AppPalette.backgroundDark,
+      foregroundColor: AppPalette.menuDark,
       elevation: 0,
-      centerTitle: true,
       titleTextStyle: TextStyle(
-        color: AppPalette.textPrimaryDark,
+        color: AppPalette.menuDark,
         fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
+      iconTheme: IconThemeData(color: AppPalette.menuDark),
     ),
-
-    // Textos
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
-        color: AppPalette.textPrimaryDark,
+        fontSize: 26,
         fontWeight: FontWeight.bold,
-        fontSize: 24,
+        color: AppPalette.textPrimaryDark,
       ),
-      titleMedium: TextStyle(
-        color: AppPalette.textSecondaryDark,
+      titleLarge: TextStyle(
+        fontSize: 20,
         fontWeight: FontWeight.w600,
-        fontSize: 18,
+        color: AppPalette.textPrimaryDark,
       ),
-      bodyMedium: TextStyle(color: AppPalette.textBodyDark, fontSize: 16),
-      bodySmall: TextStyle(color: AppPalette.textDescriptionDark, fontSize: 14),
-      labelSmall: TextStyle(color: AppPalette.textFootnoteDark, fontSize: 12),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: AppPalette.textPrimaryDark,
+      ),
+      bodyMedium: TextStyle(fontSize: 14, color: AppPalette.textSecondaryDark),
+      bodySmall: TextStyle(fontSize: 12, color: AppPalette.textMutedDark),
     ),
-
-    // Botones principales
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppPalette.cardDark,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppPalette.accentDark, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppPalette.primaryDark, width: 2),
+      ),
+      hintStyle: const TextStyle(color: AppPalette.textMutedDark),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppPalette.primaryDark,
-        foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
+        foregroundColor: AppPalette.textOnPrimaryDark,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
     ),
-
-    // Botones tonales
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: AppPalette.accentDark,
-        foregroundColor: AppPalette.textPrimaryDark,
-        textStyle: const TextStyle(fontWeight: FontWeight.w500),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-      ),
-    ),
-
-    // Iconos
-    iconTheme: const IconThemeData(color: AppPalette.primaryDark),
-
-    // FAB
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppPalette.primaryDark,
-      foregroundColor: Colors.white,
-    ),
+    cardColor: AppPalette.cardDark,
+    dividerColor: AppPalette.accentDark.withOpacity(0.3),
+    iconTheme: const IconThemeData(color: AppPalette.menuDark),
   );
 }
