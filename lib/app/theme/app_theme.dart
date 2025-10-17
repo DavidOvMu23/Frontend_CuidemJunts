@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_palette.dart';
 
-/// Configuración global de temas para CuidemJunts
-/// Usa la paleta base (AppPalette) y define estilos de texto, inputs, botones, etc.
 class AppTheme {
   /// ==================== TEMA CLARO ====================
   static final ThemeData lightTheme = ThemeData(

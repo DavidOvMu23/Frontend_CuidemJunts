@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de colores base para CuidemJunts
-/// Inspirada en los mockups (modo claro y oscuro)
+/// Paleta de colores (modo claro y oscuro)
 class AppPalette {
   /// TEMA CLARO ------------------------------------------
   // Fondo principal de la app
