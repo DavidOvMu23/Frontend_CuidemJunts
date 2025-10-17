@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/catalog/demos/communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/containers_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/navigations_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/selections_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/demos/typography_demo.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -127,6 +128,19 @@ class _CatalogPageState extends State<CatalogPage> {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => const TextFieldsDemo(),
+                      ),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+
+                ListTile(
+                  title: const Text('Typography'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const TypographyDemo(),
                       ),
                     );
                   },
