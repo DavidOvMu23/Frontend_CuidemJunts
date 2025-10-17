@@ -1,29 +1,49 @@
 import 'package:flutter/material.dart';
 
-class AppColors {
-  //ORDEN DE USO DE LOS COLORES
-  // Títulos, botones principales, iconos activos
-  // Botones secundarios, iconos de apoyo, bordes suaves
-  // Llamadas a la acción, botones destacados
-  // Fondo general de la app
-  // Texto principal sobre fondo claro
+class AppPalette {
+  // MODO CLARO -------------------------------------------
+  static const Color backgroundLight = Color(0xFFFFFFE1);
+  static const Color surfaceLight = Color(0xFFDDE9FA);
+  static const Color cardLight = Color(0xFFF6F8FC);
+  static const Color primaryLight = Color(0xFF6C9BF5);
+  static const Color onPrimaryLight = Colors.white;
+  static const Color accentLight = Color(0xFFAECBFA);
 
-  //MODO CLARO
-  static const Color lightPrimary = Color(0xFF8BBFE8);
-  static const Color lightSecondary = Color(0xFFA8D1EF);
-  static const Color lightAccent = Color(0xFF5AA9E6);
-  static const Color lightBackground = Color(0xFFFAF8F4);
-  static const Color lightText = Color(0xFF3B4B5A);
+  // Estados
+  static const Color successLight = Color(0xFFDCFCE7);
+  static const Color successFontLight = Color(0xFF166534);
+  static const Color warningLight = Color(0xFFFEF9C3);
+  static const Color warningFontLight = Color(0xFF895314);
+  static const Color errorLight = Color(0xFFFEE2e2);
+  static const Color errorFontLight = Color(0xFFA83B3D);
 
-  //MODO OSCURO
-  static const Color darkPrimary = Color(0xFF6FB5E9);
-  static const Color darkSecondary = Color(0xFF4F6F8F);
-  static const Color darkAccent = Color(0xFF57A0E5);
-  static const Color darkBackground = Color(0xFF1E2A35);
-  static const Color darkText = Color(0xFFF2F4F6);
+  // Texto
+  static const Color textPrimaryLight = Color(0xFF1F2D3D);
+  static const Color textSecondaryLight = Color(0xFF3B516B);
+  static const Color textBodyLight = Color(0xFF536A83);
+  static const Color textDescriptionLight = Color(0xFF6E7E91);
+  static const Color textFootnoteLight = Color(0xFF8C9BA8);
 
-  //COLORES DE FEEDBACK (prueba)
-  static const Color success = Colors.green;
-  static const Color warning = Colors.orangeAccent;
-  static const Color error = Colors.redAccent;
+  // MODO OSCURO -----------------------------------------
+  static const Color backgroundDark = Color(0xFF0E1A27);
+  static const Color surfaceDark = Color(0xFF162433);
+  static const Color cardDark = Color(0xFF1D2E41);
+  static const Color primaryDark = Color(0xFF3976D3);
+  static const Color onPrimaryDark = Color(0xFFE9F1FA);
+  static const Color accentDark = Color(0xFF5C9BE6);
+
+  // Estados
+  static const Color successDark = Color(0xFF064424);
+  static const Color successFontDark = Color(0xFF7FD5A1);
+  static const Color warningDark = Color(0xFF403B03);
+  static const Color warningFontDark = Color(0xFFE4AD6C);
+  static const Color errorDark = Color(0xFF430505);
+  static const Color errorFontDark = Color(0xFFCD5B5B);
+
+  // Texto
+  static const Color textPrimaryDark = Color(0xFFEAF2FA);
+  static const Color textSecondaryDark = Color(0xFFB0C6DB);
+  static const Color textBodyDark = Color(0xFF9CB2C7);
+  static const Color textDescriptionDark = Color(0xFF879AAE);
+  static const Color textFootnoteDark = Color(0xFF6E8398);
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 
 class TextFieldsDemo extends StatelessWidget {
   const TextFieldsDemo({super.key});
@@ -31,10 +30,7 @@ class TextFieldsDemo extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 //Pinta un icono en el cuadrado de texto
-                prefixIcon: const Icon(
-                  Icons.person,
-                  color: AppColors.lightAccent,
-                ),
+                prefixIcon: const Icon(Icons.person),
               ),
             ),
 
@@ -46,10 +42,7 @@ class TextFieldsDemo extends StatelessWidget {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                prefixIcon: const Icon(
-                  Icons.lock,
-                  color: AppColors.lightAccent,
-                ),
+                prefixIcon: const Icon(Icons.lock),
               ),
             ),
 
@@ -60,10 +53,7 @@ class TextFieldsDemo extends StatelessWidget {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: AppColors.lightAccent,
-                ),
+                prefixIcon: const Icon(Icons.search),
               ),
             ),
 
