@@ -10,7 +10,7 @@ class AppPalette {
   static const Color surfaceLight = Color(0xFFDFF0FD);
 
   // Cards, cajas, inputs, contenedores
-  static const Color cardLight = Color(0xFFDFF0FD);
+  static const Color cardLight = Color(0xFFBFE3FF);
 
   // Color principal (botones, enlaces, iconos destacados)
   static const Color primaryLight = Color(0xFF42a6ee);

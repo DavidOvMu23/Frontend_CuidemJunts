@@ -16,29 +16,27 @@ class CatalogPage extends StatefulWidget {
 }
 
 class _CatalogPageState extends State<CatalogPage> {
-  // Variable para controlar si el modo oscuro está activado
+  // Esta variable guarda si el modo oscuro está activado o no
   bool isDark = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cuidem Junts',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, //quitar puñetero cartel de debug
+      // Definimos los temas de la app (claro y oscuro)
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light, // cambia el modo
 
-      //Builder: nos da un nuevo "context" válido para Navigator.push(). Esto de aquí
-      //lo he preguntado al chat para que así sea mucho mas sencillo llamar a el catalog
-      //desde el main solo llamando al método. (perdona Pepe)
       home: Builder(
         builder: (context) {
           return Scaffold(
-            // Barra superior con el título del catálogo
+            // AppBar = barra superior de la pantalla
             appBar: AppBar(
+              // La parte de arriba de la app (barra con el título)
               title: const Text('Catálogo de Demos'),
-
-              // Añadimos el icono para cambiar entre modo claro y oscuro
+              // Botón para cambiar entre modo claro y oscuro
               actions: [
                 IconButton(
                   icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
@@ -47,106 +45,112 @@ class _CatalogPageState extends State<CatalogPage> {
               ],
             ),
 
-            //Creamos una lista de opciones para navegar en las difentes demos
-            body: ListView(
-              children: [
-                //creamos las opciones del menú
-                ListTile(
-                  //ponemos un título a mostrar en esta opción y un icono de decoración para
-                  //indicar que se debe de clicar ahí para acceder a las demos de esa opción
-                  title: const Text('Buttons'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
+            // Cuerpo principal
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
 
-                  //accion que realizaremos al clicar
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ButtonsDemo(),
-                      ),
-                    );
-                  },
-                ),
-                //widget de divisor para separar las opciones del menú
-                const Divider(height: 1),
+              // SURFACE PRINCIPAL
+              // Este es el panel donde se muestra la lista de demos
+              child: Material(
+                borderRadius: BorderRadius.circular(16), // bordes redondeados
+                // La lista de opciones del catálogo
+                child: ListView(
+                  shrinkWrap: true, // el surface se adapta al contenido
+                  children: [
+                    // Cada ListTile es una opción que lleva a una demo
+                    ListTile(
+                      title: const Text('Buttons'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        // Navega a la pantalla de ButtonsDemo
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ButtonsDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1), // línea divisoria
 
-                ListTile(
-                  title: const Text('Communications'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const CommunicationsDemo(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
+                    ListTile(
+                      title: const Text('Communications'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const CommunicationsDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
 
-                ListTile(
-                  title: const Text('Containers'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ContainersDemo(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
+                    ListTile(
+                      title: const Text('Containers'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ContainersDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
 
-                ListTile(
-                  title: const Text('Navigations'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const NavigationsDemo(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
+                    ListTile(
+                      title: const Text('Navigations'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const NavigationsDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
 
-                ListTile(
-                  title: const Text('Selections'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SelectionsDemo(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
+                    ListTile(
+                      title: const Text('Selections'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const SelectionsDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
 
-                ListTile(
-                  title: const Text('Text Fields'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const TextFieldsDemo(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
+                    ListTile(
+                      title: const Text('Text Fields'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const TextFieldsDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
 
-                ListTile(
-                  title: const Text('Typography'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const TypographyDemo(),
-                      ),
-                    );
-                  },
+                    ListTile(
+                      title: const Text('Typography'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const TypographyDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                const Divider(height: 1),
-              ],
+              ),
             ),
           );
         },

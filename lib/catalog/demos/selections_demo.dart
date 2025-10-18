@@ -8,103 +8,116 @@ class SelectionsDemo extends StatefulWidget {
 }
 
 class _SelectionsDemoState extends State<SelectionsDemo> {
-  // DECLARAR ESTADOS DE ELEMENTOS AL INICIO DEL PROGRAMA
-  // Estado del Checkbox
-  bool isChecked = false;
-  // Estado del Switch
-  bool isSwitched = false;
-  // Estado del RadioButton
-  String selectedOption = 'A';
-  // Estado para el Chip seleccionado
-  bool isChipSelected = false;
+  // Variables de estado de los elementos seleccionables
+  bool isChecked = false; // Guarda si el checkbox está marcado
+  bool isSwitched = false; // Guarda el valor del switch
+  String selectedOption = 'A'; // Guarda la opción elegida (A o B)
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Barra superior de la aplicación con un título
+      // Barra superior
       appBar: AppBar(title: const Text('Demo: Selections')),
 
+      // Cuerpo principal
       body: Padding(
-        // Padding: añade espacio alrededor del contenido
         padding: const EdgeInsets.all(16.0),
 
-        // Column: organiza los widgets uno debajo del otro
-        child: Column(
-          // alinea contenido horizontalmente (inicio = izquierda), se lo he pedido al chat, por que si no se quedaba feo
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // checkbox
-            Checkbox(
-              value: isChecked, // valor actual del checkbox
-              onChanged: (bool? value) {
-                setState(() {
-                  isChecked =
-                      value ?? false; // actualiza el estado del checkbox
-                });
-              },
-            ),
+        // Surface principal (fondo azul claro del tema)
+        child: Material(
+          borderRadius: BorderRadius.circular(16),
 
-            // date picker
-            FilledButton(
-              child: const Text('Seleccionar fecha'),
-              onPressed: () async {
-                await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(), // fecha inicial (hoy)
-                  firstDate: DateTime(2000), // límite inferior
-                  lastDate: DateTime(2100), // límite superior
-                );
-              },
-            ),
-            const SizedBox(height: 16), // separar el widget
-            // time picker
-            FilledButton(
-              child: const Text('Seleccionar hora'),
-              onPressed: () async {
-                // Mostrar el selector de hora sin guardar el resultado
-                await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(), // hora actual por defecto
-                );
-              },
-            ),
-            const SizedBox(height: 16), // separar el widget
-            // radio buttons
-            RadioMenuButton<String>(
-              value: 'A', // valor de esta opción
-              groupValue: selectedOption, // valor actualmente seleccionado
-              onChanged: (value) {
-                setState(() {
-                  selectedOption = value!; // actualiza la opción elegida
-                });
-              },
-              child: const Text('Opción A'), // texto visible
-            ),
-            RadioMenuButton<String>(
-              value: 'B', // valor de esta opción
-              groupValue: selectedOption, // valor actualmente seleccionado
-              onChanged: (value) {
-                setState(() {
-                  selectedOption = value!; // actualiza la opción elegida
-                });
-              },
-              child: const Text('Opción B'), // texto visible
-            ),
-            const SizedBox(height: 16), // separar el widget
-            // swicth
-            Row(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+
+            // Columna con todos los elementos
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // se ajusta al contenido
               children: [
-                Switch(
-                  value: isSwitched, // valor actual del switch
+                // Checkbox
+                Row(
+                  // row para poner el checkbox y el texto en la misma línea
+                  children: [
+                    Checkbox(
+                      value: isChecked,
+                      onChanged: (value) {
+                        setState(() => isChecked = value ?? false);
+                      },
+                    ),
+                    const Text('Activar opción'),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // switch
+                Row(
+                  // row para poner el switch y el texto en la misma línea
+                  children: [
+                    Switch(
+                      value: isSwitched,
+                      onChanged: (value) {
+                        setState(() => isSwitched = value);
+                      },
+                    ),
+                    const Text('Encender/Apagar'),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // radio buttons
+                const Text('Selecciona una opción:'),
+                const SizedBox(height: 8),
+
+                //radiolisttiles para las opciones
+                RadioListTile<String>(
+                  title: const Text('Opción A'),
+                  value: 'A',
+                  groupValue: selectedOption,
                   onChanged: (value) {
-                    setState(() {
-                      isSwitched = value; // actualiza el estado del switch
-                    });
+                    setState(() => selectedOption = value!);
                   },
+                ),
+                RadioListTile<String>(
+                  title: const Text('Opción B'),
+                  value: 'B',
+                  groupValue: selectedOption,
+                  onChanged: (value) {
+                    setState(() => selectedOption = value!);
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // botón que abre el selector de fecha
+                FilledButton(
+                  onPressed: () async {
+                    await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                  },
+                  child: const Text('Seleccionar fecha'),
+                ),
+
+                const SizedBox(height: 12),
+
+                // botón que abre el selector de hora
+                FilledButton(
+                  onPressed: () async {
+                    await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                  },
+                  child: const Text('Seleccionar hora'),
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
