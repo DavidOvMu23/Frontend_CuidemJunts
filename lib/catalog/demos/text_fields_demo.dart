@@ -79,6 +79,26 @@ class TextFieldsDemo extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                //Desplegable
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    hintText: 'Selecciona una opción',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'opcion1', child: Text('Opción 1')),
+                    DropdownMenuItem(value: 'opcion2', child: Text('Opción 2')),
+                    DropdownMenuItem(value: 'opcion3', child: Text('Opción 3')),
+                  ],
+                  onChanged: (value) {
+                    // Manejar el cambio de selección
+                  },
+                ),
               ],
             ),
           ),
