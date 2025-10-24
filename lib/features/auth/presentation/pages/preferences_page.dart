@@ -133,23 +133,39 @@ class _PreferencesPageState extends State<PreferencesPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Linea de configuracion de tema
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tema',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                  //SwitchListTile para cambiar el tema
+                  //la diferencia entre switchlisttile y switch es que
+                  //switchlisttile hace que todo el tile sea clickeable
+                  //y el switch solo el propio boton
+                  SwitchListTile(
+                    // Elimina el padding por defecto para ajustar mejor el diseño
+                    contentPadding: EdgeInsets.zero,
+
+                    // Título con icono que cambia según el tema
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tema',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      // Switch para cambiar tema
-                      Switch(
-                        value: Theme.of(context).brightness == Brightness.dark,
-                        onChanged: (value) => widget.onToggleTheme(value),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+
+                        // Icono que cambia según el tema
+                        Icon(
+                          // Muestra un icono diferente según el tema actual
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ],
+                    ),
+                    // Valor del switch según el tema actual
+                    value: Theme.of(context).brightness == Brightness.dark,
+                    onChanged: (value) => widget.onToggleTheme(value),
                   ),
                 ],
               ),

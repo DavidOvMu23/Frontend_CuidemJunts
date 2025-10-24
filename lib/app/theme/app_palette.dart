@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de colores (modo claro y oscuro)
 class AppPalette {
-  /// TEMA CLARO ------------------------------------------
+  // -------- TEMA CLARO --------
   // Fondo principal de la app
   static const Color backgroundLight = Color(0xFFFDF9F5);
 
@@ -36,7 +35,7 @@ class AppPalette {
   static const Color textOnPrimaryLight = Colors.white;
   static const Color textOnSurfaceLight = Color(0xFF0B233F);
 
-  /// TEMA OSCURO ------------------------------------------
+  // -------- TEMA OSCURO --------
   static const Color backgroundDark = Color(0xFF0a1524);
   static const Color surfaceDark = Color(0xFF192b3e);
   static const Color cardDark = Color(0xFF243f5b);

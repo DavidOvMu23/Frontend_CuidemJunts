@@ -8,6 +8,8 @@ import 'package:frontend_cuidemjunts/catalog/demos/navigations_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/selections_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/typography_demo.dart';
 
+// -------- WIDGET PRINCIPAL DE LA PÁGINA --------
+// CatalogPage es un StatefulWidget porque necesita recordar el modo oscuro o claro.
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
 
@@ -15,28 +17,38 @@ class CatalogPage extends StatefulWidget {
   State<CatalogPage> createState() => _CatalogPageState();
 }
 
+// -------- ESTADO DE CatalogPage --------
+// Esta clase guarda el estado de la página, como si está en modo claro u oscuro.
 class _CatalogPageState extends State<CatalogPage> {
-  // Esta variable guarda si el modo oscuro está activado o no
+  // Variable para saber si el modo oscuro está activado
   bool isDark = false;
 
+  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
+  // Este método se llama cada vez que cambia algo en el estado (por ejemplo, al cambiar de tema)
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cuidem Junts',
-      debugShowCheckedModeBanner: false, //quitar puñetero cartel de debug
-      // Definimos los temas de la app (claro y oscuro)
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: isDark ? ThemeMode.dark : ThemeMode.light, // cambia el modo
 
+      // Quita el cartel de "debug" que aparece en la esquina superior derecha
+      debugShowCheckedModeBanner: false,
+
+      // -------- CONFIGURACIÓN DE TEMAS --------
+      // Se definen los temas claro y oscuro de la aplicación
+      theme: AppTheme.lightTheme, // Tema claro
+      darkTheme: AppTheme.darkTheme, // Tema oscuro
+      // Aplica el tema según el valor de isDark
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+
+      // -------- CONTENIDO PRINCIPAL DE LA PÁGINA --------
       home: Builder(
         builder: (context) {
           return Scaffold(
-            // AppBar = barra superior de la pantalla
+            // -------- BARRA SUPERIOR (APPBAR) --------
             appBar: AppBar(
-              // La parte de arriba de la app (barra con el título)
               title: const Text('Catálogo de Demos'),
-              // Botón para cambiar entre modo claro y oscuro
+
+              // Botón que permite cambiar entre modo claro y oscuro
               actions: [
                 IconButton(
                   icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
@@ -45,24 +57,24 @@ class _CatalogPageState extends State<CatalogPage> {
               ],
             ),
 
-            // Cuerpo principal
+            // -------- CUERPO PRINCIPAL --------
             body: Padding(
               padding: const EdgeInsets.all(16.0),
 
-              // SURFACE PRINCIPAL
-              // Este es el panel donde se muestra la lista de demos
+              // -------- PANEL PRINCIPAL (SURFACE) --------
+              // Contiene la lista de demos con sus nombres y accesos
               child: Material(
-                borderRadius: BorderRadius.circular(16), // bordes redondeados
-                // La lista de opciones del catálogo
+                borderRadius: BorderRadius.circular(16), // Bordes redondeados
+                // -------- LISTA DE OPCIONES --------
                 child: ListView(
-                  shrinkWrap: true, // el surface se adapta al contenido
+                  shrinkWrap: true, // El contenedor se adapta al contenido
+                  // Cada elemento de la lista representa una demo distinta
                   children: [
-                    // Cada ListTile es una opción que lleva a una demo
+                    // -------- DEMO: BUTTONS --------
                     ListTile(
                       title: const Text('Buttons'),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
-                        // Navega a la pantalla de ButtonsDemo
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const ButtonsDemo(),
@@ -70,8 +82,9 @@ class _CatalogPageState extends State<CatalogPage> {
                         );
                       },
                     ),
-                    const Divider(height: 1), // línea divisoria
+                    const Divider(height: 1),
 
+                    // -------- DEMO: COMMUNICATIONS --------
                     ListTile(
                       title: const Text('Communications'),
                       trailing: const Icon(Icons.arrow_forward_ios),
@@ -85,6 +98,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     ),
                     const Divider(height: 1),
 
+                    // -------- DEMO: CONTAINERS --------
                     ListTile(
                       title: const Text('Containers'),
                       trailing: const Icon(Icons.arrow_forward_ios),
@@ -98,6 +112,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     ),
                     const Divider(height: 1),
 
+                    // -------- DEMO: NAVIGATIONS --------
                     ListTile(
                       title: const Text('Navigations'),
                       trailing: const Icon(Icons.arrow_forward_ios),
@@ -111,6 +126,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     ),
                     const Divider(height: 1),
 
+                    // -------- DEMO: SELECTIONS --------
                     ListTile(
                       title: const Text('Selections'),
                       trailing: const Icon(Icons.arrow_forward_ios),
@@ -124,6 +140,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     ),
                     const Divider(height: 1),
 
+                    // -------- DEMO: TEXT FIELDS --------
                     ListTile(
                       title: const Text('Text Fields'),
                       trailing: const Icon(Icons.arrow_forward_ios),
@@ -137,6 +154,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     ),
                     const Divider(height: 1),
 
+                    // -------- DEMO: TYPOGRAPHY --------
                     ListTile(
                       title: const Text('Typography'),
                       trailing: const Icon(Icons.arrow_forward_ios),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// -------- WIDGET PRINCIPAL --------
+// Esta clase muestra ejemplos de distintos elementos seleccionables:
+// Checkbox, Switch, Radio Buttons y Selectores de Fecha/Hora.
 class SelectionsDemo extends StatefulWidget {
   const SelectionsDemo({super.key});
 
@@ -7,37 +10,44 @@ class SelectionsDemo extends StatefulWidget {
   State<SelectionsDemo> createState() => _SelectionsDemoState();
 }
 
+// -------- ESTADO DEL WIDGET --------
+// Aquí se guardan las variables que cambian según las selecciones del usuario.
 class _SelectionsDemoState extends State<SelectionsDemo> {
-  // Variables de estado de los elementos seleccionables
-  bool isChecked = false; // Guarda si el checkbox está marcado
-  bool isSwitched = false; // Guarda el valor del switch
-  String selectedOption = 'A'; // Guarda la opción elegida (A o B)
+  // -------- VARIABLES DE ESTADO --------
+  bool isChecked = false; // Inicializa el valor del checkbox
+  bool isSwitched = false; // Inicializa el valor del switch
+  String selectedOption = 'A'; // Opción seleccionada en los radio buttons
 
+  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Barra superior
+      // -------- BARRA SUPERIOR (APPBAR) --------
       appBar: AppBar(title: const Text('Demo: Selections')),
 
-      // Cuerpo principal
+      // -------- CUERPO PRINCIPAL --------
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
-        // Surface principal (fondo azul claro del tema)
+        // -------- SURFACE PRINCIPAL --------
+        // Contenedor con bordes redondeados que sirve como fondo visual
         child: Material(
           borderRadius: BorderRadius.circular(16),
 
           child: Padding(
             padding: const EdgeInsets.all(16.0),
 
-            // Columna con todos los elementos
+            // -------- COLUMNA DE ELEMENTOS --------
+            // Contiene todos los componentes seleccionables uno debajo del otro
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // se ajusta al contenido
+              mainAxisSize:
+                  MainAxisSize.min, // Se ajusta al tamaño del contenido
+
               children: [
-                // Checkbox
+                // -------- CHECKBOX --------
+                // Permite activar o desactivar una opción
                 Row(
-                  // row para poner el checkbox y el texto en la misma línea
                   children: [
                     Checkbox(
                       value: isChecked,
@@ -51,9 +61,9 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
 
                 const SizedBox(height: 12),
 
-                // switch
+                // -------- SWITCH --------
+                // Interruptor de encendido/apagado
                 Row(
-                  // row para poner el switch y el texto en la misma línea
                   children: [
                     Switch(
                       value: isSwitched,
@@ -67,11 +77,12 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
 
                 const SizedBox(height: 12),
 
-                // radio buttons
+                // -------- RADIO BUTTONS --------
+                // Solo se puede seleccionar una opción del grupo
                 const Text('Selecciona una opción:'),
                 const SizedBox(height: 8),
 
-                //radiolisttiles para las opciones
+                // Opción A
                 RadioListTile<String>(
                   title: const Text('Opción A'),
                   value: 'A',
@@ -80,6 +91,8 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                     setState(() => selectedOption = value!);
                   },
                 ),
+
+                // Opción B
                 RadioListTile<String>(
                   title: const Text('Opción B'),
                   value: 'B',
@@ -88,9 +101,11 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                     setState(() => selectedOption = value!);
                   },
                 ),
+
                 const SizedBox(height: 20),
 
-                // botón que abre el selector de fecha
+                // -------- SELECTOR DE FECHA --------
+                // Botón que abre un calendario para elegir una fecha
                 FilledButton(
                   onPressed: () async {
                     await showDatePicker(
@@ -105,7 +120,8 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
 
                 const SizedBox(height: 12),
 
-                // botón que abre el selector de hora
+                // -------- SELECTOR DE HORA --------
+                // Botón que abre un reloj para elegir una hora
                 FilledButton(
                   onPressed: () async {
                     await showTimePicker(

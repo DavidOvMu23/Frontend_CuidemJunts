@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/widgets/text_field.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_page.dart';
 
 // Página de inicio de sesión
@@ -52,30 +53,11 @@ class LoginPage extends StatelessWidget {
                     // Elementos del formulario
                     children: [
                       //Correo electrónico
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Correo Electrónico',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                      ),
+                      app_textfield("Correo electrónico", Icons.person, false),
                       const SizedBox(height: 16),
 
                       // Contraseña
-                      TextField(
-                        obscureText: true, // Oculta el texto
-                        decoration: InputDecoration(
-                          hintText: 'Contraseña',
-                          prefixIcon: const Icon(Icons.lock),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
+                      app_textfield("Contraseña", Icons.lock, true),
                       const SizedBox(height: 22),
 
                       // Botón de inicio de sesión

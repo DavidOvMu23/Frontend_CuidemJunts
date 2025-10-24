@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 
+//El chatgpt me ha hecho un tema completo basado en la paleta de colores que definímos
+//en app_palette.dart
+
 class AppTheme {
-  /// Tema claro
+  // -------- TEMA CLARO --------
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -94,7 +97,7 @@ class AppTheme {
     iconTheme: const IconThemeData(color: AppPalette.menuLight),
   );
 
-  /// Tema oscuro
+  // -------- TEMA OSCURO --------
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,

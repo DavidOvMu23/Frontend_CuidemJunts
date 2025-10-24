@@ -1,53 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widget_filledbutton_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widget_floatingbutton_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widget_iconbutton_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widget_textbutton_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widget_snackbar_demo.dart';
 
+// -------- WIDGET PRINCIPAL --------
+// Esta clase muestra ejemplos de diferentes tipos de botones en Flutter.
 class ButtonsDemo extends StatelessWidget {
   const ButtonsDemo({super.key});
 
+  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // La parte de arriba de la app (barra con el título)
+      // -------- BARRA SUPERIOR (APPBAR) --------
+      // Muestra el título de la pantalla en la parte superior
       appBar: AppBar(title: const Text('Demo: Buttons')),
 
-      // El cuerpo principal de la pantalla
+      // -------- CUERPO PRINCIPAL --------
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
-        // Usamos material como surface(el fondo azul)
+        // -------- PANEL PRINCIPAL (SURFACE) --------
+        // Un contenedor con estilo Material que da el efecto visual de "tarjeta"
         child: Material(
-          borderRadius: BorderRadius.circular(16), //Bordes redondeados
+          borderRadius: BorderRadius.circular(16), // Bordes redondeados
 
           child: Padding(
             padding: const EdgeInsets.all(16.0),
 
-            // Wrap coloca los botones uno al lado del otro y baja de línea si no caben
+            // -------- CONTENEDOR DE BOTONES --------
+            // Wrap organiza los botones en filas y columnas automáticamente.
+            // Si no caben en una fila, pasa a la siguiente.
             child: Wrap(
-              spacing: 12, // Espacio entre botones horizontalmente
-              runSpacing: 12, // Espacio entre filas verticalmente
+              spacing: 12, // Espacio horizontal entre botones
+              runSpacing: 12, // Espacio vertical entre filas
+
               children: [
-                // FilledButton = botón con fondo sólido
-                FilledButton(
+                // -------- FILLED BUTTON --------
+                // Botón con fondo sólido (color principal)
+                widget_filledbutton_demo('Filled Button', onPressed: () {}),
+
+                // -------- FILLED TONAL BUTTON --------
+                // Botón con fondo más suave, menos llamativo que el FilledButton
+                widget_filledbutton_demo(
+                  'Filled Tonal',
+                  tonal: true,
                   onPressed: () {},
-                  child: const Text('Filled Button'),
                 ),
 
-                // FilledButton Tonal = botón con fondo menos llamativo
-                FilledButton.tonal(
-                  onPressed: () {},
-                  child: const Text('Filled Tonal'),
-                ),
+                // -------- TEXT BUTTON --------
+                // Botón de solo texto, sin fondo ni borde
+                widget_textbutton_demo("Text Button", onPressed: () {}),
 
-                // OutlinedButton = botón con borde pero sin fondo
-                TextButton(onPressed: () {}, child: const Text('Text Button')),
+                // -------- ICON BUTTON --------
+                // Botón circular que muestra solo un ícono
+                widget_iconbutton_demo(Icons.favorite, onPressed: () {}),
 
-                // OutlinedButton = botón con borde pero sin fondo
-                IconButton(onPressed: () {}, icon: const Icon(Icons.favorite)),
-
-                // ElevatedButton = botón con sombra y icono
-                FloatingActionButton(
-                  onPressed: () {},
-                  child: const Icon(Icons.add),
-                ),
+                // -------- FLOATING ACTION BUTTON --------
+                // Botón flotante redondo, normalmente usado para acciones principales
+                widget_floatingbutton_demo(Icons.add, onPressed: () {}),
               ],
             ),
           ),

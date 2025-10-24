@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 
+// -------- WIDGET PRINCIPAL --------
+// Esta clase muestra un ejemplo del uso del Navigation Drawer,
+// que es el menú lateral que se abre desde el borde izquierdo de la pantalla.
 class NavigationsDemo extends StatelessWidget {
   const NavigationsDemo({super.key});
 
+  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // La parte de arriba de la app (barra con el título)
+      // -------- BARRA SUPERIOR (APPBAR) --------
+      // Muestra el título de la pantalla
       appBar: AppBar(title: const Text('Demo: Navigation Drawer')),
 
-      // Drawer = menú lateral que se abre desde el borde izquierdo
+      // -------- DRAWER (MENÚ LATERAL) --------
+      // El Drawer es el panel que aparece al deslizar desde la izquierda
       drawer: Drawer(
-        // Usamos material como surface(el fondo azul)
+        // Surface principal dentro del Drawer
         child: Material(
-          //creamos una lista de opciones dentro del drawer
+          // -------- LISTA DE OPCIONES --------
+          // Contiene las diferentes secciones del menú lateral
           child: ListView(
             children: [
+              // -------- ENCABEZADO DEL DRAWER --------
+              // Normalmente muestra el nombre o logo de la app
               const DrawerHeader(
                 child: Text(
                   'Cuidem Junts',
@@ -23,21 +32,22 @@ class NavigationsDemo extends StatelessWidget {
                 ),
               ),
 
-              // Opción 1: Inicio
+              // -------- OPCIÓN 1: INICIO --------
               ListTile(
                 leading: const Icon(Icons.home),
                 title: const Text('Inicio'),
-                onTap: () => Navigator.pop(context), // Cierra el menú
+                // Al pulsar, se cierra el menú
+                onTap: () => Navigator.pop(context),
               ),
 
-              // Opción 2: Configuración
+              // -------- OPCIÓN 2: CONFIGURACIÓN --------
               ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Configuración'),
                 onTap: () => Navigator.pop(context),
               ),
 
-              // Opción 3: Acerca de
+              // -------- OPCIÓN 3: ACERCA DE --------
               ListTile(
                 leading: const Icon(Icons.info),
                 title: const Text('Acerca de'),
@@ -48,13 +58,19 @@ class NavigationsDemo extends StatelessWidget {
         ),
       ),
 
-      // El cuerpo principal también está dentro de una surface
+      // -------- CUERPO PRINCIPAL --------
+      // El contenido que se muestra cuando no se está usando el Drawer
       body: Padding(
         padding: const EdgeInsets.all(16.0),
+
+        // -------- SURFACE PRINCIPAL --------
         child: Material(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16), // Bordes redondeados
+
           child: const Padding(
             padding: EdgeInsets.all(16.0),
+
+            // -------- CONTENIDO CENTRAL --------
             child: Center(
               child: Text(
                 'Bienvenido a la demo del Navigation Drawer',
