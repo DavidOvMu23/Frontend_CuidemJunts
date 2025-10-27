@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/buttons_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/demos/text_fields_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/demos/textfields_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/containers_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/navigations_demo.dart';

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_filledbutton_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_floatingbutton_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_iconbutton_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_textbutton_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_snackbar_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_buttons_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra ejemplos de diferentes tipos de botones en Flutter.
@@ -44,11 +40,7 @@ class ButtonsDemo extends StatelessWidget {
 
                 // -------- FILLED TONAL BUTTON --------
                 // Botón con fondo más suave, menos llamativo que el FilledButton
-                widget_filledbutton_demo(
-                  'Filled Tonal',
-                  tonal: true,
-                  onPressed: () {},
-                ),
+                widget_filledtonalbutton_demo('Filled Tonal', onPressed: () {}),
 
                 // -------- TEXT BUTTON --------
                 // Botón de solo texto, sin fondo ni borde

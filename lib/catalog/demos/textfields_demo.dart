@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_textfield_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_textfields_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra ejemplos de distintos tipos de campos de texto (TextFields)

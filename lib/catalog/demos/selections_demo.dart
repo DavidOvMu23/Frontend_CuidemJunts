@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_selecions_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra ejemplos de distintos elementos seleccionables:
@@ -47,34 +48,24 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
               children: [
                 // -------- CHECKBOX --------
                 // Permite activar o desactivar una opción
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (value) {
-                        setState(() => isChecked = value ?? false);
-                      },
-                    ),
-                    const Text('Activar opción'),
-                  ],
-                ),
-
+                widgetCheckboxTextoDemo(isChecked, "Activar checkbox", (
+                  bool? value,
+                ) {
+                  setState(() {
+                    isChecked = value ?? false;
+                  });
+                }),
                 const SizedBox(height: 12),
 
                 // -------- SWITCH --------
                 // Interruptor de encendido/apagado
-                Row(
-                  children: [
-                    Switch(
-                      value: isSwitched,
-                      onChanged: (value) {
-                        setState(() => isSwitched = value);
-                      },
-                    ),
-                    const Text('Encender/Apagar'),
-                  ],
-                ),
-
+                widgetSwitchTextoDemo(isSwitched, "Encender/Apagar", (
+                  bool value,
+                ) {
+                  setState(() {
+                    isSwitched = value;
+                  });
+                }),
                 const SizedBox(height: 12),
 
                 // -------- RADIO BUTTONS --------

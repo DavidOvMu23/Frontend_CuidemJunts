@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_badge_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_filledbutton_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widget_snackbar_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_buttons_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra ejemplos de comunicación visual en Flutter,

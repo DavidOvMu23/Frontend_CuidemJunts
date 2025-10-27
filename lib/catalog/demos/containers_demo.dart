@@ -45,11 +45,6 @@ class ContainersDemo extends StatelessWidget {
                 // Una Card es un contenedor visual más oscuro que el fondo,
                 // útil para agrupar información o destacar contenido.
                 Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      12,
-                    ), // Bordes redondeados
-                  ),
                   elevation: 0, // Sin sombra
                   child: const SizedBox(
                     width: double.infinity, // Ocupa todo el ancho disponible
