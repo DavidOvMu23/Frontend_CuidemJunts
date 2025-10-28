@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 
 // Página de preferencias de la app
 class PreferencesPage extends StatefulWidget {
@@ -33,16 +34,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
         //Notificaciones
         actions: [
-          Badge(
-            label: const Text('10'),
-            alignment: Alignment.topLeft,
-            child: IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {
-                // TODO: Mostrar notificaciones de base de datos
-              },
-            ),
-          ),
+          general_badge_demo(10, Icons.notifications, onPressed: () {}),
         ],
       ),
 
@@ -60,9 +52,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
               ),
 
               //Opcion para ir al Home
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Menú Principal'),
+              general_listile_demo(
+                icon: Icons.home,
+                texto: "Menú Principal",
                 onTap: () {
                   Navigator.pushReplacement(
                     context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 
 // Página de inicio de sesión
@@ -23,7 +24,7 @@ class LoginPage extends StatelessWidget {
             top: 0, // separación desde arriba
             right: 0, // separación desde la derecha)
             //-------- BOTÓN DE SELECCIÓN DE IDIOMAS --------
-            child: login_iconbutton(
+            child: general_iconbutton(
               Icons.language,
 
               onPressed: () {
@@ -121,7 +122,7 @@ class LoginPage extends StatelessWidget {
                         // Elementos del formulario
                         children: [
                           //Correo electrónico
-                          login_textfield(
+                          general_textfield(
                             "Correo electrónico",
                             false,
                             icono: Icons.person,
@@ -129,7 +130,7 @@ class LoginPage extends StatelessWidget {
                           const SizedBox(height: 16),
 
                           // Contraseña
-                          login_textfield(
+                          general_textfield(
                             "Contraseña",
                             true,
                             icono: Icons.lock,
@@ -137,7 +138,7 @@ class LoginPage extends StatelessWidget {
                           const SizedBox(height: 22),
 
                           // Botón de inicio de sesión
-                          login_filledbutton(
+                          general_filledbutton(
                             "Iniciar Sesión",
                             onPressed: () {
                               Navigator.pushReplacement(
@@ -152,10 +153,10 @@ class LoginPage extends StatelessWidget {
                           const SizedBox(height: 12),
 
                           // Recuperar contraseña
-                          login_textbutton(
+                          general_textbutton(
                             "¿Has olvidado tu contraseña?",
                             onPressed: () {
-                              login_snackbar(
+                              general_snackbar(
                                 context,
                                 "Habla con un supervisor para recuperar tu contraseña.",
                                 10,

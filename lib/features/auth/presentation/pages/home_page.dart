@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/home_widgets.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 
 class HomePage extends StatelessWidget {
   final void Function(bool) onToggleTheme;
@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           //Notificaciones
-          home_badge_demo(10, Icons.notifications, onPressed: () {}),
+          general_badge_demo(10, Icons.notifications, onPressed: () {}),
         ],
       ),
 
@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
             ),
 
             // opción de preferencias
-            home_listile_demo(
+            general_listile_demo(
               icon: Icons.settings,
               texto: "Preferencias",
               onTap: () {
