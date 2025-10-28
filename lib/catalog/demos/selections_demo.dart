@@ -70,9 +70,6 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
 
                 // -------- RADIO BUTTONS --------
                 // Solo se puede seleccionar una opción del grupo
-                const Text('Selecciona una opción:'),
-                const SizedBox(height: 8),
-
                 // Opción A
                 RadioListTile<String>(
                   title: const Text('Opción A'),

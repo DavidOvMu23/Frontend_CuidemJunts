@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_buttons_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_containers_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra diferentes tipos de contenedores visuales en Flutter:
@@ -44,9 +46,9 @@ class ContainersDemo extends StatelessWidget {
                 // -------- CARD --------
                 // Una Card es un contenedor visual más oscuro que el fondo,
                 // útil para agrupar información o destacar contenido.
-                Card(
+                const Card(
                   elevation: 0, // Sin sombra
-                  child: const SizedBox(
+                  child: SizedBox(
                     width: double.infinity, // Ocupa todo el ancho disponible
                     height: 100, // Altura fija solo para el ejemplo
                     child: Center(
@@ -63,10 +65,8 @@ class ContainersDemo extends StatelessWidget {
 
                 // -------- BOTÓN: ABRIR DIÁLOGO --------
                 // Botón que al pulsarlo muestra un AlertDialog (ventana emergente)
-                FilledButton(
-                  child: const Text('Abrir AlertDialog'),
-
-                  // Al pulsar el botón se muestra el diálogo
+                widget_filledbutton_demo(
+                  "Abrir AlertDialog",
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -95,19 +95,42 @@ class ContainersDemo extends StatelessWidget {
                     );
                   },
                 ),
+                const SizedBox(height: 20),
 
+                // -------- BOTÓN: ABRIR BOTTOMPICKER --------
+                // Botón que al pulsarlo muestra un AlertDialog (ventana emergente)
+                widget_filledbutton_demo(
+                  "Abrir BottomPicker",
+                  onPressed: () {
+                    // -------- BOTTOM SHEET --------
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => SizedBox(
+                        height: 200,
+                        child: Center(
+                          child: Text(
+                            'Soy un BottomPicker (ventana emergente desde abajo).',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
 
                 // -------- LISTA SIMPLE (LISTTILE) --------
                 // Ejemplo de elementos tipo lista con separadores.
-                const ListTile(
-                  title: Text('ListTile1'),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                widget_listile_demo(
+                  texto: "ListTile1",
+                  icon: Icons.arrow_forward_ios,
+                  onTap: () {},
                 ),
                 const Divider(), // Línea divisoria entre los elementos
-                const ListTile(
-                  title: Text('ListTile2'),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                widget_listile_demo(
+                  texto: "ListTile2",
+                  icon: Icons.arrow_forward_ios,
+                  onTap: () {},
                 ),
               ],
             ),

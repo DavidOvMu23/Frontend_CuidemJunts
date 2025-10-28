@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
-import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 
 // -------- PUNTO DE ENTRADA DE LA APLICACIÓN --------
 
@@ -75,8 +75,8 @@ class _MyAppState extends State<MyApp> {
       // Página principal de la aplicación al abrirla
       // En este caso, es la página de inicio de sesión (LoginPage)
       // Se le pasa la función toggleTheme para permitir cambiar el tema desde ahí
-      //home: LoginPage(onToggleTheme: toggleTheme),
-      home: CatalogPage(),
+      home: LoginPage(onToggleTheme: toggleTheme),
+      //home: CatalogPage(),
     );
   }
 }

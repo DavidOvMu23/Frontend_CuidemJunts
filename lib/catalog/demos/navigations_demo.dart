@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_containers_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra un ejemplo del uso del Navigation Drawer,
@@ -33,25 +35,39 @@ class NavigationsDemo extends StatelessWidget {
               ),
 
               // -------- OPCIÓN 1: INICIO --------
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Inicio'),
-                // Al pulsar, se cierra el menú
-                onTap: () => Navigator.pop(context),
+              widget_listile_demo(
+                icon: Icons.home,
+                texto: 'Inicio',
+                onTap: () => Navigator.pop,
               ),
 
               // -------- OPCIÓN 2: CONFIGURACIÓN --------
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Configuración'),
-                onTap: () => Navigator.pop(context),
+              widget_listile_demo(
+                icon: Icons.settings,
+                texto: 'Configuración',
+                onTap: () => Navigator.pop,
               ),
 
               // -------- OPCIÓN 3: ACERCA DE --------
-              ListTile(
-                leading: const Icon(Icons.info),
-                title: const Text('Acerca de'),
-                onTap: () => Navigator.pop(context),
+              widget_listile_demo(
+                icon: Icons.info,
+                texto: 'Acerca de',
+                onTap: () => Navigator.pop,
+              ),
+
+              // -------- OPCIÓN 4: sali al menú --------
+              widget_listile_demo(
+                icon: Icons.exit_to_app,
+                texto: 'Salir',
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const CatalogPage(), // Ir a la página del catálogo
+                    ),
+                  );
+                },
               ),
             ],
           ),
