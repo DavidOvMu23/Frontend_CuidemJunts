@@ -23,9 +23,11 @@ class HomePage extends StatelessWidget {
 
       // Menú lateral para navegar a Preferencias
       drawer: Drawer(
+        // Lista de opciones en el menú lateral
         child: ListView(
           children: [
             const DrawerHeader(
+              // Encabezado del menú lateral
               child: Text(
                 'Cuidem Junts',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

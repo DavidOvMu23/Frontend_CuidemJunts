@@ -28,7 +28,7 @@ class LoginPage extends StatelessWidget {
               Icons.language,
 
               onPressed: () {
-                // Mostramos un bottom sheet simple al pulsar el idioma
+                // Mostramos un bottom sheet simple al pulsar el idioma(esto lo hemos sacado de tu repo de GitHub de internacionalizacion)
                 showModalBottomSheet(
                   context: context,
                   builder: (context) => Padding(
@@ -54,21 +54,19 @@ class LoginPage extends StatelessWidget {
                           texto: "Español",
                           onTap: () {
                             Navigator.pop(context);
-                            // Aquí iría la lógica para cambiar el idioma a catalán
+                            //TODO: Aquí iría la lógica para cambiar el idioma a español
                           },
                         ),
                         login_listile_demo(
                           texto: "Català",
                           onTap: () {
                             Navigator.pop(context);
-                            // Aquí iría la lógica para cambiar el idioma a catalán
                           },
                         ),
                         login_listile_demo(
                           texto: "English",
                           onTap: () {
                             Navigator.pop(context);
-                            // Aquí iría la lógica para cambiar el idioma a catalán
                           },
                         ),
                       ],

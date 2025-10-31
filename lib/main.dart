@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
+import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 
 // -------- PUNTO DE ENTRADA DE LA APLICACIÓN --------
@@ -11,20 +12,16 @@ void main() {
 }
 
 // -------- WIDGET PRINCIPAL DE LA APLICACIÓN --------
-
 // MyApp es el widget raíz. Representa toda la aplicación.
 // "StatefulWidget" significa que puede tener un estado que cambia (por ejemplo, modo claro/oscuro).
 class MyApp extends StatefulWidget {
-  // Constructor de MyApp (usa "const" porque no cambia)
   const MyApp({super.key});
 
-  // Crea y asocia el estado de este widget (definido más abajo en _MyAppState)
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 // -------- ESTADO DE MyApp --------
-
 // Esta clase guarda los datos que pueden cambiar en la app, como el modo oscuro o claro.
 class _MyAppState extends State<MyApp> {
   // Variable para saber si está activado el modo oscuro
@@ -54,7 +51,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
-  // El método build() se ejecuta cada vez que el estado cambia.
   // Devuelve la estructura visual de la aplicación.
   @override
   Widget build(BuildContext context) {
@@ -76,7 +72,7 @@ class _MyAppState extends State<MyApp> {
       // En este caso, es la página de inicio de sesión (LoginPage)
       // Se le pasa la función toggleTheme para permitir cambiar el tema desde ahí
       home: LoginPage(onToggleTheme: toggleTheme),
-      //home: CatalogPage(),
+      // home: CatalogPage(),
     );
   }
 }

@@ -93,36 +93,43 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
                 // Opciones de preferencias
                 children: [
-                  //linea de configuracion de idioma
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Idioma de preferencia',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
+                  ListTile(
+                    // Elimina el padding por defecto para ajustar mejor el diseño
+                    contentPadding: EdgeInsets.zero,
 
-                      // Dropdown para seleccionar idioma
-                      DropdownButton<String>(
-                        value: selectedLanguage,
-                        borderRadius: BorderRadius.circular(12),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedLanguage = newValue!;
-                          });
-                        },
-                        items: languages.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                    // Título con icono que cambia según el tema
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Idioma de preferencia',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        // Dropdown para seleccionar idioma
+                        DropdownButton<String>(
+                          value: selectedLanguage,
+                          borderRadius: BorderRadius.circular(12),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedLanguage =
+                                  newValue!; //guardamos el nuevo idioma seleccionado
+                            });
+                          },
+                          items: languages.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
                   ),
+                  //linea de configuracion de idioma
                   const SizedBox(height: 16),
 
                   //SwitchListTile para cambiar el tema
