@@ -1,0 +1,43 @@
+{
+  "@@locale": "en",
+  "selectLanguage": "Select a language:",
+  "@selectLanguage": {
+    "description": "Text indicating to the user to select a language"
+  },
+  "languageSpanish": "Spanish",
+  "@languageSpanish": {
+    "description": "Name of the Spanish language"
+  },
+  "languageCatalan": "Catalan",
+  "@languageCatalan": {
+    "description": "Name of the Catalan language"
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Name of the English language"
+  },
+  "welcome": "Welcome to CuidemJunts",
+  "@welcome": {
+    "description": "Welcome title on the login page"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Text for the email field"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Text for the password field"
+  },
+  "loginButton": "Log in",
+  "@loginButton": {
+    "description": "Text for the log in button"
+  },
+  "forgotPassword": "Forgot your password?",
+  "@forgotPassword": {
+    "description": "Text for the button/link to recover the password"
+  },
+  "forgotPasswordSnackbar": "Contact a supervisor to recover your password.",
+  "@forgotPasswordSnackbar": {
+    "description": "Message showing instructions to recover the password"
+  }
+}

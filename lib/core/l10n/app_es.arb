@@ -1,0 +1,43 @@
+{
+  "@@locale": "es",
+  "selectLanguage": "Seleccione un idioma:",
+  "@selectLanguage": {
+    "description": "Texto indicando al usuario que seleccione un idioma"
+  },
+  "languageSpanish": "Español",
+  "@languageSpanish": {
+    "description": "Nombre del idioma español"
+  },
+  "languageCatalan": "Catalán",
+  "@languageCatalan": {
+    "description": "Nombre del idioma catalán"
+  },
+  "languageEnglish": "Inglés",
+  "@languageEnglish": {
+    "description": "Nombre del idioma inglés"
+  },
+  "welcome": "Bienvenido a CuidemJunts",
+  "@welcome": {
+    "description": "Título de bienvenida en la página de inicio de sesión"
+  },
+  "email": "Correo electrónico",
+  "@email": {
+    "description": "Texto para el campo de correo electrónico"
+  },
+  "password": "Contraseña",
+  "@password": {
+    "description": "Texto para el campo de contraseña"
+  },
+  "loginButton": "Iniciar sesión",
+  "@loginButton": {
+    "description": "Texto para el botón de iniciar sesión"
+  },
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "@forgotPassword": {
+    "description": "Texto para el enlace/botón para recuperar la contraseña"
+  },
+  "forgotPasswordSnackbar": "Contacta a un supervisor para recuperar tu contraseña.",
+  "@forgotPasswordSnackbar": {
+    "description": "Mensaje que muestra instrucciones para recuperar la contraseña"
+  }
+}

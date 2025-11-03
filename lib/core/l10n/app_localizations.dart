@@ -99,6 +99,66 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
   ];
+
+  /// Text indicating to the user to select a language
+  ///
+  /// In en, this message translates to:
+  /// **'Select a language:'**
+  String get selectLanguage;
+
+  /// Name of the Spanish language
+  ///
+  /// In en, this message translates to:
+  /// **'Spanish'**
+  String get languageSpanish;
+
+  /// Name of the Catalan language
+  ///
+  /// In en, this message translates to:
+  /// **'Catalan'**
+  String get languageCatalan;
+
+  /// Name of the English language
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// Welcome title on the login page
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to CuidemJunts'**
+  String get welcome;
+
+  /// Text for the email field
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// Text for the password field
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// Text for the log in button
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get loginButton;
+
+  /// Text for the button/link to recover the password
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPassword;
+
+  /// Message showing instructions to recover the password
+  ///
+  /// In en, this message translates to:
+  /// **'Contact a supervisor to recover your password.'**
+  String get forgotPasswordSnackbar;
 }
 
 class _AppLocalizationsDelegate

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
-import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PUNTO DE ENTRADA DE LA APLICACIÓN --------
 
@@ -22,10 +22,16 @@ class MyApp extends StatefulWidget {
 }
 
 // -------- ESTADO DE MyApp --------
-// Esta clase guarda los datos que pueden cambiar en la app, como el modo oscuro o claro.
+// Esta clase guarda los datos que pueden cambiar en la app, como el modo oscuro,
+// claro o el idioma. Al vivir en el widget raíz, cualquier cambio se propaga a todas
+// las pantallas automáticamente.
 class _MyAppState extends State<MyApp> {
-  // Variable para saber si está activado el modo oscuro
-  bool isDark = false;
+  // ---- VARIABLES DE ESTADO GLOBAL ----
+  // Aquí mantenemos la información que queremos que recuerde toda la app:
+
+  // MyApp es Stateful, por eso podemos modificarlas con setState()
+  bool isDark = false; //controla si usamos tema claro u oscuro.
+  Locale _locale = const Locale('es'); //define que idioma usar
 
   // initState() se ejecuta una sola vez cuando el widget se crea por primera vez.
   // Aquí se puede inicializar información importante antes de que la app se muestre.
@@ -44,10 +50,21 @@ class _MyAppState extends State<MyApp> {
   }
 
   // Esta función permite cambiar el tema desde dentro de la app.
-  // Por ejemplo, si el usuario quiere cambiar de claro a oscuro manualmente desde las preferencias.
+  // La pasamos como callback a otras pantallas; cuando la invoquen, setState()
+  // guardará el nuevo valor y notificará al framework para que repinte los widgets.
   void toggleTheme(bool value) {
     // setState() actualiza la interfaz cuando cambia el valor de isDark.
     setState(() => isDark = value);
+  }
+
+  // Funcionamiento idéntico al anterior pero para el idioma.
+  // Cualquier pantalla puede llamar a onChangeLocale para cambiarlo (por ejemplo, el login y el preferences).
+  // Al actualizar _locale, MaterialApp vuelve a construir los textos localizados.
+  void setLocale(Locale locale) {
+    if (_locale == locale) {
+      return;
+    }
+    setState(() => _locale = locale);
   }
 
   // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
@@ -61,6 +78,13 @@ class _MyAppState extends State<MyApp> {
       // Oculta la etiqueta de "debug" que aparece arriba a la derecha
       debugShowCheckedModeBanner: false,
 
+      // Configuración de internacionalización(documentación de web de pepe)
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+
+      // Idioma que tenemos guardado en el estado global
+      locale: _locale,
+
       // Aquí definimos los temas claro y oscuro usando AppTheme (definido en app/theme/app_palette.dart)
       theme: AppTheme.lightTheme, // Declaramos el tema claro
       darkTheme: AppTheme.darkTheme, // Declaramos el tema oscuro
@@ -68,11 +92,11 @@ class _MyAppState extends State<MyApp> {
       // Si isDark es true, se usa el modo oscuro; si es false, el claro
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
 
-      // Página principal de la aplicación al abrirla
-      // En este caso, es la página de inicio de sesión (LoginPage)
-      // Se le pasa la función toggleTheme para permitir cambiar el tema desde ahí
-      home: LoginPage(onToggleTheme: toggleTheme),
-      // home: CatalogPage(),
+      // Página principal de la aplicación al abrirla.
+      // Le pasamos referencias (callbacks) a nuestras funciones de estado para que el Login
+      // pueda pedir cambios de idioma o tema. Así, el estado se mantiene aquí pero se controla
+      // desde cualquier lugar de la app.
+      home: LoginPage(onToggleTheme: toggleTheme, onChangeLocale: setLocale),
     );
   }
 }

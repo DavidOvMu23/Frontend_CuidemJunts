@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // Página de inicio de sesión
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key, required this.onToggleTheme});
+  const LoginPage({
+    super.key,
+    required this.onToggleTheme,
+    required this.onChangeLocale,
+  });
 
   // Callback para cambiar el tema
   final void Function(bool) onToggleTheme;
+  final void Function(Locale) onChangeLocale;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     // Construye la interfaz de usuario
@@ -40,9 +47,9 @@ class LoginPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         //-------- TEXTO DE SELECCIÓN DE IDIOMA --------
-                        const Text(
-                          'Selecciona un idioma:',
-                          style: TextStyle(
+                        Text(
+                          l10n.selectLanguage,
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
                           ),
@@ -51,22 +58,24 @@ class LoginPage extends StatelessWidget {
 
                         //-------- LISTA DE IDIOMAS --------
                         login_listile_demo(
-                          texto: "Español",
+                          texto: l10n.languageSpanish,
                           onTap: () {
                             Navigator.pop(context);
-                            //TODO: Aquí iría la lógica para cambiar el idioma a español
+                            onChangeLocale(const Locale('es'));
                           },
                         ),
                         login_listile_demo(
-                          texto: "Català",
+                          texto: l10n.languageCatalan,
                           onTap: () {
                             Navigator.pop(context);
+                            onChangeLocale(const Locale('ca'));
                           },
                         ),
                         login_listile_demo(
-                          texto: "English",
+                          texto: l10n.languageEnglish,
                           onTap: () {
                             Navigator.pop(context);
+                            onChangeLocale(const Locale('en'));
                           },
                         ),
                       ],
@@ -99,7 +108,7 @@ class LoginPage extends StatelessWidget {
 
                   // Título de bienvenida
                   Text(
-                    "Bienvenidos a CuidemJunts",
+                    l10n.welcome,
                     style: theme.textTheme.headlineLarge,
                     textAlign: TextAlign.center,
                   ),
@@ -121,7 +130,7 @@ class LoginPage extends StatelessWidget {
                         children: [
                           //Correo electrónico
                           general_textfield(
-                            "Correo electrónico",
+                            l10n.email,
                             false,
                             icono: Icons.person,
                           ),
@@ -129,7 +138,7 @@ class LoginPage extends StatelessWidget {
 
                           // Contraseña
                           general_textfield(
-                            "Contraseña",
+                            l10n.password,
                             true,
                             icono: Icons.lock,
                           ),
@@ -137,7 +146,7 @@ class LoginPage extends StatelessWidget {
 
                           // Botón de inicio de sesión
                           general_filledbutton(
-                            "Iniciar Sesión",
+                            l10n.loginButton,
                             onPressed: () {
                               Navigator.pushReplacement(
                                 context,
@@ -152,11 +161,11 @@ class LoginPage extends StatelessWidget {
 
                           // Recuperar contraseña
                           general_textbutton(
-                            "¿Has olvidado tu contraseña?",
+                            l10n.forgotPassword,
                             onPressed: () {
                               general_snackbar(
                                 context,
-                                "Habla con un supervisor para recuperar tu contraseña.",
+                                l10n.forgotPasswordSnackbar,
                                 10,
                               );
                             },
