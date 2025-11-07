@@ -195,6 +195,240 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tema'**
   String get theme;
+
+  /// No description provided for @supervisonPanel.
+  ///
+  /// In es, this message translates to:
+  /// **'Panel de Supervisión'**
+  String get supervisonPanel;
+
+  /// No description provided for @programedCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamadas programadas hoy'**
+  String get programedCalls;
+
+  /// No description provided for @completedCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Completadas hoy'**
+  String get completedCalls;
+
+  /// No description provided for @todayCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamadas de hoy'**
+  String get todayCalls;
+
+  /// No description provided for @nothingTodayCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay llamadas programadas para hoy'**
+  String get nothingTodayCalls;
+
+  /// No description provided for @activityRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'Actividad reciente'**
+  String get activityRecent;
+
+  /// No description provided for @supervison.
+  ///
+  /// In es, this message translates to:
+  /// **'Supervisión'**
+  String get supervison;
+
+  /// No description provided for @allCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las llamadas'**
+  String get allCalls;
+
+  /// No description provided for @users.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios'**
+  String get users;
+
+  /// No description provided for @telemarketers.
+  ///
+  /// In es, this message translates to:
+  /// **'Teleoperadores'**
+  String get telemarketers;
+
+  /// No description provided for @notifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones'**
+  String get notifications;
+
+  /// No description provided for @logOut.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logOut;
+
+  /// No description provided for @superviseCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Supervisa todas las llamadas del equipo'**
+  String get superviseCalls;
+
+  /// No description provided for @searchUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Busca por usuario o teleoperador'**
+  String get searchUser;
+
+  /// No description provided for @all.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas'**
+  String get all;
+
+  /// No description provided for @filterDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtrar por fecha'**
+  String get filterDate;
+
+  /// No description provided for @initDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha desde'**
+  String get initDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha hasta'**
+  String get endDate;
+
+  /// No description provided for @completed.
+  ///
+  /// In es, this message translates to:
+  /// **'Completada'**
+  String get completed;
+
+  /// No description provided for @noAnswer.
+  ///
+  /// In es, this message translates to:
+  /// **'No contestó'**
+  String get noAnswer;
+
+  /// No description provided for @pending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente'**
+  String get pending;
+
+  /// No description provided for @date.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get date;
+
+  /// No description provided for @duration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración'**
+  String get duration;
+
+  /// No description provided for @comments.
+  ///
+  /// In es, this message translates to:
+  /// **'Observaciones'**
+  String get comments;
+
+  /// No description provided for @topicsCovered.
+  ///
+  /// In es, this message translates to:
+  /// **'Temas tratados'**
+  String get topicsCovered;
+
+  /// No description provided for @manageUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona los perfiles de las personas'**
+  String get manageUsers;
+
+  /// No description provided for @newUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo usuario'**
+  String get newUser;
+
+  /// No description provided for @mild.
+  ///
+  /// In es, this message translates to:
+  /// **'Leve'**
+  String get mild;
+
+  /// No description provided for @moderate.
+  ///
+  /// In es, this message translates to:
+  /// **'Moderada'**
+  String get moderate;
+
+  /// No description provided for @grave.
+  ///
+  /// In es, this message translates to:
+  /// **'Grave'**
+  String get grave;
+
+  /// No description provided for @active.
+  ///
+  /// In es, this message translates to:
+  /// **'Activo'**
+  String get active;
+
+  /// No description provided for @workers.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajadores'**
+  String get workers;
+
+  /// No description provided for @manageWorkers.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona los perfiles de los trabajadores y sus permisos'**
+  String get manageWorkers;
+
+  /// No description provided for @newWorker.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo trabajador'**
+  String get newWorker;
+
+  /// No description provided for @usersAsigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios asignados'**
+  String get usersAsigned;
+
+  /// No description provided for @add.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir'**
+  String get add;
+
+  /// No description provided for @activeSince.
+  ///
+  /// In es, this message translates to:
+  /// **'Activo desde:'**
+  String get activeSince;
+
+  /// No description provided for @unread.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin leer'**
+  String get unread;
+
+  /// No description provided for @read.
+  ///
+  /// In es, this message translates to:
+  /// **'Leído'**
+  String get read;
 }
 
 class _AppLocalizationsDelegate
