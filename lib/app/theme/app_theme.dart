@@ -93,6 +93,12 @@ class AppTheme {
       ),
     ),
 
+    // Drawer
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: AppPalette.backgroundLight,
+      surfaceTintColor: Colors.transparent,
+    ),
+
     dividerColor: AppPalette.accentLight.withOpacity(0.3),
     iconTheme: const IconThemeData(color: AppPalette.menuLight),
   );
@@ -176,6 +182,12 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
+    ),
+
+    // Drawer
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: AppPalette.backgroundDark,
+      surfaceTintColor: Colors.transparent,
     ),
 
     dividerColor: AppPalette.accentDark.withOpacity(0.3),

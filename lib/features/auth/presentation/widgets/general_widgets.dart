@@ -64,10 +64,39 @@ general_snackbar(BuildContext context, String content, int durationSeconds) {
 }
 
 // -------- FUNCIÓN DE CREACIÓN DE LISTILE --------
+//la mitad de esta función es el chat gpt que me ayudó a hacer el drawer más chulo
 Widget general_listile_demo({
+  required BuildContext context,
   required IconData icon,
   required String texto,
-  required VoidCallback onTap,
+  VoidCallback? onTap,
+  bool selected = false,
 }) {
-  return ListTile(leading: Icon(icon), title: Text(texto), onTap: onTap);
+  // Colores usados
+  const iconColor = Color(0xFF42a6ee);
+  //el final surfaceColor es para que el color de fondo del ListTile
+  final surfaceColor = Theme.of(context).colorScheme.surface;
+
+  return Container(
+    //estilo del contenedor del ListTile
+    //el decoration es para que el ListTile tenga un fondo redondeado por detras
+    decoration: BoxDecoration(
+      // Si está seleccionado, aplicamos el color de surface; si no, transparente
+      color: selected ? surfaceColor : Colors.transparent,
+      borderRadius: BorderRadius.circular(24),
+    ),
+
+    //texto del ListTile
+    child: ListTile(
+      leading: Icon(icon, color: iconColor),
+      title: Text(
+        texto,
+        style: TextStyle(
+          color: selected ? iconColor : Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: onTap,
+    ),
+  );
 }

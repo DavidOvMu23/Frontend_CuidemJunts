@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 
 // Página de preferencias de la app
 class PreferencesPage extends StatefulWidget {
-  const PreferencesPage({super.key, required this.onToggleTheme});
+  const PreferencesPage({
+    super.key,
+    required this.onToggleTheme,
+    required this.onChangeLocale,
+  });
   // Callback para cambiar el tema
   final void Function(bool) onToggleTheme;
+  final void Function(Locale) onChangeLocale;
 
   @override
   State<PreferencesPage> createState() => _PreferencesPageState();
@@ -15,10 +20,34 @@ class PreferencesPage extends StatefulWidget {
 // Estado de la página de preferencias
 class _PreferencesPageState extends State<PreferencesPage> {
   // Valor seleccionado del idioma
-  String selectedLanguage = 'Español';
+  late String selectedLanguage;
+  bool _languageInitialized = false;
 
   // Lista de idiomas disponibles
-  final List<String> languages = ['Español', 'Valencià', 'English'];
+  final Map<String, Locale> languageOptions = const {
+    'Español': Locale('es'),
+    'Valencià': Locale('ca'),
+    'English': Locale('en'),
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    selectedLanguage = 'Español';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_languageInitialized) return;
+    final currentLocale = Localizations.localeOf(context);
+    final match = languageOptions.entries.firstWhere(
+      (entry) => entry.value.languageCode == currentLocale.languageCode,
+      orElse: () => languageOptions.entries.first,
+    );
+    selectedLanguage = match.key;
+    _languageInitialized = true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,33 +69,46 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
       // Menú lateral para navegar al Home
       drawer: Drawer(
-        child: Material(
-          //Lista de opciones del menú
-          child: ListView(
-            children: [
-              const DrawerHeader(
-                child: Text(
-                  'Cuidem Junts',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
+        // Lista de opciones en el menú lateral
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const SizedBox(height: 16),
+            // logo de la app
+            Image.asset('assets/images/Logo_CuidemJunts.png', height: 120),
 
-              //Opcion para ir al Home
-              general_listile_demo(
-                icon: Icons.home,
-                texto: "Menú Principal",
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          HomePage(onToggleTheme: widget.onToggleTheme),
-                    ),
-                  );
-                },
+            // título de la app
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              alignment: Alignment.center,
+              child: Text(
+                'Cuidem Junts',
+                // vuelve al estilo de texto por defecto del tema (como antes)
+                style: Theme.of(context).textTheme.headlineLarge,
+                textAlign: TextAlign.center,
               ),
-            ],
-          ),
+            ),
+
+            const Divider(),
+
+            // opción de preferencias
+            general_listile_demo(
+              context: context,
+              icon: Icons.home,
+              texto: "Home",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(
+                      onToggleTheme: widget.onToggleTheme,
+                      onChangeLocale: widget.onChangeLocale,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
 
@@ -114,12 +156,15 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           value: selectedLanguage,
                           borderRadius: BorderRadius.circular(12),
                           onChanged: (String? newValue) {
+                            if (newValue == null) return;
+                            final locale = languageOptions[newValue];
+                            if (locale == null) return;
                             setState(() {
-                              selectedLanguage =
-                                  newValue!; //guardamos el nuevo idioma seleccionado
+                              selectedLanguage = newValue;
                             });
+                            widget.onChangeLocale(locale);
                           },
-                          items: languages.map((String value) {
+                          items: languageOptions.keys.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
