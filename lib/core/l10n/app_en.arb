@@ -39,5 +39,19 @@
   "forgotPasswordSnackbar": "Contact a supervisor to recover your password.",
   "@forgotPasswordSnackbar": {
     "description": "Message showing instructions to recover the password"
-  }
+  },
+
+  "preferences": "Preferences",
+
+  "mainPage": "Main Page",
+
+  "appPreferences": "App Preferences",
+  
+  "mainMenu": "Main Menu",
+
+  "lenguagePreferences": "Language Preferences",
+  
+  "theme": "Theme"
+
+
 }

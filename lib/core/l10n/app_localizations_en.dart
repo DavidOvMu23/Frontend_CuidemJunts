@@ -38,4 +38,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forgotPasswordSnackbar =>
       'Contact a supervisor to recover your password.';
+
+  @override
+  String get preferences => 'Preferences';
+
+  @override
+  String get mainPage => 'Main Page';
+
+  @override
+  String get appPreferences => 'App Preferences';
+
+  @override
+  String get mainMenu => 'Main Menu';
+
+  @override
+  String get lenguagePreferences => 'Language Preferences';
+
+  @override
+  String get theme => 'Theme';
 }

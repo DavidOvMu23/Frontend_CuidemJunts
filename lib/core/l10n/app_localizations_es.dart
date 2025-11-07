@@ -38,4 +38,22 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get forgotPasswordSnackbar =>
       'Contacta a un supervisor para recuperar tu contraseña.';
+
+  @override
+  String get preferences => 'Preferencias';
+
+  @override
+  String get mainPage => 'Página principal';
+
+  @override
+  String get appPreferences => 'Preferencias de la app';
+
+  @override
+  String get mainMenu => 'Menu Principal';
+
+  @override
+  String get lenguagePreferences => 'Idioma de preferencia';
+
+  @override
+  String get theme => 'Tema';
 }

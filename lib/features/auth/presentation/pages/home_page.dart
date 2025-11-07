@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 class HomePage extends StatelessWidget {
   final void Function(bool) onToggleTheme;
@@ -9,11 +10,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Construye la interfaz de usuario
     return Scaffold(
       // AppBar con título y notificaciones
       appBar: AppBar(
-        title: const Text('Preferencias de la app'),
+        title: Text(l10n.appPreferences),
         centerTitle: true,
         actions: [
           //Notificaciones
@@ -37,7 +39,7 @@ class HomePage extends StatelessWidget {
             // opción de preferencias
             general_listile_demo(
               icon: Icons.settings,
-              texto: "Preferencias",
+              texto: l10n.preferences,
               onTap: () {
                 Navigator.push(
                   context,
@@ -51,7 +53,7 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: const Center(child: Text('Página principal')),
+      body: Center(child: Text(l10n.mainPage)),
     );
   }
 }

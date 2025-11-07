@@ -100,65 +100,101 @@ abstract class AppLocalizations {
     Locale('es'),
   ];
 
-  /// Text indicating to the user to select a language
+  /// No description provided for @selectLanguage.
   ///
-  /// In en, this message translates to:
-  /// **'Select a language:'**
+  /// In es, this message translates to:
+  /// **'Seleccione un idioma:'**
   String get selectLanguage;
 
-  /// Name of the Spanish language
+  /// No description provided for @languageSpanish.
   ///
-  /// In en, this message translates to:
-  /// **'Spanish'**
+  /// In es, this message translates to:
+  /// **'Español'**
   String get languageSpanish;
 
-  /// Name of the Catalan language
+  /// No description provided for @languageCatalan.
   ///
-  /// In en, this message translates to:
-  /// **'Catalan'**
+  /// In es, this message translates to:
+  /// **'Catalán'**
   String get languageCatalan;
 
-  /// Name of the English language
+  /// No description provided for @languageEnglish.
   ///
-  /// In en, this message translates to:
-  /// **'English'**
+  /// In es, this message translates to:
+  /// **'Inglés'**
   String get languageEnglish;
 
-  /// Welcome title on the login page
+  /// No description provided for @welcome.
   ///
-  /// In en, this message translates to:
-  /// **'Welcome to CuidemJunts'**
+  /// In es, this message translates to:
+  /// **'Bienvenido a CuidemJunts'**
   String get welcome;
 
-  /// Text for the email field
+  /// No description provided for @email.
   ///
-  /// In en, this message translates to:
-  /// **'Email'**
+  /// In es, this message translates to:
+  /// **'Correo electrónico'**
   String get email;
 
-  /// Text for the password field
+  /// No description provided for @password.
   ///
-  /// In en, this message translates to:
-  /// **'Password'**
+  /// In es, this message translates to:
+  /// **'Contraseña'**
   String get password;
 
-  /// Text for the log in button
+  /// No description provided for @loginButton.
   ///
-  /// In en, this message translates to:
-  /// **'Log in'**
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
   String get loginButton;
 
-  /// Text for the button/link to recover the password
+  /// No description provided for @forgotPassword.
   ///
-  /// In en, this message translates to:
-  /// **'Forgot your password?'**
+  /// In es, this message translates to:
+  /// **'¿Olvidaste tu contraseña?'**
   String get forgotPassword;
 
-  /// Message showing instructions to recover the password
+  /// No description provided for @forgotPasswordSnackbar.
   ///
-  /// In en, this message translates to:
-  /// **'Contact a supervisor to recover your password.'**
+  /// In es, this message translates to:
+  /// **'Contacta a un supervisor para recuperar tu contraseña.'**
   String get forgotPasswordSnackbar;
+
+  /// No description provided for @preferences.
+  ///
+  /// In es, this message translates to:
+  /// **'Preferencias'**
+  String get preferences;
+
+  /// No description provided for @mainPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Página principal'**
+  String get mainPage;
+
+  /// No description provided for @appPreferences.
+  ///
+  /// In es, this message translates to:
+  /// **'Preferencias de la app'**
+  String get appPreferences;
+
+  /// No description provided for @mainMenu.
+  ///
+  /// In es, this message translates to:
+  /// **'Menu Principal'**
+  String get mainMenu;
+
+  /// No description provided for @lenguagePreferences.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma de preferencia'**
+  String get lenguagePreferences;
+
+  /// No description provided for @theme.
+  ///
+  /// In es, this message translates to:
+  /// **'Tema'**
+  String get theme;
 }
 
 class _AppLocalizationsDelegate

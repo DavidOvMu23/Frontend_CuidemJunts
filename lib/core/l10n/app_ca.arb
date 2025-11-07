@@ -39,5 +39,18 @@
   "forgotPasswordSnackbar": "Parla amb un supervisor per recuperar la teva contrasenya.",
   "@forgotPasswordSnackbar": {
     "description": "Missatge mostrant instruccions per recuperar la contrasenya"
-  }
+  },
+
+  "preferences": "Preferències",
+
+  "mainPage": "Pàgina principal",
+
+  "appPreferences": "Preferències de l'app",
+
+  "mainMenu": "Menú principal",
+
+  "lenguagePreferences": "Idioma de preferència",
+
+  "theme": "Tema"
+
 }
