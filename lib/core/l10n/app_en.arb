@@ -39,5 +39,95 @@
   "forgotPasswordSnackbar": "Contact a supervisor to recover your password.",
   "@forgotPasswordSnackbar": {
     "description": "Message showing instructions to recover the password"
-  }
+  },
+
+  "preferences": "Preferences",
+
+  "mainPage": "Main Page",
+
+  "appPreferences": "App Preferences",
+  
+  "mainMenu": "Main Menu",
+
+  "lenguagePreferences": "Language Preferences",
+  
+  "theme": "Theme",
+
+  "supervisonPanel": "Supervision Panel",
+
+  "programedCalls": "Scheduled calls today",
+
+  "completedCalls": "Completed today",
+
+  "todayCalls": "Today's calls",
+
+  "nothingTodayCalls": "No calls scheduled for today",
+
+  "activityRecent": "Recent activity",
+
+  "supervison": "Supervision",
+
+  "allCalls": "All calls",
+
+  "users": "Users",
+
+  "telemarketers": "Telemarketers",
+
+  "notifications": "Notifications",
+
+  "logOut": "Log out",
+
+  "superviseCalls": "Supervise all team calls",
+
+  "searchUser": "Search by user or telemarketer",
+
+  "all": "All",
+
+  "filterDate": "Filter by date",
+
+  "initDate": "Start date",
+
+  "endDate": "End date",
+
+  "completed": "Completed",
+
+  "noAnswer": "No answer",
+
+  "pending": "Pending",
+
+  "date": "Date",
+
+  "duration": "Duration",
+
+  "comments": "Comments",
+
+  "topicsCovered": "Topics covered",
+
+  "manageUsers": "Manage user profiles",
+
+  "newUser": "New user",
+
+  "mild": "Mild",
+
+  "moderate": "Moderate",
+
+  "grave": "Severe",
+
+  "active": "Active",
+
+  "workers": "Workers",
+
+  "manageWorkers": "Manage worker profiles and permissions",
+
+  "newWorker": "New worker",
+
+  "usersAsigned": "Assigned users",
+
+  "add": "Add",
+
+  "activeSince": "Active since:",
+
+  "unread": "Unread",
+
+  "read": "Read"
 }

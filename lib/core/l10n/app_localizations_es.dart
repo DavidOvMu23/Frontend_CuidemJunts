@@ -38,4 +38,140 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get forgotPasswordSnackbar =>
       'Contacta a un supervisor para recuperar tu contraseña.';
+
+  @override
+  String get preferences => 'Preferencias';
+
+  @override
+  String get mainPage => 'Página principal';
+
+  @override
+  String get appPreferences => 'Preferencias de la app';
+
+  @override
+  String get mainMenu => 'Menu Principal';
+
+  @override
+  String get lenguagePreferences => 'Idioma de preferencia';
+
+  @override
+  String get theme => 'Tema';
+
+  @override
+  String get supervisonPanel => 'Panel de Supervisión';
+
+  @override
+  String get programedCalls => 'Llamadas programadas hoy';
+
+  @override
+  String get completedCalls => 'Completadas hoy';
+
+  @override
+  String get todayCalls => 'Llamadas de hoy';
+
+  @override
+  String get nothingTodayCalls => 'No hay llamadas programadas para hoy';
+
+  @override
+  String get activityRecent => 'Actividad reciente';
+
+  @override
+  String get supervison => 'Supervisión';
+
+  @override
+  String get allCalls => 'Todas las llamadas';
+
+  @override
+  String get users => 'Usuarios';
+
+  @override
+  String get telemarketers => 'Teleoperadores';
+
+  @override
+  String get notifications => 'Notificaciones';
+
+  @override
+  String get logOut => 'Cerrar sesión';
+
+  @override
+  String get superviseCalls => 'Supervisa todas las llamadas del equipo';
+
+  @override
+  String get searchUser => 'Busca por usuario o teleoperador';
+
+  @override
+  String get all => 'Todas';
+
+  @override
+  String get filterDate => 'Filtrar por fecha';
+
+  @override
+  String get initDate => 'Fecha desde';
+
+  @override
+  String get endDate => 'Fecha hasta';
+
+  @override
+  String get completed => 'Completada';
+
+  @override
+  String get noAnswer => 'No contestó';
+
+  @override
+  String get pending => 'Pendiente';
+
+  @override
+  String get date => 'Fecha';
+
+  @override
+  String get duration => 'Duración';
+
+  @override
+  String get comments => 'Observaciones';
+
+  @override
+  String get topicsCovered => 'Temas tratados';
+
+  @override
+  String get manageUsers => 'Gestiona los perfiles de las personas';
+
+  @override
+  String get newUser => 'Nuevo usuario';
+
+  @override
+  String get mild => 'Leve';
+
+  @override
+  String get moderate => 'Moderada';
+
+  @override
+  String get grave => 'Grave';
+
+  @override
+  String get active => 'Activo';
+
+  @override
+  String get workers => 'Trabajadores';
+
+  @override
+  String get manageWorkers =>
+      'Gestiona los perfiles de los trabajadores y sus permisos';
+
+  @override
+  String get newWorker => 'Nuevo trabajador';
+
+  @override
+  String get usersAsigned => 'Usuarios asignados';
+
+  @override
+  String get add => 'Añadir';
+
+  @override
+  String get activeSince => 'Activo desde:';
+
+  @override
+  String get unread => 'Sin leer';
+
+  @override
+  String get read => 'Leído';
 }

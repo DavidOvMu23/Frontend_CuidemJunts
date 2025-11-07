@@ -38,4 +38,140 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get forgotPasswordSnackbar =>
       'Parla amb un supervisor per recuperar la teva contrasenya.';
+
+  @override
+  String get preferences => 'Preferències';
+
+  @override
+  String get mainPage => 'Pàgina principal';
+
+  @override
+  String get appPreferences => 'Preferències de l\'app';
+
+  @override
+  String get mainMenu => 'Menú principal';
+
+  @override
+  String get lenguagePreferences => 'Idioma de preferència';
+
+  @override
+  String get theme => 'Tema';
+
+  @override
+  String get supervisonPanel => 'Panell de supervisió';
+
+  @override
+  String get programedCalls => 'Trucades programades per avui';
+
+  @override
+  String get completedCalls => 'Completades avui';
+
+  @override
+  String get todayCalls => 'Trucades d\'avui';
+
+  @override
+  String get nothingTodayCalls => 'No hi ha trucades programades per avui';
+
+  @override
+  String get activityRecent => 'Activitat recent';
+
+  @override
+  String get supervison => 'Supervisió';
+
+  @override
+  String get allCalls => 'Totes les trucades';
+
+  @override
+  String get users => 'Usuaris';
+
+  @override
+  String get telemarketers => 'Teleoperadors';
+
+  @override
+  String get notifications => 'Notificacions';
+
+  @override
+  String get logOut => 'Tanca la sessió';
+
+  @override
+  String get superviseCalls => 'Supervisa totes les trucades de l\'equip';
+
+  @override
+  String get searchUser => 'Cerca per usuari o teleoperador';
+
+  @override
+  String get all => 'Totes';
+
+  @override
+  String get filterDate => 'Filtra per data';
+
+  @override
+  String get initDate => 'Data d\'inici';
+
+  @override
+  String get endDate => 'Data de finalització';
+
+  @override
+  String get completed => 'Completada';
+
+  @override
+  String get noAnswer => 'No ha contestat';
+
+  @override
+  String get pending => 'Pendent';
+
+  @override
+  String get date => 'Data';
+
+  @override
+  String get duration => 'Durada';
+
+  @override
+  String get comments => 'Observacions';
+
+  @override
+  String get topicsCovered => 'Temes tractats';
+
+  @override
+  String get manageUsers => 'Gestiona els perfils de les persones';
+
+  @override
+  String get newUser => 'Nou usuari';
+
+  @override
+  String get mild => 'Lleu';
+
+  @override
+  String get moderate => 'Moderada';
+
+  @override
+  String get grave => 'Greu';
+
+  @override
+  String get active => 'Actiu';
+
+  @override
+  String get workers => 'Treballadors';
+
+  @override
+  String get manageWorkers =>
+      'Gestiona els perfils i permisos dels treballadors';
+
+  @override
+  String get newWorker => 'Nou treballador';
+
+  @override
+  String get usersAsigned => 'Usuaris assignats';
+
+  @override
+  String get add => 'Afegeix';
+
+  @override
+  String get activeSince => 'Actiu des de:';
+
+  @override
+  String get unread => 'Sense llegir';
+
+  @override
+  String get read => 'Llegit';
 }

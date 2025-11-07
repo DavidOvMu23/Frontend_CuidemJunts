@@ -1,43 +1,114 @@
 {
   "@@locale": "es",
   "selectLanguage": "Seleccione un idioma:",
-  "@selectLanguage": {
-    "description": "Texto indicando al usuario que seleccione un idioma"
-  },
   "languageSpanish": "Español",
-  "@languageSpanish": {
-    "description": "Nombre del idioma español"
-  },
+
+
   "languageCatalan": "Catalán",
-  "@languageCatalan": {
-    "description": "Nombre del idioma catalán"
-  },
+
+
   "languageEnglish": "Inglés",
-  "@languageEnglish": {
-    "description": "Nombre del idioma inglés"
-  },
+
+
   "welcome": "Bienvenido a CuidemJunts",
-  "@welcome": {
-    "description": "Título de bienvenida en la página de inicio de sesión"
-  },
+  
   "email": "Correo electrónico",
-  "@email": {
-    "description": "Texto para el campo de correo electrónico"
-  },
+  
   "password": "Contraseña",
-  "@password": {
-    "description": "Texto para el campo de contraseña"
-  },
+  
   "loginButton": "Iniciar sesión",
-  "@loginButton": {
-    "description": "Texto para el botón de iniciar sesión"
-  },
+  
   "forgotPassword": "¿Olvidaste tu contraseña?",
-  "@forgotPassword": {
-    "description": "Texto para el enlace/botón para recuperar la contraseña"
-  },
+  
   "forgotPasswordSnackbar": "Contacta a un supervisor para recuperar tu contraseña.",
-  "@forgotPasswordSnackbar": {
-    "description": "Mensaje que muestra instrucciones para recuperar la contraseña"
-  }
+  
+  "preferences": "Preferencias",
+
+  "mainPage" : "Página principal",
+
+  "appPreferences" : "Preferencias de la app",
+
+  "mainMenu" : "Menu Principal",
+
+  "lenguagePreferences" : "Idioma de preferencia",
+
+  "theme" : "Tema",
+
+  "supervisonPanel" : "Panel de Supervisión",
+
+  "programedCalls" : "Llamadas programadas hoy",
+
+  "completedCalls" : "Completadas hoy",
+
+  "todayCalls" : "Llamadas de hoy",
+
+  "nothingTodayCalls" : "No hay llamadas programadas para hoy",
+
+  "activityRecent" : "Actividad reciente",
+
+  "supervison" : "Supervisión",
+
+  "allCalls" : "Todas las llamadas",
+
+  "users" : "Usuarios",
+
+  "telemarketers" : "Teleoperadores",
+
+  "notifications" : "Notificaciones",
+
+  "logOut" : "Cerrar sesión",
+
+  "superviseCalls": "Supervisa todas las llamadas del equipo",
+
+  "searchUser": "Busca por usuario o teleoperador",
+
+  "all" : "Todas",
+
+  "filterDate" : "Filtrar por fecha",
+
+  "initDate" : "Fecha desde",
+
+  "endDate" : "Fecha hasta",
+
+  "completed" : "Completada",
+
+  "noAnswer" : "No contestó",
+
+  "pending" : "Pendiente",
+
+  "date" : "Fecha",
+
+  "duration" : "Duración",
+
+  "comments" : "Observaciones",
+
+  "topicsCovered" : "Temas tratados",
+
+  "manageUsers" : "Gestiona los perfiles de las personas",
+
+  "newUser" : "Nuevo usuario",
+
+  "mild" : "Leve",
+
+  "moderate" : "Moderada",
+
+  "grave" : "Grave",
+
+  "active" : "Activo",
+
+  "workers" : "Trabajadores",
+
+  "manageWorkers" : "Gestiona los perfiles de los trabajadores y sus permisos",
+
+  "newWorker" : "Nuevo trabajador",
+
+  "usersAsigned" : "Usuarios asignados",
+
+  "add" : "Añadir",
+
+  "activeSince" : "Activo desde:",
+
+  "unread" : "Sin leer",
+
+  "read" : "Leído"
 }

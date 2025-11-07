@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // Página de preferencias de la app
 class PreferencesPage extends StatefulWidget {
@@ -51,6 +52,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Tema actual
     final theme = Theme.of(context);
 
@@ -58,7 +60,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
     return Scaffold(
       // AppBar con título y notificaciones
       appBar: AppBar(
-        title: const Text('Preferencias de la app'),
+        title: Text(l10n.appPreferences),
         centerTitle: true,
 
         //Notificaciones
@@ -144,7 +146,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Idioma de preferencia',
+                          l10n.lenguagePreferences,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
