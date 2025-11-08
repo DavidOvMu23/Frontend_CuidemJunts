@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
+import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
@@ -39,9 +40,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    // Obtenemos el brillo del sistema operativo (puede ser claro u oscuro)
+    // Obtenemos el tema del sistema operativo (puede ser claro u oscuro)
     //(ESTO ME LO RECOMENDÓ EL CHAT GPT PARA QUE LA APP SEA MAS CHULA Y
-    //RESPONDA AL TEMA DEL SISTEMA OPERATIVO)
+    //RESPONDA AL SISTEMA OPERATIVO)
     final brightness =
         WidgetsBinding.instance.platformDispatcher.platformBrightness;
 
@@ -97,6 +98,7 @@ class _MyAppState extends State<MyApp> {
       // pueda pedir cambios de idioma o tema. Así, el estado se mantiene aquí pero se controla
       // desde cualquier lugar de la app.
       home: LoginPage(onToggleTheme: toggleTheme, onChangeLocale: setLocale),
+      //home: CatalogPage(),
     );
   }
 }

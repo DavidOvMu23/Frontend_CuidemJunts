@@ -4,7 +4,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-// Página de inicio de sesión
+// -------- PANTALLA DE INICIO DE SESIÓN --------
+// Aquí pedimos email + contraseña y dejamos escoger idioma/tema.
 class LoginPage extends StatelessWidget {
   const LoginPage({
     super.key,
@@ -12,41 +13,38 @@ class LoginPage extends StatelessWidget {
     required this.onChangeLocale,
   });
 
-  // Callback para cambiar el tema
+  // Estas funciones vienen desde MyApp para cambiar tema/idioma sin salir de aquí.
   final void Function(bool) onToggleTheme;
   final void Function(Locale) onChangeLocale;
 
   @override
   Widget build(BuildContext context) {
+    // Me guardo los textos traducidos y el tema actual.
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    // Construye la interfaz de usuario
+    // -------- ESTRUCTURA PRINCIPAL --------
     return Scaffold(
-      // Usamos un Stack para poder posicionar elementos libremente (como el icono arriba a la derecha)
+      // -------- LAYOUT GENERAL --------
+      // Stack para colocar el botón de idioma encima del contenido.
       body: Stack(
         children: [
-          // Icono de idioma
+          // -------- BOTÓN DEL IDIOMA (ESQUINA SUPERIOR) --------
           Positioned(
-            top: 0, // separación desde arriba
-            right: 0, // separación desde la derecha)
-            //-------- BOTÓN DE SELECCIÓN DE IDIOMAS --------
+            top: 0,
+            right: 0,
             child: general_iconbutton(
               Icons.language,
-
               onPressed: () {
-                // Mostramos un bottom sheet simple al pulsar el idioma(esto lo hemos sacado de tu repo de GitHub de internacionalizacion)
+                // Abro un panel desde abajo con todos los idiomas.
                 showModalBottomSheet(
                   context: context,
                   builder: (context) => Padding(
                     padding: const EdgeInsets.all(16.0),
-
-                    //almacenamos los idiomas en una columna
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //-------- TEXTO DE SELECCIÓN DE IDIOMA --------
                         Text(
                           l10n.selectLanguage,
                           style: const TextStyle(
@@ -55,8 +53,7 @@ class LoginPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-
-                        //-------- LISTA DE IDIOMAS --------
+                        // Cada opción cambia el idioma y cierro el panel.
                         login_listile_demo(
                           texto: l10n.languageSpanish,
                           onTap: () {
@@ -86,72 +83,61 @@ class LoginPage extends StatelessWidget {
             ),
           ),
 
-          // Cuerpo centrado con scroll
+          // -------- CUERPO CON EL FORMULARIO --------
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
-
-              // Columna principal
               child: Column(
-                // Centramos los elementos en el eje principal
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-
-                // Elementos de la columna
                 children: [
-                  // Logo de la app
+                  // -------- LOGO --------
+                  // Imagen principal de la app alineada al centro.
                   Image.asset(
                     'assets/images/Logo_CuidemJunts.png',
                     height: 120,
                   ),
                   const SizedBox(height: 16),
-
-                  // Título de bienvenida
+                  // -------- BIENVENIDA --------
+                  // Texto que se traduce solo usando l10n.
                   Text(
                     l10n.welcome,
                     style: theme.textTheme.headlineLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-
-                  // Surface del formulario de login
+                  // -------- TARJETA DEL FORMULARIO --------
+                  // Material con borde redondeado que contiene los campos.
                   Material(
                     borderRadius: BorderRadius.circular(16),
-
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
-
-                      // Columna con los campos de formulario
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
-
-                        // Elementos del formulario
                         children: [
-                          //Correo electrónico
+                          // -------- CAMPO: EMAIL --------
                           general_textfield(
                             l10n.email,
                             false,
                             icono: Icons.person,
                           ),
                           const SizedBox(height: 16),
-
-                          // Contraseña
+                          // -------- CAMPO: CONTRASEÑA --------
                           general_textfield(
                             l10n.password,
                             true,
                             icono: Icons.lock,
                           ),
                           const SizedBox(height: 22),
-
-                          // Botón de inicio de sesión
+                          // -------- BOTÓN DE ENTRAR --------
                           general_filledbutton(
                             l10n.loginButton,
                             onPressed: () {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HomePage(
+                                  builder: (context) => HomeSupervisorPage(
                                     onToggleTheme: onToggleTheme,
                                     onChangeLocale: onChangeLocale,
                                   ),
@@ -160,8 +146,8 @@ class LoginPage extends StatelessWidget {
                             },
                           ),
                           const SizedBox(height: 12),
-
-                          // Recuperar contraseña
+                          // -------- OLVIDÉ CONTRASEÑA --------
+                          // Botón plano que solo lanza un SnackBar por ahora.
                           general_textbutton(
                             l10n.forgotPassword,
                             onPressed: () {

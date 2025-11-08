@@ -2,113 +2,62 @@
   "@@locale": "es",
   "selectLanguage": "Seleccione un idioma:",
   "languageSpanish": "Español",
-
-
   "languageCatalan": "Catalán",
-
-
   "languageEnglish": "Inglés",
-
-
   "welcome": "Bienvenido a CuidemJunts",
-  
   "email": "Correo electrónico",
-  
   "password": "Contraseña",
-  
   "loginButton": "Iniciar sesión",
-  
   "forgotPassword": "¿Olvidaste tu contraseña?",
-  
   "forgotPasswordSnackbar": "Contacta a un supervisor para recuperar tu contraseña.",
-  
   "preferences": "Preferencias",
-
-  "mainPage" : "Página principal",
-
-  "appPreferences" : "Preferencias de la app",
-
-  "mainMenu" : "Menu Principal",
-
-  "lenguagePreferences" : "Idioma de preferencia",
-
-  "theme" : "Tema",
-
-  "supervisonPanel" : "Panel de Supervisión",
-
-  "programedCalls" : "Llamadas programadas hoy",
-
-  "completedCalls" : "Completadas hoy",
-
-  "todayCalls" : "Llamadas de hoy",
-
-  "nothingTodayCalls" : "No hay llamadas programadas para hoy",
-
-  "activityRecent" : "Actividad reciente",
-
-  "supervison" : "Supervisión",
-
-  "allCalls" : "Todas las llamadas",
-
-  "users" : "Usuarios",
-
-  "telemarketers" : "Teleoperadores",
-
-  "notifications" : "Notificaciones",
-
-  "logOut" : "Cerrar sesión",
-
+  "mainPage": "Página principal",
+  "appPreferences": "Preferencias de la app",
+  "mainMenu": "Menu Principal",
+  "lenguagePreferences": "Idioma de preferencia",
+  "theme": "Tema",
+  "supervisonPanel": "Panel de Supervisión",
+  "programedCalls": "Llamadas programadas hoy",
+  "completedCalls": "Completadas hoy",
+  "todayCalls": "Llamadas de hoy",
+  "nothingTodayCalls": "No hay llamadas programadas para hoy",
+  "activityRecent": "Actividad reciente",
+  "supervison": "Supervisión",
+  "allCalls": "Todas las llamadas",
+  "users": "Usuarios",
+  "telemarketers": "Teleoperadores",
+  "notifications": "Notificaciones",
+  "logOut": "Cerrar sesión",
   "superviseCalls": "Supervisa todas las llamadas del equipo",
-
   "searchUser": "Busca por usuario o teleoperador",
-
-  "all" : "Todas",
-
-  "filterDate" : "Filtrar por fecha",
-
-  "initDate" : "Fecha desde",
-
-  "endDate" : "Fecha hasta",
-
-  "completed" : "Completada",
-
-  "noAnswer" : "No contestó",
-
-  "pending" : "Pendiente",
-
-  "date" : "Fecha",
-
-  "duration" : "Duración",
-
-  "comments" : "Observaciones",
-
-  "topicsCovered" : "Temas tratados",
-
-  "manageUsers" : "Gestiona los perfiles de las personas",
-
-  "newUser" : "Nuevo usuario",
-
-  "mild" : "Leve",
-
-  "moderate" : "Moderada",
-
-  "grave" : "Grave",
-
-  "active" : "Activo",
-
-  "workers" : "Trabajadores",
-
-  "manageWorkers" : "Gestiona los perfiles de los trabajadores y sus permisos",
-
-  "newWorker" : "Nuevo trabajador",
-
-  "usersAsigned" : "Usuarios asignados",
-
-  "add" : "Añadir",
-
-  "activeSince" : "Activo desde:",
-
-  "unread" : "Sin leer",
-
-  "read" : "Leído"
+  "all": "Todas",
+  "filterDate": "Filtrar por fecha",
+  "initDate": "Fecha desde",
+  "endDate": "Fecha hasta",
+  "completed": "Completada",
+  "noAnswer": "No contestó",
+  "pending": "Pendiente",
+  "date": "Fecha",
+  "duration": "Duración",
+  "comments": "Observaciones",
+  "topicsCovered": "Temas tratados",
+  "manageUsers": "Gestiona los perfiles de las personas",
+  "newUser": "Nuevo usuario",
+  "mild": "Leve",
+  "moderate": "Moderada",
+  "grave": "Grave",
+  "active": "Activo",
+  "workers": "Trabajadores",
+  "manageWorkers": "Gestiona los perfiles de los trabajadores y sus permisos",
+  "newWorker": "Nuevo trabajador",
+  "usersAsigned": "Usuarios asignados",
+  "add": "Añadir",
+  "activeSince": "Activo desde:",
+  "unread": "Sin leer",
+  "read": "Leído",
+  "calls": "Llamadas",
+  "accept": "Aceptar",
+  "cancel": "Cancelar",
+  "confirmLogOut": "¿Estás seguro de que deseas cerrar sesión?",
+  "supervisor": "Supervisor"
 }

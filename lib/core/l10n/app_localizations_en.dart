@@ -173,4 +173,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get read => 'Read';
+
+  @override
+  String get calls => 'Calls';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirmLogOut => 'Are you sure you want to log out?';
+
+  @override
+  String get supervisor => 'Supervisor';
 }

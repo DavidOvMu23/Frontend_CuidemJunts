@@ -429,6 +429,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Leído'**
   String get read;
+
+  /// No description provided for @calls.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamadas'**
+  String get calls;
+
+  /// No description provided for @accept.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar'**
+  String get accept;
+
+  /// No description provided for @cancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get cancel;
+
+  /// No description provided for @confirmLogOut.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas cerrar sesión?'**
+  String get confirmLogOut;
+
+  /// No description provided for @supervisor.
+  ///
+  /// In es, this message translates to:
+  /// **'Supervisor'**
+  String get supervisor;
 }
 
 class _AppLocalizationsDelegate

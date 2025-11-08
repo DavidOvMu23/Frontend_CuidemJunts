@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-// -------- FUNCIÓN DE CREACIÓN DE FILLED BUTTON--------
-//es difererente al general por que este no interesa con icono
+// -------- LIST TILE PARA EL SELECTOR DE IDIOMAS --------
+// Funcióncita ultra simple: muestra el texto y ejecuta onTap.
+// Así el Login queda más limpio.
 Widget login_listile_demo({
   required String texto,
   required VoidCallback onTap,

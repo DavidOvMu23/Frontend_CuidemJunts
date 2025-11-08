@@ -174,4 +174,19 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get read => 'Llegit';
+
+  @override
+  String get calls => 'Cridades';
+
+  @override
+  String get accept => 'Acceptar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get confirmLogOut => 'Esteu segur que voleu tancar la sessió?';
+
+  @override
+  String get supervisor => 'Supervisor';
 }

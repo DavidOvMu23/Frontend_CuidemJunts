@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
 
+// -------- PALETA DE COLORES --------
+// Aquí guardamos todos los colores que usamos en la app, tanto en modo claro como oscuro.
+// para compartir entre diferentes widgets y conseguir que la app tenga una apariencia consistente.
+
 class AppPalette {
   // -------- TEMA CLARO --------
-  // Fondo principal de la app
-  static const Color backgroundLight = Color(0xFFFDF9F5);
+  static const Color backgroundLight = Color(0xFFFDF9F5); // Fondo general.
+  static const Color surfaceLight = Color(0xFFDFF0FD); // Paneles y surfaces.
+  static const Color cardLight = Color(0xFFBFE3FF); // Tarjetas e inputs.
+  static const Color primaryLight = Color(0xFF42a6ee); // Botones principales.
+  static const Color accentLight = Color(0xFF8fc7e8); // Acciones secundarias.
+  static const Color menuLight = Color(0xFF081d3c); // Iconos del AppBar.
 
-  // Superficie  (tarjetas grandes, paneles principales)
-  static const Color surfaceLight = Color(0xFFDFF0FD);
-
-  // Cards, cajas, inputs, contenedores
-  static const Color cardLight = Color(0xFFBFE3FF);
-
-  // Color principal (botones, enlaces, iconos destacados)
-  static const Color primaryLight = Color(0xFF42a6ee);
-
-  // Color de acento (botones menos importantes)
-  static const Color accentLight = Color(0xFF8fc7e8);
-
-  //Iconos appbar (menú y notificaciones)
-  static const Color menuLight = Color(0xFF081d3c);
-
-  // Estados
+  // Estados (éxito, warning y error) para banners o textos informativos.
   static const Color successLight = Color(0xFFDCFCE7);
   static const Color successFontLight = Color(0xFF166534);
   static const Color warningLight = Color(0xFFFEF9C3);
@@ -28,7 +21,7 @@ class AppPalette {
   static const Color errorLight = Color(0xFFFEE2e2);
   static const Color errorFontLight = Color(0xFFA83B3D);
 
-  // Texto
+  // Textos en tema claro.
   static const Color textPrimaryLight = Color(0xFF081d3c);
   static const Color textSecondaryLight = Color(0xFF3c4b5a);
   static const Color textMutedLight = Color(0xFF708198);
@@ -41,9 +34,9 @@ class AppPalette {
   static const Color cardDark = Color(0xFF243f5b);
   static const Color primaryDark = Color(0xFF42a6ee);
   static const Color accentDark = Color(0xFF8fc7e8);
-  static const Color menuDark = Color(0xFFffffff);
+  static const Color menuDark = Color(0xFFFFFFFF);
 
-  // Estados
+  // Estados para el modo oscuro
   static const Color successDark = Color(0xFF064424);
   static const Color successFontDark = Color(0xFF7FD5A1);
   static const Color warningDark = Color(0xFF403B03);
@@ -51,7 +44,7 @@ class AppPalette {
   static const Color errorDark = Color(0xFF430505);
   static const Color errorFontDark = Color(0xFFCD5B5B);
 
-  // Texto
+  // Textos en tema oscuro.
   static const Color textPrimaryDark = Color(0xFFb7e0ff);
   static const Color textSecondaryDark = Color(0xFF7a8ea1);
   static const Color textMutedDark = Color(0xFF5C6F83);

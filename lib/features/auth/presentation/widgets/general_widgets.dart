@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-// -------- FUNCIÓN DE CREACIÓN DE BADGE CON ICONO--------
+// -------- WIDGETS QUE REPITO POR TODA LA APP --------
+// Son las piezas básicas que uso una y otra vez. Prefiero tenerlas aquí y listo.
+
+// -------- BADGE CON ICONO --------
+// Muestra un icono con un numerito encima (ideal para notificaciones).
 Widget general_badge_demo(
   int numeroNotificaciones,
   IconData icono, {
@@ -13,48 +17,55 @@ Widget general_badge_demo(
   );
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE FILLED BUTTON--------
+// -------- BOTÓN RELLENO (FilledButton) --------
+// Botón grande para acciones principales, solo necesita texto y qué hacer al pulsar.
 Widget general_filledbutton(String texto, {required VoidCallback onPressed}) {
   return FilledButton(onPressed: onPressed, child: Text(texto));
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE BOTON DE TEXTO --------
+// -------- BOTÓN DE TEXTO --------
+// Ideal para enlaces o acciones secundarias sin fondo sólido.
 Widget general_textbutton(String texto, {required VoidCallback onPressed}) {
   return TextButton(onPressed: onPressed, child: Text(texto));
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE BOTÓN DE ICONO --------
+// -------- BOTÓN DE ICONO --------
+// Útil cuando solo necesitamos un icono táctil (por ejemplo, editar o eliminar).
 Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
   return IconButton(icon: Icon(icono), onPressed: onPressed);
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE TEXTFIELD --------
+// -------- CAMPO DE TEXTO --------
+// Crea un TextField personalizable con icono opcional, radio y número de líneas.
 TextField general_textfield(
-  // Parámetros de entrada
   String texto,
   bool obscureText, {
-  // Parámetros opcionales con valores por defecto
   IconData? icono,
   double borderRadius = 12.0,
   int maxLines = 1,
 }) {
-  // -------- CONSTRUCCIÓN DEL TEXTFIELD --------
   return TextField(
     obscureText: obscureText,
     maxLines: maxLines,
     decoration: InputDecoration(
-      hintText: texto,
+      hintText: texto, // Texto gris que explica qué escribir.
       prefixIcon: Icon(icono),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide.none,
       ),
+      filled: true,
     ),
   );
 }
 
-// -------- FUNCIÓN DE CREACIÓN DEL SNACKBAR --------
-general_snackbar(BuildContext context, String content, int durationSeconds) {
+// -------- SNACKBAR GENERAL --------
+// Muestra un mensajito en la parte inferior durante unos segundos.
+void general_snackbar(
+  BuildContext context,
+  String content,
+  int durationSeconds,
+) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(content),
@@ -63,8 +74,8 @@ general_snackbar(BuildContext context, String content, int durationSeconds) {
   );
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE LISTILE --------
-//la mitad de esta función es el chat gpt que me ayudó a hacer el drawer más chulo
+// -------- ELEMENTO DE LISTA PARA EL DRAWER --------
+// Es el botón del menú lateral con icono, texto y estado "seleccionado".
 Widget general_listile_demo({
   required BuildContext context,
   required IconData icon,
@@ -72,31 +83,47 @@ Widget general_listile_demo({
   VoidCallback? onTap,
   bool selected = false,
 }) {
-  // Colores usados
-  const iconColor = Color(0xFF42a6ee);
-  //el final surfaceColor es para que el color de fondo del ListTile
+  const iconColor = Color(0xFF42a6ee); // Azul corporativo para los iconos.
   final surfaceColor = Theme.of(context).colorScheme.surface;
+  final defaultTextColor =
+      Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
 
   return Container(
-    //estilo del contenedor del ListTile
-    //el decoration es para que el ListTile tenga un fondo redondeado por detras
+    // Fondo redondeado para que parezca una pastilla.
     decoration: BoxDecoration(
-      // Si está seleccionado, aplicamos el color de surface; si no, transparente
       color: selected ? surfaceColor : Colors.transparent,
       borderRadius: BorderRadius.circular(24),
     ),
-
-    //texto del ListTile
     child: ListTile(
       leading: Icon(icon, color: iconColor),
       title: Text(
         texto,
         style: TextStyle(
-          color: selected ? iconColor : Colors.white,
+          color: selected ? iconColor : defaultTextColor,
           fontWeight: FontWeight.w500,
         ),
       ),
       onTap: onTap,
     ),
+  );
+}
+
+// -------- ELEMENTO DE LISTA PARA CERRAR SESIÓN --------
+Widget general_listtile_logout({
+  required BuildContext context,
+  required IconData icon,
+  required String texto,
+  required VoidCallback onTap,
+}) {
+  const iconColor = Color(0xFF42a6ee);
+
+  return ListTile(
+    horizontalTitleGap: 2,
+    leading: Icon(icon, color: iconColor, size: 16),
+    title: Text(
+      texto,
+      style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+    ),
+    onTap: onTap,
   );
 }

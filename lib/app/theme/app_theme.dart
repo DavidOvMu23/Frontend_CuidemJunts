@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 
-//El chatgpt me ha hecho un tema completo basado en la paleta de colores que definímos
-//en app_palette.dart
+// -------- TEMA GLOBAL DE LA APP --------
+// Aquí creamos los ThemeData claro/oscuro usando la paleta que definímos en app_palette.dart
+// para mantener la consistencia visual en toda la app.
+
+// Basicamente aquí definimos los estilos globales para widgets comunes como AppBar, Text,
+// Buttons, Inputs, Cards, etc.
+
+// Este archivo me ha ayudado el chatGPT a generarlo basándose en la paleta de colores que definí.
 
 class AppTheme {
   // -------- TEMA CLARO --------
@@ -17,7 +23,7 @@ class AppTheme {
     colorScheme: const ColorScheme.light(
       primary: AppPalette.primaryLight,
       secondary: AppPalette.accentLight,
-      surface: AppPalette.surfaceLight, // <- Surface (Material)
+      surface: AppPalette.surfaceLight,
       background: AppPalette.backgroundLight,
       error: AppPalette.errorFontLight,
       onPrimary: AppPalette.textOnPrimaryLight,
@@ -25,7 +31,7 @@ class AppTheme {
       onBackground: AppPalette.textPrimaryLight,
     ),
 
-    // AppBar (parte superior)
+    // Estilo del AppBar
     appBarTheme: const AppBarTheme(
       backgroundColor: AppPalette.backgroundLight,
       foregroundColor: AppPalette.menuLight,
@@ -38,7 +44,7 @@ class AppTheme {
       iconTheme: IconThemeData(color: AppPalette.menuLight),
     ),
 
-    // Tipografía general
+    // Estilo global de los textos
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 26,
@@ -58,7 +64,7 @@ class AppTheme {
     // Estilo global de los campos de texto
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppPalette.cardLight, // <- los TextField usan este color
+      fillColor: AppPalette.cardLight,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

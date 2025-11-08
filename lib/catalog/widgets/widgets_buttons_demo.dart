@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
-// -------- FUNCIÓN DE CREACIÓN DE FILLED BUTTON--------
+// -------- BOTONES DE LAS DEMOS --------
+// Son funciones rápidas para no repetir el mismo botón en cada pantalla.
+
+// La idea es tener un solo lugar donde definir la apariencia y comportamiento de los botones.
+// y así simplemente si vamos a usar un botón en una demo, llamamos a la función correspondiente.
+// o si queremos cambiar alguna cosa del botón, lo hacemos aquí y se refleja en todas las demos.
+
+// Botón principal con fondo sólido; ideal para acciones importantes.
 Widget widget_filledbutton_demo(
   String texto, {
   required VoidCallback onPressed,
@@ -8,7 +15,7 @@ Widget widget_filledbutton_demo(
   return FilledButton(onPressed: onPressed, child: Text(texto));
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE FILLED TONAL BUTTON--------
+// Variante más suave del botón principal para acciones secundarias.
 Widget widget_filledtonalbutton_demo(
   String texto, {
   required VoidCallback onPressed,
@@ -16,12 +23,12 @@ Widget widget_filledtonalbutton_demo(
   return FilledButton.tonal(onPressed: onPressed, child: Text(texto));
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE BOTON DE TEXTO --------
+// Botón de texto simple, para acciones menos importantes.
 Widget widget_textbutton_demo(String texto, {required VoidCallback onPressed}) {
   return TextButton(onPressed: onPressed, child: Text(texto));
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE BOTÓN DE ICONO --------
+// Botón con borde, para otras funciones
 Widget widget_iconbutton_demo(
   IconData icono, {
   required VoidCallback onPressed,
@@ -29,7 +36,7 @@ Widget widget_iconbutton_demo(
   return IconButton(icon: Icon(icono), onPressed: onPressed);
 }
 
-// -------- FUNCIÓN DE CREACIÓN DE BOTON FLOTANTE --------
+// FloatingActionButton para acciones destacadas en la pantalla.
 Widget widget_floatingbutton_demo(
   IconData icono, {
   required VoidCallback onPressed,

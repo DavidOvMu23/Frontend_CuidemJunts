@@ -174,4 +174,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get read => 'Leído';
+
+  @override
+  String get calls => 'Llamadas';
+
+  @override
+  String get accept => 'Aceptar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get confirmLogOut => '¿Estás seguro de que deseas cerrar sesión?';
+
+  @override
+  String get supervisor => 'Supervisor';
 }
