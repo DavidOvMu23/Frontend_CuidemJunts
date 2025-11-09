@@ -8,9 +8,12 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
 class HomeSupervisorPage extends StatelessWidget {
-  // Funciones para cambiar tema e idioma desde esta página.
-  // y asi pasarlas a PreferencesPage y que desde alli se pueda cambiar.
+  // Funciones para cambiar tema e idioma desde esta página
+  // (se las pasamos a PreferencesPage para que también pueda usarlas).
+  // Callback que activa/desactiva el tema oscuro/claro.
   final void Function(bool) onToggleTheme;
+
+  // Callback que cambia el idioma de la app.
   final void Function(Locale) onChangeLocale;
 
   const HomeSupervisorPage({
@@ -21,24 +24,27 @@ class HomeSupervisorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // -------- TEMAS Y COLORES --------
-    // Obtenemos los temas y colores para usarlos en la UI.
+    // -------- TEMAS, COLORES Y TEXTOS --------
+    // Obtenemos tipografías y paleta del tema actual para mantener
+    // estilos consistentes en toda la app.
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    // Agarramos los textos traducidos para que esta pantalla reaccione al cambio de idioma.
+
+    // Textos traducidos (según el idioma seleccionado en la app).
     final l10n = AppLocalizations.of(context)!;
     DateTime hoy = DateTime.now();
 
     // -------- ESTRUCTURA DE LA PANTALLA --------
     return Scaffold(
       // -------- BARRA SUPERIOR --------
-      // Lleva el título y el icono de notificaciones.
+      // AppBar: barra superior con título centrado e iconos de acción a la derecha.
       appBar: AppBar(
-        //fontsize
+        // Título de la app
         title: Text("CuidemJunts", style: TextStyle(fontSize: 19)),
+        //centramos el título
         centerTitle: true,
         actions: [
-          // Icono de notis con su contador.
+          // Icono de notificaciones con contador.
           general_badge_demo(
             10,
             Icons.notifications,
@@ -50,28 +56,29 @@ class HomeSupervisorPage extends StatelessWidget {
       ),
 
       // -------- MENÚ LATERAL (DRAWER) --------
-      // Aquí pondremos las opciones para navegar a otras páginas de la app.
+      // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: Drawer(
         // -------- CONTENIDO DEL DRAWER --------
-        // Almacenamos los elementos en una columna
+        // Usamos Column + Expanded + ListView para hacer el contenido scrollable
+        // y dejar la sección de perfil fija abajo.
         child: Column(
           // -------- LISTA DE OPCIONES --------
-          // Con el Expanded hacemos que la lista use todo el alto disponible
+          // Expanded hace que la lista coja todo el alto disponible.
           children: [
             Expanded(
               // ListView para que el contenido del drawer sea scrollable.
               child: ListView(
                 children: [
                   // -------- CABECERA CON LOGO --------
-                  // Contiene el logo y nombre de la app.
+                  // Muestra el logo y el nombre/lema de la app.
                   Padding(
-                    //para separar de los bordes
+                    // separa del borde para que no quede pegado.
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 16,
                     ),
 
-                    //almacenamos los textos e imagen en una fila
+                    // Fila con imagen a la izquierda y textos a la derecha.
                     child: Row(
                       children: [
                         Image.asset(
@@ -83,7 +90,7 @@ class HomeSupervisorPage extends StatelessWidget {
                         ), //espacio entre imagen y textos
 
                         Expanded(
-                          //almacenamos los textos en una columna para que este uno encima del otro
+                          // Columna para tener nombre y lema uno debajo del otro.
                           child: Column(
                             children: [
                               // Nombre de la app
@@ -137,7 +144,8 @@ class HomeSupervisorPage extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // -------- OPCIONES DEL MENÚ --------
-                  // Cada opción es un ListTile personalizado llamando a la función
+                  // Cada opción usa un ListTile personalizado (general_listile_demo)
+                  // que ya aplica estilos consistentes con la app.
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
@@ -182,7 +190,8 @@ class HomeSupervisorPage extends StatelessWidget {
                           icon: Icons.settings,
                           texto: l10n.preferences,
                           onTap: () {
-                            // Navegamos a la pantalla de preferencias y pasamos las funciones de tema e idioma.
+                            // Navegación a la pantalla de Preferencias.
+                            // Navigator.push abre una nueva pantalla encima de la actual.
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -252,7 +261,6 @@ class HomeSupervisorPage extends StatelessWidget {
                             FilledButton(
                               onPressed: () {
                                 //TODO: Implementar cierre de sesión
-
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -276,22 +284,34 @@ class HomeSupervisorPage extends StatelessWidget {
           ],
         ),
       ),
+
       // -------- CONTENIDO PRINCIPAL --------
-      // Por ahora solo mostramos un texto, pero aquí irán los datos reales.
-      // -------- CUERPO  --------
       body: SingleChildScrollView(
+        // SingleChildScrollView permite que toda la columna sea scrolleable
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+
+        // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
         child: ConstrainedBox(
+          // Hacemos que la columna ocupe todo el ancho disponible.
+
+          // Esto es necesario para que los elementos dentro de la columna
+          // (como las "tarjetas" de Material) ocupen todo el ancho posible.
           constraints: const BoxConstraints(minWidth: double.infinity),
+
+          // Columna principal con todo el contenido de la página.
           child: Column(
+            // Alineamos todo a la izquierda.
             crossAxisAlignment: CrossAxisAlignment.start,
+
+            // Elementos de la columna
             children: [
+              // Título principal
               Text(
                 l10n.supervisonPanel,
                 style: textTheme.titleMedium?.copyWith(fontSize: 27),
               ),
 
-              // fecha de hoy (me ha ayudado el chatgpt)
+              // Fecha de hoy con textos traducidos (nombres de días/meses). (el chatgpt me ha ayudado con esto)
               Builder(
                 builder: (context) {
                   final weekdays = [
@@ -324,14 +344,20 @@ class HomeSupervisorPage extends StatelessWidget {
               ),
 
               const SizedBox(height: 20),
+              // -------- TARJETAS DE ESTADÍSTICAS --------
               Material(
+                // Material para mostrar las llamadas programadas.
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
+
+                  // Fila con texto a la izquierda e icono a la derecha.
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
                       Expanded(
+                        // Columna para tener título y contador uno debajo del otro.
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -352,7 +378,8 @@ class HomeSupervisorPage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Icono de calendario a la derecha, ligeramente más abajo
+
+                      // Icono de calendario a la derecha
                       Padding(
                         padding: const EdgeInsets.only(top: 15),
                         child: Icon(
@@ -367,14 +394,18 @@ class HomeSupervisorPage extends StatelessWidget {
               ),
 
               const SizedBox(height: 20),
+              // Material para mostrar las llamadas completadas.
               Material(
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
+                  // Fila con texto a la izquierda e icono a la derecha.
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
                       Expanded(
+                        // Columna para tener título y contador uno debajo del otro.
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -395,7 +426,8 @@ class HomeSupervisorPage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Icono de calendario a la derecha, ligeramente más abajo
+
+                      // Icono de teléfono a la derecha
                       Padding(
                         padding: const EdgeInsets.only(top: 15),
                         child: Icon(
@@ -411,6 +443,7 @@ class HomeSupervisorPage extends StatelessWidget {
 
               //TODO: implementar ifelse para mostrar llamadas a realizar hoy si no mostrar lo que hay actualmente
               const SizedBox(height: 20),
+              // Material para mostrar las llamadas programadas para hoy.
               Material(
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
@@ -418,7 +451,7 @@ class HomeSupervisorPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Encabezado: icono + título + contador pequeño
+                      // titulo de la sección
                       Row(
                         children: [
                           Expanded(
@@ -433,6 +466,7 @@ class HomeSupervisorPage extends StatelessWidget {
                         ],
                       ),
 
+                      //divisor
                       const SizedBox(height: 12),
                       Divider(color: colorScheme.primary.withOpacity(0.25)),
 
