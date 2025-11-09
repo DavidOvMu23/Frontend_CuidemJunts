@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';

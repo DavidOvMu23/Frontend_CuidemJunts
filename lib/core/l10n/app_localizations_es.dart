@@ -189,4 +189,61 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get supervisor => 'Supervisor';
+
+  @override
+  String get enero => 'enero';
+
+  @override
+  String get febrero => 'febrero';
+
+  @override
+  String get marzo => 'marzo';
+
+  @override
+  String get abril => 'abril';
+
+  @override
+  String get mayo => 'mayo';
+
+  @override
+  String get junio => 'junio';
+
+  @override
+  String get julio => 'julio';
+
+  @override
+  String get agosto => 'agosto';
+
+  @override
+  String get septiembre => 'septiembre';
+
+  @override
+  String get octubre => 'octubre';
+
+  @override
+  String get noviembre => 'noviembre';
+
+  @override
+  String get diciembre => 'diciembre';
+
+  @override
+  String get lunes => 'lunes';
+
+  @override
+  String get martes => 'martes';
+
+  @override
+  String get miercoles => 'miércoles';
+
+  @override
+  String get jueves => 'jueves';
+
+  @override
+  String get viernes => 'viernes';
+
+  @override
+  String get sabado => 'sábado';
+
+  @override
+  String get domingo => 'domingo';
 }

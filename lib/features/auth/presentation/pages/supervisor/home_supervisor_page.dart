@@ -26,13 +26,15 @@ class HomeSupervisorPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     // Agarramos los textos traducidos para que esta pantalla reaccione al cambio de idioma.
     final l10n = AppLocalizations.of(context)!;
+    DateTime hoy = DateTime.now();
 
     // -------- ESTRUCTURA DE LA PANTALLA --------
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       // Lleva el título y el icono de notificaciones.
       appBar: AppBar(
-        title: Text(l10n.supervisonPanel),
+        //fontsize
+        title: Text("CuidemJunts", style: TextStyle(fontSize: 19)),
         centerTitle: true,
         actions: [
           // Icono de notis con su contador.
@@ -265,7 +267,141 @@ class HomeSupervisorPage extends StatelessWidget {
       ),
       // -------- CONTENIDO PRINCIPAL --------
       // Por ahora solo mostramos un texto, pero aquí irán los datos reales.
-      body: Center(child: Text(l10n.mainPage)),
+      // -------- CUERPO  --------
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.supervisonPanel,
+                style: textTheme.titleMedium?.copyWith(fontSize: 27),
+              ),
+
+              // fecha de hoy (me ha ayudado el chatgpt)
+              Builder(
+                builder: (context) {
+                  final weekdays = [
+                    l10n.lunes,
+                    l10n.martes,
+                    l10n.miercoles,
+                    l10n.jueves,
+                    l10n.viernes,
+                    l10n.sabado,
+                    l10n.domingo,
+                  ];
+                  final months = [
+                    l10n.enero,
+                    l10n.febrero,
+                    l10n.marzo,
+                    l10n.abril,
+                    l10n.mayo,
+                    l10n.junio,
+                    l10n.julio,
+                    l10n.agosto,
+                    l10n.septiembre,
+                    l10n.octubre,
+                    l10n.noviembre,
+                    l10n.diciembre,
+                  ];
+                  final fechaHoy =
+                      '${weekdays[hoy.weekday - 1]}, ${hoy.day} de ${months[hoy.month - 1]} de ${hoy.year}';
+                  return Text(fechaHoy, style: textTheme.bodyMedium);
+                },
+              ),
+
+              const SizedBox(height: 20),
+              Material(
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.programedCalls,
+                              textAlign: TextAlign.left,
+                              style: textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Text(
+                              //TODO: implementar la consulta para saber cuantas llamadas hay hoy
+                              "0",
+                              style: textTheme.displayMedium?.copyWith(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Icono de calendario a la derecha, ligeramente más abajo
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: Icon(
+                          Icons.today,
+                          color: colorScheme.primary,
+                          size: 60,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              Material(
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.todayCalls,
+                              textAlign: TextAlign.left,
+                              style: textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Text(
+                              //TODO: implementar la consulta para saber cuantas llamadas realizadas se han hecho hoy
+                              "0",
+                              style: textTheme.displayMedium?.copyWith(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Icono de calendario a la derecha, ligeramente más abajo
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: Icon(
+                          Icons.phone,
+                          color: colorScheme.primary,
+                          size: 60,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

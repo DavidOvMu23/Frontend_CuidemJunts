@@ -459,6 +459,120 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Supervisor'**
   String get supervisor;
+
+  /// No description provided for @enero.
+  ///
+  /// In es, this message translates to:
+  /// **'enero'**
+  String get enero;
+
+  /// No description provided for @febrero.
+  ///
+  /// In es, this message translates to:
+  /// **'febrero'**
+  String get febrero;
+
+  /// No description provided for @marzo.
+  ///
+  /// In es, this message translates to:
+  /// **'marzo'**
+  String get marzo;
+
+  /// No description provided for @abril.
+  ///
+  /// In es, this message translates to:
+  /// **'abril'**
+  String get abril;
+
+  /// No description provided for @mayo.
+  ///
+  /// In es, this message translates to:
+  /// **'mayo'**
+  String get mayo;
+
+  /// No description provided for @junio.
+  ///
+  /// In es, this message translates to:
+  /// **'junio'**
+  String get junio;
+
+  /// No description provided for @julio.
+  ///
+  /// In es, this message translates to:
+  /// **'julio'**
+  String get julio;
+
+  /// No description provided for @agosto.
+  ///
+  /// In es, this message translates to:
+  /// **'agosto'**
+  String get agosto;
+
+  /// No description provided for @septiembre.
+  ///
+  /// In es, this message translates to:
+  /// **'septiembre'**
+  String get septiembre;
+
+  /// No description provided for @octubre.
+  ///
+  /// In es, this message translates to:
+  /// **'octubre'**
+  String get octubre;
+
+  /// No description provided for @noviembre.
+  ///
+  /// In es, this message translates to:
+  /// **'noviembre'**
+  String get noviembre;
+
+  /// No description provided for @diciembre.
+  ///
+  /// In es, this message translates to:
+  /// **'diciembre'**
+  String get diciembre;
+
+  /// No description provided for @lunes.
+  ///
+  /// In es, this message translates to:
+  /// **'lunes'**
+  String get lunes;
+
+  /// No description provided for @martes.
+  ///
+  /// In es, this message translates to:
+  /// **'martes'**
+  String get martes;
+
+  /// No description provided for @miercoles.
+  ///
+  /// In es, this message translates to:
+  /// **'miércoles'**
+  String get miercoles;
+
+  /// No description provided for @jueves.
+  ///
+  /// In es, this message translates to:
+  /// **'jueves'**
+  String get jueves;
+
+  /// No description provided for @viernes.
+  ///
+  /// In es, this message translates to:
+  /// **'viernes'**
+  String get viernes;
+
+  /// No description provided for @sabado.
+  ///
+  /// In es, this message translates to:
+  /// **'sábado'**
+  String get sabado;
+
+  /// No description provided for @domingo.
+  ///
+  /// In es, this message translates to:
+  /// **'domingo'**
+  String get domingo;
 }
 
 class _AppLocalizationsDelegate

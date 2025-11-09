@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
 // Aquí cambio idioma y tema sin salirme de la app.
@@ -60,7 +62,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
     return Scaffold(
       // -------- APPBAR CON EL BOTÓN DE NOTIS --------
       appBar: AppBar(
-        title: Text(l10n.appPreferences),
+        title: Text("CuidemJunts", style: TextStyle(fontSize: 19)),
         centerTitle: true,
         actions: [
           general_badge_demo(10, Icons.notifications, onPressed: () {}),
@@ -286,83 +288,96 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
       // -------- CUERPO  --------
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+
         child: SizedBox(
           width: double.infinity,
-          child: Material(
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // -------- ZONA DE IDIOMA --------
-                  // ListTile + Dropdown para cambiar el idioma de toda la app.
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.lenguagePreferences,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        DropdownButton<String>(
-                          value: selectedLanguage,
-                          borderRadius: BorderRadius.circular(12),
-                          onChanged: (String? newValue) {
-                            if (newValue == null) return;
-                            final locale = languageOptions[newValue];
-                            if (locale == null) return;
-                            setState(() {
-                              selectedLanguage = newValue;
-                            });
-                            widget.onChangeLocale(locale);
-                          },
-                          items: languageOptions.keys.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // -------- ZONA DE TEMA --------
-                  // SwitchListTile para activar/desactivar modo oscuro.
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.theme,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Theme.of(context).brightness == Brightness.dark
-                              ? Icons.dark_mode_rounded
-                              : Icons.light_mode_rounded,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ],
-                    ),
-                    value: Theme.of(context).brightness == Brightness.dark,
-                    onChanged: (value) => widget.onToggleTheme(value),
-                  ),
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.preferences,
+                style: textTheme.titleMedium?.copyWith(fontSize: 27),
               ),
-            ),
+
+              const SizedBox(height: 10),
+              Material(
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // -------- ZONA DE IDIOMA --------
+                      // ListTile + Dropdown para cambiar el idioma de toda la app.
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.lenguagePreferences,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
+                            ),
+                            DropdownButton<String>(
+                              value: selectedLanguage,
+                              borderRadius: BorderRadius.circular(12),
+                              onChanged: (String? newValue) {
+                                if (newValue == null) return;
+                                final locale = languageOptions[newValue];
+                                if (locale == null) return;
+                                setState(() {
+                                  selectedLanguage = newValue;
+                                });
+                                widget.onChangeLocale(locale);
+                              },
+                              items: languageOptions.keys.map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // -------- ZONA DE TEMA --------
+                      // SwitchListTile para activar/desactivar modo oscuro.
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.theme,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? Icons.dark_mode_rounded
+                                  : Icons.light_mode_rounded,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                        value: Theme.of(context).brightness == Brightness.dark,
+                        onChanged: (value) => widget.onToggleTheme(value),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
