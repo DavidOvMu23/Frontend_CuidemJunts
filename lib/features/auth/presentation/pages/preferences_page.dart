@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
 // Aquí cambio idioma y tema sin salirme de la app.
@@ -271,6 +272,15 @@ class _PreferencesPageState extends State<PreferencesPage> {
                             FilledButton(
                               onPressed: () {
                                 //TODO: Implementar cierre de sesión
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LoginPage(
+                                      onToggleTheme: widget.onToggleTheme,
+                                      onChangeLocale: widget.onChangeLocale,
+                                    ),
+                                  ),
+                                );
                               },
                               child: Text(l10n.accept),
                             ),

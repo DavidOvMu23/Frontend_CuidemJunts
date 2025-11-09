@@ -78,5 +78,6 @@
   "jueves": "jueves",
   "viernes": "viernes",
   "sabado": "sábado",
-  "domingo": "domingo"
+  "domingo": "domingo",
+  "nothingActivityRecent": "No hay actividad reciente"
 }

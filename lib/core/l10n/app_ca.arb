@@ -108,5 +108,6 @@
   "jueves": "dijous",
   "viernes": "divendres",
   "sabado": "dissabte",
-  "domingo": "diumenge"
+  "domingo": "diumenge",
+  "nothingActivityRecent": "No hi ha activitat recent"
 }

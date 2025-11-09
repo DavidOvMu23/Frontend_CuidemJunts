@@ -573,6 +573,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'domingo'**
   String get domingo;
+
+  /// No description provided for @nothingActivityRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay actividad reciente'**
+  String get nothingActivityRecent;
 }
 
 class _AppLocalizationsDelegate

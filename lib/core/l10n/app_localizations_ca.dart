@@ -246,4 +246,7 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get domingo => 'diumenge';
+
+  @override
+  String get nothingActivityRecent => 'No hi ha activitat recent';
 }

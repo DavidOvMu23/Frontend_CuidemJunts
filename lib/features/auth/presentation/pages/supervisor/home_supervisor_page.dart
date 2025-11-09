@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/home_widgets.dart';
@@ -251,6 +252,16 @@ class HomeSupervisorPage extends StatelessWidget {
                             FilledButton(
                               onPressed: () {
                                 //TODO: Implementar cierre de sesión
+
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LoginPage(
+                                      onToggleTheme: onToggleTheme,
+                                      onChangeLocale: onChangeLocale,
+                                    ),
+                                  ),
+                                );
                               },
                               child: Text(l10n.accept),
                             ),
@@ -268,11 +279,10 @@ class HomeSupervisorPage extends StatelessWidget {
       // -------- CONTENIDO PRINCIPAL --------
       // Por ahora solo mostramos un texto, pero aquí irán los datos reales.
       // -------- CUERPO  --------
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-
-        child: SizedBox(
-          width: double.infinity,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: double.infinity),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -315,7 +325,7 @@ class HomeSupervisorPage extends StatelessWidget {
 
               const SizedBox(height: 20),
               Material(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -358,7 +368,7 @@ class HomeSupervisorPage extends StatelessWidget {
 
               const SizedBox(height: 20),
               Material(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -369,7 +379,7 @@ class HomeSupervisorPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              l10n.todayCalls,
+                              l10n.completedCalls,
                               textAlign: TextAlign.left,
                               style: textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w500,
@@ -392,6 +402,116 @@ class HomeSupervisorPage extends StatelessWidget {
                           Icons.phone,
                           color: colorScheme.primary,
                           size: 60,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              //TODO: implementar ifelse para mostrar llamadas a realizar hoy si no mostrar lo que hay actualmente
+              const SizedBox(height: 20),
+              Material(
+                borderRadius: BorderRadius.circular(30),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Encabezado: icono + título + contador pequeño
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.todayCalls,
+                              style: textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+                      Divider(color: colorScheme.primary.withOpacity(0.25)),
+
+                      // Contenido central cuando no hay llamadas programadas
+                      SizedBox(
+                        height: 120,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.phone_in_talk,
+                                size: 48,
+                                color: colorScheme.primary.withOpacity(0.25),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                l10n.nothingTodayCalls,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              //TODO: implementar ifelse para mostrar actividad reciente en lista si no mostrar lo que hay actualmente
+              const SizedBox(height: 20),
+              Material(
+                borderRadius: BorderRadius.circular(30),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Encabezado: icono + título + contador pequeño
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.activityRecent,
+                              style: textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+                      Divider(color: colorScheme.primary.withOpacity(0.25)),
+
+                      // Contenido central cuando no hay llamadas programadas
+                      SizedBox(
+                        height: 120,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.electric_bolt,
+                                size: 48,
+                                color: colorScheme.primary.withOpacity(0.25),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                l10n.nothingActivityRecent,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

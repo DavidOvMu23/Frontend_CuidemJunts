@@ -31,7 +31,7 @@ class LoginPage extends StatelessWidget {
         children: [
           // -------- BOTÓN DEL IDIOMA (ESQUINA SUPERIOR) --------
           Positioned(
-            top: 3,
+            top: 30,
             right: 0,
             child: general_iconbutton(
               Icons.language,

@@ -108,5 +108,6 @@
   "jueves": "thursday",
   "viernes": "friday",
   "sabado": "saturday",
-  "domingo": "sunday"
+  "domingo": "sunday",
+  "nothingActivityRecent": "No recent activity"
 }

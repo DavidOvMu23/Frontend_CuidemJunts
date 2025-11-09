@@ -246,4 +246,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get domingo => 'domingo';
+
+  @override
+  String get nothingActivityRecent => 'No hay actividad reciente';
 }
