@@ -59,6 +59,24 @@ TextField general_textfield(
   );
 }
 
+TextField general_busqueda_textfield(
+  String texto, {
+  IconData? icono,
+  double borderRadius = 50.0,
+}) {
+  return TextField(
+    decoration: InputDecoration(
+      hintText: texto, // Texto gris que explica qué escribir.
+      prefixIcon: Icon(icono, color: Color(0xFF42a6ee)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(borderRadius),
+        borderSide: BorderSide.none,
+      ),
+      filled: true,
+    ),
+  );
+}
+
 // -------- SNACKBAR GENERAL --------
 // Muestra un mensajito en la parte inferior durante unos segundos.
 void general_snackbar(

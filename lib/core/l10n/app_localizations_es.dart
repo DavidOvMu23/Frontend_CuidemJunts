@@ -97,7 +97,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get superviseCalls => 'Supervisa todas las llamadas del equipo';
 
   @override
-  String get searchUser => 'Busca por usuario o teleoperador';
+  String get searchUsers => 'Buscar usuarios';
 
   @override
   String get all => 'Todas';
@@ -249,4 +249,48 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nothingActivityRecent => 'No hay actividad reciente';
+
+  @override
+  String get searchUser => 'Buscar por nombre o teléfono';
+
+  @override
+  String get searchAllUsers => 'Todos los usuarios';
+
+  @override
+  String get searchActiveUsers => 'Usuarios activos';
+
+  @override
+  String get searchInactiveUsers => 'Usuarios inactivos';
+
+  @override
+  String get searchModerateDependency => 'Dependencia moderada (Grado I)';
+
+  @override
+  String get searchSevereDependency => 'Dependencia severa (Grado II)';
+
+  @override
+  String get searchHighDependency => 'Gran dependencia (Grado III)';
+
+  @override
+  String get sortNameAZ => 'Nombre A-Z';
+
+  @override
+  String get sortNameZA => 'Nombre Z-A';
+
+  @override
+  String get sortBirthdateYoungOld =>
+      'Por fecha de nacimiento (más joven a mayor)';
+
+  @override
+  String get sortBirthdateOldYoung =>
+      'Por fecha de nacimiento (más mayor a joven)';
+
+  @override
+  String get sortDependencyLowHigh => 'Por nivel de dependencia (bajo a alto)';
+
+  @override
+  String get sortDependencyHighLow => 'Por nivel de dependencia (alto a bajo)';
+
+  @override
+  String get usersFound => 'Usuarios encontrados:';
 }

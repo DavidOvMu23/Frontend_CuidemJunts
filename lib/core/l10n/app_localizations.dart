@@ -274,11 +274,11 @@ abstract class AppLocalizations {
   /// **'Supervisa todas las llamadas del equipo'**
   String get superviseCalls;
 
-  /// No description provided for @searchUser.
+  /// No description provided for @searchUsers.
   ///
   /// In es, this message translates to:
-  /// **'Busca por usuario o teleoperador'**
-  String get searchUser;
+  /// **'Buscar usuarios'**
+  String get searchUsers;
 
   /// No description provided for @all.
   ///
@@ -579,6 +579,90 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay actividad reciente'**
   String get nothingActivityRecent;
+
+  /// No description provided for @searchUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre o teléfono'**
+  String get searchUser;
+
+  /// No description provided for @searchAllUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los usuarios'**
+  String get searchAllUsers;
+
+  /// No description provided for @searchActiveUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios activos'**
+  String get searchActiveUsers;
+
+  /// No description provided for @searchInactiveUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios inactivos'**
+  String get searchInactiveUsers;
+
+  /// No description provided for @searchModerateDependency.
+  ///
+  /// In es, this message translates to:
+  /// **'Dependencia moderada (Grado I)'**
+  String get searchModerateDependency;
+
+  /// No description provided for @searchSevereDependency.
+  ///
+  /// In es, this message translates to:
+  /// **'Dependencia severa (Grado II)'**
+  String get searchSevereDependency;
+
+  /// No description provided for @searchHighDependency.
+  ///
+  /// In es, this message translates to:
+  /// **'Gran dependencia (Grado III)'**
+  String get searchHighDependency;
+
+  /// No description provided for @sortNameAZ.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre A-Z'**
+  String get sortNameAZ;
+
+  /// No description provided for @sortNameZA.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre Z-A'**
+  String get sortNameZA;
+
+  /// No description provided for @sortBirthdateYoungOld.
+  ///
+  /// In es, this message translates to:
+  /// **'Por fecha de nacimiento (más joven a mayor)'**
+  String get sortBirthdateYoungOld;
+
+  /// No description provided for @sortBirthdateOldYoung.
+  ///
+  /// In es, this message translates to:
+  /// **'Por fecha de nacimiento (más mayor a joven)'**
+  String get sortBirthdateOldYoung;
+
+  /// No description provided for @sortDependencyLowHigh.
+  ///
+  /// In es, this message translates to:
+  /// **'Por nivel de dependencia (bajo a alto)'**
+  String get sortDependencyLowHigh;
+
+  /// No description provided for @sortDependencyHighLow.
+  ///
+  /// In es, this message translates to:
+  /// **'Por nivel de dependencia (alto a bajo)'**
+  String get sortDependencyHighLow;
+
+  /// No description provided for @usersFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios encontrados:'**
+  String get usersFound;
 }
 
 class _AppLocalizationsDelegate

@@ -97,7 +97,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get superviseCalls => 'Supervise all team calls';
 
   @override
-  String get searchUser => 'Search by user or telemarketer';
+  String get searchUsers => 'Search users';
 
   @override
   String get all => 'All';
@@ -248,4 +248,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nothingActivityRecent => 'No recent activity';
+
+  @override
+  String get searchUser => 'Search by name or phone number';
+
+  @override
+  String get searchAllUsers => 'All users';
+
+  @override
+  String get searchActiveUsers => 'Active users';
+
+  @override
+  String get searchInactiveUsers => 'Inactive users';
+
+  @override
+  String get searchModerateDependency => 'Moderate dependency (Grade I)';
+
+  @override
+  String get searchSevereDependency => 'Severe dependency (Grade II)';
+
+  @override
+  String get searchHighDependency => 'High dependency (Grade III)';
+
+  @override
+  String get sortNameAZ => 'Name A-Z';
+
+  @override
+  String get sortNameZA => 'Name Z-A';
+
+  @override
+  String get sortBirthdateYoungOld => 'By birthdate (youngest to oldest)';
+
+  @override
+  String get sortBirthdateOldYoung => 'By birthdate (oldest to youngest)';
+
+  @override
+  String get sortDependencyLowHigh => 'By dependency level (low to high)';
+
+  @override
+  String get sortDependencyHighLow => 'By dependency level (high to low)';
+
+  @override
+  String get usersFound => 'Users found:';
 }

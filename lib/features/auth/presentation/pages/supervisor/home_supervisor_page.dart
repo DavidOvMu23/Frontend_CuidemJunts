@@ -4,6 +4,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preference
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/home_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
@@ -172,8 +173,17 @@ class HomeSupervisorPage extends StatelessWidget {
                           context: context,
                           icon: Icons.people,
                           texto: l10n.users,
-                          // TODO: Añadir navegación a la pantalla de usuarios
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UsersPage(
+                                  onToggleTheme: onToggleTheme,
+                                  onChangeLocale: onChangeLocale,
+                                ),
+                              ),
+                            );
+                          },
                         ),
 
                         // Opción de Grupos y Teleoperadores

@@ -1,97 +1,116 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
-import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/home_widgets.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-// -------- PÁGINA DE PREFERENCIAS --------
-// Aquí cambio idioma y tema sin salirme de la app.
-class PreferencesPage extends StatefulWidget {
-  const PreferencesPage({
+// -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
+// Es la primera pantalla que ve el supervisor al entrar.
+class UsersPage extends StatefulWidget {
+  // Funciones para cambiar tema e idioma desde esta página
+  // (se las pasamos a PreferencesPage para que también pueda usarlas).
+  // Callback que activa/desactiva el tema oscuro/claro.
+  final void Function(bool) onToggleTheme;
+
+  // Callback que cambia el idioma de la app.
+  final void Function(Locale) onChangeLocale;
+
+  const UsersPage({
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
   });
 
-  final void Function(bool) onToggleTheme; // Cambia modo claro/oscuro.
-  final void Function(Locale) onChangeLocale; // Cambia idioma.
-
   @override
-  State<PreferencesPage> createState() => _PreferencesPageState();
+  State<UsersPage> createState() => _UsersPageState();
 }
 
-class _PreferencesPageState extends State<PreferencesPage> {
-  late String
-  selectedLanguage; // Esto es lo que ve el usuario en el desplegable.
-  bool _languageInitialized = false; // para no recalcular cada vez.
-
+class _UsersPageState extends State<UsersPage> {
   // Lista con los idiomas que tengo disponibles.
-  final Map<String, Locale> languageOptions = const {
-    'Español': Locale('es'),
-    'Valencià': Locale('ca'),
-    'English': Locale('en'),
+  final Map<String, Locale> filtrosBusqueda = const {
+    'Todos los usuarios': Locale('all'),
+    'Usuarios Activos': Locale('act'),
+    'Usuarios Inactivos': Locale('inact'),
+    'Dependencia moderada (Grado I)': Locale('g1'),
+    'Dependencia severa (Grado II)': Locale('g2'),
+    'Gran dependencia (Grado III)': Locale('g3'),
   };
+
+  final Map<String, Locale> ordenBusqueda = const {
+    'Nombre A-Z': Locale('az'),
+    'Nombre Z-A': Locale('za'),
+    'Por fecha de nacimiento (más joven a mayor)': Locale('yn'),
+    'Por fecha de nacimiento (más mayor a joven)': Locale('my'),
+    'Por nivel de dependencia (bajo a alto)': Locale('db'),
+    'Por nivel de dependencia (alto a bajo)': Locale('dbr'),
+  };
+
+  late String filtroSeleccionado;
 
   @override
   void initState() {
     super.initState();
-    selectedLanguage = 'Español'; // Arranco en español por defecto.
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_languageInitialized) return;
-    final currentLocale = Localizations.localeOf(context);
-    final match = languageOptions.entries.firstWhere(
-      (entry) => entry.value.languageCode == currentLocale.languageCode,
-      orElse: () => languageOptions.entries.first,
-    );
-    selectedLanguage = match.key;
-    _languageInitialized = true;
+    filtroSeleccionado = filtrosBusqueda.keys.first;
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
+    // -------- TEMAS, COLORES Y TEXTOS --------
+    // Obtenemos tipografías y paleta del tema actual para mantener
+    // estilos consistentes en toda la app.
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
+    // Textos traducidos (según el idioma seleccionado en la app).
+    final l10n = AppLocalizations.of(context)!;
+
+    // -------- ESTRUCTURA DE LA PANTALLA --------
     return Scaffold(
-      // -------- APPBAR CON EL BOTÓN DE NOTIS --------
+      // -------- BARRA SUPERIOR --------
+      // AppBar: barra superior con título centrado e iconos de acción a la derecha.
       appBar: AppBar(
+        // Título de la app
         title: Text("CuidemJunts", style: TextStyle(fontSize: 19)),
+        //centramos el título
         centerTitle: true,
         actions: [
-          general_badge_demo(10, Icons.notifications, onPressed: () {}),
+          // Icono de notificaciones con contador.
+          general_badge_demo(
+            10,
+            Icons.notifications,
+            onPressed: () {
+              // TODO: Acción al pulsar el icono de notificaciones.
+            },
+          ),
         ],
       ),
 
-      // -------- MENÚ LATERAL --------
-      // Menú rápido para volver al Home sin más historias.
+      // -------- MENÚ LATERAL (DRAWER) --------
+      // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: Drawer(
         // -------- CONTENIDO DEL DRAWER --------
-        // Almacenamos los elementos en una columna
+        // Usamos Column + Expanded + ListView para hacer el contenido scrollable
+        // y dejar la sección de perfil fija abajo.
         child: Column(
           // -------- LISTA DE OPCIONES --------
-          // Con el Expanded hacemos que la lista use todo el alto disponible
+          // Expanded hace que la lista coja todo el alto disponible.
           children: [
             Expanded(
               // ListView para que el contenido del drawer sea scrollable.
               child: ListView(
                 children: [
                   // -------- CABECERA CON LOGO --------
-                  // Contiene el logo y nombre de la app.
+                  // Muestra el logo y el nombre/lema de la app.
                   Padding(
-                    //para separar de los bordes
+                    // separa del borde para que no quede pegado.
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 16,
                     ),
 
-                    //almacenamos los textos e imagen en una fila
+                    // Fila con imagen a la izquierda y textos a la derecha.
                     child: Row(
                       children: [
                         Image.asset(
@@ -103,7 +122,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                         ), //espacio entre imagen y textos
 
                         Expanded(
-                          //almacenamos los textos en una columna para que este uno encima del otro
+                          // Columna para tener nombre y lema uno debajo del otro.
                           child: Column(
                             children: [
                               // Nombre de la app
@@ -157,7 +176,8 @@ class _PreferencesPageState extends State<PreferencesPage> {
                   const SizedBox(height: 20),
 
                   // -------- OPCIONES DEL MENÚ --------
-                  // Cada opción es un ListTile personalizado llamando a la función
+                  // Cada opción usa un ListTile personalizado (general_listile_demo)
+                  // que ya aplica estilos consistentes con la app.
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
@@ -166,13 +186,15 @@ class _PreferencesPageState extends State<PreferencesPage> {
                         general_listile_demo(
                           context: context,
                           icon: Icons.home,
-                          texto: l10n.mainMenu,
-                          selected: false,
+                          texto: l10n.mainPage,
                           onTap: () {
+                            // Navegación a la pantalla principal del supervisor.
+                            // Navigator.pushReplacement reemplaza la pantalla actual.
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => HomeSupervisorPage(
+                                  // HomeSupervisor también puede cambiar tema/idioma.
                                   onToggleTheme: widget.onToggleTheme,
                                   onChangeLocale: widget.onChangeLocale,
                                 ),
@@ -195,17 +217,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           context: context,
                           icon: Icons.people,
                           texto: l10n.users,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UsersPage(
-                                  onToggleTheme: widget.onToggleTheme,
-                                  onChangeLocale: widget.onChangeLocale,
-                                ),
-                              ),
-                            );
-                          },
+                          selected: true,
                         ),
 
                         // Opción de Grupos y Teleoperadores
@@ -221,7 +233,20 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           context: context,
                           icon: Icons.settings,
                           texto: l10n.preferences,
-                          selected: true,
+                          onTap: () {
+                            // Navegación a la pantalla de Preferencias.
+                            // Navigator.push abre una nueva pantalla encima de la actual.
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PreferencesPage(
+                                  // Preferences también puede cambiar tema/idioma.
+                                  onToggleTheme: widget.onToggleTheme,
+                                  onChangeLocale: widget.onChangeLocale,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -261,7 +286,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                   const SizedBox(height: 8),
 
                   // -------- OPCIÓN DE CERRAR SESIÓN --------
-                  general_listtile_logout(
+                  home_listtile_logout(
                     context: context,
                     icon: Icons.logout,
                     texto: l10n.logOut,
@@ -304,93 +329,111 @@ class _PreferencesPageState extends State<PreferencesPage> {
         ),
       ),
 
-      // -------- CUERPO  --------
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      // -------- CONTENIDO PRINCIPAL --------
+      body: SingleChildScrollView(
+        // SingleChildScrollView permite que toda la columna sea scrolleable
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
 
-        child: SizedBox(
-          width: double.infinity,
+        // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
+        child: ConstrainedBox(
+          // Hacemos que la columna ocupe todo el ancho disponible.
+
+          // Esto es necesario para que los elementos dentro de la columna
+          // (como las "tarjetas" de Material) ocupen todo el ancho posible.
+          constraints: const BoxConstraints(minWidth: double.infinity),
+
+          // Columna principal con todo el contenido de la página.
           child: Column(
+            // Alineamos todo a la izquierda.
             crossAxisAlignment: CrossAxisAlignment.start,
+
+            // Elementos de la columna
             children: [
+              // Título principal
               Text(
-                l10n.preferences,
+                l10n.users,
                 style: textTheme.titleMedium?.copyWith(fontSize: 27),
               ),
+              Text(l10n.manageUsers, style: textTheme.bodyMedium),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 10),
               Material(
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Tarjeta de usuarios activos
+                      //TODO: HACER CONTADOR DE USUARIOS
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Material(
+                borderRadius: BorderRadius.circular(30),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // -------- ZONA DE IDIOMA --------
-                      // ListTile + Dropdown para cambiar el idioma de toda la app.
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l10n.lenguagePreferences,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
+                      Text(
+                        l10n.searchUsers,
+                        textAlign: TextAlign.left,
+                        style: textTheme.headlineLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      general_busqueda_textfield(
+                        l10n.searchUser,
+                        icono: Icons.search,
+                      ),
+                      const SizedBox(height: 20),
+                      // Filtro de búsqueda
+                      Row(
+                        children: [
+                          Icon(
+                            filtroSeleccionado != filtrosBusqueda.keys.first
+                                ? Icons.filter_alt
+                                : Icons.filter_alt_off,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: filtroSeleccionado,
+                              icon: const Icon(Icons.arrow_drop_down),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
                               ),
-                            ),
-                            DropdownButton<String>(
-                              value: selectedLanguage,
-                              borderRadius: BorderRadius.circular(12),
-                              onChanged: (String? newValue) {
-                                if (newValue == null) return;
-                                final locale = languageOptions[newValue];
-                                if (locale == null) return;
-                                setState(() {
-                                  selectedLanguage = newValue;
-                                });
-                                widget.onChangeLocale(locale);
-                              },
-                              items: languageOptions.keys.map((String value) {
+                              items: filtrosBusqueda.keys.map((String key) {
                                 return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                                  value: key,
+                                  child: Text(key),
                                 );
                               }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  filtroSeleccionado =
+                                      newValue ?? filtrosBusqueda.keys.first;
+                                });
+                              },
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
+                      Divider(color: colorScheme.primary.withOpacity(0.3)),
+                      const SizedBox(height: 20),
 
-                      // -------- ZONA DE TEMA --------
-                      // SwitchListTile para activar/desactivar modo oscuro.
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.theme,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? Icons.dark_mode_rounded
-                                  : Icons.light_mode_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ],
-                        ),
-                        value: Theme.of(context).brightness == Brightness.dark,
-                        onChanged: (value) => widget.onToggleTheme(value),
-                      ),
+                      // Lista de usuarios filtrados
                     ],
                   ),
                 ),

@@ -97,7 +97,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get superviseCalls => 'Supervisa totes les trucades de l\'equip';
 
   @override
-  String get searchUser => 'Cerca per usuari o teleoperador';
+  String get searchUsers => 'Cerca usuaris';
 
   @override
   String get all => 'Totes';
@@ -249,4 +249,48 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get nothingActivityRecent => 'No hi ha activitat recent';
+
+  @override
+  String get searchUser => 'Cerca per nom o telèfon';
+
+  @override
+  String get searchAllUsers => 'Tots els usuaris';
+
+  @override
+  String get searchActiveUsers => 'Usuaris actius';
+
+  @override
+  String get searchInactiveUsers => 'Usuaris inactius';
+
+  @override
+  String get searchModerateDependency => 'Dependència moderada (Grau I)';
+
+  @override
+  String get searchSevereDependency => 'Dependència severa (Grau II)';
+
+  @override
+  String get searchHighDependency => 'Gran dependència (Grau III)';
+
+  @override
+  String get sortNameAZ => 'Nom A-Z';
+
+  @override
+  String get sortNameZA => 'Nom Z-A';
+
+  @override
+  String get sortBirthdateYoungOld =>
+      'Per data de naixement (més jove a més gran)';
+
+  @override
+  String get sortBirthdateOldYoung =>
+      'Per data de naixement (més gran a més jove)';
+
+  @override
+  String get sortDependencyLowHigh => 'Per nivell de dependència (baix a alt)';
+
+  @override
+  String get sortDependencyHighLow => 'Per nivell de dependència (alt a baix)';
+
+  @override
+  String get usersFound => 'Usuaris trobats:';
 }

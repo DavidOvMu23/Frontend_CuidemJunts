@@ -109,7 +109,7 @@ class LoginPage extends StatelessWidget {
                   // -------- TARJETA DEL FORMULARIO --------
                   // Material con borde redondeado que contiene los campos.
                   Material(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(30),
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: Column(
