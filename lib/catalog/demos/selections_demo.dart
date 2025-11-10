@@ -119,6 +119,8 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                   },
                   child: const Text('Seleccionar hora'),
                 ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),

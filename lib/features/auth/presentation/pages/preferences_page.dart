@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
-// Aquí cambio idioma y tema sin salirme de la app.
+// Configuración de idioma y tema sin salir de la app.
 class PreferencesPage extends StatefulWidget {
   const PreferencesPage({
     super.key,
@@ -14,42 +15,45 @@ class PreferencesPage extends StatefulWidget {
     required this.onChangeLocale,
   });
 
-  final void Function(bool) onToggleTheme; // Cambia modo claro/oscuro.
-  final void Function(Locale) onChangeLocale; // Cambia idioma.
+  // Callback que cambia el tema de la app.
+  // Si es true, activa modo oscuro; si es false, modo claro.
+  // Se utiliza para que el cambio de tema afecte a toda la app.
+  final void Function(bool) onToggleTheme;
+
+  // Callback que cambia el idioma de la app.
+  // Se utiliza para que el cambio de idioma afecte a toda la app.
+  final void Function(Locale) onChangeLocale;
 
   @override
   State<PreferencesPage> createState() => _PreferencesPageState();
 }
 
+// Idiomas disponibles (valor estable, independiente de las traducciones)
+enum AppLanguage { es, ca, en }
+
 class _PreferencesPageState extends State<PreferencesPage> {
-  late String
-  selectedLanguage; // Esto es lo que ve el usuario en el desplegable.
-  bool _languageInitialized = false; // para no recalcular cada vez.
-
-  // Lista con los idiomas que tengo disponibles.
-  final Map<String, Locale> languageOptions = const {
-    'Español': Locale('es'),
-    'Valencià': Locale('ca'),
-    'English': Locale('en'),
-  };
-
-  @override
-  void initState() {
-    super.initState();
-    selectedLanguage = 'Español'; // Arranco en español por defecto.
+  AppLanguage _languageFromLocale(Locale locale) {
+    switch (locale.languageCode) {
+      case 'ca':
+        return AppLanguage.ca;
+      case 'en':
+        return AppLanguage.en;
+      case 'es':
+      default:
+        return AppLanguage.es;
+    }
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_languageInitialized) return;
-    final currentLocale = Localizations.localeOf(context);
-    final match = languageOptions.entries.firstWhere(
-      (entry) => entry.value.languageCode == currentLocale.languageCode,
-      orElse: () => languageOptions.entries.first,
-    );
-    selectedLanguage = match.key;
-    _languageInitialized = true;
+  Locale _localeFromLanguage(AppLanguage lang) {
+    switch (lang) {
+      case AppLanguage.ca:
+        return const Locale('ca');
+      case AppLanguage.en:
+        return const Locale('en');
+      case AppLanguage.es:
+      default:
+        return const Locale('es');
+    }
   }
 
   @override
@@ -61,247 +65,48 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
     return Scaffold(
       // -------- APPBAR CON EL BOTÓN DE NOTIS --------
-      appBar: AppBar(
-        title: Text("CuidemJunts", style: TextStyle(fontSize: 19)),
-        centerTitle: true,
-        actions: [
-          general_badge_demo(10, Icons.notifications, onPressed: () {}),
-        ],
-      ),
+      appBar: appMainAppBar(onNotifications: () {}),
 
       // -------- MENÚ LATERAL --------
-      // Menú rápido para volver al Home sin más historias.
-      drawer: Drawer(
-        // -------- CONTENIDO DEL DRAWER --------
-        // Almacenamos los elementos en una columna
-        child: Column(
-          // -------- LISTA DE OPCIONES --------
-          // Con el Expanded hacemos que la lista use todo el alto disponible
-          children: [
-            Expanded(
-              // ListView para que el contenido del drawer sea scrollable.
-              child: ListView(
-                children: [
-                  // -------- CABECERA CON LOGO --------
-                  // Contiene el logo y nombre de la app.
-                  Padding(
-                    //para separar de los bordes
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
-                    ),
-
-                    //almacenamos los textos e imagen en una fila
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/Logo_CuidemJunts.png',
-                          height: 74,
-                        ),
-                        const SizedBox(
-                          width: 16,
-                        ), //espacio entre imagen y textos
-
-                        Expanded(
-                          //almacenamos los textos en una columna para que este uno encima del otro
-                          child: Column(
-                            children: [
-                              // Nombre de la app
-                              Text(
-                                'CuidemJunts',
-                                style: textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 4),
-
-                              // Lema de la app
-                              Text(
-                                'Lluita contra la soletat\nen persones majors',
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // -------- DIVISOR --------
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Divider(color: colorScheme.primary.withOpacity(0.3)),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // -------- TÍTULO DE LA SECCIÓN --------
-                  // Texto “Supervisión” para separar las opciones principales.
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                    ).copyWith(top: 8),
-                    child: Text(
-                      l10n.supervison,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // -------- OPCIONES DEL MENÚ --------
-                  // Cada opción es un ListTile personalizado llamando a la función
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        // Opción de Home (seleccionada), no ponemos el onTap porque es la página actual
-                        general_listile_demo(
-                          context: context,
-                          icon: Icons.home,
-                          texto: l10n.mainMenu,
-                          selected: false,
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomeSupervisorPage(
-                                  onToggleTheme: widget.onToggleTheme,
-                                  onChangeLocale: widget.onChangeLocale,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        // Opción de Llamadas
-                        general_listile_demo(
-                          context: context,
-                          icon: Icons.phone,
-                          texto: l10n.calls,
-                          // TODO: Añadir navegación a la pantalla de llamadas
-                          onTap: () {},
-                        ),
-
-                        // Opción de Usuarios
-                        general_listile_demo(
-                          context: context,
-                          icon: Icons.people,
-                          texto: l10n.users,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UsersPage(
-                                  onToggleTheme: widget.onToggleTheme,
-                                  onChangeLocale: widget.onChangeLocale,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        // Opción de Grupos y Teleoperadores
-                        general_listile_demo(
-                          context: context,
-                          icon: Icons.support_agent,
-                          texto: l10n.telemarketers,
-                          // TODO: Añadir navegación a la pantalla de grupos
-                          onTap: () {},
-                        ),
-                        // Opción de Preferencias
-                        general_listile_demo(
-                          context: context,
-                          icon: Icons.settings,
-                          texto: l10n.preferences,
-                          selected: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+      drawer: appDrawer(
+        context: context,
+        selected: DrawerItem.preferences,
+        onTapHome: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeSupervisorPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
               ),
             ),
-
-            const SizedBox(height: 8),
-            // -------- SECCIÓN INFERIOR CON PERFIL Y LOGOUT --------
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-
-              // Almacenamos el avatar, nombre y botón de logout en una columna
-              child: Column(
-                children: [
-                  // -------- AVATAR Y NOMBRE DE USUARIO --------
-                  ListTile(
-                    leading: CircleAvatar(
-                      radius: 24,
-                      // Integramos el avatar con el tema.
-                      backgroundColor: colorScheme.surface,
-                      foregroundColor: colorScheme.primary,
-                      child: const Icon(Icons.person, size: 32),
-                    ),
-                    title: Text(
-                      'Supervisor Name',
-                      style: textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      l10n.supervisor,
-                      style: textTheme.bodyMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // -------- OPCIÓN DE CERRAR SESIÓN --------
-                  general_listtile_logout(
-                    context: context,
-                    icon: Icons.logout,
-                    texto: l10n.logOut,
-                    onTap: () {
-                      // Mostramos un diálogo de confirmación antes de cerrar sesión.
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(l10n.logOut),
-                          content: Text(l10n.confirmLogOut),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(l10n.cancel),
-                            ),
-                            FilledButton(
-                              onPressed: () {
-                                //TODO: Implementar cierre de sesión
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LoginPage(
-                                      onToggleTheme: widget.onToggleTheme,
-                                      onChangeLocale: widget.onChangeLocale,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Text(l10n.accept),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+          );
+        },
+        onTapCalls: () {},
+        onTapUsers: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UsersPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
               ),
             ),
-          ],
-        ),
+          );
+        },
+        onTapTelemarketers: () {},
+        onTapPreferences: () {},
+        onLogoutConfirmed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
+              ),
+            ),
+          );
+        },
       ),
 
       // -------- CUERPO  --------
@@ -341,24 +146,31 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                 fontSize: 16,
                               ),
                             ),
-                            DropdownButton<String>(
-                              value: selectedLanguage,
+                            DropdownButton<AppLanguage>(
+                              value: _languageFromLocale(
+                                Localizations.localeOf(context),
+                              ),
                               borderRadius: BorderRadius.circular(12),
-                              onChanged: (String? newValue) {
+                              onChanged: (AppLanguage? newValue) {
                                 if (newValue == null) return;
-                                final locale = languageOptions[newValue];
-                                if (locale == null) return;
-                                setState(() {
-                                  selectedLanguage = newValue;
-                                });
-                                widget.onChangeLocale(locale);
-                              },
-                              items: languageOptions.keys.map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                                widget.onChangeLocale(
+                                  _localeFromLanguage(newValue),
                                 );
-                              }).toList(),
+                              },
+                              items: [
+                                DropdownMenuItem<AppLanguage>(
+                                  value: AppLanguage.es,
+                                  child: Text(l10n.languageSpanish),
+                                ),
+                                DropdownMenuItem<AppLanguage>(
+                                  value: AppLanguage.ca,
+                                  child: Text(l10n.languageCatalan),
+                                ),
+                                DropdownMenuItem<AppLanguage>(
+                                  value: AppLanguage.en,
+                                  child: Text(l10n.languageEnglish),
+                                ),
+                              ],
                             ),
                           ],
                         ),

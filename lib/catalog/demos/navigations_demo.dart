@@ -1,100 +1,210 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
-import 'package:frontend_cuidemjunts/catalog/widgets/widgets_containers_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/widgets/widgets_navigations_demo.dart';
 
-// -------- WIDGET PRINCIPAL --------
-// Esta clase muestra un ejemplo del uso del Navigation Drawer,
-// que es el menú lateral que se abre desde el borde izquierdo de la pantalla.
-class NavigationsDemo extends StatelessWidget {
+//Este enum define los elementos del drawer
+enum DemoDrawerItem { home, calls, users, telemarketers, preferences }
+
+class NavigationsDemo extends StatefulWidget {
   const NavigationsDemo({super.key});
 
-  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
+  @override
+  State<NavigationsDemo> createState() => _NavigationsDemoState();
+}
+
+class _NavigationsDemoState extends State<NavigationsDemo> {
+  // Variable en la que establecemos el elemento seleccionado del drawer
+  DemoDrawerItem _selected = DemoDrawerItem.calls;
+
   @override
   Widget build(BuildContext context) {
+    // Obtener los temas de texto y color actuales para usarlos en el diseño
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       // -------- BARRA SUPERIOR (APPBAR) --------
-      // Muestra el título de la pantalla
-      appBar: AppBar(title: const Text('Demo: Navigation Drawer')),
-
-      // -------- DRAWER (MENÚ LATERAL) --------
-      // El Drawer es el panel que aparece al deslizar desde la izquierda
-      drawer: Drawer(
-        // Surface principal dentro del Drawer
-        child: Material(
-          // -------- LISTA DE OPCIONES --------
-          // Contiene las diferentes secciones del menú lateral
-          child: ListView(
-            children: [
-              // -------- ENCABEZADO DEL DRAWER --------
-              // Normalmente muestra el nombre o logo de la app
-              const DrawerHeader(
-                child: Text(
-                  'Cuidem Junts',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-
-              // -------- OPCIÓN 1: INICIO --------
-              widget_listile_demo(
-                icon: Icons.home,
-                texto: 'Inicio',
-                onTap: () => Navigator.pop,
-              ),
-
-              // -------- OPCIÓN 2: CONFIGURACIÓN --------
-              widget_listile_demo(
-                icon: Icons.settings,
-                texto: 'Configuración',
-                onTap: () => Navigator.pop,
-              ),
-
-              // -------- OPCIÓN 3: ACERCA DE --------
-              widget_listile_demo(
-                icon: Icons.info,
-                texto: 'Acerca de',
-                onTap: () => Navigator.pop,
-              ),
-
-              // -------- OPCIÓN 4: sali al menú --------
-              widget_listile_demo(
-                icon: Icons.exit_to_app,
-                texto: 'Salir',
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const CatalogPage(), // Ir a la página del catálogo
-                    ),
-                  );
-                },
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text('CuidemJunts'),
+        centerTitle: true,
+        actions: [
+          widget_badge_demo(
+            10,
+            Icons.notifications,
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notificaciones pulsadas')),
+              );
+            },
           ),
-        ),
+        ],
       ),
 
-      // -------- CUERPO PRINCIPAL --------
-      // El contenido que se muestra cuando no se está usando el Drawer
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      // -------- DRAWER (MENÚ LATERAL) --------
+      drawer: Drawer(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: [
+                  // -------- CABECERA CON LOGO --------
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/Logo_CuidemJunts.png',
+                          height: 74,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                'CuidemJunts',
+                                style: textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Lluita contra la soletat\nen persones majors',
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-        // -------- SURFACE PRINCIPAL --------
-        child: Material(
-          borderRadius: BorderRadius.circular(16), // Bordes redondeados
+                  // -------- DIVISOR --------
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Divider(color: colorScheme.primary.withOpacity(0.3)),
+                  ),
+                  const SizedBox(height: 10),
 
-          child: const Padding(
-            padding: EdgeInsets.all(16.0),
+                  // -------- TÍTULO DE SECCIÓN --------
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                    ).copyWith(top: 8),
+                    child: Text(
+                      "Supervisión",
+                      style: textTheme.titleMedium?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-            // -------- CONTENIDO CENTRAL --------
-            child: Center(
-              child: Text(
-                'Bienvenido a la demo del Navigation Drawer',
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
+                  // -------- OPCIONES--------
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      children: [
+                        //llamamos al widget personalizado widget_DrawerTile
+                        widget_DrawerTile(
+                          context,
+                          icon: Icons.home,
+                          text: 'Inicio',
+                          // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
+                          selected: _selected == DemoDrawerItem.home,
+                        ),
+                        widget_DrawerTile(
+                          context,
+                          icon: Icons.phone,
+                          text: 'Llamadas',
+                          // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
+                          selected: _selected == DemoDrawerItem.calls,
+                        ),
+                        widget_DrawerTile(
+                          context,
+                          icon: Icons.people,
+                          text: 'Usuarios',
+                          // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
+                          selected: _selected == DemoDrawerItem.users,
+                        ),
+                        widget_DrawerTile(
+                          context,
+                          icon: Icons.support_agent,
+                          text: 'Teleoperadores',
+                          // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
+                          selected: _selected == DemoDrawerItem.telemarketers,
+                        ),
+                        widget_DrawerTile(
+                          context,
+                          icon: Icons.settings,
+                          text: 'Preferencias',
+                          // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
+                          selected: _selected == DemoDrawerItem.preferences,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
+
+            // -------- PERFIL + CERRAR SESIÓN --------
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: CircleAvatar(
+                      radius: 24,
+                      backgroundColor: colorScheme.surface,
+                      foregroundColor: colorScheme.primary,
+                      child: const Icon(Icons.person, size: 32),
+                    ),
+                    title: Text(
+                      'Supervisor Name',
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text("Supervisor", style: textTheme.bodyMedium),
+                  ),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    horizontalTitleGap: 2,
+                    leading: const Icon(
+                      Icons.logout,
+                      color: Color(0xFF42a6ee),
+                      size: 16,
+                    ),
+                    title: const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    ),
+                    onTap: () async {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const CatalogPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

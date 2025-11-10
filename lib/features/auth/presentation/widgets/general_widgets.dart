@@ -3,6 +3,20 @@ import 'package:flutter/material.dart';
 // -------- WIDGETS QUE REPITO POR TODA LA APP --------
 // Son las piezas básicas que uso una y otra vez. Prefiero tenerlas aquí y listo.
 
+// -------- APP BAR ESTÁNDAR DE LA APP --------
+// Título centrado + botón de notificaciones reutilizable.
+PreferredSizeWidget appMainAppBar({
+  required VoidCallback onNotifications,
+}) {
+  return AppBar(
+    title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
+    centerTitle: true,
+    actions: [
+      general_badge_demo(10, Icons.notifications, onPressed: onNotifications),
+    ],
+  );
+}
+
 // -------- BADGE CON ICONO --------
 // Muestra un icono con un numerito encima (ideal para notificaciones).
 Widget general_badge_demo(
@@ -143,5 +157,36 @@ Widget general_listtile_logout({
       style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
     ),
     onTap: onTap,
+  );
+}
+
+// -------- DIÁLOGO DE CONFIRMACIÓN GENÉRICO --------
+Future<void> showConfirmDialog(
+  BuildContext context, {
+  required String title,
+  required String content,
+  required String confirmText,
+  required String cancelText,
+  required VoidCallback onConfirm,
+}) {
+  return showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(cancelText),
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.pop(ctx);
+            onConfirm();
+          },
+          child: Text(confirmText),
+        ),
+      ],
+    ),
   );
 }

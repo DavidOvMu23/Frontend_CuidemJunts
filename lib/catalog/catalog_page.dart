@@ -4,12 +4,14 @@ import 'package:frontend_cuidemjunts/catalog/demos/buttons_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/textfields_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/containers_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/demos/navigations_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/selections_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/typography_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/demos/appbar_demo.dart';
+import 'package:frontend_cuidemjunts/catalog/demos/navigations_demo.dart';
 
 // -------- WIDGET PRINCIPAL DE LA PÁGINA --------
-// CatalogPage es un StatefulWidget porque necesita recordar el modo oscuro o claro.
+// CatalogPage es un StatefulWidget porque su apariencia puede cambiar (modo claro/oscuro)
+// y hace falta guardar ese estado.
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
 
@@ -70,6 +72,20 @@ class _CatalogPageState extends State<CatalogPage> {
                   shrinkWrap: true, // El contenedor se adapta al contenido
                   // Cada elemento de la lista representa una demo distinta
                   children: [
+                    // -------- DEMO: APPBAR--------
+                    ListTile(
+                      title: const Text('Appbar'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AppbarDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+
                     // -------- DEMO: BUTTONS --------
                     ListTile(
                       title: const Text('Buttons'),
@@ -78,6 +94,20 @@ class _CatalogPageState extends State<CatalogPage> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const ButtonsDemo(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+
+                    // -------- DEMO: NAVIGATIONS --------
+                    ListTile(
+                      title: const Text('Navigations'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const NavigationsDemo(),
                           ),
                         );
                       },
@@ -106,20 +136,6 @@ class _CatalogPageState extends State<CatalogPage> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const ContainersDemo(),
-                          ),
-                        );
-                      },
-                    ),
-                    const Divider(height: 1),
-
-                    // -------- DEMO: NAVIGATIONS --------
-                    ListTile(
-                      title: const Text('Navigations'),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const NavigationsDemo(),
                           ),
                         );
                       },

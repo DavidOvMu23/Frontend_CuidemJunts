@@ -39,12 +39,12 @@ class CommunicationsDemo extends StatelessWidget {
                 // Muestra un ícono con un número encima, como las notificaciones de una app.
                 widget_badge_demo(10, Icons.notifications, onPressed: () {}),
 
-                // -------- FILLED BUTTON (SnackBar) --------
-                // Botón que al pulsarlo muestra un mensaje corto (SnackBar) en la parte inferior.
+                // -------- FILLED BUTTON (sin SnackBar) --------
+                // Botón que ya no muestra un SnackBar aquí.
                 widget_filledbutton_demo(
-                  'Mostrar SnackBar',
+                  'Snack Bar',
                   onPressed: () {
-                    widget_snackbar_demo(context, '¡Hola desde SnackBar!', 2);
+                    widget_snackbar_demo(context, "Hola!!! Soy un SnackBar", 2);
                   },
                 ),
               ],

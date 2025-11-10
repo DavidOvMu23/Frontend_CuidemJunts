@@ -18,8 +18,7 @@ class ButtonsDemo extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
-        // -------- PANEL PRINCIPAL (SURFACE) --------
-        // Un contenedor con estilo Material que da el efecto visual de "tarjeta"
+        //contenedor en el que meter los botones
         child: Material(
           borderRadius: BorderRadius.circular(16), // Bordes redondeados
 

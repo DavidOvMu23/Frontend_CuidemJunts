@@ -13,8 +13,13 @@ class LoginPage extends StatelessWidget {
     required this.onChangeLocale,
   });
 
-  // Estas funciones vienen desde MyApp para cambiar tema/idioma sin salir de aquí.
+  // Callback que cambia el tema de la app.
+  // Si es true, activa modo oscuro; si es false, modo claro.
+  // Se utiliza para que el cambio de tema afecte a toda la app.
   final void Function(bool) onToggleTheme;
+
+  // Callback que cambia el idioma de la app.
+  // Se utiliza para que el cambio de idioma afecte a toda la app.
   final void Function(Locale) onChangeLocale;
 
   @override
