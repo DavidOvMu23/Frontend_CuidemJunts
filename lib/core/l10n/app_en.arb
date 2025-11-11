@@ -114,9 +114,6 @@
   "searchAllUsers": "All users",
   "searchActiveUsers": "Active users",
   "searchInactiveUsers": "Inactive users",
-  "searchModerateDependency": "Moderate dependency (Grade I)",
-  "searchSevereDependency": "Severe dependency (Grade II)",
-  "searchHighDependency": "High dependency (Grade III)",
   "sortNameAZ": "Name A-Z",
   "sortNameZA": "Name Z-A",
   "sortBirthdateYoungOld": "By birthdate (youngest to oldest)",
@@ -124,5 +121,15 @@
   "sortDependencyLowHigh": "By dependency level (low to high)",
   "sortDependencyHighLow": "By dependency level (high to low)",
   "usersFound": "Users found:",
-  "totalUsers": "Total users"
+  "searchModerateDependency": "Moderate dep. (Grade I)",
+  "searchSevereDependency": "Severe dep. (Grade II)",
+  "searchHighDependency": "High dep. (Grade III)",
+  "sortType": "Sort options",
+  "totalUsers": "Total users",
+  "noSortedUsers": "Default sorting (A-Z)",
+  "sortedAZSnackbar": "Users sorted by name A-Z.",
+  "sortedZASnackbar": "Users sorted by name Z-A.",
+  "sortedDependencyLevelHighLow": "Users sorted by dependency level (high to low).",
+  "sortedDependencyLevelLowHigh": "Users sorted by dependency level (low to high).",
+  "sortedStatusAccount": "Users sorted by account status (active to inactive)."
 }

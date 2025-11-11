@@ -114,8 +114,8 @@
   "searchAllUsers": "Tots els usuaris",
   "searchActiveUsers": "Usuaris actius",
   "searchInactiveUsers": "Usuaris inactius",
-  "searchModerateDependency": "Dependència moderada (Grau I)",
-  "searchSevereDependency": "Dependència severa (Grau II)",
+  "searchModerateDependency": "Dep. moderada (Grau I)",
+  "searchSevereDependency": "Dep. severa (Grau II)",
   "searchHighDependency": "Gran dependència (Grau III)",
   "sortNameAZ": "Nom A-Z",
   "sortNameZA": "Nom Z-A",
@@ -123,6 +123,14 @@
   "sortBirthdateOldYoung": "Per data de naixement (més gran a més jove)",
   "sortDependencyLowHigh": "Per nivell de dependència (baix a alt)",
   "sortDependencyHighLow": "Per nivell de dependència (alt a baix)",
+  "sortAccountStatus": "Per estat de compte (actius a inactius)",
   "usersFound": "Usuaris trobats:",
-  "totalUsers": "Total d'usuaris"
+  "totalUsers": "Total d'usuaris",
+  "sortType": "Mostra per ordre",
+  "noSortedUsers": "Ordenació predefinida (A-Z)",
+  "noSortedUsersSnackbar": "Usuaris ordenats per defecte.",
+  "sortedZASnackbar": "Usuaris ordenats per nom Z-A.",
+  "sortedDependencyLevelHighLow": "Usuaris ordenats per nivell de dependència (alt a baix).",
+  "sortedDependencyLevelLowHigh": "Usuaris ordenats per nivell de dependència (baix a alt).",
+  "sortedStatusAccount": "Usuaris ordenats per estat de compte (actius a inactius)."
 }

@@ -262,16 +262,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchInactiveUsers => 'Inactive users';
 
   @override
-  String get searchModerateDependency => 'Moderate dependency (Grade I)';
+  String get searchModerateDependency => 'Moderate dep. (Grade I)';
 
   @override
-  String get searchSevereDependency => 'Severe dependency (Grade II)';
+  String get searchSevereDependency => 'Severe dep. (Grade II)';
 
   @override
-  String get searchHighDependency => 'High dependency (Grade III)';
-
-  @override
-  String get sortNameAZ => 'Name A-Z';
+  String get searchHighDependency => 'High dep. (Grade III)';
 
   @override
   String get sortNameZA => 'Name Z-A';
@@ -293,4 +290,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalUsers => 'Total users';
+
+  @override
+  String get sortType => 'Sort options';
+
+  @override
+  String get noSortedUsers => 'Default sorting (A-Z)';
+
+  @override
+  String get sortedZASnackbar => 'Users sorted by name Z-A.';
+
+  @override
+  String get sortedDependencyLevelHighLow =>
+      'Users sorted by dependency level (high to low).';
+
+  @override
+  String get sortedDependencyLevelLowHigh =>
+      'Users sorted by dependency level (low to high).';
+
+  @override
+  String get sortedStatusAccount =>
+      'Users sorted by account status (active to inactive).';
 }

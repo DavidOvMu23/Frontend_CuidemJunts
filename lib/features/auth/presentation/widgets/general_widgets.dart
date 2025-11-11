@@ -113,7 +113,7 @@ void general_snackbar(
 
 // -------- ELEMENTO DE LISTA PARA EL DRAWER --------
 // Es el botón del menú lateral con icono, texto y estado "seleccionado".
-Widget general_listile_demo({
+Widget general_listtile({
   required BuildContext context,
   required IconData icon,
   required String texto,

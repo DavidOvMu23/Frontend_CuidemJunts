@@ -607,13 +607,13 @@ abstract class AppLocalizations {
   /// No description provided for @searchModerateDependency.
   ///
   /// In es, this message translates to:
-  /// **'Dependencia moderada (Grado I)'**
+  /// **'Dep. moderada (Grado I)'**
   String get searchModerateDependency;
 
   /// No description provided for @searchSevereDependency.
   ///
   /// In es, this message translates to:
-  /// **'Dependencia severa (Grado II)'**
+  /// **'Dep. severa (Grado II)'**
   String get searchSevereDependency;
 
   /// No description provided for @searchHighDependency.
@@ -621,12 +621,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Gran dependencia (Grado III)'**
   String get searchHighDependency;
-
-  /// No description provided for @sortNameAZ.
-  ///
-  /// In es, this message translates to:
-  /// **'Nombre A-Z'**
-  String get sortNameAZ;
 
   /// No description provided for @sortNameZA.
   ///
@@ -669,6 +663,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Total de usuarios'**
   String get totalUsers;
+
+  /// No description provided for @sortType.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar por orden'**
+  String get sortType;
+
+  /// No description provided for @noSortedUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenación predeterminada (A-Z)'**
+  String get noSortedUsers;
+
+  /// No description provided for @sortedZASnackbar.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por nombre Z-A.'**
+  String get sortedZASnackbar;
+
+  /// No description provided for @sortedDependencyLevelHighLow.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por nivel de dependencia (alto a bajo).'**
+  String get sortedDependencyLevelHighLow;
+
+  /// No description provided for @sortedDependencyLevelLowHigh.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por nivel de dependencia (bajo a alto).'**
+  String get sortedDependencyLevelLowHigh;
+
+  /// No description provided for @sortedStatusAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por estado de cuenta (activos a inactivos).'**
+  String get sortedStatusAccount;
 }
 
 class _AppLocalizationsDelegate
