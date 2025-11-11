@@ -5,6 +5,7 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
 // Configuración de idioma y tema sin salir de la app.
@@ -81,7 +82,15 @@ class _PreferencesPageState extends State<PreferencesPage> {
           );
         },
         onTapCalls: () {
-          //TODO: Navegar a la página de llamadas
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LlamadasPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
+              ),
+            ),
+          );
         },
         onTapUsers: () {
           Navigator.push(

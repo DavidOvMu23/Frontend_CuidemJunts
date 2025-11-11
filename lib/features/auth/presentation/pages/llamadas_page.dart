@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-class UsersPage extends StatefulWidget {
+class LlamadasPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
   // Se utiliza para que el cambio de tema afecte a toda la app.
@@ -17,40 +17,43 @@ class UsersPage extends StatefulWidget {
   // Se utiliza para que el cambio de idioma afecte a toda la app.
   final void Function(Locale) onChangeLocale;
 
-  const UsersPage({
+  const LlamadasPage({
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
   });
 
   @override
-  State<UsersPage> createState() => _UsersPageState();
+  State<LlamadasPage> createState() => _LlamadasPageState();
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, inactive, g1, g2, g3 }
+enum CallFilter { all, complete, pending, incomplete, g1, g2, g3 }
 
 // Modos de ordenación disponibles para la lista de usuarios.
-enum UserSort {
+enum CallSort {
   none,
+  dateLatest,
+  nameAZ,
   nameZA,
+  callDurationShortLong,
+  callDurationLongShort,
   dependencyHighLow,
   dependencyLowHigh,
-  accountStatusOrder,
 }
 
-class _UsersPageState extends State<UsersPage> {
+class _LlamadasPageState extends State<LlamadasPage> {
   // Filtro de usuarios seleccionado actualmente.
-  late UserFilter filtroSeleccionado;
+  late CallFilter filtroSeleccionado;
   late String textoFiltro = '';
 
   /// Orden actualmente seleccionado para la lista.
-  UserSort ordenSeleccionado = UserSort.none;
+  CallSort ordenSeleccionado = CallSort.none;
 
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = UserFilter.all;
+    filtroSeleccionado = CallFilter.all;
   }
 
   @override
@@ -76,7 +79,7 @@ class _UsersPageState extends State<UsersPage> {
       // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
         context: context,
-        selected: DrawerItem.users,
+        selected: DrawerItem.calls,
         onTapHome: () {
           Navigator.pushReplacement(
             context,
@@ -88,11 +91,11 @@ class _UsersPageState extends State<UsersPage> {
             ),
           );
         },
-        onTapCalls: () {
+        onTapUsers: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => LlamadasPage(
+              builder: (context) => UsersPage(
                 onToggleTheme: widget.onToggleTheme,
                 onChangeLocale: widget.onChangeLocale,
               ),
@@ -146,11 +149,11 @@ class _UsersPageState extends State<UsersPage> {
             children: [
               // Título principal
               Text(
-                l10n.users,
+                l10n.calls,
                 style: textTheme.titleMedium?.copyWith(fontSize: 27),
               ),
               // Subtítulo
-              Text(l10n.manageUsers, style: textTheme.bodyMedium),
+              Text(l10n.superviseCalls, style: textTheme.bodyMedium),
               const SizedBox(height: 20),
 
               // Tarjeta principal con filtros y lista de usuarios
@@ -165,7 +168,7 @@ class _UsersPageState extends State<UsersPage> {
                     children: [
                       // Título de la sección de búsqueda
                       Text(
-                        l10n.searchUsers,
+                        l10n.allCalls,
                         textAlign: TextAlign.left,
                         style: textTheme.headlineLarge?.copyWith(
                           fontWeight: FontWeight.w500,
@@ -176,7 +179,7 @@ class _UsersPageState extends State<UsersPage> {
 
                       // TextField de búsqueda
                       general_busqueda_textfield(
-                        l10n.searchUser,
+                        l10n.searchCalls,
                         icono: Icons.search,
                         onChanged: (value) {
                           setState(() {
@@ -192,7 +195,7 @@ class _UsersPageState extends State<UsersPage> {
                           // Ícono que indica si hay filtro activo o no
                           Icon(
                             // Si el filtro seleccionado no es "Todos", mostramos el icono de filtro activo
-                            filtroSeleccionado != UserFilter.all
+                            filtroSeleccionado != CallFilter.all
                                 ? Icons.filter_alt
                                 : Icons.filter_alt_off,
                             color: colorScheme.primary,
@@ -202,7 +205,7 @@ class _UsersPageState extends State<UsersPage> {
                           //Expanded para que el DropdownButtonFormField ocupe todo el espacio restante
                           Expanded(
                             //Dropdown para seleccionar el filtro de búsqueda
-                            child: DropdownButtonFormField<UserFilter>(
+                            child: DropdownButtonFormField<CallFilter>(
                               value: filtroSeleccionado,
                               icon: const Icon(Icons.arrow_drop_down),
                               borderRadius: BorderRadius.circular(12),
@@ -215,37 +218,41 @@ class _UsersPageState extends State<UsersPage> {
 
                               //Elementos del dropdown
                               items: [
-                                DropdownMenuItem<UserFilter>(
+                                DropdownMenuItem<CallFilter>(
                                   //seleccionamos el filtro "Todos"
-                                  value: UserFilter.all,
-                                  child: Text(l10n.searchAllUsers),
+                                  value: CallFilter.all,
+                                  child: Text(l10n.allCalls),
                                 ),
-                                DropdownMenuItem<UserFilter>(
-                                  value: UserFilter.active,
-                                  child: Text(l10n.searchActiveUsers),
+                                DropdownMenuItem<CallFilter>(
+                                  value: CallFilter.complete,
+                                  child: Text(l10n.callCompleted),
                                 ),
-                                DropdownMenuItem<UserFilter>(
-                                  value: UserFilter.inactive,
-                                  child: Text(l10n.searchInactiveUsers),
+                                DropdownMenuItem<CallFilter>(
+                                  value: CallFilter.pending,
+                                  child: Text(l10n.callPending),
                                 ),
-                                DropdownMenuItem<UserFilter>(
-                                  value: UserFilter.g1,
+                                DropdownMenuItem<CallFilter>(
+                                  value: CallFilter.incomplete,
+                                  child: Text(l10n.callNoAnswer),
+                                ),
+                                DropdownMenuItem<CallFilter>(
+                                  value: CallFilter.g1,
                                   child: Text(l10n.searchModerateDependency),
                                 ),
-                                DropdownMenuItem<UserFilter>(
-                                  value: UserFilter.g2,
-                                  child: Text(l10n.searchSevereDependency),
-                                ),
-                                DropdownMenuItem<UserFilter>(
-                                  value: UserFilter.g3,
+                                DropdownMenuItem<CallFilter>(
+                                  value: CallFilter.g2,
                                   child: Text(l10n.searchHighDependency),
+                                ),
+                                DropdownMenuItem<CallFilter>(
+                                  value: CallFilter.g3,
+                                  child: Text(l10n.searchSevereDependency),
                                 ),
                               ],
                               // Al cambiar el valor seleccionado, actualizamos el estado
-                              onChanged: (UserFilter? newValue) {
+                              onChanged: (CallFilter? newValue) {
                                 setState(() {
                                   filtroSeleccionado =
-                                      newValue ?? UserFilter.all;
+                                      newValue ?? CallFilter.all;
                                 });
                               },
                             ),
@@ -263,10 +270,10 @@ class _UsersPageState extends State<UsersPage> {
                             child: Text(
                               //Si no hay nada escrito en el textfield de búsqueda si no hay filtro, mostramos el total de usuarios del programa
                               textoFiltro.isEmpty &&
-                                      filtroSeleccionado == UserFilter.all
-                                  ? l10n.totalUsers +
+                                      filtroSeleccionado == CallFilter.all
+                                  ? l10n.totalCalls +
                                         ': 0' //TODO: cambiar 0 por el total real de la base de datos
-                                  : l10n.usersFound +
+                                  : l10n.callsFound +
                                         ': 0', //TODO: cambiar 0 por el total real de usuarios encontrados
                               style: textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w500,
@@ -278,7 +285,7 @@ class _UsersPageState extends State<UsersPage> {
                           //Listar usuarios según el filtro y el texto de búsqueda
                           general_iconbutton(
                             // Si hay algún tipo de orden aplicado, mostramos el icono de filtro activo si no, el de filtro inactivo
-                            ordenSeleccionado == UserSort.none
+                            ordenSeleccionado == CallSort.none
                                 ? Icons.filter_list_off
                                 : Icons.filter_list,
 
@@ -309,11 +316,11 @@ class _UsersPageState extends State<UsersPage> {
                                       general_listtile(
                                         context: context,
                                         icon: Icons.filter_list_off,
-                                        texto: l10n.noSortedUsers,
+                                        texto: l10n.noSortedCalls,
                                         onTap: () {
                                           setState(() {
                                             // usamos el valor `none` para indicar que no hay orden activo
-                                            ordenSeleccionado = UserSort.none;
+                                            ordenSeleccionado = CallSort.none;
                                           });
                                           general_snackbar(
                                             context,
@@ -321,6 +328,27 @@ class _UsersPageState extends State<UsersPage> {
                                             2,
                                           );
                                           Navigator.pop(context);
+                                          general_snackbar(
+                                            context,
+                                            l10n.noSortedUsers,
+                                            2,
+                                          );
+                                        },
+                                      ),
+                                      general_listtile(
+                                        context: context,
+                                        icon: Icons.sort_by_alpha,
+                                        texto: l10n.sortNameAZ,
+                                        onTap: () {
+                                          setState(() {
+                                            ordenSeleccionado = CallSort.nameAZ;
+                                          });
+                                          Navigator.pop(context);
+                                          general_snackbar(
+                                            context,
+                                            l10n.sortedAZSnackbar,
+                                            2,
+                                          );
                                         },
                                       ),
                                       general_listtile(
@@ -328,20 +356,51 @@ class _UsersPageState extends State<UsersPage> {
                                         icon: Icons.sort_by_alpha,
                                         texto: l10n.sortNameZA,
                                         onTap: () {
-                                          // Selecciona un tipo de orden distinto al predeterminado:
-                                          // actualizamos el estado para que el icono cambie a filter_list
                                           setState(() {
                                             // usamos un valor distinto de `all` para indicar que hay orden activo
-                                            ordenSeleccionado = UserSort.nameZA;
+                                            ordenSeleccionado =
+                                                CallSort.dateLatest;
                                           });
                                           Navigator.pop(context);
-                                          setState(() {
-                                            ordenSeleccionado = UserSort.nameZA;
-                                          });
                                           // TODO: aplicar orden real de A a Z sobre la lista de usuarios
                                           general_snackbar(
                                             context,
                                             l10n.sortedZASnackbar,
+                                            2,
+                                          );
+                                        },
+                                      ),
+
+                                      general_listtile(
+                                        context: context,
+                                        icon: Icons.access_time,
+                                        texto: l10n.sortCallDurationLongShort,
+                                        onTap: () {
+                                          setState(() {
+                                            ordenSeleccionado =
+                                                CallSort.callDurationLongShort;
+                                          });
+                                          Navigator.pop(context);
+                                          general_snackbar(
+                                            context,
+                                            l10n.sortCallDurationLongShort,
+                                            2,
+                                          );
+                                        },
+                                      ),
+                                      general_listtile(
+                                        context: context,
+                                        icon: Icons.access_time,
+                                        texto: l10n.sortCallDurationShortLong,
+                                        onTap: () {
+                                          setState(() {
+                                            ordenSeleccionado =
+                                                CallSort.callDurationShortLong;
+                                          });
+                                          Navigator.pop(context);
+                                          general_snackbar(
+                                            context,
+                                            l10n.sortCallDurationShortLong,
                                             2,
                                           );
                                         },
@@ -353,13 +412,12 @@ class _UsersPageState extends State<UsersPage> {
                                         onTap: () {
                                           setState(() {
                                             ordenSeleccionado =
-                                                UserSort.dependencyHighLow;
+                                                CallSort.dependencyHighLow;
                                           });
                                           Navigator.pop(context);
-                                          // TODO: ordenar usuarios por nivel de dependencia de alto a bajo
                                           general_snackbar(
                                             context,
-                                            l10n.sortedDependencyLevelHighLow,
+                                            l10n.sortDependencyHighLow,
                                             2,
                                           );
                                         },
@@ -371,33 +429,14 @@ class _UsersPageState extends State<UsersPage> {
                                         onTap: () {
                                           setState(() {
                                             ordenSeleccionado =
-                                                UserSort.dependencyLowHigh;
-                                          });
-                                          Navigator.pop(context);
-                                          // TODO: ordenar usuarios por nivel de dependencia de bajo a alto
-                                          general_snackbar(
-                                            context,
-                                            l10n.sortedDependencyLevelLowHigh,
-                                            2,
-                                          );
-                                        },
-                                      ),
-                                      general_listtile(
-                                        context: context,
-                                        icon: Icons.check,
-                                        texto: l10n.sortedStatusAccount,
-                                        onTap: () {
-                                          setState(() {
-                                            ordenSeleccionado =
-                                                UserSort.accountStatusOrder;
+                                                CallSort.dependencyLowHigh;
                                           });
                                           Navigator.pop(context);
                                           general_snackbar(
                                             context,
-                                            l10n.sortedStatusAccount,
+                                            l10n.sortDependencyLowHigh,
                                             2,
                                           );
-                                          //TODO: ordenar usuarios (primero activos y luego inactivos)
                                         },
                                       ),
                                     ],
@@ -423,7 +462,7 @@ class _UsersPageState extends State<UsersPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Aquí irán los usuarios",
+                                "Aquí irán todas las llamadas",
                                 style: textTheme.bodyMedium,
                               ),
                             ],

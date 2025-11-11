@@ -79,9 +79,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get supervison => 'Supervisión';
 
   @override
-  String get allCalls => 'Todas las llamadas';
-
-  @override
   String get users => 'Usuarios';
 
   @override
@@ -94,7 +91,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get logOut => 'Cerrar sesión';
 
   @override
-  String get superviseCalls => 'Supervisa todas las llamadas del equipo';
+  String get superviseCalls =>
+      'Supervisa todas las llamadas de los teleoperadores';
 
   @override
   String get searchUsers => 'Buscar usuarios';
@@ -275,6 +273,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sortNameZA => 'Nombre Z-A';
 
   @override
+  String get sortNameAZ => 'Nombre A-Z';
+
+  @override
   String get sortBirthdateYoungOld =>
       'Por fecha de nacimiento (más joven a mayor)';
 
@@ -301,7 +302,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noSortedUsers => 'Ordenación predeterminada (A-Z)';
 
   @override
+  String get noSortedCalls =>
+      'Ordenación predeterminada (más recientes primero)';
+
+  @override
   String get sortedZASnackbar => 'Usuarios ordenados por nombre Z-A.';
+
+  @override
+  String get sortedAZSnackbar => 'Usuarios ordenados por nombre A-Z.';
 
   @override
   String get sortedDependencyLevelHighLow =>
@@ -314,4 +322,32 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get sortedStatusAccount =>
       'Usuarios ordenados por estado de cuenta (activos a inactivos).';
+
+  @override
+  String get callCompleted => 'Completada';
+
+  @override
+  String get callNoAnswer => 'No contestó';
+
+  @override
+  String get callPending => 'Pendiente';
+
+  @override
+  String get sortCallDurationLongShort => 'Duración de llamada (larga a corta)';
+
+  @override
+  String get sortCallDurationShortLong => 'Duración de llamada (corta a larga)';
+
+  @override
+  String get searchCalls =>
+      'Buscar por usuario, teleoperador o número de teléfono';
+
+  @override
+  String get allCalls => 'Todas las llamadas';
+
+  @override
+  String get totalCalls => 'Total de llamadas';
+
+  @override
+  String get callsFound => 'Llamadas encontradas:';
 }

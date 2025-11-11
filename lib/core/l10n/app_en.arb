@@ -58,7 +58,7 @@
   "telemarketers": "Telemarketers",
   "notifications": "Notifications",
   "logOut": "Log out",
-  "superviseCalls": "Supervise all team calls",
+  "superviseCalls": "Supervise all telemarketers calls",
   "searchUsers": "Search users",
   "all": "All",
   "filterDate": "Filter by date",
@@ -131,5 +131,14 @@
   "sortedZASnackbar": "Users sorted by name Z-A.",
   "sortedDependencyLevelHighLow": "Users sorted by dependency level (high to low).",
   "sortedDependencyLevelLowHigh": "Users sorted by dependency level (low to high).",
-  "sortedStatusAccount": "Users sorted by account status (active to inactive)."
+  "sortedStatusAccount": "Users sorted by account status (active to inactive).",
+  "callCompleted": "Completed",
+  "callNoAnswer": "No answer",
+  "callPending": "Pending",
+  "sortCallDurationLongShort": "Call duration (long to short)",
+  "sortCallDurationShortLong": "Call duration (short to long)",
+  "searchCalls": "Search by user, telemarketer or phone number",
+  "totalCalls": "Total calls",
+  "callsFound": "Calls found:",
+  "noSortedCalls": "Default sorting (most recent first)"
 }

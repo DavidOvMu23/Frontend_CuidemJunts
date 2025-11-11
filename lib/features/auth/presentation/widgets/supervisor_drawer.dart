@@ -104,6 +104,7 @@ Drawer appDrawer({
                       context: context,
                       icon: Icons.phone,
                       texto: l10n.calls,
+                      selected: selected == DrawerItem.calls,
                       onTap: onTapCalls,
                     ),
                     general_listtile(
@@ -117,6 +118,7 @@ Drawer appDrawer({
                       context: context,
                       icon: Icons.support_agent,
                       texto: l10n.telemarketers,
+                      selected: selected == DrawerItem.telemarketers,
                       onTap: onTapTelemarketers,
                     ),
                     general_listtile(
