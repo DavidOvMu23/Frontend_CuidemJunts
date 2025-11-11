@@ -5,6 +5,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
 
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
@@ -51,7 +52,17 @@ class HomeSupervisorPage extends StatelessWidget {
       drawer: appDrawer(
         context: context,
         selected: DrawerItem.home,
-        onTapCalls: () {},
+        onTapCalls: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LlamadasPage(
+                onToggleTheme: onToggleTheme,
+                onChangeLocale: onChangeLocale,
+              ),
+            ),
+          );
+        },
         onTapUsers: () {
           Navigator.push(
             context,
@@ -91,7 +102,7 @@ class HomeSupervisorPage extends StatelessWidget {
       // -------- CONTENIDO PRINCIPAL --------
       body: SingleChildScrollView(
         // SingleChildScrollView permite que toda la columna sea scrolleable
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
 
         // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
         child: ConstrainedBox(

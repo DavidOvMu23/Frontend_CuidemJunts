@@ -79,9 +79,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get supervison => 'Supervisió';
 
   @override
-  String get allCalls => 'Totes les trucades';
-
-  @override
   String get users => 'Usuaris';
 
   @override
@@ -94,7 +91,8 @@ class AppLocalizationsCa extends AppLocalizations {
   String get logOut => 'Tanca la sessió';
 
   @override
-  String get superviseCalls => 'Supervisa totes les trucades de l\'equip';
+  String get superviseCalls =>
+      'Supervisa totes les trucades de els teleoperadors';
 
   @override
   String get searchUsers => 'Cerca usuaris';
@@ -275,6 +273,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get sortNameZA => 'Nom Z-A';
 
   @override
+  String get sortNameAZ => 'Nom A-Z';
+
+  @override
   String get sortBirthdateYoungOld =>
       'Per data de naixement (més jove a més gran)';
 
@@ -301,7 +302,13 @@ class AppLocalizationsCa extends AppLocalizations {
   String get noSortedUsers => 'Ordenació predefinida (A-Z)';
 
   @override
+  String get noSortedCalls => 'Ordenació predeterminada (més recents primer)';
+
+  @override
   String get sortedZASnackbar => 'Usuaris ordenats per nom Z-A.';
+
+  @override
+  String get sortedAZSnackbar => 'Usuaris ordenats per nom A-Z.';
 
   @override
   String get sortedDependencyLevelHighLow =>
@@ -314,4 +321,34 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get sortedStatusAccount =>
       'Usuaris ordenats per estat de compte (actius a inactius).';
+
+  @override
+  String get callCompleted => 'Completada';
+
+  @override
+  String get callNoAnswer => 'No ha contestat';
+
+  @override
+  String get callPending => 'Pendent';
+
+  @override
+  String get sortCallDurationLongShort =>
+      'Duració de la trucada (llarga a curta)';
+
+  @override
+  String get sortCallDurationShortLong =>
+      'Duració de la trucada (curta a llarga)';
+
+  @override
+  String get searchCalls =>
+      'Cerca per usuari, teleoperador o número de telèfon';
+
+  @override
+  String get allCalls => 'Totes les trucades';
+
+  @override
+  String get totalCalls => 'Total de cridades';
+
+  @override
+  String get callsFound => 'Cridades trobades:';
 }

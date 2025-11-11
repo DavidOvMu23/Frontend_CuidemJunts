@@ -58,7 +58,7 @@
   "telemarketers": "Teleoperadors",
   "notifications": "Notificacions",
   "logOut": "Tanca la sessió",
-  "superviseCalls": "Supervisa totes les trucades de l'equip",
+  "superviseCalls": "Supervisa totes les trucades de els teleoperadors",
   "searchUsers": "Cerca usuaris",
   "all": "Totes",
   "filterDate": "Filtra per data",
@@ -130,7 +130,17 @@
   "noSortedUsers": "Ordenació predefinida (A-Z)",
   "noSortedUsersSnackbar": "Usuaris ordenats per defecte.",
   "sortedZASnackbar": "Usuaris ordenats per nom Z-A.",
+  "sortedAZSnackbar": "Usuaris ordenats per nom A-Z.",
   "sortedDependencyLevelHighLow": "Usuaris ordenats per nivell de dependència (alt a baix).",
   "sortedDependencyLevelLowHigh": "Usuaris ordenats per nivell de dependència (baix a alt).",
-  "sortedStatusAccount": "Usuaris ordenats per estat de compte (actius a inactius)."
+  "sortedStatusAccount": "Usuaris ordenats per estat de compte (actius a inactius).",
+  "callCompleted": "Completada",
+  "callNoAnswer": "No ha contestat",
+  "callPending": "Pendent",
+  "sortCallDurationLongShort": "Duració de la trucada (llarga a curta)",
+  "sortCallDurationShortLong": "Duració de la trucada (curta a llarga)",
+  "searchCalls": "Cerca per usuari, teleoperador o número de telèfon",
+  "totalCalls": "Total de cridades",
+  "callsFound": "Cridades trobades:",
+  "noSortedCalls": "Ordenació predeterminada (més recents primer)"
 }

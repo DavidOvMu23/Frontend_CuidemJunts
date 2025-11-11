@@ -238,12 +238,6 @@ abstract class AppLocalizations {
   /// **'Supervisión'**
   String get supervison;
 
-  /// No description provided for @allCalls.
-  ///
-  /// In es, this message translates to:
-  /// **'Todas las llamadas'**
-  String get allCalls;
-
   /// No description provided for @users.
   ///
   /// In es, this message translates to:
@@ -271,7 +265,7 @@ abstract class AppLocalizations {
   /// No description provided for @superviseCalls.
   ///
   /// In es, this message translates to:
-  /// **'Supervisa todas las llamadas del equipo'**
+  /// **'Supervisa todas las llamadas de los teleoperadores'**
   String get superviseCalls;
 
   /// No description provided for @searchUsers.
@@ -628,6 +622,12 @@ abstract class AppLocalizations {
   /// **'Nombre Z-A'**
   String get sortNameZA;
 
+  /// No description provided for @sortNameAZ.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre A-Z'**
+  String get sortNameAZ;
+
   /// No description provided for @sortBirthdateYoungOld.
   ///
   /// In es, this message translates to:
@@ -676,11 +676,23 @@ abstract class AppLocalizations {
   /// **'Ordenación predeterminada (A-Z)'**
   String get noSortedUsers;
 
+  /// No description provided for @noSortedCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenación predeterminada (más recientes primero)'**
+  String get noSortedCalls;
+
   /// No description provided for @sortedZASnackbar.
   ///
   /// In es, this message translates to:
   /// **'Usuarios ordenados por nombre Z-A.'**
   String get sortedZASnackbar;
+
+  /// No description provided for @sortedAZSnackbar.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por nombre A-Z.'**
+  String get sortedAZSnackbar;
 
   /// No description provided for @sortedDependencyLevelHighLow.
   ///
@@ -699,6 +711,60 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Usuarios ordenados por estado de cuenta (activos a inactivos).'**
   String get sortedStatusAccount;
+
+  /// No description provided for @callCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Completada'**
+  String get callCompleted;
+
+  /// No description provided for @callNoAnswer.
+  ///
+  /// In es, this message translates to:
+  /// **'No contestó'**
+  String get callNoAnswer;
+
+  /// No description provided for @callPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente'**
+  String get callPending;
+
+  /// No description provided for @sortCallDurationLongShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración de llamada (larga a corta)'**
+  String get sortCallDurationLongShort;
+
+  /// No description provided for @sortCallDurationShortLong.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración de llamada (corta a larga)'**
+  String get sortCallDurationShortLong;
+
+  /// No description provided for @searchCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por usuario, teleoperador o número de teléfono'**
+  String get searchCalls;
+
+  /// No description provided for @allCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las llamadas'**
+  String get allCalls;
+
+  /// No description provided for @totalCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de llamadas'**
+  String get totalCalls;
+
+  /// No description provided for @callsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamadas encontradas:'**
+  String get callsFound;
 }
 
 class _AppLocalizationsDelegate

@@ -79,9 +79,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supervison => 'Supervision';
 
   @override
-  String get allCalls => 'All calls';
-
-  @override
   String get users => 'Users';
 
   @override
@@ -94,7 +91,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logOut => 'Log out';
 
   @override
-  String get superviseCalls => 'Supervise all team calls';
+  String get superviseCalls => 'Supervise all telemarketers calls';
 
   @override
   String get searchUsers => 'Search users';
@@ -274,6 +271,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sortNameZA => 'Name Z-A';
 
   @override
+  String get sortNameAZ => 'Name A-Z';
+
+  @override
   String get sortBirthdateYoungOld => 'By birthdate (youngest to oldest)';
 
   @override
@@ -298,7 +298,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSortedUsers => 'Default sorting (A-Z)';
 
   @override
+  String get noSortedCalls => 'Default sorting (most recent first)';
+
+  @override
   String get sortedZASnackbar => 'Users sorted by name Z-A.';
+
+  @override
+  String get sortedAZSnackbar => 'Users sorted by name A-Z.';
 
   @override
   String get sortedDependencyLevelHighLow =>
@@ -311,4 +317,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sortedStatusAccount =>
       'Users sorted by account status (active to inactive).';
+
+  @override
+  String get callCompleted => 'Completed';
+
+  @override
+  String get callNoAnswer => 'No answer';
+
+  @override
+  String get callPending => 'Pending';
+
+  @override
+  String get sortCallDurationLongShort => 'Call duration (long to short)';
+
+  @override
+  String get sortCallDurationShortLong => 'Call duration (short to long)';
+
+  @override
+  String get searchCalls => 'Search by user, telemarketer or phone number';
+
+  @override
+  String get allCalls => 'All calls';
+
+  @override
+  String get totalCalls => 'Total calls';
+
+  @override
+  String get callsFound => 'Calls found:';
 }
