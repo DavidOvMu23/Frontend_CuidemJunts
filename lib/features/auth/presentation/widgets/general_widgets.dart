@@ -58,8 +58,10 @@ TextField general_textfield(
   IconData? icono,
   double borderRadius = 12.0,
   int maxLines = 1,
+  TextEditingController? controller,
 }) {
   return TextField(
+    controller: controller,
     obscureText: obscureText,
     maxLines: maxLines,
     decoration: InputDecoration(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/api_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
@@ -6,7 +7,7 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE INICIO DE SESIÓN --------
 // Aquí pedimos email + contraseña y dejamos escoger idioma/tema.
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({
     super.key,
     required this.onToggleTheme,
@@ -15,12 +16,67 @@ class LoginPage extends StatelessWidget {
 
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.
+  // Se utiliza para que el cambio de tema afect  e a toda la app.
   final void Function(bool) onToggleTheme;
 
   // Callback que cambia el idioma de la app.
   // Se utiliza para que el cambio de idioma afecte a toda la app.
   final void Function(Locale) onChangeLocale;
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController correoController = TextEditingController();
+  final TextEditingController contrasenaController = TextEditingController();
+  late AuthService authService;
+
+  @override
+  void initState() {
+    super.initState();
+    authService = AuthService(baseUrl: 'http://localhost:3000');
+  }
+
+  Future<void> hacerLogin() async {
+    final correo = correoController.text.trim();
+    final contrasena = contrasenaController.text.trim();
+
+    if (correo.isEmpty || contrasena.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Rellena todos los campos')));
+      return;
+    }
+
+    try {
+      final result = await authService.login(correo, contrasena);
+
+      final token = result['access_token'];
+
+      if (token == null) {
+        throw Exception('Token no recibido');
+      }
+
+      // TODO: guardar token
+      // ejemplo:
+      // await storage.write(key: 'token', value: token);
+
+      // navegar:
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeSupervisorPage(
+            onToggleTheme: widget.onToggleTheme,
+            onChangeLocale: widget.onChangeLocale,
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,21 +119,21 @@ class LoginPage extends StatelessWidget {
                           texto: l10n.languageSpanish,
                           onTap: () {
                             Navigator.pop(context);
-                            onChangeLocale(const Locale('es'));
+                            widget.onChangeLocale(const Locale('es'));
                           },
                         ),
                         login_listile_demo(
                           texto: l10n.languageCatalan,
                           onTap: () {
                             Navigator.pop(context);
-                            onChangeLocale(const Locale('ca'));
+                            widget.onChangeLocale(const Locale('ca'));
                           },
                         ),
                         login_listile_demo(
                           texto: l10n.languageEnglish,
                           onTap: () {
                             Navigator.pop(context);
-                            onChangeLocale(const Locale('en'));
+                            widget.onChangeLocale(const Locale('en'));
                           },
                         ),
                       ],
@@ -126,6 +182,7 @@ class LoginPage extends StatelessWidget {
                             l10n.email,
                             false,
                             icono: Icons.person,
+                            controller: correoController,
                           ),
                           const SizedBox(height: 16),
                           // -------- CAMPO: CONTRASEÑA --------
@@ -133,21 +190,14 @@ class LoginPage extends StatelessWidget {
                             l10n.password,
                             true,
                             icono: Icons.lock,
+                            controller: contrasenaController,
                           ),
                           const SizedBox(height: 22),
                           // -------- BOTÓN DE ENTRAR --------
                           general_filledbutton(
                             l10n.loginButton,
                             onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeSupervisorPage(
-                                    onToggleTheme: onToggleTheme,
-                                    onChangeLocale: onChangeLocale,
-                                  ),
-                                ),
-                              );
+                              hacerLogin();
                             },
                           ),
                           const SizedBox(height: 12),
