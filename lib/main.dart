@@ -3,6 +3,7 @@ import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
 import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 
 // -------- PUNTO DE ENTRADA DE LA APLICACIÓN --------
 
@@ -97,7 +98,10 @@ class _MyAppState extends State<MyApp> {
       // Le pasamos referencias (callbacks) a nuestras funciones de estado para que el Login
       // pueda pedir cambios de idioma o tema. Así, el estado se mantiene aquí pero se controla
       // desde cualquier lugar de la app.
-      home: LoginPage(onToggleTheme: toggleTheme, onChangeLocale: setLocale),
+      home: HomeSupervisorPage(
+        onToggleTheme: toggleTheme,
+        onChangeLocale: setLocale,
+      ),
       //home: CatalogPage(),
     );
   }

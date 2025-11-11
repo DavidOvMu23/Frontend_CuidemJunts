@@ -10,14 +10,14 @@ PreferredSizeWidget appMainAppBar({required VoidCallback onNotifications}) {
     title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
     centerTitle: true,
     actions: [
-      general_badge_demo(10, Icons.notifications, onPressed: onNotifications),
+      general_badge(10, Icons.notifications, onPressed: onNotifications),
     ],
   );
 }
 
 // -------- BADGE CON ICONO --------
 // Muestra un icono con un numerito encima (ideal para notificaciones).
-Widget general_badge_demo(
+Widget general_badge(
   int numeroNotificaciones,
   IconData icono, {
   required VoidCallback onPressed,
@@ -39,6 +39,14 @@ Widget general_filledbutton(String texto, {required VoidCallback onPressed}) {
 // Ideal para enlaces o acciones secundarias sin fondo sólido.
 Widget general_textbutton(String texto, {required VoidCallback onPressed}) {
   return TextButton(onPressed: onPressed, child: Text(texto));
+}
+
+// FloatingActionButton para acciones destacadas en la pantalla.
+Widget general_floatingbutton(
+  IconData icono, {
+  required VoidCallback onPressed,
+}) {
+  return FloatingActionButton(onPressed: onPressed, child: Icon(icono));
 }
 
 // -------- BOTÓN DE ICONO --------
