@@ -51,7 +51,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
       case AppLanguage.en:
         return const Locale('en');
       case AppLanguage.es:
-      default:
         return const Locale('es');
     }
   }
@@ -61,7 +60,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       // -------- APPBAR CON EL BOTÓN DE NOTIS --------
@@ -82,7 +80,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
             ),
           );
         },
-        onTapCalls: () {},
+        onTapCalls: () {
+          //TODO: Navegar a la página de llamadas
+        },
         onTapUsers: () {
           Navigator.push(
             context,
@@ -94,8 +94,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
             ),
           );
         },
-        onTapTelemarketers: () {},
-        onTapPreferences: () {},
+        onTapTelemarketers: () {
+          //TODO: Navegar a la página de teleoperadores
+        },
         onLogoutConfirmed: () {
           Navigator.pushReplacement(
             context,

@@ -123,5 +123,6 @@
   "sortBirthdateOldYoung": "Per data de naixement (més gran a més jove)",
   "sortDependencyLowHigh": "Per nivell de dependència (baix a alt)",
   "sortDependencyHighLow": "Per nivell de dependència (alt a baix)",
-  "usersFound": "Usuaris trobats:"
+  "usersFound": "Usuaris trobats:",
+  "totalUsers": "Total d'usuaris"
 }

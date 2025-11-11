@@ -123,5 +123,6 @@
   "sortBirthdateOldYoung": "By birthdate (oldest to youngest)",
   "sortDependencyLowHigh": "By dependency level (low to high)",
   "sortDependencyHighLow": "By dependency level (high to low)",
-  "usersFound": "Users found:"
+  "usersFound": "Users found:",
+  "totalUsers": "Total users"
 }

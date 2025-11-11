@@ -38,7 +38,7 @@ class LoginPage extends StatelessWidget {
           Positioned(
             top: 30,
             right: 0,
-            child: general_iconbutton(
+            child: login_iconbutton(
               Icons.language,
               onPressed: () {
                 // Abro un panel desde abajo con todos los idiomas.

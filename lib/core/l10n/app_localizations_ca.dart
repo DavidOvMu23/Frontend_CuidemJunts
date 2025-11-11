@@ -293,4 +293,7 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get usersFound => 'Usuaris trobats:';
+
+  @override
+  String get totalUsers => 'Total d\'usuaris';
 }

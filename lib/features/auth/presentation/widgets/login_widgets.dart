@@ -9,3 +9,7 @@ Widget login_listile_demo({
 }) {
   return ListTile(title: Text(texto), onTap: onTap);
 }
+
+Widget login_iconbutton(IconData icono, {required VoidCallback onPressed}) {
+  return IconButton(icon: Icon(icono), onPressed: onPressed);
+}

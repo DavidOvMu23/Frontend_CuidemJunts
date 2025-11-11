@@ -293,4 +293,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get usersFound => 'Usuarios encontrados:';
+
+  @override
+  String get totalUsers => 'Total de usuarios';
 }

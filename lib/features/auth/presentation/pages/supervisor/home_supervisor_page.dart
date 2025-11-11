@@ -51,7 +51,6 @@ class HomeSupervisorPage extends StatelessWidget {
       drawer: appDrawer(
         context: context,
         selected: DrawerItem.home,
-        onTapHome: () {},
         onTapCalls: () {},
         onTapUsers: () {
           Navigator.push(

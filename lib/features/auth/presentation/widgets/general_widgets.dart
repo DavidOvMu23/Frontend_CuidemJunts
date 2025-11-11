@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 
 // -------- APP BAR ESTÁNDAR DE LA APP --------
 // Título centrado + botón de notificaciones reutilizable.
-PreferredSizeWidget appMainAppBar({
-  required VoidCallback onNotifications,
-}) {
+PreferredSizeWidget appMainAppBar({required VoidCallback onNotifications}) {
   return AppBar(
     title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
     centerTitle: true,
@@ -46,7 +44,10 @@ Widget general_textbutton(String texto, {required VoidCallback onPressed}) {
 // -------- BOTÓN DE ICONO --------
 // Útil cuando solo necesitamos un icono táctil (por ejemplo, editar o eliminar).
 Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
-  return IconButton(icon: Icon(icono), onPressed: onPressed);
+  return IconButton(
+    icon: Icon(icono, color: const Color(0xFF42a6ee)),
+    onPressed: onPressed,
+  );
 }
 
 // -------- CAMPO DE TEXTO --------
@@ -77,8 +78,12 @@ TextField general_busqueda_textfield(
   String texto, {
   IconData? icono,
   double borderRadius = 50.0,
+  TextEditingController? controller,
+  ValueChanged<String>? onChanged,
 }) {
   return TextField(
+    controller: controller,
+    onChanged: onChanged,
     decoration: InputDecoration(
       hintText: texto, // Texto gris que explica qué escribir.
       prefixIcon: Icon(icono, color: Color(0xFF42a6ee)),
