@@ -293,6 +293,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get usersFound => 'Usuarios encontrados:';
 
   @override
+  String get noUsersFound => 'Usuarios no encontrado';
+
+  @override
   String get totalUsers => 'Total de usuarios';
 
   @override

@@ -293,6 +293,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get usersFound => 'Usuaris trobats:';
 
   @override
+  String get noUsersFound => 'Usuaris no trobats';
+
+  @override
   String get totalUsers => 'Total d\'usuaris';
 
   @override

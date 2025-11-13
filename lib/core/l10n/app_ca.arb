@@ -125,6 +125,7 @@
   "sortDependencyHighLow": "Per nivell de dependència (alt a baix)",
   "sortAccountStatus": "Per estat de compte (actius a inactius)",
   "usersFound": "Usuaris trobats:",
+  "noUsersFound": "Usuaris no trobats",
   "totalUsers": "Total d'usuaris",
   "sortType": "Mostra per ordre",
   "noSortedUsers": "Ordenació predefinida (A-Z)",

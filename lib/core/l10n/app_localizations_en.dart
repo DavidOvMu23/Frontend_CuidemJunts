@@ -289,6 +289,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usersFound => 'Users found:';
 
   @override
+  String get noUsersFound => 'User not found';
+
+  @override
   String get totalUsers => 'Total users';
 
   @override

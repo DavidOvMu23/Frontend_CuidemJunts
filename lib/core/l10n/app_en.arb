@@ -121,6 +121,7 @@
   "sortDependencyLowHigh": "By dependency level (low to high)",
   "sortDependencyHighLow": "By dependency level (high to low)",
   "usersFound": "Users found:",
+  "noUsersFound": "User not found",
   "searchModerateDependency": "Moderate dep. (Grade I)",
   "searchSevereDependency": "Severe dep. (Grade II)",
   "searchHighDependency": "High dep. (Grade III)",

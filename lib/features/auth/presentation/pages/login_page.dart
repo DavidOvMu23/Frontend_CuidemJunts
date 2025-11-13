@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/api_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/api_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
@@ -49,14 +49,6 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      final result = await authService.login(correo, contrasena);
-
-      final token = result['access_token'];
-
-      if (token == null) {
-        throw Exception('Token no recibido');
-      }
-
       // TODO: guardar token
       // ejemplo:
       // await storage.write(key: 'token', value: token);

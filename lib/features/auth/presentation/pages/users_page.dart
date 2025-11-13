@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/services/usuario_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
@@ -7,6 +9,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
+// -------- PANTALLA DE USUARIOS --------
+// Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
 class UsersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
@@ -40,7 +44,11 @@ enum UserSort {
 }
 
 class _UsersPageState extends State<UsersPage> {
-  // Filtro de usuarios seleccionado actualmente.
+  // Servicio que trae los usuarios desde el backend.
+  late final UsuarioService _usuarioService;
+  // Future que cacheamos para no disparar peticiones en cada build.
+  late Future<List<Usuario>> _usuariosFuture;
+  // Estado del filtro seleccionado y del texto del buscador.
   late UserFilter filtroSeleccionado;
   late String textoFiltro = '';
 
@@ -50,30 +58,94 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = UserFilter.all;
+    filtroSeleccionado = UserFilter.all; // De inicio mostramos todos.
+    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
+    _usuariosFuture = _usuarioService.getAll(); // Carga inicial.
+  }
+
+  // Aplica búsqueda + filtro + ordenación sobre la lista original.
+  List<Usuario> _aplicarFiltros(List<Usuario> usuarios) {
+    final query = textoFiltro.trim().toLowerCase();
+    final filtrados = usuarios.where((usuario) {
+      final nombreCompleto = '${usuario.nombre} ${usuario.apellidos}'
+          .toLowerCase();
+      final coincideTexto =
+          query.isEmpty ||
+          nombreCompleto.contains(query) ||
+          usuario.dni.toLowerCase().contains(query);
+
+      final coincideFiltro = switch (filtroSeleccionado) {
+        UserFilter.all => true,
+        UserFilter.active => usuario.estadoCuenta.toLowerCase() == 'activo',
+        UserFilter.inactive => usuario.estadoCuenta.toLowerCase() != 'activo',
+        UserFilter.g1 => usuario.nivelDependencia.toUpperCase() == 'G1',
+        UserFilter.g2 => usuario.nivelDependencia.toUpperCase() == 'G2',
+        UserFilter.g3 => usuario.nivelDependencia.toUpperCase() == 'G3',
+      };
+
+      return coincideTexto && coincideFiltro;
+    }).toList();
+
+    filtrados.sort((a, b) {
+      switch (ordenSeleccionado) {
+        case UserSort.nameZA:
+          return b.nombre.compareTo(a.nombre);
+        case UserSort.dependencyHighLow:
+          return _dependencyRank(b.nivelDependencia) -
+              _dependencyRank(a.nivelDependencia);
+        case UserSort.dependencyLowHigh:
+          return _dependencyRank(a.nivelDependencia) -
+              _dependencyRank(b.nivelDependencia);
+        case UserSort.accountStatusOrder:
+          return _estadoCuentaRank(a.estadoCuenta) -
+              _estadoCuentaRank(b.estadoCuenta);
+        case UserSort.none:
+          return 0;
+      }
+    });
+
+    return filtrados;
+  }
+
+  // Convierte los grados de dependencia en una prioridad numérica.
+  int _dependencyRank(String nivel) {
+    switch (nivel.toUpperCase()) {
+      case 'G3':
+        return 3;
+      case 'G2':
+        return 2;
+      case 'G1':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  // Primero los activos, después el resto.
+  int _estadoCuentaRank(String estado) {
+    return estado.toLowerCase() == 'activo' ? 0 : 1;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Obtenemos tipografías y paleta del tema actual para mantener
-    // estilos consistentes en toda la app.
+    // Me guardo tipografías y paleta para reutilizarlas.
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Textos traducidos (según el idioma seleccionado en la app).
+    // Textos traducidos según el idioma actual.
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       // -------- BARRA SUPERIOR --------
-      // AppBar: barra superior con título centrado e iconos de acción a la derecha.
+      // AppBar con botón de notificaciones (pendiente de implementar).
       appBar: appMainAppBar(
         onNotifications: () {
           // TODO: Acción al pulsar el icono de notificaciones.
         },
       ),
 
-      // -------- MENÚ LATERAL (DRAWER) --------
-      // Drawer: menú que se abre desde el lateral con opciones de navegación.
+      // -------- MENÚ LATERAL --------
+      // Drawer con las secciones principales del supervisor.
       drawer: appDrawer(
         context: context,
         selected: DrawerItem.users,
@@ -125,51 +197,43 @@ class _UsersPageState extends State<UsersPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
-
-      // Usamos un Stack para poder colocar el botón flotante encima del contenido scrolleable.
+      // Stack para poder superponer el botón flotante.
       body: Stack(
         children: [
-          //El posicined fill hace que el SingleChildScrollView ocupe todo el espacio disponible
+          // Positioned.fill para que el scroll ocupe todo el alto disponible.
           Positioned.fill(
             child: SingleChildScrollView(
-              // SingleChildScrollView permite que toda la columna sea scrolleable
+              // Scroll general para toda la pantalla.
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
 
-              // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
+              // ConstrainedBox para estirar la columna al ancho máximo.
               child: ConstrainedBox(
-                // Hacemos que la columna ocupe todo el ancho disponible.
-
-                // Esto es necesario para que los elementos dentro de la columna
-                // (como las "tarjetas" de Material) ocupen todo el ancho posible.
                 constraints: const BoxConstraints(minWidth: double.infinity),
 
-                // Columna principal con todo el contenido de la página.
+                // Columna general con todo el contenido.
                 child: Column(
-                  // Alineamos todo a la izquierda.
                   crossAxisAlignment: CrossAxisAlignment.start,
 
-                  // Elementos de la columna
                   children: [
-                    // Título principal
+                    // -------- TITULAR --------
                     Text(
                       l10n.users,
                       style: textTheme.titleMedium?.copyWith(fontSize: 27),
                     ),
-                    // Subtítulo
                     Text(l10n.manageUsers, style: textTheme.bodyMedium),
                     const SizedBox(height: 20),
 
-                    // Tarjeta principal con filtros y lista de usuarios
+                    // -------- TARJETA PRINCIPAL --------
                     Material(
                       borderRadius: BorderRadius.circular(30),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
 
-                        //Columna en la que van los filtros y la lista de usuarios
+                        // Columna con filtros + lista.
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Título de la sección de búsqueda
+                            // -------- BÚSQUEDA --------
                             Text(
                               l10n.searchUsers,
                               textAlign: TextAlign.left,
@@ -180,7 +244,7 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
 
-                            // TextField de búsqueda
+                            // TextField de búsqueda.
                             general_busqueda_textfield(
                               l10n.searchUser,
                               icono: Icons.search,
@@ -192,12 +256,11 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
 
-                            //Row del filtro de búsqueda
+                            // -------- FILTRO --------
                             Row(
                               children: [
-                                // Ícono que indica si hay filtro activo o no
+                                // Ícono que indica si hay filtro activo o no.
                                 Icon(
-                                  // Si el filtro seleccionado no es "Todos", mostramos el icono de filtro activo
                                   filtroSeleccionado != UserFilter.all
                                       ? Icons.filter_alt
                                       : Icons.filter_alt_off,
@@ -205,11 +268,11 @@ class _UsersPageState extends State<UsersPage> {
                                 ),
                                 const SizedBox(width: 16),
 
-                                //Expanded para que el DropdownButtonFormField ocupe todo el espacio restante
+                                // Dropdown expandido para ocupar todo el ancho.
                                 Expanded(
-                                  //Dropdown para seleccionar el filtro de búsqueda
+                                  // Dropdown para seleccionar el filtro.
                                   child: DropdownButtonFormField<UserFilter>(
-                                    value: filtroSeleccionado,
+                                    initialValue: filtroSeleccionado,
                                     icon: const Icon(Icons.arrow_drop_down),
                                     borderRadius: BorderRadius.circular(12),
                                     decoration: InputDecoration(
@@ -219,10 +282,9 @@ class _UsersPageState extends State<UsersPage> {
                                       ),
                                     ),
 
-                                    //Elementos del dropdown
+                                    // Opciones del dropdown.
                                     items: [
                                       DropdownMenuItem<UserFilter>(
-                                        //seleccionamos el filtro "Todos"
                                         value: UserFilter.all,
                                         child: Text(l10n.searchAllUsers),
                                       ),
@@ -251,7 +313,7 @@ class _UsersPageState extends State<UsersPage> {
                                         child: Text(l10n.searchHighDependency),
                                       ),
                                     ],
-                                    // Al cambiar el valor seleccionado, actualizamos el estado
+                                    // Actualizamos el filtro cuando cambia.
                                     onChanged: (UserFilter? newValue) {
                                       setState(() {
                                         filtroSeleccionado =
@@ -264,186 +326,249 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
                             Divider(
-                              color: colorScheme.primary.withOpacity(0.3),
+                              color: colorScheme.primary.withValues(alpha: 0.3),
                             ),
 
-                            // Texto que muestra el total de usuarios o usuarios encontrados
                             const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    //Si no hay nada escrito en el textfield de búsqueda si no hay filtro, mostramos el total de usuarios del programa
-                                    textoFiltro.isEmpty &&
-                                            filtroSeleccionado == UserFilter.all
-                                        ? l10n.totalUsers +
-                                              ': 0' //TODO: cambiar 0 por el total real de la base de datos
-                                        : l10n.usersFound +
-                                              ': 0', //TODO: cambiar 0 por el total real de usuarios encontrados
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
+                            // -------- LISTA DE USUARIOS --------
+                            // FutureBuilder conectado al endpoint de usuarios.
+                            FutureBuilder<List<Usuario>>(
+                              future: _usuariosFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  // Loader centrado mientras llega la respuesta.
+                                  return const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 32),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                }
+                                if (snapshot.hasError) {
+                                  // Mensaje genérico cuando algo falla.
+                                  return const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Text('Error al cargar usuarios'),
+                                  );
+                                }
 
-                                //Listar usuarios según el filtro y el texto de búsqueda
-                                general_iconbutton(
-                                  // Si hay algún tipo de orden aplicado, mostramos el icono de filtro activo si no, el de filtro inactivo
-                                  ordenSeleccionado == UserSort.none
-                                      ? Icons.filter_list_off
-                                      : Icons.filter_list,
+                                // Lista original del backend.
+                                final usuarios = snapshot.data ?? [];
+                                // Lista filtrada según búsqueda y dropdown.
+                                final usuariosFiltrados = _aplicarFiltros(
+                                  usuarios,
+                                );
+                                // Texto que alterna entre total general o resultados filtrados.
+                                final totalText =
+                                    textoFiltro.isEmpty &&
+                                        filtroSeleccionado == UserFilter.all
+                                    ? '${l10n.totalUsers}: ${usuarios.length}'
+                                    : '${l10n.usersFound} ${usuariosFiltrados.length}';
 
-                                  // Acción al pulsar el botón de ordenación
-                                  onPressed: () {
-                                    //abrimos un modal bottom sheet para seleccionar el tipo de orden
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (context) => Padding(
-                                        padding: const EdgeInsets.all(16.0),
-
-                                        // Columna con las opciones de ordenación
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              l10n.sortType,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 12),
-
-                                            // Opciones de ordenación
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.filter_list_off,
-                                              texto: l10n.noSortedUsers,
-                                              onTap: () {
-                                                setState(() {
-                                                  // usamos el valor `none` para indicar que no hay orden activo
-                                                  ordenSeleccionado =
-                                                      UserSort.none;
-                                                });
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.noSortedUsers,
-                                                  2,
-                                                );
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.sort_by_alpha,
-                                              texto: l10n.sortNameZA,
-                                              onTap: () {
-                                                // Selecciona un tipo de orden distinto al predeterminado:
-                                                // actualizamos el estado para que el icono cambie a filter_list
-                                                setState(() {
-                                                  // usamos un valor distinto de `all` para indicar que hay orden activo
-                                                  ordenSeleccionado =
-                                                      UserSort.nameZA;
-                                                });
-                                                Navigator.pop(context);
-                                                setState(() {
-                                                  ordenSeleccionado =
-                                                      UserSort.nameZA;
-                                                });
-                                                // TODO: aplicar orden real de A a Z sobre la lista de usuarios
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortedZASnackbar,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.bar_chart,
-                                              texto: l10n.sortDependencyHighLow,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = UserSort
-                                                      .dependencyHighLow;
-                                                });
-                                                Navigator.pop(context);
-                                                // TODO: ordenar usuarios por nivel de dependencia de alto a bajo
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortedDependencyLevelHighLow,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.bar_chart,
-                                              texto: l10n.sortDependencyLowHigh,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = UserSort
-                                                      .dependencyLowHigh;
-                                                });
-                                                Navigator.pop(context);
-                                                // TODO: ordenar usuarios por nivel de dependencia de bajo a alto
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortedDependencyLevelLowHigh,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.check,
-                                              texto: l10n.sortedStatusAccount,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = UserSort
-                                                      .accountStatusOrder;
-                                                });
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortedStatusAccount,
-                                                  2,
-                                                );
-                                                //TODO: ordenar usuarios (primero activos y luego inactivos)
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-
-                            //TODO: Implementar la lista de usuarios
-                            //Aquí irá la lista de usuarios filtrados y ordenados por el momento hay una card
-                            const SizedBox(height: 10),
-                            Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Aquí irán los usuarios",
+                                if (usuarios.isEmpty) {
+                                  // No hay usuarios cargados en la base de datos.
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'No se encontraron usuarios',
                                       style: textTheme.bodyMedium,
                                     ),
+                                  );
+                                }
+
+                                return Column(
+                                  children: [
+                                    // Cabecera con contador y botón de orden.
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            totalText,
+                                            style: textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 16,
+                                                ),
+                                          ),
+                                        ),
+                                        general_iconbutton(
+                                          ordenSeleccionado == UserSort.none
+                                              ? Icons.filter_list_off
+                                              : Icons.filter_list,
+                                          onPressed: () {
+                                            // Modal inferior con tipos de orden.
+                                            showModalBottomSheet(
+                                              context: context,
+                                              builder: (context) => Padding(
+                                                padding: const EdgeInsets.all(
+                                                  16.0,
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      l10n.sortType,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon:
+                                                          Icons.filter_list_off,
+                                                      texto: l10n.noSortedUsers,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort.none;
+                                                        });
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.noSortedUsers,
+                                                          2,
+                                                        );
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.sort_by_alpha,
+                                                      texto: l10n.sortNameZA,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort.nameZA;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedZASnackbar,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.bar_chart,
+                                                      texto: l10n
+                                                          .sortDependencyHighLow,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort
+                                                                  .dependencyHighLow;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedDependencyLevelHighLow,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.bar_chart,
+                                                      texto: l10n
+                                                          .sortDependencyLowHigh,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort
+                                                                  .dependencyLowHigh;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedDependencyLevelLowHigh,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.check,
+                                                      texto: l10n
+                                                          .sortedStatusAccount,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort
+                                                                  .accountStatusOrder;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedStatusAccount,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (usuariosFiltrados.isEmpty)
+                                      // Hay usuarios pero el filtro deja la lista vacía.
+                                      Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Text(
+                                          'No se encontraron usuarios',
+                                          style: textTheme.bodyMedium,
+                                        ),
+                                      )
+                                    else
+                                      // Lista sin scroll propio (el padre ya scrollea).
+                                      ListView.separated(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: usuariosFiltrados.length,
+                                        separatorBuilder: (_, __) =>
+                                            const SizedBox(height: 8),
+                                        itemBuilder: (context, index) {
+                                          final usuario =
+                                              usuariosFiltrados[index];
+                                          // Tarjeta compacta con info básica.
+                                          return ListTile(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            tileColor: Theme.of(
+                                              context,
+                                            ).cardColor,
+                                            title: Text(
+                                              '${usuario.nombre} ${usuario.apellidos}',
+                                              style: textTheme.titleMedium,
+                                            ),
+                                            subtitle: Text(
+                                              'Estado: ${usuario.estadoCuenta} · Dependencia: ${usuario.nivelDependencia}',
+                                              style: textTheme.bodyMedium,
+                                            ),
+                                            trailing:
+                                                const Icon(Icons.chevron_right),
+                                            onTap: () {
+                                              // TODO: navegar al detalle del usuario
+                                            },
+                                          );
+                                        },
+                                      ),
                                   ],
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -455,7 +580,7 @@ class _UsersPageState extends State<UsersPage> {
             ),
           ),
 
-          // Botón flotante
+          // -------- BOTÓN FLOTANTE --------
           Positioned(
             right: 24,
             bottom: 32,

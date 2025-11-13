@@ -658,6 +658,12 @@ abstract class AppLocalizations {
   /// **'Usuarios encontrados:'**
   String get usersFound;
 
+  /// No description provided for @noUsersFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios no encontrado'**
+  String get noUsersFound;
+
   /// No description provided for @totalUsers.
   ///
   /// In es, this message translates to:
