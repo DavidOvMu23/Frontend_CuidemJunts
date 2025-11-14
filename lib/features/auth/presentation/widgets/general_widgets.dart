@@ -121,6 +121,26 @@ void general_snackbar(
   );
 }
 
+void general_snackbar_error(
+  BuildContext context,
+  String content,
+  int durationSeconds,
+) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        content,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onError,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      duration: Duration(seconds: durationSeconds),
+      backgroundColor: Theme.of(context).colorScheme.error,
+    ),
+  );
+}
+
 // -------- ELEMENTO DE LISTA PARA EL DRAWER --------
 // Es el botón del menú lateral con icono, texto y estado "seleccionado".
 Widget general_listtile({

@@ -32,13 +32,13 @@
   "@loginButton": {
     "description": "Text for the log in button"
   },
-  "forgotPassword": "Forgot your password?",
+  "forgotPassword": "Forgot your account?",
   "@forgotPassword": {
-    "description": "Text for the button/link to recover the password"
+    "description": "Text for the button/link to recover the account"
   },
-  "forgotPasswordSnackbar": "Contact a supervisor to recover your password.",
+  "forgotPasswordSnackbar": "Contact a supervisor to recover your account.",
   "@forgotPasswordSnackbar": {
-    "description": "Message showing instructions to recover the password"
+    "description": "Message showing instructions to recover the account"
   },
   "preferences": "Preferences",
   "mainPage": "Main Page",
@@ -149,5 +149,6 @@
   "errorUsersLoading": "Error loading users. Please try again later.",
   "errorWorkersLoading": "Error loading workers. Please try again later.",
   "errorCallsLoading": "Error loading calls. Please try again later.",
-  "errorNotificationsLoading": "Error loading notifications. Please try again later."
+  "errorNotificationsLoading": "Error loading notifications. Please try again later.",
+  "loginError": "Login error. Incorrect email or password."
 }

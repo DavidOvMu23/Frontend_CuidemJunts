@@ -33,11 +33,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Log in';
 
   @override
-  String get forgotPassword => 'Forgot your password?';
+  String get forgotPassword => 'Forgot your account?';
 
   @override
   String get forgotPasswordSnackbar =>
-      'Contact a supervisor to recover your password.';
+      'Contact a supervisor to recover your account.';
 
   @override
   String get preferences => 'Preferences';
@@ -375,4 +375,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorNotificationsLoading =>
       'Error loading notifications. Please try again later.';
+
+  @override
+  String get loginError => 'Login error. Incorrect email or password.';
 }

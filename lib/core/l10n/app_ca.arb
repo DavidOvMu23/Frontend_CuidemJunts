@@ -32,13 +32,13 @@
   "@loginButton": {
     "description": "Text del botó per iniciar sessió"
   },
-  "forgotPassword": "Has oblidat la teva contrasenya?",
+  "forgotPassword": "Has oblidat el teu compte?",
   "@forgotPassword": {
-    "description": "Text del botó/enllaç per recuperar la contrasenya"
+    "description": "Text del botó/enllaç per recuperar el compte"
   },
-  "forgotPasswordSnackbar": "Parla amb un supervisor per recuperar la teva contrasenya.",
+  "forgotPasswordSnackbar": "Parla amb un supervisor per recuperar el teu compte.",
   "@forgotPasswordSnackbar": {
-    "description": "Missatge mostrant instruccions per recuperar la contrasenya"
+    "description": "Missatge mostrant instruccions per recuperar el compte"
   },
   "preferences": "Preferències",
   "mainPage": "Pàgina principal",
@@ -151,5 +151,6 @@
   "errorUsersLoading": "Error en carregar els usuaris. Si us plau, torna-ho a intentar més tard.",
   "errorWorkersLoading": "Error en carregar els treballadors. Si us plau, torna-ho a intentar més tard.",
   "errorCallsLoading": "Error en carregar les cridades. Si us plau, torna-ho a intentar més tard.",
-  "errorNotificationsLoading": "Error en carregar les notificacions. Si us plau, torna-ho a intentar més tard."
+  "errorNotificationsLoading": "Error en carregar les notificacions. Si us plau, torna-ho a intentar més tard.",
+  "loginError": "Error d'inici de sessió. El correu electrònic o la contrasenya són incorrectes."
 }

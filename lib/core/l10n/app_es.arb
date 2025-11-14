@@ -8,8 +8,8 @@
   "email": "Correo electrónico",
   "password": "Contraseña",
   "loginButton": "Iniciar sesión",
-  "forgotPassword": "¿Olvidaste tu contraseña?",
-  "forgotPasswordSnackbar": "Contacta a un supervisor para recuperar tu contraseña.",
+  "forgotPassword": "¿Olvidaste tu cuenta?",
+  "forgotPasswordSnackbar": "Contacta a un supervisor para recuperar tu cuenta.",
   "preferences": "Preferencias",
   "mainPage": "Página principal",
   "appPreferences": "Preferencias de la app",
@@ -119,5 +119,6 @@
   "errorUsersLoading": "Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde.",
   "errorWorkersLoading": "Error al cargar los trabajadores. Por favor, inténtalo de nuevo más tarde.",
   "errorCallsLoading": "Error al cargar las llamadas. Por favor, inténtalo de nuevo más tarde.",
-  "errorNotificationsLoading": "Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde."
+  "errorNotificationsLoading": "Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde.",
+  "loginError": "Error de inicio de sesión. El correo electrónico o la contraseña son incorrectos."
 }

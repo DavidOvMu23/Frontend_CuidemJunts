@@ -25,7 +25,7 @@ class AppTheme {
       secondary: AppPalette.accentLight,
       surface: AppPalette.surfaceLight,
       background: AppPalette.backgroundLight,
-      error: AppPalette.errorFontLight,
+      error: AppPalette.errorFontDark,
       onPrimary: AppPalette.textOnPrimaryLight,
       onSurface: AppPalette.textOnSurfaceLight,
       onBackground: AppPalette.textPrimaryLight,

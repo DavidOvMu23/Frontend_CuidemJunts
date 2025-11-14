@@ -151,13 +151,13 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPassword.
   ///
   /// In es, this message translates to:
-  /// **'¿Olvidaste tu contraseña?'**
+  /// **'¿Olvidaste tu cuenta?'**
   String get forgotPassword;
 
   /// No description provided for @forgotPasswordSnackbar.
   ///
   /// In es, this message translates to:
-  /// **'Contacta a un supervisor para recuperar tu contraseña.'**
+  /// **'Contacta a un supervisor para recuperar tu cuenta.'**
   String get forgotPasswordSnackbar;
 
   /// No description provided for @preferences.
@@ -819,6 +819,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde.'**
   String get errorNotificationsLoading;
+
+  /// No description provided for @loginError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de inicio de sesión. El correo electrónico o la contraseña son incorrectos.'**
+  String get loginError;
 }
 
 class _AppLocalizationsDelegate
