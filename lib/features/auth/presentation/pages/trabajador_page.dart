@@ -8,6 +8,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 
 class WorkersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
@@ -82,7 +83,7 @@ class _WorkersPageState extends State<WorkersPage> {
       // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
         context: context,
-        selected: DrawerItem.users,
+        selected: DrawerItem.telemarketers,
         onTapHome: () {
           Navigator.pushReplacement(
             context,
@@ -111,6 +112,17 @@ class _WorkersPageState extends State<WorkersPage> {
             context,
             MaterialPageRoute(
               builder: (context) => PreferencesPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
+              ),
+            ),
+          );
+        },
+        onTapUsers: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UsersPage(
                 onToggleTheme: widget.onToggleTheme,
                 onChangeLocale: widget.onChangeLocale,
               ),
