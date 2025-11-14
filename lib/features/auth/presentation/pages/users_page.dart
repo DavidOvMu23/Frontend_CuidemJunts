@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/contacto_emergencia_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/service/usuario_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
@@ -33,7 +34,7 @@ class UsersPage extends StatefulWidget {
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, g1, g2, g3 }
+enum UserFilter { all, leve, medio, severo }
 
 // Modos de ordenación disponibles para la lista de usuarios.
 enum UserSort {
@@ -47,6 +48,7 @@ enum UserSort {
 class _UsersPageState extends State<UsersPage> {
   // Servicio que trae los usuarios desde el backend.
   late final UsuarioService _usuarioService;
+  late final ContactoEmergenciaService _contactoEmergenciaService;
   // Future que cacheamos para no disparar peticiones en cada build.
   late Future<List<Usuario>> _usuariosFuture;
   // Estado del filtro seleccionado y del texto del buscador.
@@ -61,7 +63,27 @@ class _UsersPageState extends State<UsersPage> {
     super.initState();
     filtroSeleccionado = UserFilter.all; // De inicio mostramos todos.
     _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
-    _usuariosFuture = _usuarioService.getAll(); // Carga inicial.
+    _contactoEmergenciaService = ContactoEmergenciaService(
+      baseUrl: 'http://localhost:3000',
+    );
+    _usuariosFuture = _cargarUsuariosConContactos(); // Carga inicial.
+  }
+
+  Future<List<Usuario>> _cargarUsuariosConContactos() async {
+    final usuarios = await _usuarioService.getAll();
+    final enriched = await Future.wait(
+      usuarios.map((usuario) async {
+        try {
+          final contactos = await _contactoEmergenciaService.getByUsuarioDni(
+            usuario.dni,
+          );
+          return usuario.copyWith(contactosEmergencia: contactos);
+        } catch (_) {
+          return usuario;
+        }
+      }),
+    );
+    return enriched;
   }
 
   // Aplica búsqueda + filtro + ordenación sobre la lista original.
@@ -77,10 +99,9 @@ class _UsersPageState extends State<UsersPage> {
 
       final coincideFiltro = switch (filtroSeleccionado) {
         UserFilter.all => true,
-        UserFilter.active => usuario.estadoCuenta.toLowerCase() == 'activo',
-        UserFilter.g1 => usuario.nivelDependencia.toUpperCase() == 'G1',
-        UserFilter.g2 => usuario.nivelDependencia.toUpperCase() == 'G2',
-        UserFilter.g3 => usuario.nivelDependencia.toUpperCase() == 'G3',
+        UserFilter.leve => usuario.nivelDependencia.toUpperCase() == 'G1',
+        UserFilter.medio => usuario.nivelDependencia.toUpperCase() == 'G2',
+        UserFilter.severo => usuario.nivelDependencia.toUpperCase() == 'G3',
       };
 
       return coincideTexto && coincideFiltro;
@@ -299,23 +320,19 @@ class _UsersPageState extends State<UsersPage> {
                                         child: Text(l10n.searchAllUsers),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.active,
-                                        child: Text(l10n.searchActiveUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.g1,
+                                        value: UserFilter.leve,
                                         child: Text(
                                           l10n.searchModerateDependency,
                                         ),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.g2,
+                                        value: UserFilter.medio,
                                         child: Text(
                                           l10n.searchSevereDependency,
                                         ),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.g3,
+                                        value: UserFilter.severo,
                                         child: Text(l10n.searchHighDependency),
                                       ),
                                     ],
@@ -574,6 +591,31 @@ class _UsersPageState extends State<UsersPage> {
                                           final usuario =
                                               usuariosFiltrados[index];
                                           // Tarjeta compacta con info básica.
+                                          final emergencySummary =
+                                              usuario
+                                                  .contactosEmergencia
+                                                  .isEmpty
+                                              ? 'Contactos emergencia: No disponibles'
+                                              : 'Contactos emergencia: ${usuario.contactosEmergencia.map((contacto) {
+                                                  final nombre = '${contacto.nombre} ${contacto.apellidos}'.trim();
+                                                  final relacion = contacto.relacion.trim();
+                                                  final telefono = contacto.telefono.trim();
+
+                                                  final buffer = StringBuffer(nombre);
+                                                  if (relacion.isNotEmpty) {
+                                                    buffer
+                                                      ..write(' (')
+                                                      ..write(relacion)
+                                                      ..write(')');
+                                                  }
+                                                  if (telefono.isNotEmpty) {
+                                                    buffer
+                                                      ..write(' · ')
+                                                      ..write(telefono);
+                                                  }
+                                                  return buffer.toString();
+                                                }).join(' | ')}';
+
                                           return ListTile(
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
@@ -586,9 +628,26 @@ class _UsersPageState extends State<UsersPage> {
                                               '${usuario.nombre} ${usuario.apellidos}',
                                               style: textTheme.titleMedium,
                                             ),
-                                            subtitle: Text(
-                                              'Estado: ${usuario.estadoCuenta} · Dependencia: ${usuario.nivelDependencia}',
-                                              style: textTheme.bodyMedium,
+                                            subtitle: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  'Dependencia: ${usuario.nivelDependencia} · Fecha Nacimiento: ${usuario.f_nac} · Número de télefono: ${usuario.telefono}',
+                                                  style: textTheme.bodyMedium,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  emergencySummary,
+                                                  style: textTheme.bodySmall
+                                                      ?.copyWith(
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).colorScheme.secondary,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
                                           );
                                         },
