@@ -5,6 +5,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/teleoperador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 class LlamadasPage extends StatefulWidget {
@@ -102,7 +103,17 @@ class _LlamadasPageState extends State<LlamadasPage> {
             ),
           );
         },
-        onTapTelemarketers: () {},
+        onTapTelemarketers: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TelemarketersPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
+              ),
+            ),
+          );
+        },
         onTapPreferences: () {
           Navigator.push(
             context,

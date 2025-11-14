@@ -7,24 +7,24 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-class UsersPage extends StatefulWidget {
+class TelemarketersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.
+  // Se utiliza para que el cambio de tema afecte a toda la app.appDrawer
   final void Function(bool) onToggleTheme;
 
   // Callback que cambia el idioma de la app.
   // Se utiliza para que el cambio de idioma afecte a toda la app.
   final void Function(Locale) onChangeLocale;
 
-  const UsersPage({
+  const TelemarketersPage({
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
   });
 
   @override
-  State<UsersPage> createState() => _UsersPageState();
+  State<TelemarketersPage> createState() => _TelemarketersPageState();
 }
 
 // Filtros disponibles de la busqueda de usuarios.
@@ -39,7 +39,7 @@ enum UserSort {
   accountStatusOrder,
 }
 
-class _UsersPageState extends State<UsersPage> {
+class _TelemarketersPageState extends State<TelemarketersPage> {
   // Filtro de usuarios seleccionado actualmente.
   late UserFilter filtroSeleccionado;
   late String textoFiltro = '';
