@@ -32,7 +32,7 @@ class UsersPage extends StatefulWidget {
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, inactive, g1, g2, g3 }
+enum UserFilter { all, active, g1, g2, g3 }
 
 // Modos de ordenación disponibles para la lista de usuarios.
 enum UserSort {
@@ -77,7 +77,6 @@ class _UsersPageState extends State<UsersPage> {
       final coincideFiltro = switch (filtroSeleccionado) {
         UserFilter.all => true,
         UserFilter.active => usuario.estadoCuenta.toLowerCase() == 'activo',
-        UserFilter.inactive => usuario.estadoCuenta.toLowerCase() != 'activo',
         UserFilter.g1 => usuario.nivelDependencia.toUpperCase() == 'G1',
         UserFilter.g2 => usuario.nivelDependencia.toUpperCase() == 'G2',
         UserFilter.g3 => usuario.nivelDependencia.toUpperCase() == 'G3',
@@ -292,10 +291,6 @@ class _UsersPageState extends State<UsersPage> {
                                       DropdownMenuItem<UserFilter>(
                                         value: UserFilter.active,
                                         child: Text(l10n.searchActiveUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.inactive,
-                                        child: Text(l10n.searchInactiveUsers),
                                       ),
                                       DropdownMenuItem<UserFilter>(
                                         value: UserFilter.g1,
