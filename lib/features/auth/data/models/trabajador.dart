@@ -23,8 +23,4 @@ class Trabajador {
       rol: (json['rol'] ?? '') as String,
     );
   }
-
-  Function trabajadoID() {
-    return id;
-  }
 }
