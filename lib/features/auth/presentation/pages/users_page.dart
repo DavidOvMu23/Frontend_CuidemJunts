@@ -33,7 +33,7 @@ class UsersPage extends StatefulWidget {
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, inactive, g1, g2, g3 }
+enum UserFilter { all, active, inactive, leve, moderada, severa, ninguna }
 
 // Modos de ordenación disponibles para la lista de usuarios.
 enum UserSort {
@@ -79,9 +79,11 @@ class _UsersPageState extends State<UsersPage> {
         UserFilter.all => true,
         UserFilter.active => usuario.estadoCuenta.toLowerCase() == 'activo',
         UserFilter.inactive => usuario.estadoCuenta.toLowerCase() != 'activo',
-        UserFilter.g1 => usuario.nivelDependencia.toUpperCase() == 'G1',
-        UserFilter.g2 => usuario.nivelDependencia.toUpperCase() == 'G2',
-        UserFilter.g3 => usuario.nivelDependencia.toUpperCase() == 'G3',
+        UserFilter.leve => usuario.nivelDependencia.toUpperCase() == 'G1',
+        UserFilter.moderada => usuario.nivelDependencia.toUpperCase() == 'G2',
+        UserFilter.severa => usuario.nivelDependencia.toUpperCase() == 'G3',
+        UserFilter.ninguna =>
+          usuario.nivelDependencia.toUpperCase() == 'NINGUNA',
       };
 
       return coincideTexto && coincideFiltro;
@@ -308,19 +310,19 @@ class _UsersPageState extends State<UsersPage> {
                                         child: Text(l10n.searchInactiveUsers),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.g1,
+                                        value: UserFilter.leve,
                                         child: Text(
                                           l10n.searchModerateDependency,
                                         ),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.g2,
+                                        value: UserFilter.moderada,
                                         child: Text(
                                           l10n.searchSevereDependency,
                                         ),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.g3,
+                                        value: UserFilter.severa,
                                         child: Text(l10n.searchHighDependency),
                                       ),
                                     ],

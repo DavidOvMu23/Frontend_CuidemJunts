@@ -49,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
+      await authService.login(correo, contrasena);
       // TODO: guardar token
       // ejemplo:
       // await storage.write(key: 'token', value: token);
