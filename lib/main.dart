@@ -98,10 +98,7 @@ class _MyAppState extends State<MyApp> {
       // Le pasamos referencias (callbacks) a nuestras funciones de estado para que el Login
       // pueda pedir cambios de idioma o tema. Así, el estado se mantiene aquí pero se controla
       // desde cualquier lugar de la app.
-      home: HomeSupervisorPage(
-        onToggleTheme: toggleTheme,
-        onChangeLocale: setLocale,
-      ),
+      home: LoginPage(onToggleTheme: toggleTheme, onChangeLocale: setLocale),
       //home: CatalogPage(),
     );
   }

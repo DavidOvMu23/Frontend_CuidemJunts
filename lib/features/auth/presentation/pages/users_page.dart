@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/services/usuario_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/usuario_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
@@ -558,8 +558,9 @@ class _UsersPageState extends State<UsersPage> {
                                               'Estado: ${usuario.estadoCuenta} · Dependencia: ${usuario.nivelDependencia}',
                                               style: textTheme.bodyMedium,
                                             ),
-                                            trailing:
-                                                const Icon(Icons.chevron_right),
+                                            trailing: const Icon(
+                                              Icons.chevron_right,
+                                            ),
                                             onTap: () {
                                               // TODO: navegar al detalle del usuario
                                             },
