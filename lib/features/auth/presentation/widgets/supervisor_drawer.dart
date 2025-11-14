@@ -125,7 +125,7 @@ Drawer appDrawer({
                     general_listtile(
                       context: context,
                       icon: Icons.support_agent,
-                      texto: l10n.telemarketers,
+                      texto: l10n.workers,
                       selected: selected == DrawerItem.telemarketers,
                       onTap: onTapTelemarketers,
                     ),

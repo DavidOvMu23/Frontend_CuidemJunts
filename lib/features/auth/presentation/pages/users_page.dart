@@ -33,7 +33,7 @@ class UsersPage extends StatefulWidget {
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, inactive, leve, moderada, severa, ninguna }
+enum UserFilter { all, active, g1, g2, g3 }
 
 // Modos de ordenación disponibles para la lista de usuarios.
 enum UserSort {
@@ -78,12 +78,9 @@ class _UsersPageState extends State<UsersPage> {
       final coincideFiltro = switch (filtroSeleccionado) {
         UserFilter.all => true,
         UserFilter.active => usuario.estadoCuenta.toLowerCase() == 'activo',
-        UserFilter.inactive => usuario.estadoCuenta.toLowerCase() != 'activo',
-        UserFilter.leve => usuario.nivelDependencia.toUpperCase() == 'G1',
-        UserFilter.moderada => usuario.nivelDependencia.toUpperCase() == 'G2',
-        UserFilter.severa => usuario.nivelDependencia.toUpperCase() == 'G3',
-        UserFilter.ninguna =>
-          usuario.nivelDependencia.toUpperCase() == 'NINGUNA',
+        UserFilter.g1 => usuario.nivelDependencia.toUpperCase() == 'G1',
+        UserFilter.g2 => usuario.nivelDependencia.toUpperCase() == 'G2',
+        UserFilter.g3 => usuario.nivelDependencia.toUpperCase() == 'G3',
       };
 
       return coincideTexto && coincideFiltro;
@@ -306,23 +303,19 @@ class _UsersPageState extends State<UsersPage> {
                                         child: Text(l10n.searchActiveUsers),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.inactive,
-                                        child: Text(l10n.searchInactiveUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.leve,
+                                        value: UserFilter.g1,
                                         child: Text(
                                           l10n.searchModerateDependency,
                                         ),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.moderada,
+                                        value: UserFilter.g2,
                                         child: Text(
                                           l10n.searchSevereDependency,
                                         ),
                                       ),
                                       DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.severa,
+                                        value: UserFilter.g3,
                                         child: Text(l10n.searchHighDependency),
                                       ),
                                     ],
@@ -360,9 +353,35 @@ class _UsersPageState extends State<UsersPage> {
                                 }
                                 if (snapshot.hasError) {
                                   // Mensaje genérico cuando algo falla.
-                                  return const Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text('Error al cargar usuarios'),
+                                  return Column(
+                                    children: [
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Card(
+                                          margin: EdgeInsets
+                                              .zero, // evita márgenes por defecto del Card
+                                          color: colorScheme.error.withOpacity(
+                                            0.2,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Text(
+                                              l10n.errorUsersLoading,
+                                              style: textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                    color: colorScheme.error,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   );
                                 }
 
@@ -571,12 +590,6 @@ class _UsersPageState extends State<UsersPage> {
                                               'Estado: ${usuario.estadoCuenta} · Dependencia: ${usuario.nivelDependencia}',
                                               style: textTheme.bodyMedium,
                                             ),
-                                            trailing: const Icon(
-                                              Icons.chevron_right,
-                                            ),
-                                            onTap: () {
-                                              // TODO: navegar al detalle del usuario
-                                            },
                                           );
                                         },
                                       ),

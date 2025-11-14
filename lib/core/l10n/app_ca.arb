@@ -143,5 +143,6 @@
   "searchCalls": "Cerca per usuari, teleoperador o número de telèfon",
   "totalCalls": "Total de cridades",
   "callsFound": "Cridades trobades:",
-  "noSortedCalls": "Ordenació predeterminada (més recents primer)"
+  "noSortedCalls": "Ordenació predeterminada (més recents primer)",
+  "errorUsersLoading": "Error en carregar els usuaris. Si us plau, torna-ho a intentar més tard."
 }

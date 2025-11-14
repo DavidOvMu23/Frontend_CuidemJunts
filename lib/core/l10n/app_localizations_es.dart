@@ -353,4 +353,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get callsFound => 'Llamadas encontradas:';
+
+  @override
+  String get errorUsersLoading =>
+      'Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde.';
 }

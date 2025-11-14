@@ -141,5 +141,6 @@
   "searchCalls": "Search by user, telemarketer or phone number",
   "totalCalls": "Total calls",
   "callsFound": "Calls found:",
-  "noSortedCalls": "Default sorting (most recent first)"
+  "noSortedCalls": "Default sorting (most recent first)",
+  "errorUsersLoading": "Error loading users. Please try again later."
 }

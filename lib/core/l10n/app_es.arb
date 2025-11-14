@@ -111,5 +111,6 @@
   "searchCalls": "Buscar por usuario, teleoperador o número de teléfono",
   "allCalls": "Todas las llamadas",
   "totalCalls": "Total de llamadas",
-  "callsFound": "Llamadas encontradas:"
+  "callsFound": "Llamadas encontradas:",
+  "errorUsersLoading": "Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde."
 }

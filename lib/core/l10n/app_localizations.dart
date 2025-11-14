@@ -771,6 +771,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Llamadas encontradas:'**
   String get callsFound;
+
+  /// No description provided for @errorUsersLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde.'**
+  String get errorUsersLoading;
 }
 
 class _AppLocalizationsDelegate

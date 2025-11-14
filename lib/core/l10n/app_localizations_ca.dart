@@ -354,4 +354,8 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get callsFound => 'Cridades trobades:';
+
+  @override
+  String get errorUsersLoading =>
+      'Error en carregar els usuaris. Si us plau, torna-ho a intentar més tard.';
 }
