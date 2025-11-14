@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/service/trabajador_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
@@ -44,6 +45,7 @@ enum UserSort {
 
 class _WorkersPageState extends State<WorkersPage> {
   late final TrabajadorService _trabajadorService;
+  late final GrupoService _grupoService;
   late Future<List<Trabajador>> _trabajadoresFuture;
   // Filtro de usuarios seleccionado actualmente.
   late UserFilter filtroSeleccionado;
@@ -57,7 +59,49 @@ class _WorkersPageState extends State<WorkersPage> {
     super.initState();
     filtroSeleccionado = UserFilter.all;
     _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
-    _trabajadoresFuture = _trabajadorService.getAll();
+    _grupoService = GrupoService(baseUrl: 'http://localhost:3000');
+    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+  }
+
+  Future<List<Trabajador>> _cargarTrabajadoresConGrupo() async {
+    final trabajadores = await _trabajadorService.getAll();
+    final Map<int, String?> cache = {};
+
+    final enriched = await Future.wait(
+      trabajadores.map((trabajador) async {
+        final esTeleoperador = trabajador.rol.toLowerCase() == 'teleoperador';
+        final grupoId = trabajador.grupoId;
+        if (!esTeleoperador || grupoId == null) {
+          return trabajador;
+        }
+
+        final nombreGrupo = await _obtenerNombreGrupo(grupoId, cache);
+        if (nombreGrupo == null) {
+          return trabajador;
+        }
+        return trabajador.copyWith(grupoNombre: nombreGrupo);
+      }),
+    );
+
+    return enriched;
+  }
+
+  Future<String?> _obtenerNombreGrupo(
+    int grupoId,
+    Map<int, String?> cache,
+  ) async {
+    if (cache.containsKey(grupoId)) {
+      return cache[grupoId];
+    }
+
+    try {
+      final grupo = await _grupoService.getById(grupoId);
+      cache[grupoId] = grupo.nombre;
+      return grupo.nombre;
+    } catch (_) {
+      cache[grupoId] = null;
+      return null;
+    }
   }
 
   @override
@@ -227,7 +271,7 @@ class _WorkersPageState extends State<WorkersPage> {
                                 Expanded(
                                   //Dropdown para seleccionar el filtro de búsqueda
                                   child: DropdownButtonFormField<UserFilter>(
-                                    value: filtroSeleccionado,
+                                    initialValue: filtroSeleccionado,
                                     icon: const Icon(Icons.arrow_drop_down),
                                     borderRadius: BorderRadius.circular(12),
                                     decoration: InputDecoration(
@@ -258,7 +302,7 @@ class _WorkersPageState extends State<WorkersPage> {
                             ),
                             const SizedBox(height: 20),
                             Divider(
-                              color: colorScheme.primary.withOpacity(0.3),
+                              color: colorScheme.primary.withValues(alpha: 0.3),
                             ),
 
                             const SizedBox(height: 10),
@@ -452,6 +496,15 @@ class _WorkersPageState extends State<WorkersPage> {
                                           const SizedBox(height: 8),
                                       itemBuilder: (context, index) {
                                         final trabajador = trabajadores[index];
+                                        final esTeleoperador =
+                                            trabajador.rol.toLowerCase() ==
+                                            'teleoperador';
+                                        final grupoNombreLimpio =
+                                            (trabajador.grupoNombre ?? '')
+                                                .trim();
+                                        final grupoTexto = esTeleoperador
+                                            ? ' · Grupo: ${grupoNombreLimpio.isEmpty ? 'Sin grupo asignado' : grupoNombreLimpio}'
+                                            : '';
                                         return ListTile(
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
@@ -466,7 +519,7 @@ class _WorkersPageState extends State<WorkersPage> {
                                             style: textTheme.titleMedium,
                                           ),
                                           subtitle: Text(
-                                            'Correo: ${trabajador.correo} · Rol: ${trabajador.rol}',
+                                            'Correo: ${trabajador.correo} · Rol: ${trabajador.rol}$grupoTexto',
                                             style: textTheme.bodyMedium,
                                           ),
                                           trailing: const Icon(
