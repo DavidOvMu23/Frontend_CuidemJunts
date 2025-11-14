@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/llamadas_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/teleoperador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 class LlamadasPage extends StatefulWidget {
@@ -44,6 +46,8 @@ enum CallSort {
 }
 
 class _LlamadasPageState extends State<LlamadasPage> {
+  late final LlamadasService _llamadasService;
+  late Future<List<Llamadas>> _llamadasFuture;
   // Filtro de usuarios seleccionado actualmente.
   late CallFilter filtroSeleccionado;
   late String textoFiltro = '';
@@ -55,6 +59,8 @@ class _LlamadasPageState extends State<LlamadasPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = CallFilter.all;
+    _llamadasService = LlamadasService(baseUrl: 'http://localhost:3000');
+    _llamadasFuture = _llamadasService.getAll();
   }
 
   @override
@@ -107,7 +113,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TelemarketersPage(
+              builder: (context) => WorkersPage(
                 onToggleTheme: widget.onToggleTheme,
                 onChangeLocale: widget.onChangeLocale,
               ),
@@ -284,216 +290,277 @@ class _LlamadasPageState extends State<LlamadasPage> {
                               color: colorScheme.primary.withOpacity(0.3),
                             ),
 
-                            // Texto que muestra el total de usuarios o usuarios encontrados
                             const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    //Si no hay nada escrito en el textfield de búsqueda si no hay filtro, mostramos el total de usuarios del programa
-                                    textoFiltro.isEmpty &&
-                                            filtroSeleccionado == CallFilter.all
-                                        ? l10n.totalCalls +
-                                              ': 0' //TODO: cambiar 0 por el total real de la base de datos
-                                        : l10n.callsFound +
-                                              ': 0', //TODO: cambiar 0 por el total real de usuarios encontrados
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
+                            FutureBuilder<List<Llamadas>>(
+                              future: _llamadasFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 32),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
                                     ),
-                                  ),
-                                ),
-
-                                //Listar usuarios según el filtro y el texto de búsqueda
-                                general_iconbutton(
-                                  // Si hay algún tipo de orden aplicado, mostramos el icono de filtro activo si no, el de filtro inactivo
-                                  ordenSeleccionado == CallSort.none
-                                      ? Icons.filter_list_off
-                                      : Icons.filter_list,
-
-                                  // Acción al pulsar el botón de ordenación
-                                  onPressed: () {
-                                    //abrimos un modal bottom sheet para seleccionar el tipo de orden
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (context) => Padding(
-                                        padding: const EdgeInsets.all(16.0),
-
-                                        // Columna con las opciones de ordenación
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              l10n.sortType,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 12),
-
-                                            // Opciones de ordenación
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.filter_list_off,
-                                              texto: l10n.noSortedCalls,
-                                              onTap: () {
-                                                setState(() {
-                                                  // usamos el valor `none` para indicar que no hay orden activo
-                                                  ordenSeleccionado =
-                                                      CallSort.none;
-                                                });
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.noSortedUsers,
-                                                  2,
-                                                );
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.noSortedUsers,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.sort_by_alpha,
-                                              texto: l10n.sortNameAZ,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado =
-                                                      CallSort.nameAZ;
-                                                });
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortedAZSnackbar,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.sort_by_alpha,
-                                              texto: l10n.sortNameZA,
-                                              onTap: () {
-                                                setState(() {
-                                                  // usamos un valor distinto de `all` para indicar que hay orden activo
-                                                  ordenSeleccionado =
-                                                      CallSort.dateLatest;
-                                                });
-                                                Navigator.pop(context);
-                                                // TODO: aplicar orden real de A a Z sobre la lista de usuarios
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortedZASnackbar,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.access_time,
-                                              texto: l10n
-                                                  .sortCallDurationLongShort,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = CallSort
-                                                      .callDurationLongShort;
-                                                });
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortCallDurationLongShort,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.access_time,
-                                              texto: l10n
-                                                  .sortCallDurationShortLong,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = CallSort
-                                                      .callDurationShortLong;
-                                                });
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortCallDurationShortLong,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.bar_chart,
-                                              texto: l10n.sortDependencyHighLow,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = CallSort
-                                                      .dependencyHighLow;
-                                                });
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortDependencyHighLow,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                            general_listtile(
-                                              context: context,
-                                              icon: Icons.bar_chart,
-                                              texto: l10n.sortDependencyLowHigh,
-                                              onTap: () {
-                                                setState(() {
-                                                  ordenSeleccionado = CallSort
-                                                      .dependencyLowHigh;
-                                                });
-                                                Navigator.pop(context);
-                                                general_snackbar(
-                                                  context,
-                                                  l10n.sortDependencyLowHigh,
-                                                  2,
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-
-                            //TODO: Implementar la lista de usuarios
-                            //Aquí irá la lista de usuarios filtrados y ordenados por el momento hay una card
-                            const SizedBox(height: 10),
-                            Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Aquí irán todas las llamadas",
+                                  );
+                                }
+                                if (snapshot.hasError) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'Error al cargar llamadas',
                                       style: textTheme.bodyMedium,
                                     ),
+                                  );
+                                }
+
+                                final llamadas = snapshot.data ?? [];
+                                final showingAll =
+                                    textoFiltro.isEmpty &&
+                                    filtroSeleccionado == CallFilter.all;
+                                final totalText = showingAll
+                                    ? '${l10n.totalCalls}: ${llamadas.length}'
+                                    : '${l10n.callsFound}: ${llamadas.length}';
+
+                                if (llamadas.isEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'No se encontraron llamadas',
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                  );
+                                }
+
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            totalText,
+                                            style: textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 16,
+                                                ),
+                                          ),
+                                        ),
+                                        general_iconbutton(
+                                          ordenSeleccionado == CallSort.none
+                                              ? Icons.filter_list_off
+                                              : Icons.filter_list,
+                                          onPressed: () {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              builder: (context) => Padding(
+                                                padding: const EdgeInsets.all(
+                                                  16.0,
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      l10n.sortType,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon:
+                                                          Icons.filter_list_off,
+                                                      texto: l10n.noSortedCalls,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort.none;
+                                                        });
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.noSortedCalls,
+                                                          2,
+                                                        );
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.sort_by_alpha,
+                                                      texto: l10n.sortNameAZ,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort.nameAZ;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortNameAZ,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.sort_by_alpha,
+                                                      texto: l10n.sortNameZA,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort.nameZA;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortNameZA,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.timer,
+                                                      texto: l10n
+                                                          .sortCallDurationShortLong,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort
+                                                                  .callDurationShortLong;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortCallDurationShortLong,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.timer,
+                                                      texto: l10n
+                                                          .sortCallDurationLongShort,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort
+                                                                  .callDurationLongShort;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortCallDurationLongShort,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.filter_1,
+                                                      texto: l10n
+                                                          .sortDependencyHighLow,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort
+                                                                  .dependencyHighLow;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortDependencyHighLow,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.filter_3,
+                                                      texto: l10n
+                                                          .sortDependencyLowHigh,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              CallSort
+                                                                  .dependencyLowHigh;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortDependencyLowHigh,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: llamadas.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(height: 8),
+                                      itemBuilder: (context, index) {
+                                        final llamada = llamadas[index];
+                                        final dateText = _formatDate(
+                                          llamada.fecha,
+                                        );
+                                        return ListTile(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          tileColor: Theme.of(
+                                            context,
+                                          ).cardColor,
+                                          title: Text(
+                                            '$dateText · ${llamada.hora}',
+                                            style: textTheme.titleMedium,
+                                          ),
+                                          subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                llamada.resumen,
+                                                style: textTheme.bodyMedium,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Duración: ${llamada.duracion} · Estado: ${llamada.estado}',
+                                                style: textTheme.bodySmall,
+                                              ),
+                                            ],
+                                          ),
+                                          isThreeLine: true,
+                                          trailing: const Icon(
+                                            Icons.chevron_right,
+                                          ),
+                                          onTap: () {
+                                            // TODO: navegar al detalle de la llamada
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ],
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -521,5 +588,12 @@ class _LlamadasPageState extends State<LlamadasPage> {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
+    return '$day/$month/$year';
   }
 }

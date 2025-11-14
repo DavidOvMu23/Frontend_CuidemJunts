@@ -98,6 +98,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get searchUsers => 'Cerca usuaris';
 
   @override
+  String get searchWorkers => 'Cerca treballadors';
+
+  @override
   String get all => 'Totes';
 
   @override
@@ -255,6 +258,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get searchAllUsers => 'Tots els usuaris';
 
   @override
+  String get searchAllWorkers => 'Tots els treballadors';
+
+  @override
   String get searchActiveUsers => 'Usuaris actius';
 
   @override
@@ -293,10 +299,16 @@ class AppLocalizationsCa extends AppLocalizations {
   String get usersFound => 'Usuaris trobats:';
 
   @override
+  String get workersFound => 'Traballadors trobats:';
+
+  @override
   String get noUsersFound => 'Usuaris no trobats';
 
   @override
   String get totalUsers => 'Total d\'usuaris';
+
+  @override
+  String get totalWorkers => 'Total de treballadors';
 
   @override
   String get sortType => 'Mostra per ordre';

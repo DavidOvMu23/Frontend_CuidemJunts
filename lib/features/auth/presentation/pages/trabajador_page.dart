@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/usuario_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/trabajador_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
@@ -8,32 +8,29 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 
-// -------- PANTALLA DE USUARIOS --------
-// Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
-class UsersPage extends StatefulWidget {
+class WorkersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.
+  // Se utiliza para que el cambio de tema afecte a toda la app.appDrawer
   final void Function(bool) onToggleTheme;
 
   // Callback que cambia el idioma de la app.
   // Se utiliza para que el cambio de idioma afecte a toda la app.
   final void Function(Locale) onChangeLocale;
 
-  const UsersPage({
+  const WorkersPage({
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
   });
 
   @override
-  State<UsersPage> createState() => _UsersPageState();
+  State<WorkersPage> createState() => _WorkersPageState();
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, inactive, leve, moderada, severa, ninguna }
+enum UserFilter { all, active, inactive, g1, g2, g3 }
 
 // Modos de ordenación disponibles para la lista de usuarios.
 enum UserSort {
@@ -44,12 +41,10 @@ enum UserSort {
   accountStatusOrder,
 }
 
-class _UsersPageState extends State<UsersPage> {
-  // Servicio que trae los usuarios desde el backend.
-  late final UsuarioService _usuarioService;
-  // Future que cacheamos para no disparar peticiones en cada build.
-  late Future<List<Usuario>> _usuariosFuture;
-  // Estado del filtro seleccionado y del texto del buscador.
+class _WorkersPageState extends State<WorkersPage> {
+  late final TrabajadorService _trabajadorService;
+  late Future<List<Trabajador>> _trabajadoresFuture;
+  // Filtro de usuarios seleccionado actualmente.
   late UserFilter filtroSeleccionado;
   late String textoFiltro = '';
 
@@ -59,96 +54,32 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = UserFilter.all; // De inicio mostramos todos.
-    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
-    _usuariosFuture = _usuarioService.getAll(); // Carga inicial.
-  }
-
-  // Aplica búsqueda + filtro + ordenación sobre la lista original.
-  List<Usuario> _aplicarFiltros(List<Usuario> usuarios) {
-    final query = textoFiltro.trim().toLowerCase();
-    final filtrados = usuarios.where((usuario) {
-      final nombreCompleto = '${usuario.nombre} ${usuario.apellidos}'
-          .toLowerCase();
-      final coincideTexto =
-          query.isEmpty ||
-          nombreCompleto.contains(query) ||
-          usuario.dni.toLowerCase().contains(query);
-
-      final coincideFiltro = switch (filtroSeleccionado) {
-        UserFilter.all => true,
-        UserFilter.active => usuario.estadoCuenta.toLowerCase() == 'activo',
-        UserFilter.inactive => usuario.estadoCuenta.toLowerCase() != 'activo',
-        UserFilter.leve => usuario.nivelDependencia.toUpperCase() == 'G1',
-        UserFilter.moderada => usuario.nivelDependencia.toUpperCase() == 'G2',
-        UserFilter.severa => usuario.nivelDependencia.toUpperCase() == 'G3',
-        UserFilter.ninguna =>
-          usuario.nivelDependencia.toUpperCase() == 'NINGUNA',
-      };
-
-      return coincideTexto && coincideFiltro;
-    }).toList();
-
-    filtrados.sort((a, b) {
-      switch (ordenSeleccionado) {
-        case UserSort.nameZA:
-          return b.nombre.compareTo(a.nombre);
-        case UserSort.dependencyHighLow:
-          return _dependencyRank(b.nivelDependencia) -
-              _dependencyRank(a.nivelDependencia);
-        case UserSort.dependencyLowHigh:
-          return _dependencyRank(a.nivelDependencia) -
-              _dependencyRank(b.nivelDependencia);
-        case UserSort.accountStatusOrder:
-          return _estadoCuentaRank(a.estadoCuenta) -
-              _estadoCuentaRank(b.estadoCuenta);
-        case UserSort.none:
-          return 0;
-      }
-    });
-
-    return filtrados;
-  }
-
-  // Convierte los grados de dependencia en una prioridad numérica.
-  int _dependencyRank(String nivel) {
-    switch (nivel.toUpperCase()) {
-      case 'G3':
-        return 3;
-      case 'G2':
-        return 2;
-      case 'G1':
-        return 1;
-      default:
-        return 0;
-    }
-  }
-
-  // Primero los activos, después el resto.
-  int _estadoCuentaRank(String estado) {
-    return estado.toLowerCase() == 'activo' ? 0 : 1;
+    filtroSeleccionado = UserFilter.all;
+    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
+    _trabajadoresFuture = _trabajadorService.getAll();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Me guardo tipografías y paleta para reutilizarlas.
+    // Obtenemos tipografías y paleta del tema actual para mantener
+    // estilos consistentes en toda la app.
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Textos traducidos según el idioma actual.
+    // Textos traducidos (según el idioma seleccionado en la app).
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       // -------- BARRA SUPERIOR --------
-      // AppBar con botón de notificaciones (pendiente de implementar).
+      // AppBar: barra superior con título centrado e iconos de acción a la derecha.
       appBar: appMainAppBar(
         onNotifications: () {
           // TODO: Acción al pulsar el icono de notificaciones.
         },
       ),
 
-      // -------- MENÚ LATERAL --------
-      // Drawer con las secciones principales del supervisor.
+      // -------- MENÚ LATERAL (DRAWER) --------
+      // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
         context: context,
         selected: DrawerItem.users,
@@ -174,17 +105,7 @@ class _UsersPageState extends State<UsersPage> {
             ),
           );
         },
-        onTapTelemarketers: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WorkersPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
-          );
-        },
+        onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,
@@ -210,45 +131,53 @@ class _UsersPageState extends State<UsersPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
-      // Stack para poder superponer el botón flotante.
+
+      // Usamos un Stack para poder colocar el botón flotante encima del contenido scrolleable.
       body: Stack(
         children: [
-          // Positioned.fill para que el scroll ocupe todo el alto disponible.
+          //El posicined fill hace que el SingleChildScrollView ocupe todo el espacio disponible
           Positioned.fill(
             child: SingleChildScrollView(
-              // Scroll general para toda la pantalla.
+              // SingleChildScrollView permite que toda la columna sea scrolleable
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
 
-              // ConstrainedBox para estirar la columna al ancho máximo.
+              // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
               child: ConstrainedBox(
+                // Hacemos que la columna ocupe todo el ancho disponible.
+
+                // Esto es necesario para que los elementos dentro de la columna
+                // (como las "tarjetas" de Material) ocupen todo el ancho posible.
                 constraints: const BoxConstraints(minWidth: double.infinity),
 
-                // Columna general con todo el contenido.
+                // Columna principal con todo el contenido de la página.
                 child: Column(
+                  // Alineamos todo a la izquierda.
                   crossAxisAlignment: CrossAxisAlignment.start,
 
+                  // Elementos de la columna
                   children: [
-                    // -------- TITULAR --------
+                    // Título principal
                     Text(
-                      l10n.users,
+                      l10n.telemarketers,
                       style: textTheme.titleMedium?.copyWith(fontSize: 27),
                     ),
-                    Text(l10n.manageUsers, style: textTheme.bodyMedium),
+                    // Subtítulo
+                    Text(l10n.manageWorkers, style: textTheme.bodyMedium),
                     const SizedBox(height: 20),
 
-                    // -------- TARJETA PRINCIPAL --------
+                    // Tarjeta principal con filtros y lista de usuarios
                     Material(
                       borderRadius: BorderRadius.circular(30),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
 
-                        // Columna con filtros + lista.
+                        //Columna en la que van los filtros y la lista de usuarios
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // -------- BÚSQUEDA --------
+                            // Título de la sección de búsqueda
                             Text(
-                              l10n.searchUsers,
+                              l10n.searchWorkers,
                               textAlign: TextAlign.left,
                               style: textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w500,
@@ -257,9 +186,9 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
 
-                            // TextField de búsqueda.
+                            // TextField de búsqueda
                             general_busqueda_textfield(
-                              l10n.searchUser,
+                              l10n.searchWorkers,
                               icono: Icons.search,
                               onChanged: (value) {
                                 setState(() {
@@ -269,11 +198,12 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
 
-                            // -------- FILTRO --------
+                            //Row del filtro de búsqueda
                             Row(
                               children: [
-                                // Ícono que indica si hay filtro activo o no.
+                                // Ícono que indica si hay filtro activo o no
                                 Icon(
+                                  // Si el filtro seleccionado no es "Todos", mostramos el icono de filtro activo
                                   filtroSeleccionado != UserFilter.all
                                       ? Icons.filter_alt
                                       : Icons.filter_alt_off,
@@ -281,11 +211,11 @@ class _UsersPageState extends State<UsersPage> {
                                 ),
                                 const SizedBox(width: 16),
 
-                                // Dropdown expandido para ocupar todo el ancho.
+                                //Expanded para que el DropdownButtonFormField ocupe todo el espacio restante
                                 Expanded(
-                                  // Dropdown para seleccionar el filtro.
+                                  //Dropdown para seleccionar el filtro de búsqueda
                                   child: DropdownButtonFormField<UserFilter>(
-                                    initialValue: filtroSeleccionado,
+                                    value: filtroSeleccionado,
                                     icon: const Icon(Icons.arrow_drop_down),
                                     borderRadius: BorderRadius.circular(12),
                                     decoration: InputDecoration(
@@ -295,38 +225,15 @@ class _UsersPageState extends State<UsersPage> {
                                       ),
                                     ),
 
-                                    // Opciones del dropdown.
+                                    //Elementos del dropdown
                                     items: [
                                       DropdownMenuItem<UserFilter>(
+                                        //seleccionamos el filtro "Todos"
                                         value: UserFilter.all,
-                                        child: Text(l10n.searchAllUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.active,
-                                        child: Text(l10n.searchActiveUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.inactive,
-                                        child: Text(l10n.searchInactiveUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.leve,
-                                        child: Text(
-                                          l10n.searchModerateDependency,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.moderada,
-                                        child: Text(
-                                          l10n.searchSevereDependency,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.severa,
-                                        child: Text(l10n.searchHighDependency),
+                                        child: Text(l10n.searchAllWorkers),
                                       ),
                                     ],
-                                    // Actualizamos el filtro cuando cambia.
+                                    // Al cambiar el valor seleccionado, actualizamos el estado
                                     onChanged: (UserFilter? newValue) {
                                       setState(() {
                                         filtroSeleccionado =
@@ -339,18 +246,15 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
                             Divider(
-                              color: colorScheme.primary.withValues(alpha: 0.3),
+                              color: colorScheme.primary.withOpacity(0.3),
                             ),
 
                             const SizedBox(height: 10),
-                            // -------- LISTA DE USUARIOS --------
-                            // FutureBuilder conectado al endpoint de usuarios.
-                            FutureBuilder<List<Usuario>>(
-                              future: _usuariosFuture,
+                            FutureBuilder<List<Trabajador>>(
+                              future: _trabajadoresFuture,
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  // Loader centrado mientras llega la respuesta.
                                   return const Padding(
                                     padding: EdgeInsets.symmetric(vertical: 32),
                                     child: Center(
@@ -359,32 +263,28 @@ class _UsersPageState extends State<UsersPage> {
                                   );
                                 }
                                 if (snapshot.hasError) {
-                                  // Mensaje genérico cuando algo falla.
-                                  return const Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text('Error al cargar usuarios'),
-                                  );
-                                }
-
-                                // Lista original del backend.
-                                final usuarios = snapshot.data ?? [];
-                                // Lista filtrada según búsqueda y dropdown.
-                                final usuariosFiltrados = _aplicarFiltros(
-                                  usuarios,
-                                );
-                                // Texto que alterna entre total general o resultados filtrados.
-                                final totalText =
-                                    textoFiltro.isEmpty &&
-                                        filtroSeleccionado == UserFilter.all
-                                    ? '${l10n.totalUsers}: ${usuarios.length}'
-                                    : '${l10n.usersFound} ${usuariosFiltrados.length}';
-
-                                if (usuarios.isEmpty) {
-                                  // No hay usuarios cargados en la base de datos.
                                   return Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'No se encontraron usuarios',
+                                      'Error al cargar trabajadores',
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                  );
+                                }
+
+                                final trabajadores = snapshot.data ?? [];
+                                final showingAll =
+                                    textoFiltro.isEmpty &&
+                                    filtroSeleccionado == UserFilter.all;
+                                final totalText = showingAll
+                                    ? '${l10n.totalWorkers}: ${trabajadores.length}'
+                                    : '${l10n.workersFound}: ${trabajadores.length}';
+
+                                if (trabajadores.isEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'No se encontraron trabajadores',
                                       style: textTheme.bodyMedium,
                                     ),
                                   );
@@ -392,7 +292,6 @@ class _UsersPageState extends State<UsersPage> {
 
                                 return Column(
                                   children: [
-                                    // Cabecera con contador y botón de orden.
                                     Row(
                                       children: [
                                         Expanded(
@@ -410,7 +309,6 @@ class _UsersPageState extends State<UsersPage> {
                                               ? Icons.filter_list_off
                                               : Icons.filter_list,
                                           onPressed: () {
-                                            // Modal inferior con tipos de orden.
                                             showModalBottomSheet(
                                               context: context,
                                               builder: (context) => Padding(
@@ -533,53 +431,41 @@ class _UsersPageState extends State<UsersPage> {
                                       ],
                                     ),
                                     const SizedBox(height: 10),
-                                    if (usuariosFiltrados.isEmpty)
-                                      // Hay usuarios pero el filtro deja la lista vacía.
-                                      Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Text(
-                                          'No se encontraron usuarios',
-                                          style: textTheme.bodyMedium,
-                                        ),
-                                      )
-                                    else
-                                      // Lista sin scroll propio (el padre ya scrollea).
-                                      ListView.separated(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: usuariosFiltrados.length,
-                                        separatorBuilder: (_, __) =>
-                                            const SizedBox(height: 8),
-                                        itemBuilder: (context, index) {
-                                          final usuario =
-                                              usuariosFiltrados[index];
-                                          // Tarjeta compacta con info básica.
-                                          return ListTile(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: trabajadores.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(height: 8),
+                                      itemBuilder: (context, index) {
+                                        final trabajador = trabajadores[index];
+                                        return ListTile(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
-                                            tileColor: Theme.of(
-                                              context,
-                                            ).cardColor,
-                                            title: Text(
-                                              '${usuario.nombre} ${usuario.apellidos}',
-                                              style: textTheme.titleMedium,
-                                            ),
-                                            subtitle: Text(
-                                              'Estado: ${usuario.estadoCuenta} · Dependencia: ${usuario.nivelDependencia}',
-                                              style: textTheme.bodyMedium,
-                                            ),
-                                            trailing: const Icon(
-                                              Icons.chevron_right,
-                                            ),
-                                            onTap: () {
-                                              // TODO: navegar al detalle del usuario
-                                            },
-                                          );
-                                        },
-                                      ),
+                                          ),
+                                          tileColor: Theme.of(
+                                            context,
+                                          ).cardColor,
+                                          title: Text(
+                                            '${trabajador.nombre} ${trabajador.apellidos}',
+                                            style: textTheme.titleMedium,
+                                          ),
+                                          subtitle: Text(
+                                            'Correo: ${trabajador.correo} · Rol: ${trabajador.rol}',
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                          trailing: const Icon(
+                                            Icons.chevron_right,
+                                          ),
+                                          onTap: () {
+                                            // TODO: navegar al detalle del trabajador
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ],
                                 );
                               },
@@ -594,7 +480,7 @@ class _UsersPageState extends State<UsersPage> {
             ),
           ),
 
-          // -------- BOTÓN FLOTANTE --------
+          // Botón flotante
           Positioned(
             right: 24,
             bottom: 32,

@@ -97,6 +97,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchUsers => 'Search users';
 
   @override
+  String get searchWorkers => 'Search workers';
+
+  @override
   String get all => 'All';
 
   @override
@@ -253,6 +256,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchAllUsers => 'All users';
 
   @override
+  String get searchAllWorkers => 'All workers';
+
+  @override
   String get searchActiveUsers => 'Active users';
 
   @override
@@ -289,10 +295,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usersFound => 'Users found:';
 
   @override
+  String get workersFound => 'Workers found:';
+
+  @override
   String get noUsersFound => 'User not found';
 
   @override
   String get totalUsers => 'Total users';
+
+  @override
+  String get totalWorkers => 'Total workers';
 
   @override
   String get sortType => 'Sort options';

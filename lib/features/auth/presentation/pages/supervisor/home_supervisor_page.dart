@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/teleoperador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
@@ -79,7 +79,7 @@ class HomeSupervisorPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TelemarketersPage(
+              builder: (context) => WorkersPage(
                 onToggleTheme: onToggleTheme,
                 onChangeLocale: onChangeLocale,
               ),
