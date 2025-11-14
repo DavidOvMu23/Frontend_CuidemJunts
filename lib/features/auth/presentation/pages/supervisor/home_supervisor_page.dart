@@ -75,6 +75,7 @@ class HomeSupervisorPage extends StatelessWidget {
           );
         },
         onTapTelemarketers: () {},
+        onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,

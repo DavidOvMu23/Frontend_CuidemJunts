@@ -106,6 +106,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
         onTapTelemarketers: () {
           //TODO: Navegar a la página de teleoperadores
         },
+        onTapNotifications: () {
+          //TODO: Navegar a la página de notificaciones
+        },
         onLogoutConfirmed: () {
           Navigator.pushReplacement(
             context,

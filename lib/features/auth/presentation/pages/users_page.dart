@@ -172,6 +172,7 @@ class _UsersPageState extends State<UsersPage> {
           );
         },
         onTapTelemarketers: () {},
+        onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,
@@ -558,8 +559,9 @@ class _UsersPageState extends State<UsersPage> {
                                               'Estado: ${usuario.estadoCuenta} · Dependencia: ${usuario.nivelDependencia}',
                                               style: textTheme.bodyMedium,
                                             ),
-                                            trailing:
-                                                const Icon(Icons.chevron_right),
+                                            trailing: const Icon(
+                                              Icons.chevron_right,
+                                            ),
                                             onTap: () {
                                               // TODO: navegar al detalle del usuario
                                             },

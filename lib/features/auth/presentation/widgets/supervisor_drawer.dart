@@ -4,7 +4,14 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 
 // -------- ENUM DE SECCIONES DEL DRAWER --------
-enum DrawerItem { home, calls, users, telemarketers, preferences }
+enum DrawerItem {
+  home,
+  calls,
+  users,
+  telemarketers,
+  notifications,
+  preferences,
+}
 
 // -------- WIDGET: DRAWER DEL SUPERVISOR --------
 Drawer appDrawer({
@@ -14,6 +21,7 @@ Drawer appDrawer({
   VoidCallback? onTapCalls,
   VoidCallback? onTapUsers,
   VoidCallback? onTapTelemarketers,
+  VoidCallback? onTapNotifications,
   VoidCallback? onTapPreferences,
   required VoidCallback? onLogoutConfirmed,
 }) {
@@ -120,6 +128,13 @@ Drawer appDrawer({
                       texto: l10n.telemarketers,
                       selected: selected == DrawerItem.telemarketers,
                       onTap: onTapTelemarketers,
+                    ),
+                    general_listtile(
+                      context: context,
+                      icon: Icons.notifications,
+                      texto: l10n.notifications,
+                      selected: selected == DrawerItem.notifications,
+                      onTap: onTapNotifications,
                     ),
                     general_listtile(
                       context: context,

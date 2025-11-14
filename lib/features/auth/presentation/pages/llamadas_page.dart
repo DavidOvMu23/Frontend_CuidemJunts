@@ -103,6 +103,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
           );
         },
         onTapTelemarketers: () {},
+        onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,
