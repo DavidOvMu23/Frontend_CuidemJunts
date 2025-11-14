@@ -13,11 +13,14 @@ class Trabajador {
     required this.rol,
   });
 
-  factory Trabajador.fromJson(Map<String, dynamic> json) => Trabajador(
-    id: json['id'] as int,
-    nombre: json['nombre'] as String,
-    apellidos: json['apellidos'] as String,
-    correo: json['correo'] as String,
-    rol: json['rol'] as String,
-  );
+  factory Trabajador.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id_trab'] ?? json['id'];
+    return Trabajador(
+      id: rawId is int ? rawId : int.tryParse('$rawId') ?? 0,
+      nombre: (json['nombre'] ?? '') as String,
+      apellidos: (json['apellidos'] ?? '') as String,
+      correo: (json['correo'] ?? '') as String,
+      rol: (json['rol'] ?? '') as String,
+    );
+  }
 }

@@ -8,7 +8,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/teleoperador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 
 // -------- PANTALLA DE USUARIOS --------
 // Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
@@ -175,7 +175,7 @@ class _UsersPageState extends State<UsersPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TelemarketersPage(
+              builder: (context) => WorkersPage(
                 onToggleTheme: widget.onToggleTheme,
                 onChangeLocale: widget.onChangeLocale,
               ),

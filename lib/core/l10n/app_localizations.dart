@@ -274,6 +274,12 @@ abstract class AppLocalizations {
   /// **'Buscar usuarios'**
   String get searchUsers;
 
+  /// No description provided for @searchWorkers.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar trabajador'**
+  String get searchWorkers;
+
   /// No description provided for @all.
   ///
   /// In es, this message translates to:
@@ -586,6 +592,12 @@ abstract class AppLocalizations {
   /// **'Todos los usuarios'**
   String get searchAllUsers;
 
+  /// No description provided for @searchAllWorkers.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los trabajadores'**
+  String get searchAllWorkers;
+
   /// No description provided for @searchActiveUsers.
   ///
   /// In es, this message translates to:
@@ -658,6 +670,12 @@ abstract class AppLocalizations {
   /// **'Usuarios encontrados:'**
   String get usersFound;
 
+  /// No description provided for @workersFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajadores encontrados:'**
+  String get workersFound;
+
   /// No description provided for @noUsersFound.
   ///
   /// In es, this message translates to:
@@ -669,6 +687,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Total de usuarios'**
   String get totalUsers;
+
+  /// No description provided for @totalWorkers.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de trabajadores'**
+  String get totalWorkers;
 
   /// No description provided for @sortType.
   ///

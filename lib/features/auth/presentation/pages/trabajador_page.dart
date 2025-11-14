@@ -1,66 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/llamadas_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/trabajador_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-class LlamadasPage extends StatefulWidget {
+class WorkersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.
+  // Se utiliza para que el cambio de tema afecte a toda la app.appDrawer
   final void Function(bool) onToggleTheme;
 
   // Callback que cambia el idioma de la app.
   // Se utiliza para que el cambio de idioma afecte a toda la app.
   final void Function(Locale) onChangeLocale;
 
-  const LlamadasPage({
+  const WorkersPage({
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
   });
 
   @override
-  State<LlamadasPage> createState() => _LlamadasPageState();
+  State<WorkersPage> createState() => _WorkersPageState();
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum CallFilter { all, complete, pending, incomplete, g1, g2, g3 }
+enum UserFilter { all, active, inactive, g1, g2, g3 }
 
 // Modos de ordenación disponibles para la lista de usuarios.
-enum CallSort {
+enum UserSort {
   none,
-  dateLatest,
-  nameAZ,
   nameZA,
-  callDurationShortLong,
-  callDurationLongShort,
   dependencyHighLow,
   dependencyLowHigh,
+  accountStatusOrder,
 }
 
-class _LlamadasPageState extends State<LlamadasPage> {
-  late final LlamadasService _llamadasService;
-  late Future<List<Llamadas>> _llamadasFuture;
+class _WorkersPageState extends State<WorkersPage> {
+  late final TrabajadorService _trabajadorService;
+  late Future<List<Trabajador>> _trabajadoresFuture;
   // Filtro de usuarios seleccionado actualmente.
-  late CallFilter filtroSeleccionado;
+  late UserFilter filtroSeleccionado;
   late String textoFiltro = '';
 
   /// Orden actualmente seleccionado para la lista.
-  CallSort ordenSeleccionado = CallSort.none;
+  UserSort ordenSeleccionado = UserSort.none;
 
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = CallFilter.all;
-    _llamadasService = LlamadasService(baseUrl: 'http://localhost:3000');
-    _llamadasFuture = _llamadasService.getAll();
+    filtroSeleccionado = UserFilter.all;
+    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
+    _trabajadoresFuture = _trabajadorService.getAll();
   }
 
   @override
@@ -86,7 +82,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
       // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
         context: context,
-        selected: DrawerItem.calls,
+        selected: DrawerItem.users,
         onTapHome: () {
           Navigator.pushReplacement(
             context,
@@ -98,28 +94,18 @@ class _LlamadasPageState extends State<LlamadasPage> {
             ),
           );
         },
-        onTapUsers: () {
+        onTapCalls: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => UsersPage(
+              builder: (context) => LlamadasPage(
                 onToggleTheme: widget.onToggleTheme,
                 onChangeLocale: widget.onChangeLocale,
               ),
             ),
           );
         },
-        onTapTelemarketers: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WorkersPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
-          );
-        },
+        onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,
@@ -145,6 +131,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
+
       // Usamos un Stack para poder colocar el botón flotante encima del contenido scrolleable.
       body: Stack(
         children: [
@@ -171,11 +158,11 @@ class _LlamadasPageState extends State<LlamadasPage> {
                   children: [
                     // Título principal
                     Text(
-                      l10n.calls,
+                      l10n.telemarketers,
                       style: textTheme.titleMedium?.copyWith(fontSize: 27),
                     ),
                     // Subtítulo
-                    Text(l10n.superviseCalls, style: textTheme.bodyMedium),
+                    Text(l10n.manageWorkers, style: textTheme.bodyMedium),
                     const SizedBox(height: 20),
 
                     // Tarjeta principal con filtros y lista de usuarios
@@ -190,7 +177,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
                           children: [
                             // Título de la sección de búsqueda
                             Text(
-                              l10n.allCalls,
+                              l10n.searchWorkers,
                               textAlign: TextAlign.left,
                               style: textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w500,
@@ -201,7 +188,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
 
                             // TextField de búsqueda
                             general_busqueda_textfield(
-                              l10n.searchCalls,
+                              l10n.searchWorkers,
                               icono: Icons.search,
                               onChanged: (value) {
                                 setState(() {
@@ -217,7 +204,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                 // Ícono que indica si hay filtro activo o no
                                 Icon(
                                   // Si el filtro seleccionado no es "Todos", mostramos el icono de filtro activo
-                                  filtroSeleccionado != CallFilter.all
+                                  filtroSeleccionado != UserFilter.all
                                       ? Icons.filter_alt
                                       : Icons.filter_alt_off,
                                   color: colorScheme.primary,
@@ -227,7 +214,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                 //Expanded para que el DropdownButtonFormField ocupe todo el espacio restante
                                 Expanded(
                                   //Dropdown para seleccionar el filtro de búsqueda
-                                  child: DropdownButtonFormField<CallFilter>(
+                                  child: DropdownButtonFormField<UserFilter>(
                                     value: filtroSeleccionado,
                                     icon: const Icon(Icons.arrow_drop_down),
                                     borderRadius: BorderRadius.circular(12),
@@ -240,45 +227,17 @@ class _LlamadasPageState extends State<LlamadasPage> {
 
                                     //Elementos del dropdown
                                     items: [
-                                      DropdownMenuItem<CallFilter>(
+                                      DropdownMenuItem<UserFilter>(
                                         //seleccionamos el filtro "Todos"
-                                        value: CallFilter.all,
-                                        child: Text(l10n.allCalls),
-                                      ),
-                                      DropdownMenuItem<CallFilter>(
-                                        value: CallFilter.complete,
-                                        child: Text(l10n.callCompleted),
-                                      ),
-                                      DropdownMenuItem<CallFilter>(
-                                        value: CallFilter.pending,
-                                        child: Text(l10n.callPending),
-                                      ),
-                                      DropdownMenuItem<CallFilter>(
-                                        value: CallFilter.incomplete,
-                                        child: Text(l10n.callNoAnswer),
-                                      ),
-                                      DropdownMenuItem<CallFilter>(
-                                        value: CallFilter.g1,
-                                        child: Text(
-                                          l10n.searchModerateDependency,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<CallFilter>(
-                                        value: CallFilter.g2,
-                                        child: Text(l10n.searchHighDependency),
-                                      ),
-                                      DropdownMenuItem<CallFilter>(
-                                        value: CallFilter.g3,
-                                        child: Text(
-                                          l10n.searchSevereDependency,
-                                        ),
+                                        value: UserFilter.all,
+                                        child: Text(l10n.searchAllWorkers),
                                       ),
                                     ],
                                     // Al cambiar el valor seleccionado, actualizamos el estado
-                                    onChanged: (CallFilter? newValue) {
+                                    onChanged: (UserFilter? newValue) {
                                       setState(() {
                                         filtroSeleccionado =
-                                            newValue ?? CallFilter.all;
+                                            newValue ?? UserFilter.all;
                                       });
                                     },
                                   ),
@@ -291,8 +250,8 @@ class _LlamadasPageState extends State<LlamadasPage> {
                             ),
 
                             const SizedBox(height: 10),
-                            FutureBuilder<List<Llamadas>>(
-                              future: _llamadasFuture,
+                            FutureBuilder<List<Trabajador>>(
+                              future: _trabajadoresFuture,
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
@@ -307,25 +266,25 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                   return Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'Error al cargar llamadas',
+                                      'Error al cargar trabajadores',
                                       style: textTheme.bodyMedium,
                                     ),
                                   );
                                 }
 
-                                final llamadas = snapshot.data ?? [];
+                                final trabajadores = snapshot.data ?? [];
                                 final showingAll =
                                     textoFiltro.isEmpty &&
-                                    filtroSeleccionado == CallFilter.all;
+                                    filtroSeleccionado == UserFilter.all;
                                 final totalText = showingAll
-                                    ? '${l10n.totalCalls}: ${llamadas.length}'
-                                    : '${l10n.callsFound}: ${llamadas.length}';
+                                    ? '${l10n.totalWorkers}: ${trabajadores.length}'
+                                    : '${l10n.workersFound}: ${trabajadores.length}';
 
-                                if (llamadas.isEmpty) {
+                                if (trabajadores.isEmpty) {
                                   return Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'No se encontraron llamadas',
+                                      'No se encontraron trabajadores',
                                       style: textTheme.bodyMedium,
                                     ),
                                   );
@@ -346,7 +305,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                           ),
                                         ),
                                         general_iconbutton(
-                                          ordenSeleccionado == CallSort.none
+                                          ordenSeleccionado == UserSort.none
                                               ? Icons.filter_list_off
                                               : Icons.filter_list,
                                           onPressed: () {
@@ -375,35 +334,18 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                                       context: context,
                                                       icon:
                                                           Icons.filter_list_off,
-                                                      texto: l10n.noSortedCalls,
+                                                      texto: l10n.noSortedUsers,
                                                       onTap: () {
                                                         setState(() {
                                                           ordenSeleccionado =
-                                                              CallSort.none;
+                                                              UserSort.none;
                                                         });
                                                         general_snackbar(
                                                           context,
-                                                          l10n.noSortedCalls,
+                                                          l10n.noSortedUsers,
                                                           2,
                                                         );
                                                         Navigator.pop(context);
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.sort_by_alpha,
-                                                      texto: l10n.sortNameAZ,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              CallSort.nameAZ;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortNameAZ,
-                                                          2,
-                                                        );
                                                       },
                                                     ),
                                                     general_listtile(
@@ -413,88 +355,69 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                                       onTap: () {
                                                         setState(() {
                                                           ordenSeleccionado =
-                                                              CallSort.nameZA;
+                                                              UserSort.nameZA;
                                                         });
                                                         Navigator.pop(context);
                                                         general_snackbar(
                                                           context,
-                                                          l10n.sortNameZA,
+                                                          l10n.sortedZASnackbar,
                                                           2,
                                                         );
                                                       },
                                                     ),
                                                     general_listtile(
                                                       context: context,
-                                                      icon: Icons.timer,
-                                                      texto: l10n
-                                                          .sortCallDurationShortLong,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              CallSort
-                                                                  .callDurationShortLong;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortCallDurationShortLong,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.timer,
-                                                      texto: l10n
-                                                          .sortCallDurationLongShort,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              CallSort
-                                                                  .callDurationLongShort;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortCallDurationLongShort,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.filter_1,
+                                                      icon: Icons.bar_chart,
                                                       texto: l10n
                                                           .sortDependencyHighLow,
                                                       onTap: () {
                                                         setState(() {
                                                           ordenSeleccionado =
-                                                              CallSort
+                                                              UserSort
                                                                   .dependencyHighLow;
                                                         });
                                                         Navigator.pop(context);
                                                         general_snackbar(
                                                           context,
-                                                          l10n.sortDependencyHighLow,
+                                                          l10n.sortedDependencyLevelHighLow,
                                                           2,
                                                         );
                                                       },
                                                     ),
                                                     general_listtile(
                                                       context: context,
-                                                      icon: Icons.filter_3,
+                                                      icon: Icons.bar_chart,
                                                       texto: l10n
                                                           .sortDependencyLowHigh,
                                                       onTap: () {
                                                         setState(() {
                                                           ordenSeleccionado =
-                                                              CallSort
+                                                              UserSort
                                                                   .dependencyLowHigh;
                                                         });
                                                         Navigator.pop(context);
                                                         general_snackbar(
                                                           context,
-                                                          l10n.sortDependencyLowHigh,
+                                                          l10n.sortedDependencyLevelLowHigh,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.check,
+                                                      texto: l10n
+                                                          .sortedStatusAccount,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort
+                                                                  .accountStatusOrder;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedStatusAccount,
                                                           2,
                                                         );
                                                       },
@@ -512,14 +435,11 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                       shrinkWrap: true,
                                       physics:
                                           const NeverScrollableScrollPhysics(),
-                                      itemCount: llamadas.length,
+                                      itemCount: trabajadores.length,
                                       separatorBuilder: (_, __) =>
                                           const SizedBox(height: 8),
                                       itemBuilder: (context, index) {
-                                        final llamada = llamadas[index];
-                                        final dateText = _formatDate(
-                                          llamada.fecha,
-                                        );
+                                        final trabajador = trabajadores[index];
                                         return ListTile(
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
@@ -530,30 +450,18 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                             context,
                                           ).cardColor,
                                           title: Text(
-                                            '$dateText · ${llamada.hora}',
+                                            '${trabajador.nombre} ${trabajador.apellidos}',
                                             style: textTheme.titleMedium,
                                           ),
-                                          subtitle: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                llamada.resumen,
-                                                style: textTheme.bodyMedium,
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'Duración: ${llamada.duracion} · Estado: ${llamada.estado}',
-                                                style: textTheme.bodySmall,
-                                              ),
-                                            ],
+                                          subtitle: Text(
+                                            'Correo: ${trabajador.correo} · Rol: ${trabajador.rol}',
+                                            style: textTheme.bodyMedium,
                                           ),
-                                          isThreeLine: true,
                                           trailing: const Icon(
                                             Icons.chevron_right,
                                           ),
                                           onTap: () {
-                                            // TODO: navegar al detalle de la llamada
+                                            // TODO: navegar al detalle del trabajador
                                           },
                                         );
                                       },
@@ -580,7 +488,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
               child: general_floatingbutton(
                 Icons.add,
                 onPressed: () {
-                  //TODO: IMPLEMENTAR AÑADIR LLAMADA, se edita buscandola
+                  //TODO: IMPLEMENTAR AÑADIR USUARIO, se edita buscandolo
                 },
               ),
             ),
@@ -588,12 +496,5 @@ class _LlamadasPageState extends State<LlamadasPage> {
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final day = date.day.toString().padLeft(2, '0');
-    final month = date.month.toString().padLeft(2, '0');
-    final year = date.year.toString();
-    return '$day/$month/$year';
   }
 }
