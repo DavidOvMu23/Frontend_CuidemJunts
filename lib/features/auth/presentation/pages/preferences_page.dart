@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/teleoperador_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
 // Configuración de idioma y tema sin salir de la app.
@@ -104,7 +105,15 @@ class _PreferencesPageState extends State<PreferencesPage> {
           );
         },
         onTapTelemarketers: () {
-          //TODO: Navegar a la página de teleoperadores
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TelemarketersPage(
+                onToggleTheme: widget.onToggleTheme,
+                onChangeLocale: widget.onChangeLocale,
+              ),
+            ),
+          );
         },
         onTapNotifications: () {
           //TODO: Navegar a la página de notificaciones
