@@ -801,6 +801,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde.'**
   String get errorUsersLoading;
+
+  /// No description provided for @errorWorkersLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar los trabajadores. Por favor, inténtalo de nuevo más tarde.'**
+  String get errorWorkersLoading;
+
+  /// No description provided for @errorCallsLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar las llamadas. Por favor, inténtalo de nuevo más tarde.'**
+  String get errorCallsLoading;
+
+  /// No description provided for @errorNotificationsLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde.'**
+  String get errorNotificationsLoading;
 }
 
 class _AppLocalizationsDelegate

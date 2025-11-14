@@ -369,4 +369,16 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get errorUsersLoading =>
       'Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde.';
+
+  @override
+  String get errorWorkersLoading =>
+      'Error al cargar los trabajadores. Por favor, inténtalo de nuevo más tarde.';
+
+  @override
+  String get errorCallsLoading =>
+      'Error al cargar las llamadas. Por favor, inténtalo de nuevo más tarde.';
+
+  @override
+  String get errorNotificationsLoading =>
+      'Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde.';
 }

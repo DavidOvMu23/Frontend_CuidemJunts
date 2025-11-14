@@ -370,4 +370,16 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get errorUsersLoading =>
       'Error en carregar els usuaris. Si us plau, torna-ho a intentar més tard.';
+
+  @override
+  String get errorWorkersLoading =>
+      'Error en carregar els treballadors. Si us plau, torna-ho a intentar més tard.';
+
+  @override
+  String get errorCallsLoading =>
+      'Error en carregar les cridades. Si us plau, torna-ho a intentar més tard.';
+
+  @override
+  String get errorNotificationsLoading =>
+      'Error en carregar les notificacions. Si us plau, torna-ho a intentar més tard.';
 }

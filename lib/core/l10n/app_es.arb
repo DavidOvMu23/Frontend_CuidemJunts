@@ -29,7 +29,7 @@
   "logOut": "Cerrar sesión",
   "superviseCalls": "Supervisa todas las llamadas de los teleoperadores",
   "searchUsers": "Buscar usuarios",
-  "searchWorkers" :  "Buscar trabajador",
+  "searchWorkers": "Buscar trabajador",
   "all": "Todas",
   "filterDate": "Filtrar por fecha",
   "initDate": "Fecha desde",
@@ -82,7 +82,7 @@
   "nothingActivityRecent": "No hay actividad reciente",
   "searchUser": "Buscar por nombre o teléfono",
   "searchAllUsers": "Todos los usuarios",
-  "searchAllWorkers" : "Todos los trabajadores",
+  "searchAllWorkers": "Todos los trabajadores",
   "searchActiveUsers": "Usuarios activos",
   "searchInactiveUsers": "Usuarios inactivos",
   "searchModerateDependency": "Dep. moderada (Grado I)",
@@ -95,7 +95,7 @@
   "sortDependencyLowHigh": "Por nivel de dependencia (bajo a alto)",
   "sortDependencyHighLow": "Por nivel de dependencia (alto a bajo)",
   "usersFound": "Usuarios encontrados:",
-  "workersFound" : "Trabajadores encontrados:",
+  "workersFound": "Trabajadores encontrados:",
   "noUsersFound": "Usuarios no encontrado",
   "totalUsers": "Total de usuarios",
   "totalWorkers": "Total de trabajadores",
@@ -116,5 +116,8 @@
   "allCalls": "Todas las llamadas",
   "totalCalls": "Total de llamadas",
   "callsFound": "Llamadas encontradas:",
-  "errorUsersLoading": "Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde."
+  "errorUsersLoading": "Error al cargar los usuarios. Por favor, inténtalo de nuevo más tarde.",
+  "errorWorkersLoading": "Error al cargar los trabajadores. Por favor, inténtalo de nuevo más tarde.",
+  "errorCallsLoading": "Error al cargar las llamadas. Por favor, inténtalo de nuevo más tarde.",
+  "errorNotificationsLoading": "Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde."
 }

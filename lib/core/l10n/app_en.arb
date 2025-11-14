@@ -123,7 +123,7 @@
   "sortDependencyLowHigh": "By dependency level (low to high)",
   "sortDependencyHighLow": "By dependency level (high to low)",
   "usersFound": "Users found:",
-  "workersFound" : "Workers found:",
+  "workersFound": "Workers found:",
   "noUsersFound": "User not found",
   "searchModerateDependency": "Moderate dep. (Grade I)",
   "searchSevereDependency": "Severe dep. (Grade II)",
@@ -146,5 +146,8 @@
   "totalCalls": "Total calls",
   "callsFound": "Calls found:",
   "noSortedCalls": "Default sorting (most recent first)",
-  "errorUsersLoading": "Error loading users. Please try again later."
+  "errorUsersLoading": "Error loading users. Please try again later.",
+  "errorWorkersLoading": "Error loading workers. Please try again later.",
+  "errorCallsLoading": "Error loading calls. Please try again later.",
+  "errorNotificationsLoading": "Error loading notifications. Please try again later."
 }

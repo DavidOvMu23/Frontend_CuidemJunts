@@ -127,7 +127,7 @@
   "sortDependencyHighLow": "Per nivell de dependència (alt a baix)",
   "sortAccountStatus": "Per estat de compte (actius a inactius)",
   "usersFound": "Usuaris trobats:",
-  "workersFound" : "Traballadors trobats:",
+  "workersFound": "Traballadors trobats:",
   "noUsersFound": "Usuaris no trobats",
   "totalUsers": "Total d'usuaris",
   "totalWorkers": "Total de treballadors",
@@ -148,5 +148,8 @@
   "totalCalls": "Total de cridades",
   "callsFound": "Cridades trobades:",
   "noSortedCalls": "Ordenació predeterminada (més recents primer)",
-  "errorUsersLoading": "Error en carregar els usuaris. Si us plau, torna-ho a intentar més tard."
+  "errorUsersLoading": "Error en carregar els usuaris. Si us plau, torna-ho a intentar més tard.",
+  "errorWorkersLoading": "Error en carregar els treballadors. Si us plau, torna-ho a intentar més tard.",
+  "errorCallsLoading": "Error en carregar les cridades. Si us plau, torna-ho a intentar més tard.",
+  "errorNotificationsLoading": "Error en carregar les notificacions. Si us plau, torna-ho a intentar més tard."
 }
