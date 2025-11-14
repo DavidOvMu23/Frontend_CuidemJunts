@@ -33,11 +33,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loginButton => 'Iniciar sesión';
 
   @override
-  String get forgotPassword => '¿Olvidaste tu contraseña?';
+  String get forgotPassword => '¿Olvidaste tu cuenta?';
 
   @override
   String get forgotPasswordSnackbar =>
-      'Contacta a un supervisor para recuperar tu contraseña.';
+      'Contacta a un supervisor para recuperar tu cuenta.';
 
   @override
   String get preferences => 'Preferencias';
@@ -381,4 +381,8 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get errorNotificationsLoading =>
       'Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde.';
+
+  @override
+  String get loginError =>
+      'Error de inicio de sesión. El correo electrónico o la contraseña son incorrectos.';
 }

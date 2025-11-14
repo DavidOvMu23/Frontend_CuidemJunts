@@ -42,9 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     final contrasena = contrasenaController.text.trim();
 
     if (correo.isEmpty || contrasena.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Rellena todos los campos')));
+      general_snackbar(context, 'Rellena todos los campos', 2);
       return;
     }
 
@@ -53,6 +51,9 @@ class _LoginPageState extends State<LoginPage> {
       // TODO: guardar token
       // ejemplo:
       // await storage.write(key: 'token', value: token);
+
+      // Evitar usar BuildContext si el State fue desmontado durante el await
+      if (!mounted) return;
 
       // navegar:
       Navigator.pushReplacement(
@@ -65,9 +66,9 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      general_snackbar_error(context, l10n.loginError, 2);
     }
   }
 
@@ -194,15 +195,15 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 12),
-                          // -------- OLVIDÉ CONTRASEÑA --------
-                          // Botón plano que solo lanza un SnackBar por ahora.
+
+                          // -------- BOTÓN DE CONTRASEÑA OLVIDADA --------
                           general_textbutton(
                             l10n.forgotPassword,
                             onPressed: () {
                               general_snackbar(
                                 context,
                                 l10n.forgotPasswordSnackbar,
-                                10,
+                                2,
                               );
                             },
                           ),
