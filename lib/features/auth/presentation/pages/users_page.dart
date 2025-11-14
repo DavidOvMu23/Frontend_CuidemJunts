@@ -10,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
+import 'package:intl/intl.dart';
 
 // -------- PANTALLA DE USUARIOS --------
 // Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
@@ -152,6 +153,7 @@ class _UsersPageState extends State<UsersPage> {
     // Me guardo tipografías y paleta para reutilizarlas.
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final dateFormatter = DateFormat('dd/MM/yyyy');
 
     // Textos traducidos según el idioma actual.
     final l10n = AppLocalizations.of(context)!;
@@ -616,6 +618,9 @@ class _UsersPageState extends State<UsersPage> {
                                                   return buffer.toString();
                                                 }).join(' | ')}';
 
+                                          final fechaNacimiento = dateFormatter
+                                              .format(usuario.f_nac);
+
                                           return ListTile(
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
@@ -634,7 +639,7 @@ class _UsersPageState extends State<UsersPage> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Text(
-                                                  'Dependencia: ${usuario.nivelDependencia} · Fecha Nacimiento: ${usuario.f_nac} · Número de télefono: ${usuario.telefono}',
+                                                  'Dependencia: ${usuario.nivelDependencia} · Fecha Nacimiento: $fechaNacimiento · Número de télefono: ${usuario.telefono}',
                                                   style: textTheme.bodyMedium,
                                                 ),
                                                 const SizedBox(height: 4),

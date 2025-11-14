@@ -76,14 +76,18 @@ class Usuario {
   }
 
   factory Usuario.fromJson(Map<String, dynamic> json) {
-    final fechaRaw = json['fecha']?.toString();
-    final parsedFecha = fechaRaw != null ? DateTime.tryParse(fechaRaw) : null;
+    final fechaRaw =
+        json['f_nac'] ??
+        json['fecha'] ??
+        json['fechaNacimiento'] ??
+        json['fecha_nacimiento'];
+    final parsedFecha = _parseFecha(fechaRaw);
     final contactosRaw = json['contactosEmergencia'] as List<dynamic>?;
     return Usuario(
       dni: json['dni'] as String,
       nombre: json['nombre'] as String,
       apellidos: json['apellidos'] as String,
-      f_nac: parsedFecha ?? DateTime.fromMillisecondsSinceEpoch(0),
+      f_nac: parsedFecha,
       telefono: json['telefono'] as String,
       estadoCuenta: json['estado_cuenta'] as String,
       nivelDependencia: json['nivel_dependencia'] as String? ?? '',
@@ -94,5 +98,27 @@ class Usuario {
               .toList(growable: false) ??
           const [],
     );
+  }
+
+  static DateTime _parseFecha(dynamic rawFecha) {
+    if (rawFecha == null) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
+    if (rawFecha is int) {
+      return DateTime.fromMillisecondsSinceEpoch(rawFecha);
+    }
+
+    if (rawFecha is double) {
+      return DateTime.fromMillisecondsSinceEpoch(rawFecha.toInt());
+    }
+
+    final fechaComoCadena = rawFecha.toString().trim();
+    if (fechaComoCadena.isEmpty) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
+    return DateTime.tryParse(fechaComoCadena) ??
+        DateTime.fromMillisecondsSinceEpoch(0);
   }
 }
