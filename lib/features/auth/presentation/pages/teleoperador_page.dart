@@ -100,6 +100,7 @@ class _TelemarketersPageState extends State<TelemarketersPage> {
           );
         },
         onTapTelemarketers: () {},
+        onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,

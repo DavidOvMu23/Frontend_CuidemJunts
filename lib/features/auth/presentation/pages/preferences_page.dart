@@ -115,6 +115,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
             ),
           );
         },
+        onTapNotifications: () {
+          //TODO: Navegar a la página de notificaciones
+        },
         onLogoutConfirmed: () {
           Navigator.pushReplacement(
             context,
