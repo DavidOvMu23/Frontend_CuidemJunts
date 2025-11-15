@@ -10,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/crearUser_page.dart';
 import 'package:intl/intl.dart';
 
 // -------- PANTALLA DE USUARIOS --------
@@ -55,9 +56,10 @@ class _UsersPageState extends State<UsersPage> {
   // Estado del filtro seleccionado y del texto del buscador.
   late UserFilter filtroSeleccionado;
   late String textoFiltro = '';
-
+  late
   /// Orden actualmente seleccionado para la lista.
-  UserSort ordenSeleccionado = UserSort.none;
+  UserSort
+  ordenSeleccionado = UserSort.none;
 
   @override
   void initState() {
@@ -654,6 +656,22 @@ class _UsersPageState extends State<UsersPage> {
                                                 ),
                                               ],
                                             ),
+                                            // onTap: () {
+                                            //   // Navegar a la página de detalles del usuario.
+                                            //   Navigator.push(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //       builder: (context) =>
+                                            //           UserDetailPage(
+                                            //             usuario: usuario,
+                                            //             onToggleTheme: widget
+                                            //                 .onToggleTheme,
+                                            //             onChangeLocale: widget
+                                            //                 .onChangeLocale,
+                                            //           ),
+                                            //     ),
+                                            //   );
+                                            // },
                                           );
                                         },
                                       ),
@@ -679,7 +697,15 @@ class _UsersPageState extends State<UsersPage> {
               child: general_floatingbutton(
                 Icons.add,
                 onPressed: () {
-                  //TODO: IMPLEMENTAR AÑADIR USUARIO, se edita buscandolo
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CrearUserPage(
+                        onToggleTheme: widget.onToggleTheme,
+                        onChangeLocale: widget.onChangeLocale,
+                      ),
+                    ),
+                  );
                 },
               ),
             ),

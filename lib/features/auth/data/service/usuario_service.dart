@@ -17,4 +17,18 @@ class UsuarioService {
     final List<dynamic> raw = jsonDecode(resp.body) as List<dynamic>;
     return raw.map((e) => Usuario.fromJson(e as Map<String, dynamic>)).toList();
   }
+
+  Future<Usuario> create(Map<String, dynamic> payload) async {
+    final resp = await _client.post(
+      Uri.parse('$baseUrl/usuario'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+    );
+    if (resp.statusCode != 201 && resp.statusCode != 200) {
+      throw Exception('Error ${resp.statusCode}: ${resp.body}');
+    }
+    final Map<String, dynamic> data =
+        jsonDecode(resp.body) as Map<String, dynamic>;
+    return Usuario.fromJson(data);
+  }
 }

@@ -19,4 +19,18 @@ class TrabajadorService {
         .map((e) => Trabajador.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  Future<Trabajador> create(Map<String, dynamic> payload) async {
+    final resp = await _client.post(
+      Uri.parse('$baseUrl/trabajador'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+    );
+    if (resp.statusCode != 201 && resp.statusCode != 200) {
+      throw Exception('Error ${resp.statusCode}: ${resp.body}');
+    }
+    final Map<String, dynamic> data =
+        jsonDecode(resp.body) as Map<String, dynamic>;
+    return Trabajador.fromJson(data);
+  }
 }

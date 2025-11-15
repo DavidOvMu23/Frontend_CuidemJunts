@@ -9,6 +9,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/service/grupo_service.dart';
 
 class LlamadasPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
@@ -48,6 +49,7 @@ enum CallSort {
 class _LlamadasPageState extends State<LlamadasPage> {
   late final LlamadasService _llamadasService;
   late Future<List<Llamadas>> _llamadasFuture;
+  late final GrupoService _gruposService;
   // Filtro de usuarios seleccionado actualmente.
   late CallFilter filtroSeleccionado;
   late String textoFiltro = '';
@@ -60,7 +62,50 @@ class _LlamadasPageState extends State<LlamadasPage> {
     super.initState();
     filtroSeleccionado = CallFilter.all;
     _llamadasService = LlamadasService(baseUrl: 'http://localhost:3000');
-    _llamadasFuture = _llamadasService.getAll();
+    _gruposService = GrupoService(baseUrl: 'http://localhost:3000');
+    _llamadasFuture = _cargarLlamadasConGrupo();
+  }
+
+  Future<List<Llamadas>> _cargarLlamadasConGrupo() async {
+    final llamadas = await _llamadasService.getAll();
+    final Map<int, String?> cache = {};
+
+    final enriched = await Future.wait(
+      llamadas.map((llamada) async {
+        // Si el backend ya incluye el nombre del grupo en la comunicación,
+        // no necesitamos hacer una petición adicional.
+        if (llamada.grupoNombre != null && llamada.grupoNombre!.isNotEmpty) {
+          return llamada;
+        }
+
+        final grupoId = llamada.grupoId;
+        if (grupoId == 0) return llamada;
+
+        final nombreGrupo = await _obtenerNombreGrupo(grupoId, cache);
+        if (nombreGrupo == null) return llamada;
+        return llamada.copyWith(grupoNombre: nombreGrupo);
+      }),
+    );
+
+    return enriched;
+  }
+
+  Future<String?> _obtenerNombreGrupo(
+    int grupoId,
+    Map<int, String?> cache,
+  ) async {
+    if (cache.containsKey(grupoId)) {
+      return cache[grupoId];
+    }
+
+    try {
+      final grupo = await _gruposService.getById(grupoId);
+      cache[grupoId] = grupo.nombre;
+      return grupo.nombre;
+    } catch (_) {
+      cache[grupoId] = null;
+      return null;
+    }
   }
 
   @override
@@ -520,6 +565,8 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                         final dateText = _formatDate(
                                           llamada.fecha,
                                         );
+                                        final grupoTexto =
+                                            ' · Grupo: ${llamada.grupoNombre?.isEmpty ?? true ? 'Sin grupo asignado' : llamada.grupoNombre}';
                                         return ListTile(
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
@@ -543,7 +590,7 @@ class _LlamadasPageState extends State<LlamadasPage> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                'Duración: ${llamada.duracion} · Estado: ${llamada.estado}',
+                                                'Duración: ${llamada.duracion} · Estado: ${llamada.estado} $grupoTexto',
                                                 style: textTheme.bodySmall,
                                               ),
                                             ],

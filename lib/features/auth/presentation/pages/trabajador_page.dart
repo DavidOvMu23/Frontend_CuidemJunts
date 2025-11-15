@@ -10,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/crearTrabajador_page.dart';
 
 class WorkersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
@@ -553,7 +554,18 @@ class _WorkersPageState extends State<WorkersPage> {
               child: general_floatingbutton(
                 Icons.add,
                 onPressed: () {
-                  //TODO: IMPLEMENTAR AÑADIR USUARIO, se edita buscandolo
+                  // Al pulsar el botón flotante abrimos la pantalla para crear
+                  // un nuevo trabajador siguiendo el mismo patrón que para
+                  // la creación de usuarios.
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CrearTrabajadorPage(
+                        onToggleTheme: widget.onToggleTheme,
+                        onChangeLocale: widget.onChangeLocale,
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
