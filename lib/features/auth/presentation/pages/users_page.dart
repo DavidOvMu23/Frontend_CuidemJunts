@@ -250,194 +250,154 @@ class _UsersPageState extends State<UsersPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
-      // Stack para poder superponer el botón flotante.
+      // Stack para superponer el botón flotante.
       body: Stack(
         children: [
-          // Positioned.fill para que el scroll ocupe todo el alto disponible.
-          Positioned.fill(
-            child: SingleChildScrollView(
-              // Scroll general para toda la pantalla.
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // -------- TITULAR --------
+                // Cabecera fija de la pantalla.
+                Text(
+                  l10n.users,
+                  style: textTheme.titleMedium?.copyWith(fontSize: 27),
+                ),
+                Text(l10n.manageUsers, style: textTheme.bodyMedium),
+                const SizedBox(height: 20),
 
-              // ConstrainedBox para estirar la columna al ancho máximo.
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: double.infinity),
-
-                // Columna general con todo el contenido.
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    // -------- TITULAR --------
-                    // Texto grande de encabezado de la pantalla.
-                    Text(
-                      l10n.users,
-                      style: textTheme.titleMedium?.copyWith(fontSize: 27),
+                // -------- TARJETA PRINCIPAL --------
+                // Todo el contenido está dentro y el scroll solo afecta a la lista.
+                Expanded(
+                  child: Material(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.searchUsers,
+                            textAlign: TextAlign.left,
+                      style: textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                      ),
                     ),
-                    // Subtítulo explicando la sección.
-                    Text(l10n.manageUsers, style: textTheme.bodyMedium),
                     const SizedBox(height: 20),
 
-                    // -------- TARJETA PRINCIPAL --------
-                    Material(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                          // Buscador de texto.
+                          general_busqueda_textfield(
+                            l10n.searchUser,
+                            icono: Icons.search,
+                            onChanged: (value) {
+                              setState(() {
+                                textoFiltro = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
 
-                        // Columna con filtros + lista (todo vive dentro de esta tarjeta).
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // -------- BÚSQUEDA --------
-                            // Encabezado de la sección de búsqueda y filtros.
-                            Text(
-                              l10n.searchUsers,
-                              textAlign: TextAlign.left,
-                              style: textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18,
+                          // Filtro por dependencia con dropdown.
+                          Row(
+                            children: [
+                              Icon(
+                                filtroSeleccionado != UserFilter.all
+                                    ? Icons.filter_alt
+                                    : Icons.filter_alt_off,
+                                color: colorScheme.primary,
                               ),
-                            ),
-                            const SizedBox(height: 20),
-
-                            // TextField de búsqueda: actualiza textoFiltro en cada cambio.
-                            general_busqueda_textfield(
-                              l10n.searchUser,
-                              icono: Icons.search,
-                              onChanged: (value) {
-                                setState(() {
-                                  textoFiltro = value;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 20),
-
-                            // -------- FILTRO -------- (dropdown de dependencia)
-                            Row(
-                              children: [
-                                // Ícono que indica si hay filtro activo o no.
-                                Icon(
-                                  filtroSeleccionado != UserFilter.all
-                                      ? Icons.filter_alt
-                                      : Icons.filter_alt_off,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(width: 16),
-
-                                // Dropdown expandido para ocupar todo el ancho.
-                                Expanded(
-                                  // Dropdown para seleccionar el filtro.
-                                  child: DropdownButtonFormField<UserFilter>(
-                                    initialValue: filtroSeleccionado,
-                                    icon: const Icon(Icons.arrow_drop_down),
-                                    borderRadius: BorderRadius.circular(12),
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: DropdownButtonFormField<UserFilter>(
+                                  initialValue: filtroSeleccionado,
+                                  icon: const Icon(Icons.arrow_drop_down),
+                                  borderRadius: BorderRadius.circular(12),
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                  items: [
+                                    DropdownMenuItem<UserFilter>(
+                                      value: UserFilter.all,
+                                      child: Text(l10n.searchAllUsers),
+                                    ),
+                                    DropdownMenuItem<UserFilter>(
+                                      value: UserFilter.ningunaDep,
+                                      child: Text(l10n.searchNoDependency),
+                                    ),
+                                    DropdownMenuItem<UserFilter>(
+                                      value: UserFilter.leve,
+                                      child: Text(
+                                        l10n.searchModerateDependency,
                                       ),
                                     ),
-
-                                    // Opciones del dropdown.
-                                    items: [
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.all,
-                                        child: Text(l10n.searchAllUsers),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.ningunaDep,
-                                        child: Text(l10n.searchNoDependency),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.leve,
-                                        child: Text(
-                                          l10n.searchModerateDependency,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.medio,
-                                        child: Text(
-                                          l10n.searchSevereDependency,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<UserFilter>(
-                                        value: UserFilter.severo,
-                                        child: Text(l10n.searchHighDependency),
-                                      ),
-                                    ],
-                                    // Actualizamos el filtro cuando cambia.
-                                    onChanged: (UserFilter? newValue) {
-                                      setState(() {
-                                        filtroSeleccionado =
-                                            newValue ?? UserFilter.all;
-                                      });
-                                    },
-                                  ),
+                                    DropdownMenuItem<UserFilter>(
+                                      value: UserFilter.medio,
+                                      child: Text(l10n.searchSevereDependency),
+                                    ),
+                                    DropdownMenuItem<UserFilter>(
+                                      value: UserFilter.severo,
+                                      child: Text(l10n.searchHighDependency),
+                                    ),
+                                  ],
+                                  onChanged: (UserFilter? newValue) {
+                                    setState(() {
+                                      filtroSeleccionado =
+                                          newValue ?? UserFilter.all;
+                                    });
+                                  },
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Divider(
-                              color: colorScheme.primary.withValues(alpha: 0.3),
-                            ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Divider(
+                            color: colorScheme.primary.withValues(alpha: 0.3),
+                          ),
+                          const SizedBox(height: 10),
 
-                            const SizedBox(height: 10),
-                            // -------- LISTA DE USUARIOS --------
-                            // FutureBuilder: escucha el Future de usuarios y cambia la UI según estado (loading/error/data).
-                            FutureBuilder<List<Usuario>>(
+                          // -------- LISTA DE USUARIOS --------
+                          // Solo esta sección es scrolleable.
+                          Expanded(
+                            child: FutureBuilder<List<Usuario>>(
                               future: _usuariosFuture,
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  // Loader centrado mientras llega la respuesta.
-                                  return const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 32),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
                                   );
                                 }
                                 if (snapshot.hasError) {
-                                  // Mensaje cuando algo falla cargando.
-                                  return Column(
-                                    children: [
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: Card(
-                                          margin: EdgeInsets
-                                              .zero, // evita márgenes por defecto del Card
-                                          color: colorScheme.error.withOpacity(
-                                            0.2,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12.0),
-                                            child: Text(
-                                              l10n.errorUsersLoading,
-                                              style: textTheme.bodyMedium
-                                                  ?.copyWith(
-                                                    color: colorScheme.error,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
+                                  return Center(
+                                    child: Card(
+                                      margin: EdgeInsets.zero,
+                                      color: colorScheme.error.withOpacity(0.2),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Text(
+                                          l10n.errorUsersLoading,
+                                          style: textTheme.bodyMedium?.copyWith(
+                                            color: colorScheme.error,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   );
                                 }
 
-                                // Lista original del backend.
                                 final usuarios = snapshot.data ?? [];
-                                // Lista filtrada según búsqueda y dropdown.
                                 final usuariosFiltrados = _aplicarFiltros(
                                   usuarios,
                                 );
-                                // Texto que alterna entre total general o resultados filtrados.
                                 final totalText =
                                     textoFiltro.isEmpty &&
                                         filtroSeleccionado == UserFilter.all
@@ -445,9 +405,7 @@ class _UsersPageState extends State<UsersPage> {
                                     : '${l10n.usersFound} ${usuariosFiltrados.length}';
 
                                 if (usuarios.isEmpty) {
-                                  // No hay usuarios cargados en la base de datos.
-                                  return Padding(
-                                    padding: const EdgeInsets.all(16.0),
+                                  return Center(
                                     child: Text(
                                       'No se encontraron usuarios',
                                       style: textTheme.bodyMedium,
@@ -457,7 +415,6 @@ class _UsersPageState extends State<UsersPage> {
 
                                 return Column(
                                   children: [
-                                    // Cabecera con contador y botón de orden.
                                     Row(
                                       children: [
                                         Expanded(
@@ -475,7 +432,6 @@ class _UsersPageState extends State<UsersPage> {
                                               ? Icons.filter_list_off
                                               : Icons.filter_list,
                                           onPressed: () {
-                                            // Modal inferior con tipos de orden.
                                             showModalBottomSheet(
                                               context: context,
                                               builder: (context) => Padding(
@@ -528,6 +484,23 @@ class _UsersPageState extends State<UsersPage> {
                                                         general_snackbar(
                                                           context,
                                                           l10n.sortedZASnackbar,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.sort_by_alpha,
+                                                      texto: l10n.sortNameAZ,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort.noneAZ;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedAZSnackbar,
                                                           2,
                                                         );
                                                       },
@@ -618,7 +591,6 @@ class _UsersPageState extends State<UsersPage> {
                                     ),
                                     const SizedBox(height: 10),
                                     if (usuariosFiltrados.isEmpty)
-                                      // Hay usuarios pero el filtro deja la lista vacía.
                                       Padding(
                                         padding: const EdgeInsets.all(16.0),
                                         child: Text(
@@ -627,36 +599,34 @@ class _UsersPageState extends State<UsersPage> {
                                         ),
                                       )
                                     else
-                                      // Lista sin scroll propio (el padre ya scrollea).
-                                      ListView.separated(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: usuariosFiltrados.length,
-                                        separatorBuilder: (_, __) =>
-                                            const SizedBox(height: 10),
-                                        itemBuilder: (context, index) {
-                                          final usuario =
-                                              usuariosFiltrados[index];
-                                          return _UserCard(
-                                            usuario: usuario,
-                                            textTheme: textTheme,
-                                            colorScheme: colorScheme,
-                                            dateFormatter: dateFormatter,
-                                          );
-                                        },
+                                      Expanded(
+                                        child: ListView.separated(
+                                          itemCount: usuariosFiltrados.length,
+                                          separatorBuilder: (_, __) =>
+                                              const SizedBox(height: 10),
+                                          itemBuilder: (context, index) {
+                                            final usuario =
+                                                usuariosFiltrados[index];
+                                            return _UserCard(
+                                              usuario: usuario,
+                                              textTheme: textTheme,
+                                              colorScheme: colorScheme,
+                                              dateFormatter: dateFormatter,
+                                            );
+                                          },
+                                        ),
                                       ),
                                   ],
                                 );
                               },
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
 
