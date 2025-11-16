@@ -310,7 +310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sortType => 'Sort options';
 
   @override
-  String get noSortedUsers => 'Default sorting (A-Z)';
+  String get noSortedUsers => 'Default sorting (Name A-Z)';
 
   @override
   String get noSortedCalls => 'Default sorting (most recent first)';
@@ -378,4 +378,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginError => 'Login error. Incorrect email or password.';
+
+  @override
+  String get searchNoDependency => 'No dependency';
+
+  @override
+  String get sortDateBirthNewest => 'By birthdate (youngest to oldest)';
+
+  @override
+  String get sortDateBirthOldest => 'By birthdate (oldest to youngest)';
+
+  @override
+  String get sortedDateBirthNewest =>
+      'Users sorted by birthdate (youngest to oldest).';
+
+  @override
+  String get sortedDateBirthOldest =>
+      'Users sorted by birthdate (oldest to youngest).';
 }

@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      general_snackbar_error(context, l10n.loginError, 2);
+      general_snackbar_error(context, l10n.loginError, 3);
     }
   }
 

@@ -132,7 +132,7 @@
   "totalUsers": "Total d'usuaris",
   "totalWorkers": "Total de treballadors",
   "sortType": "Mostra per ordre",
-  "noSortedUsers": "Ordenació predefinida (A-Z)",
+  "noSortedUsers": "Ordenació predefinida (Nom A-Z)",
   "noSortedUsersSnackbar": "Usuaris ordenats per defecte.",
   "sortedZASnackbar": "Usuaris ordenats per nom Z-A.",
   "sortedAZSnackbar": "Usuaris ordenats per nom A-Z.",
@@ -152,5 +152,10 @@
   "errorWorkersLoading": "Error en carregar els treballadors. Si us plau, torna-ho a intentar més tard.",
   "errorCallsLoading": "Error en carregar les cridades. Si us plau, torna-ho a intentar més tard.",
   "errorNotificationsLoading": "Error en carregar les notificacions. Si us plau, torna-ho a intentar més tard.",
-  "loginError": "Error d'inici de sessió. El correu electrònic o la contrasenya són incorrectes."
+  "loginError": "Error d'inici de sessió. El correu electrònic o la contrasenya són incorrectes.",
+  "searchNoDependency": "Sense dependència",
+  "sortDateBirthNewest": "Per data de naixement (més jove a més gran)",
+  "sortDateBirthOldest": "Per data de naixement (més gran a més jove)",
+  "sortedDateBirthNewest": "Usuaris ordenats per data de naixement (més jove a més gran).",
+  "sortedDateBirthOldest": "Usuaris ordenats per data de naixement (més gran a més jove)."
 }

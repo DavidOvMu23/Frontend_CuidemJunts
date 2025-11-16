@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/service/contacto_emergencia_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/service/usuario_service.dart';
@@ -14,6 +15,13 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/crearUser_
 import 'package:intl/intl.dart';
 
 // -------- PANTALLA DE USUARIOS --------
+// Guía rápida (noob-friendly):
+// 1) initState: crea servicios y lanza _cargarUsuariosConContactos() (trae usuarios + contactos).
+// 2) _aplicarFiltros: se queda con la lista ya cargada y aplica búsqueda, filtro y orden.
+// 3) build: dibuja AppBar, Drawer, buscador, filtros, FutureBuilder y el botón flotante de crear usuario.
+// 4) FutureBuilder: muestra loader/error o la lista; cada usuario se pinta con _UserCard.
+// 5) _UserCard: muestra nombre, fecha, teléfono, dirección opcional, nivel de dependencia y contactos si hay.
+// Flujo completo: carga -> filtra/ordena -> pinta pantalla -> pinta tarjetas.
 // Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
 class UsersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
@@ -36,22 +44,23 @@ class UsersPage extends StatefulWidget {
 }
 
 // Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, leve, medio, severo }
+enum UserFilter { all, ningunaDep, leve, medio, severo }
 
 // Modos de ordenación disponibles para la lista de usuarios.
 enum UserSort {
-  none,
+  noneAZ,
   nameZA,
+  dateBirthOldest,
+  dateBirthNewest,
   dependencyHighLow,
   dependencyLowHigh,
-  accountStatusOrder,
 }
 
 class _UsersPageState extends State<UsersPage> {
   // Servicio que trae los usuarios desde el backend.
   late final UsuarioService _usuarioService;
   late final ContactoEmergenciaService _contactoEmergenciaService;
-  // Future que cacheamos para no disparar peticiones en cada build.
+  // Future cacheado para no lanzar la petición en cada build.
   late Future<List<Usuario>> _usuariosFuture;
   // Estado del filtro seleccionado y del texto del buscador.
   late UserFilter filtroSeleccionado;
@@ -59,7 +68,7 @@ class _UsersPageState extends State<UsersPage> {
   late
   /// Orden actualmente seleccionado para la lista.
   UserSort
-  ordenSeleccionado = UserSort.none;
+  ordenSeleccionado = UserSort.noneAZ;
 
   @override
   void initState() {
@@ -72,17 +81,19 @@ class _UsersPageState extends State<UsersPage> {
     _usuariosFuture = _cargarUsuariosConContactos(); // Carga inicial.
   }
 
+  /// Llama a backend, trae usuarios y añade sus contactos de emergencia.
   Future<List<Usuario>> _cargarUsuariosConContactos() async {
     final usuarios = await _usuarioService.getAll();
     final enriched = await Future.wait(
       usuarios.map((usuario) async {
         try {
+          // Para cada usuario llamamos a su endpoint de contactos y los añadimos.
           final contactos = await _contactoEmergenciaService.getByUsuarioDni(
             usuario.dni,
           );
           return usuario.copyWith(contactosEmergencia: contactos);
         } catch (_) {
-          return usuario;
+          return usuario; // Si falla, devolvemos al usuario sin contactos (no rompe la lista).
         }
       }),
     );
@@ -93,6 +104,7 @@ class _UsersPageState extends State<UsersPage> {
   List<Usuario> _aplicarFiltros(List<Usuario> usuarios) {
     final query = textoFiltro.trim().toLowerCase();
     final filtrados = usuarios.where((usuario) {
+      // 1) Coincidencia de texto (nombre completo o DNI).
       final nombreCompleto = '${usuario.nombre} ${usuario.apellidos}'
           .toLowerCase();
       final coincideTexto =
@@ -100,30 +112,36 @@ class _UsersPageState extends State<UsersPage> {
           nombreCompleto.contains(query) ||
           usuario.dni.toLowerCase().contains(query);
 
+      // 2) Coincidencia de filtro de dependencia.
       final coincideFiltro = switch (filtroSeleccionado) {
         UserFilter.all => true,
+        UserFilter.ningunaDep => usuario.nivelDependencia.isEmpty,
         UserFilter.leve => usuario.nivelDependencia.toUpperCase() == 'G1',
         UserFilter.medio => usuario.nivelDependencia.toUpperCase() == 'G2',
         UserFilter.severo => usuario.nivelDependencia.toUpperCase() == 'G3',
       };
 
-      return coincideTexto && coincideFiltro;
+      return coincideTexto && coincideFiltro; // Debe pasar ambas condiciones.
     }).toList();
 
+    // 3) Ordenamos según la opción seleccionada en el botón de filtro/orden.
     filtrados.sort((a, b) {
       switch (ordenSeleccionado) {
         case UserSort.nameZA:
           return b.nombre.compareTo(a.nombre);
+        case UserSort.noneAZ:
+          return a.nombre.compareTo(b.nombre);
+        case UserSort.dateBirthOldest:
+          return a.f_nac.compareTo(b.f_nac);
+        case UserSort.dateBirthNewest:
+          return b.f_nac.compareTo(a.f_nac);
         case UserSort.dependencyHighLow:
           return _dependencyRank(b.nivelDependencia) -
               _dependencyRank(a.nivelDependencia);
         case UserSort.dependencyLowHigh:
           return _dependencyRank(a.nivelDependencia) -
               _dependencyRank(b.nivelDependencia);
-        case UserSort.accountStatusOrder:
-          return _estadoCuentaRank(a.estadoCuenta) -
-              _estadoCuentaRank(b.estadoCuenta);
-        case UserSort.none:
+        case UserSort.noneAZ:
           return 0;
       }
     });
@@ -131,7 +149,7 @@ class _UsersPageState extends State<UsersPage> {
     return filtrados;
   }
 
-  // Convierte los grados de dependencia en una prioridad numérica.
+  // Convierte los grados de dependencia en una prioridad numérica para ordenar.
   int _dependencyRank(String nivel) {
     switch (nivel.toUpperCase()) {
       case 'G3':
@@ -251,10 +269,12 @@ class _UsersPageState extends State<UsersPage> {
 
                   children: [
                     // -------- TITULAR --------
+                    // Texto grande de encabezado de la pantalla.
                     Text(
                       l10n.users,
                       style: textTheme.titleMedium?.copyWith(fontSize: 27),
                     ),
+                    // Subtítulo explicando la sección.
                     Text(l10n.manageUsers, style: textTheme.bodyMedium),
                     const SizedBox(height: 20),
 
@@ -264,11 +284,12 @@ class _UsersPageState extends State<UsersPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
 
-                        // Columna con filtros + lista.
+                        // Columna con filtros + lista (todo vive dentro de esta tarjeta).
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // -------- BÚSQUEDA --------
+                            // Encabezado de la sección de búsqueda y filtros.
                             Text(
                               l10n.searchUsers,
                               textAlign: TextAlign.left,
@@ -279,7 +300,7 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
 
-                            // TextField de búsqueda.
+                            // TextField de búsqueda: actualiza textoFiltro en cada cambio.
                             general_busqueda_textfield(
                               l10n.searchUser,
                               icono: Icons.search,
@@ -291,7 +312,7 @@ class _UsersPageState extends State<UsersPage> {
                             ),
                             const SizedBox(height: 20),
 
-                            // -------- FILTRO --------
+                            // -------- FILTRO -------- (dropdown de dependencia)
                             Row(
                               children: [
                                 // Ícono que indica si hay filtro activo o no.
@@ -322,6 +343,10 @@ class _UsersPageState extends State<UsersPage> {
                                       DropdownMenuItem<UserFilter>(
                                         value: UserFilter.all,
                                         child: Text(l10n.searchAllUsers),
+                                      ),
+                                      DropdownMenuItem<UserFilter>(
+                                        value: UserFilter.ningunaDep,
+                                        child: Text(l10n.searchNoDependency),
                                       ),
                                       DropdownMenuItem<UserFilter>(
                                         value: UserFilter.leve,
@@ -358,7 +383,7 @@ class _UsersPageState extends State<UsersPage> {
 
                             const SizedBox(height: 10),
                             // -------- LISTA DE USUARIOS --------
-                            // FutureBuilder conectado al endpoint de usuarios.
+                            // FutureBuilder: escucha el Future de usuarios y cambia la UI según estado (loading/error/data).
                             FutureBuilder<List<Usuario>>(
                               future: _usuariosFuture,
                               builder: (context, snapshot) {
@@ -373,7 +398,7 @@ class _UsersPageState extends State<UsersPage> {
                                   );
                                 }
                                 if (snapshot.hasError) {
-                                  // Mensaje genérico cuando algo falla.
+                                  // Mensaje cuando algo falla cargando.
                                   return Column(
                                     children: [
                                       SizedBox(
@@ -446,7 +471,7 @@ class _UsersPageState extends State<UsersPage> {
                                           ),
                                         ),
                                         general_iconbutton(
-                                          ordenSeleccionado == UserSort.none
+                                          ordenSeleccionado == UserSort.noneAZ
                                               ? Icons.filter_list_off
                                               : Icons.filter_list,
                                           onPressed: () {
@@ -480,7 +505,7 @@ class _UsersPageState extends State<UsersPage> {
                                                       onTap: () {
                                                         setState(() {
                                                           ordenSeleccionado =
-                                                              UserSort.none;
+                                                              UserSort.noneAZ;
                                                         });
                                                         general_snackbar(
                                                           context,
@@ -503,6 +528,44 @@ class _UsersPageState extends State<UsersPage> {
                                                         general_snackbar(
                                                           context,
                                                           l10n.sortedZASnackbar,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.date_range,
+                                                      texto: l10n
+                                                          .sortDateBirthNewest,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort
+                                                                  .dateBirthNewest;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedDateBirthNewest,
+                                                          2,
+                                                        );
+                                                      },
+                                                    ),
+                                                    general_listtile(
+                                                      context: context,
+                                                      icon: Icons.date_range,
+                                                      texto: l10n
+                                                          .sortDateBirthOldest,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          ordenSeleccionado =
+                                                              UserSort
+                                                                  .dateBirthOldest;
+                                                        });
+                                                        Navigator.pop(context);
+                                                        general_snackbar(
+                                                          context,
+                                                          l10n.sortedDateBirthOldest,
                                                           2,
                                                         );
                                                       },
@@ -545,25 +608,6 @@ class _UsersPageState extends State<UsersPage> {
                                                         );
                                                       },
                                                     ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.check,
-                                                      texto: l10n
-                                                          .sortedStatusAccount,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .accountStatusOrder;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedStatusAccount,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -590,88 +634,15 @@ class _UsersPageState extends State<UsersPage> {
                                             const NeverScrollableScrollPhysics(),
                                         itemCount: usuariosFiltrados.length,
                                         separatorBuilder: (_, __) =>
-                                            const SizedBox(height: 8),
+                                            const SizedBox(height: 10),
                                         itemBuilder: (context, index) {
                                           final usuario =
                                               usuariosFiltrados[index];
-                                          // Tarjeta compacta con info básica.
-                                          final emergencySummary =
-                                              usuario
-                                                  .contactosEmergencia
-                                                  .isEmpty
-                                              ? 'Contactos emergencia: No disponibles'
-                                              : 'Contactos emergencia: ${usuario.contactosEmergencia.map((contacto) {
-                                                  final nombre = '${contacto.nombre} ${contacto.apellidos}'.trim();
-                                                  final relacion = contacto.relacion.trim();
-                                                  final telefono = contacto.telefono.trim();
-
-                                                  final buffer = StringBuffer(nombre);
-                                                  if (relacion.isNotEmpty) {
-                                                    buffer
-                                                      ..write(' (')
-                                                      ..write(relacion)
-                                                      ..write(')');
-                                                  }
-                                                  if (telefono.isNotEmpty) {
-                                                    buffer
-                                                      ..write(' · ')
-                                                      ..write(telefono);
-                                                  }
-                                                  return buffer.toString();
-                                                }).join(' | ')}';
-
-                                          final fechaNacimiento = dateFormatter
-                                              .format(usuario.f_nac);
-
-                                          return ListTile(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            tileColor: Theme.of(
-                                              context,
-                                            ).cardColor,
-                                            title: Text(
-                                              '${usuario.nombre} ${usuario.apellidos}',
-                                              style: textTheme.titleMedium,
-                                            ),
-                                            subtitle: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  'Dependencia: ${usuario.nivelDependencia} · Fecha Nacimiento: $fechaNacimiento · Número de télefono: ${usuario.telefono}',
-                                                  style: textTheme.bodyMedium,
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  emergencySummary,
-                                                  style: textTheme.bodySmall
-                                                      ?.copyWith(
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).colorScheme.secondary,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                            // onTap: () {
-                                            //   // Navegar a la página de detalles del usuario.
-                                            //   Navigator.push(
-                                            //     context,
-                                            //     MaterialPageRoute(
-                                            //       builder: (context) =>
-                                            //           UserDetailPage(
-                                            //             usuario: usuario,
-                                            //             onToggleTheme: widget
-                                            //                 .onToggleTheme,
-                                            //             onChangeLocale: widget
-                                            //                 .onChangeLocale,
-                                            //           ),
-                                            //     ),
-                                            //   );
-                                            // },
+                                          return _UserCard(
+                                            usuario: usuario,
+                                            textTheme: textTheme,
+                                            colorScheme: colorScheme,
+                                            dateFormatter: dateFormatter,
                                           );
                                         },
                                       ),
@@ -691,7 +662,7 @@ class _UsersPageState extends State<UsersPage> {
 
           // -------- BOTÓN FLOTANTE --------
           Positioned(
-            right: 24,
+            right: 25,
             bottom: 32,
             child: SafeArea(
               child: general_floatingbutton(
@@ -711,6 +682,202 @@ class _UsersPageState extends State<UsersPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Tarjeta de usuario estilo simple, con color de fondo y datos básicos.
+class _UserCard extends StatelessWidget {
+  final Usuario usuario;
+  final TextTheme textTheme;
+  final ColorScheme colorScheme;
+  final DateFormat dateFormatter;
+
+  const _UserCard({
+    required this.usuario,
+    required this.textTheme,
+    required this.colorScheme,
+    required this.dateFormatter,
+  });
+
+  String get _dependenciaTexto {
+    final raw = usuario.nivelDependencia.trim();
+    if (raw.isEmpty) return 'Sin especificar';
+    final upper = raw.toUpperCase();
+    switch (upper) {
+      case 'G1':
+      case 'LEVE':
+        return 'Leve';
+      case 'G2':
+      case 'MODERADA':
+      case 'MODERADO':
+        return 'Moderada';
+      case 'G3':
+      case 'SEVERA':
+      case 'SEVERO':
+        return 'Severa';
+      default:
+        return raw; // si viene otro valor, mostramos tal cual.
+    }
+  }
+
+  Color _dependenciaBg(BuildContext context) {
+    final raw = usuario.nivelDependencia.trim().toUpperCase();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    switch (raw) {
+      case 'G1':
+      case 'LEVE':
+        return isDark ? AppPalette.successDark : AppPalette.successLight;
+      case 'G2':
+      case 'MODERADA':
+      case 'MODERADO':
+        return isDark ? AppPalette.warningDark : AppPalette.warningLight;
+      case 'G3':
+      case 'SEVERA':
+      case 'SEVERO':
+        return isDark ? AppPalette.errorDark : AppPalette.errorLight;
+      default:
+        return colorScheme.surface;
+    }
+  }
+
+  Color _dependenciaText(BuildContext context) {
+    final raw = usuario.nivelDependencia.trim().toUpperCase();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    switch (raw) {
+      case 'G1':
+      case 'LEVE':
+        return isDark
+            ? AppPalette.successFontDark
+            : AppPalette.successFontLight;
+      case 'G2':
+      case 'MODERADA':
+      case 'MODERADO':
+        return isDark
+            ? AppPalette.warningFontDark
+            : AppPalette.warningFontLight;
+      case 'G3':
+      case 'SEVERA':
+      case 'SEVERO':
+        return isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight;
+      default:
+        return colorScheme.onSurface;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fechaNacimiento = dateFormatter.format(usuario.f_nac);
+    final direccion = usuario.direccion.trim();
+    final depBg = _dependenciaBg(context);
+    final depText = _dependenciaText(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${usuario.nombre} ${usuario.apellidos}',
+                    style: textTheme.headlineLarge?.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                general_iconbutton(
+                  Icons.edit,
+                  onPressed: () {
+                    //TODO: Implementar edición de usuario
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.cake, size: 18),
+                const SizedBox(width: 6),
+                Text(fechaNacimiento, style: textTheme.bodyMedium),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.phone, size: 18),
+                const SizedBox(width: 6),
+                Text(usuario.telefono, style: textTheme.bodyMedium),
+              ],
+            ),
+            if (direccion.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.location_on, size: 18),
+                  const SizedBox(width: 6),
+                  Expanded(child: Text(direccion, style: textTheme.bodyMedium)),
+                ],
+              ),
+            ],
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: depBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                _dependenciaTexto,
+                style: textTheme.bodySmall?.copyWith(
+                  color: depText,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            if (usuario.contactosEmergencia.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Contactos de emergencia',
+                style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 6),
+              ...usuario.contactosEmergencia.map(
+                (contacto) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${contacto.nombre} ${contacto.apellidos}',
+                          style: textTheme.bodySmall,
+                        ),
+                      ),
+                      Text(
+                        contacto.telefono,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

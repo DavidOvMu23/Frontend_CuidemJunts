@@ -38,6 +38,7 @@ class Usuario {
   final String apellidos;
   final DateTime f_nac;
   final String telefono;
+  final String direccion;
   final String estadoCuenta;
   final String nivelDependencia;
   final List<ContactoEmergencia> contactosEmergencia;
@@ -48,6 +49,7 @@ class Usuario {
     required this.apellidos,
     required this.f_nac,
     required this.telefono,
+    this.direccion = '',
     required this.estadoCuenta,
     required this.nivelDependencia,
     this.contactosEmergencia = const [],
@@ -59,6 +61,7 @@ class Usuario {
     String? apellidos,
     DateTime? f_nac,
     String? telefono,
+    String? direccion,
     String? estadoCuenta,
     String? nivelDependencia,
     List<ContactoEmergencia>? contactosEmergencia,
@@ -69,6 +72,7 @@ class Usuario {
       apellidos: apellidos ?? this.apellidos,
       f_nac: f_nac ?? this.f_nac,
       telefono: telefono ?? this.telefono,
+      direccion: direccion ?? this.direccion,
       estadoCuenta: estadoCuenta ?? this.estadoCuenta,
       nivelDependencia: nivelDependencia ?? this.nivelDependencia,
       contactosEmergencia: contactosEmergencia ?? this.contactosEmergencia,
@@ -89,6 +93,7 @@ class Usuario {
       apellidos: json['apellidos'] as String,
       f_nac: parsedFecha,
       telefono: json['telefono'] as String,
+      direccion: (json['direccion'] ?? json['address'] ?? '') as String,
       estadoCuenta: json['estado_cuenta'] as String,
       nivelDependencia: json['nivel_dependencia'] as String? ?? '',
       contactosEmergencia:

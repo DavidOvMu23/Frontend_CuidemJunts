@@ -100,7 +100,7 @@
   "totalUsers": "Total de usuarios",
   "totalWorkers": "Total de trabajadores",
   "sortType": "Mostrar por orden",
-  "noSortedUsers": "Ordenación predeterminada (A-Z)",
+  "noSortedUsers": "Ordenación predeterminada (Nombre A-Z)",
   "noSortedCalls": "Ordenación predeterminada (más recientes primero)",
   "sortedZASnackbar": "Usuarios ordenados por nombre Z-A.",
   "sortedAZSnackbar": "Usuarios ordenados por nombre A-Z.",
@@ -120,5 +120,10 @@
   "errorWorkersLoading": "Error al cargar los trabajadores. Por favor, inténtalo de nuevo más tarde.",
   "errorCallsLoading": "Error al cargar las llamadas. Por favor, inténtalo de nuevo más tarde.",
   "errorNotificationsLoading": "Error al cargar las notificaciones. Por favor, inténtalo de nuevo más tarde.",
-  "loginError": "Error de inicio de sesión. El correo electrónico o la contraseña son incorrectos."
+  "loginError": "Error de inicio de sesión. El correo electrónico o la contraseña son incorrectos.",
+  "searchNoDependency": "Sin dependencia",
+  "sortDateBirthNewest": "Por fecha de nacimiento (más joven a mayor)",
+  "sortDateBirthOldest": "Por fecha de nacimiento (más mayor a joven)",
+  "sortedDateBirthNewest": "Usuarios ordenados por fecha de nacimiento (más joven a mayor).",
+  "sortedDateBirthOldest": "Usuarios ordenados por fecha de nacimiento (más mayor a joven)."
 }

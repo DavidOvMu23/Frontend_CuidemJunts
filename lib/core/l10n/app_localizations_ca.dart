@@ -314,7 +314,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get sortType => 'Mostra per ordre';
 
   @override
-  String get noSortedUsers => 'Ordenació predefinida (A-Z)';
+  String get noSortedUsers => 'Ordenació predefinida (Nom A-Z)';
 
   @override
   String get noSortedCalls => 'Ordenació predeterminada (més recents primer)';
@@ -386,4 +386,23 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get loginError =>
       'Error d\'inici de sessió. El correu electrònic o la contrasenya són incorrectes.';
+
+  @override
+  String get searchNoDependency => 'Sense dependència';
+
+  @override
+  String get sortDateBirthNewest =>
+      'Per data de naixement (més jove a més gran)';
+
+  @override
+  String get sortDateBirthOldest =>
+      'Per data de naixement (més gran a més jove)';
+
+  @override
+  String get sortedDateBirthNewest =>
+      'Usuaris ordenats per data de naixement (més jove a més gran).';
+
+  @override
+  String get sortedDateBirthOldest =>
+      'Usuaris ordenats per data de naixement (més gran a més jove).';
 }

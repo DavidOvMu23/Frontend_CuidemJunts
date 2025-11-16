@@ -131,7 +131,7 @@
   "sortType": "Sort options",
   "totalUsers": "Total users",
   "totalWorkers": "Total workers",
-  "noSortedUsers": "Default sorting (A-Z)",
+  "noSortedUsers": "Default sorting (Name A-Z)",
   "sortedAZSnackbar": "Users sorted by name A-Z.",
   "sortedZASnackbar": "Users sorted by name Z-A.",
   "sortedDependencyLevelHighLow": "Users sorted by dependency level (high to low).",
@@ -150,5 +150,10 @@
   "errorWorkersLoading": "Error loading workers. Please try again later.",
   "errorCallsLoading": "Error loading calls. Please try again later.",
   "errorNotificationsLoading": "Error loading notifications. Please try again later.",
-  "loginError": "Login error. Incorrect email or password."
+  "loginError": "Login error. Incorrect email or password.",
+  "searchNoDependency": "No dependency",
+  "sortDateBirthNewest": "By birthdate (youngest to oldest)",
+  "sortDateBirthOldest": "By birthdate (oldest to youngest)",
+  "sortedDateBirthNewest": "Users sorted by birthdate (youngest to oldest).",
+  "sortedDateBirthOldest": "Users sorted by birthdate (oldest to youngest)."
 }

@@ -703,7 +703,7 @@ abstract class AppLocalizations {
   /// No description provided for @noSortedUsers.
   ///
   /// In es, this message translates to:
-  /// **'Ordenación predeterminada (A-Z)'**
+  /// **'Ordenación predeterminada (Nombre A-Z)'**
   String get noSortedUsers;
 
   /// No description provided for @noSortedCalls.
@@ -825,6 +825,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error de inicio de sesión. El correo electrónico o la contraseña son incorrectos.'**
   String get loginError;
+
+  /// No description provided for @searchNoDependency.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin dependencia'**
+  String get searchNoDependency;
+
+  /// No description provided for @sortDateBirthNewest.
+  ///
+  /// In es, this message translates to:
+  /// **'Por fecha de nacimiento (más joven a mayor)'**
+  String get sortDateBirthNewest;
+
+  /// No description provided for @sortDateBirthOldest.
+  ///
+  /// In es, this message translates to:
+  /// **'Por fecha de nacimiento (más mayor a joven)'**
+  String get sortDateBirthOldest;
+
+  /// No description provided for @sortedDateBirthNewest.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por fecha de nacimiento (más joven a mayor).'**
+  String get sortedDateBirthNewest;
+
+  /// No description provided for @sortedDateBirthOldest.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios ordenados por fecha de nacimiento (más mayor a joven).'**
+  String get sortedDateBirthOldest;
 }
 
 class _AppLocalizationsDelegate
