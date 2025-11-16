@@ -405,4 +405,103 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get sortedDateBirthOldest =>
       'Usuaris ordenats per data de naixement (més gran a més jove).';
+
+  @override
+  String get createUser => 'Crear usuari';
+
+  @override
+  String get createUserDescription =>
+      'Ompliu el següent formulari per crear un nou usuari.';
+
+  @override
+  String get errorCrateUserBirthday =>
+      'Error en crear l\'usuari. La data de naixement no pot estar buida.';
+
+  @override
+  String get errorCreateUSerBurthdayFuture =>
+      'Error en crear l\'usuari. La data de naixement no pot ser en el futur.';
+
+  @override
+  String get errorCreateUserDNI =>
+      'Error en crear l\'usuari. El DNI no pot estar buit.';
+
+  @override
+  String get errorCreateUSerDNILength =>
+      'Error en crear l\'usuari. El DNI ha de tenir 9 caràcters.';
+
+  @override
+  String get errorCreateUserName =>
+      'Error en crear l\'usuari. El nom no pot estar buit.';
+
+  @override
+  String get errorCreateUserLastName =>
+      'Error en crear l\'usuari. Els cognoms no poden estar buits.';
+
+  @override
+  String get errorCreateUserPhone =>
+      'Error en crear l\'usuari. El telèfon no pot estar buit.';
+
+  @override
+  String get errorCreateUserPhoneLength =>
+      'Error en crear l\'usuari. El telèfon ha de tenir 9 dígits.';
+
+  @override
+  String get errorCreateUserInformation =>
+      'Error en crear l\'usuari. La informació no pot estar buida.';
+
+  @override
+  String get errorCreateUserDependency =>
+      'Error en crear l\'usuari. Has de seleccionar un nivell de dependència.';
+
+  @override
+  String get userCreatedSuccess => 'Usuari creat amb èxit.';
+
+  @override
+  String get userCreatedError => 'Error en crear l\'usuari.';
+
+  @override
+  String get userErrorDNiExists =>
+      'Error en crear l\'usuari. El DNI ja existeix.';
+
+  @override
+  String get dni => 'DNI';
+
+  @override
+  String get name => 'Nom';
+
+  @override
+  String get lastName => 'Cognoms';
+
+  @override
+  String get birthDate => 'Data de naixement';
+
+  @override
+  String get selectBirthDate => 'Selecciona la data de naixement';
+
+  @override
+  String get information => 'Informació';
+
+  @override
+  String get dependencyLevel => 'Nivell de dependència';
+
+  @override
+  String get medicalData => 'Dades mèdiques / dolències (opcional)';
+
+  @override
+  String get medication => 'Medicació (opcional)';
+
+  @override
+  String get telephone => 'Telèfon';
+
+  @override
+  String get direction => 'Adreça (opcional)';
+
+  @override
+  String get createUserButton => 'Crear usuari';
+
+  @override
+  String get none => 'Cap';
+
+  @override
+  String get optionalData => 'Dades opcionals';
 }

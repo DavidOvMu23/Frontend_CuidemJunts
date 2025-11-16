@@ -395,4 +395,101 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sortedDateBirthOldest =>
       'Users sorted by birthdate (oldest to youngest).';
+
+  @override
+  String get createUser => 'Create user';
+
+  @override
+  String get createUserDescription =>
+      'Fill out the following form to create a new user.';
+
+  @override
+  String get errorCrateUserBirthday =>
+      'Error creating user. Birthdate cannot be empty.';
+
+  @override
+  String get errorCreateUSerBurthdayFuture =>
+      'Error creating user. Birthdate cannot be in the future.';
+
+  @override
+  String get errorCreateUserDNI => 'Error creating user. DNI cannot be empty.';
+
+  @override
+  String get errorCreateUSerDNILength =>
+      'Error creating user. DNI must be 9 characters long.';
+
+  @override
+  String get errorCreateUserName =>
+      'Error creating user. Name cannot be empty.';
+
+  @override
+  String get errorCreateUserLastName =>
+      'Error creating user. Last name cannot be empty.';
+
+  @override
+  String get errorCreateUserPhone =>
+      'Error creating user. Phone cannot be empty.';
+
+  @override
+  String get errorCreateUserPhoneLength =>
+      'Error creating user. Phone must be 9 digits long.';
+
+  @override
+  String get errorCreateUserInformation =>
+      'Error creating user. Information cannot be empty.';
+
+  @override
+  String get errorCreateUserDependency =>
+      'Error creating user. You must select a dependency level.';
+
+  @override
+  String get userCreatedSuccess => 'User created successfully.';
+
+  @override
+  String get userCreatedError => 'Error creating user.';
+
+  @override
+  String get userErrorDNiExists => 'Error creating user. DNI already exists.';
+
+  @override
+  String get dni => 'DNI';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get birthDate => 'Birthdate';
+
+  @override
+  String get selectBirthDate => 'Select birthdate';
+
+  @override
+  String get information => 'Information';
+
+  @override
+  String get dependencyLevel => 'Dependency level';
+
+  @override
+  String get medicalData => 'Medical data / ailments (optional)';
+
+  @override
+  String get medication => 'Medication (optional)';
+
+  @override
+  String get telephone => 'Phone';
+
+  @override
+  String get direction => 'Address (optional)';
+
+  @override
+  String get createUserButton => 'Create user';
+
+  @override
+  String get none => 'None';
+
+  @override
+  String get optionalData => 'Optional data';
 }

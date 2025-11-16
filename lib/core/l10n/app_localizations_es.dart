@@ -404,4 +404,103 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get sortedDateBirthOldest =>
       'Usuarios ordenados por fecha de nacimiento (más mayor a joven).';
+
+  @override
+  String get createUser => 'Crear usuario';
+
+  @override
+  String get createUserDescription =>
+      'Rellena el siguiente formulario para crear un nuevo usuario.';
+
+  @override
+  String get errorCrateUserBirthday =>
+      'Error al crear el usuario. La fecha de nacimiento no puede estar vacía';
+
+  @override
+  String get errorCreateUSerBurthdayFuture =>
+      'Error al crear el usuario. La fecha de nacimiento no puede estar en el futuro.';
+
+  @override
+  String get errorCreateUserDNI =>
+      'Error al crear el usuario. El DNI no puede estar vacío.';
+
+  @override
+  String get errorCreateUSerDNILength =>
+      'Error al crear el usuario. El DNI debe tener 9 caracteres.';
+
+  @override
+  String get errorCreateUserName =>
+      'Error al crear el usuario. El nombre no puede estar vacío.';
+
+  @override
+  String get errorCreateUserLastName =>
+      'Error al crear el usuario. Los apellidos no pueden estar vacíos.';
+
+  @override
+  String get errorCreateUserPhone =>
+      'Error al crear el usuario. El teléfono no puede estar vacío.';
+
+  @override
+  String get errorCreateUserPhoneLength =>
+      'Error al crear el usuario. El teléfono debe tener 9 dígitos.';
+
+  @override
+  String get errorCreateUserInformation =>
+      'Error al crear el usuario. La información no puede estar vacía.';
+
+  @override
+  String get errorCreateUserDependency =>
+      'Error al crear el usuario. Debes seleccionar un nivel de dependencia.';
+
+  @override
+  String get userCreatedSuccess => 'Usuario creado con éxito.';
+
+  @override
+  String get userCreatedError => 'Error al crear el usuario.';
+
+  @override
+  String get userErrorDNiExists =>
+      'Error al crear el usuario. El DNI ya existe.';
+
+  @override
+  String get dni => 'DNI';
+
+  @override
+  String get name => 'Nombre';
+
+  @override
+  String get lastName => 'Apellidos';
+
+  @override
+  String get birthDate => 'Fecha de nacimiento';
+
+  @override
+  String get selectBirthDate => 'Selecciona la fecha de nacimiento';
+
+  @override
+  String get information => 'Información';
+
+  @override
+  String get dependencyLevel => 'Nivel de dependencia';
+
+  @override
+  String get medicalData => 'Datos médicos / dolencias (opcional)';
+
+  @override
+  String get medication => 'Medicación (opcional)';
+
+  @override
+  String get telephone => 'Teléfono';
+
+  @override
+  String get direction => 'Dirección (opcional)';
+
+  @override
+  String get createUserButton => 'Crear usuario';
+
+  @override
+  String get none => 'Ninguna';
+
+  @override
+  String get optionalData => 'Datos opcionales';
 }

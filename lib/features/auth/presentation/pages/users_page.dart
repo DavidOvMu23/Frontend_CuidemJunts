@@ -11,17 +11,10 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/crearUser_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/usersCreate.dart';
 import 'package:intl/intl.dart';
 
 // -------- PANTALLA DE USUARIOS --------
-// Guía rápida (noob-friendly):
-// 1) initState: crea servicios y lanza _cargarUsuariosConContactos() (trae usuarios + contactos).
-// 2) _aplicarFiltros: se queda con la lista ya cargada y aplica búsqueda, filtro y orden.
-// 3) build: dibuja AppBar, Drawer, buscador, filtros, FutureBuilder y el botón flotante de crear usuario.
-// 4) FutureBuilder: muestra loader/error o la lista; cada usuario se pinta con _UserCard.
-// 5) _UserCard: muestra nombre, fecha, teléfono, dirección opcional, nivel de dependencia y contactos si hay.
-// Flujo completo: carga -> filtra/ordena -> pinta pantalla -> pinta tarjetas.
 // Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
 class UsersPage extends StatefulWidget {
   // Callback que cambia el tema de la app.
@@ -261,10 +254,10 @@ class _UsersPageState extends State<UsersPage> {
                 // -------- TITULAR --------
                 // Cabecera fija de la pantalla.
                 Text(
-                  l10n.users,
+                  l10n.createUser,
                   style: textTheme.titleMedium?.copyWith(fontSize: 27),
                 ),
-                Text(l10n.manageUsers, style: textTheme.bodyMedium),
+                Text(l10n.createUserDescription, style: textTheme.bodyMedium),
                 const SizedBox(height: 20),
 
                 // -------- TARJETA PRINCIPAL --------
@@ -280,12 +273,12 @@ class _UsersPageState extends State<UsersPage> {
                           Text(
                             l10n.searchUsers,
                             textAlign: TextAlign.left,
-                      style: textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                            style: textTheme.headlineLarge?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
 
                           // Buscador de texto.
                           general_busqueda_textfield(
@@ -600,6 +593,7 @@ class _UsersPageState extends State<UsersPage> {
                                       )
                                     else
                                       Expanded(
+                                        //con esta propiedad scrolleamos la lista
                                         child: ListView.separated(
                                           itemCount: usuariosFiltrados.length,
                                           separatorBuilder: (_, __) =>

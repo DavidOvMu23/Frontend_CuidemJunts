@@ -84,6 +84,26 @@ TextField general_textfield(
   );
 }
 
+TextField general_textfield_NoICON(
+  String texto, {
+  double borderRadius = 12.0,
+  int maxLines = 1,
+  TextEditingController? controller,
+}) {
+  return TextField(
+    controller: controller,
+    maxLines: maxLines,
+    decoration: InputDecoration(
+      hintText: texto, // Texto gris que explica qué escribir.
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(borderRadius),
+        borderSide: BorderSide.none,
+      ),
+      filled: true,
+    ),
+  );
+}
+
 TextField general_busqueda_textfield(
   String texto, {
   IconData? icono,

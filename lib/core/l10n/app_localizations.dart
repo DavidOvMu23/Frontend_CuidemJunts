@@ -855,6 +855,180 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Usuarios ordenados por fecha de nacimiento (más mayor a joven).'**
   String get sortedDateBirthOldest;
+
+  /// No description provided for @createUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear usuario'**
+  String get createUser;
+
+  /// No description provided for @createUserDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Rellena el siguiente formulario para crear un nuevo usuario.'**
+  String get createUserDescription;
+
+  /// No description provided for @errorCrateUserBirthday.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. La fecha de nacimiento no puede estar vacía'**
+  String get errorCrateUserBirthday;
+
+  /// No description provided for @errorCreateUSerBurthdayFuture.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. La fecha de nacimiento no puede estar en el futuro.'**
+  String get errorCreateUSerBurthdayFuture;
+
+  /// No description provided for @errorCreateUserDNI.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. El DNI no puede estar vacío.'**
+  String get errorCreateUserDNI;
+
+  /// No description provided for @errorCreateUSerDNILength.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. El DNI debe tener 9 caracteres.'**
+  String get errorCreateUSerDNILength;
+
+  /// No description provided for @errorCreateUserName.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. El nombre no puede estar vacío.'**
+  String get errorCreateUserName;
+
+  /// No description provided for @errorCreateUserLastName.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. Los apellidos no pueden estar vacíos.'**
+  String get errorCreateUserLastName;
+
+  /// No description provided for @errorCreateUserPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. El teléfono no puede estar vacío.'**
+  String get errorCreateUserPhone;
+
+  /// No description provided for @errorCreateUserPhoneLength.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. El teléfono debe tener 9 dígitos.'**
+  String get errorCreateUserPhoneLength;
+
+  /// No description provided for @errorCreateUserInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. La información no puede estar vacía.'**
+  String get errorCreateUserInformation;
+
+  /// No description provided for @errorCreateUserDependency.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. Debes seleccionar un nivel de dependencia.'**
+  String get errorCreateUserDependency;
+
+  /// No description provided for @userCreatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario creado con éxito.'**
+  String get userCreatedSuccess;
+
+  /// No description provided for @userCreatedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario.'**
+  String get userCreatedError;
+
+  /// No description provided for @userErrorDNiExists.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el usuario. El DNI ya existe.'**
+  String get userErrorDNiExists;
+
+  /// No description provided for @dni.
+  ///
+  /// In es, this message translates to:
+  /// **'DNI'**
+  String get dni;
+
+  /// No description provided for @name.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get name;
+
+  /// No description provided for @lastName.
+  ///
+  /// In es, this message translates to:
+  /// **'Apellidos'**
+  String get lastName;
+
+  /// No description provided for @birthDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de nacimiento'**
+  String get birthDate;
+
+  /// No description provided for @selectBirthDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona la fecha de nacimiento'**
+  String get selectBirthDate;
+
+  /// No description provided for @information.
+  ///
+  /// In es, this message translates to:
+  /// **'Información'**
+  String get information;
+
+  /// No description provided for @dependencyLevel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel de dependencia'**
+  String get dependencyLevel;
+
+  /// No description provided for @medicalData.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos médicos / dolencias (opcional)'**
+  String get medicalData;
+
+  /// No description provided for @medication.
+  ///
+  /// In es, this message translates to:
+  /// **'Medicación (opcional)'**
+  String get medication;
+
+  /// No description provided for @telephone.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono'**
+  String get telephone;
+
+  /// No description provided for @direction.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección (opcional)'**
+  String get direction;
+
+  /// No description provided for @createUserButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear usuario'**
+  String get createUserButton;
+
+  /// No description provided for @none.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna'**
+  String get none;
+
+  /// No description provided for @optionalData.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos opcionales'**
+  String get optionalData;
 }
 
 class _AppLocalizationsDelegate
