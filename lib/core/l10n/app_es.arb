@@ -154,5 +154,7 @@
   "direction": "Dirección (opcional)",
   "createUserButton": "Crear usuario",
   "none": "Ninguna",
-  "optionalData": "Datos opcionales"
+  "optionalData": "Datos opcionales",
+  "noUsersFounds": "No se encontraron usuarios",
+  "usersPreliminarView": "Vista preliminar: toca un usuario para ver toda su información."
 }

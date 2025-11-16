@@ -503,4 +503,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get optionalData => 'Datos opcionales';
+
+  @override
+  String get noUsersFounds => 'No se encontraron usuarios';
+
+  @override
+  String get usersPreliminarView =>
+      'Vista preliminar: toca un usuario para ver toda su información.';
 }

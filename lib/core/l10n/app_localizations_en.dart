@@ -492,4 +492,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get optionalData => 'Optional data';
+
+  @override
+  String get noUsersFounds => 'No users found';
+
+  @override
+  String get usersPreliminarView =>
+      'Preliminary view: tap a user to see all their information.';
 }

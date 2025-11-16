@@ -504,4 +504,11 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get optionalData => 'Dades opcionals';
+
+  @override
+  String get noUsersFounds => 'No s\'han trobat usuaris';
+
+  @override
+  String get usersPreliminarView =>
+      'Vista preliminar: toca un usuari per veure tota la seva informació.';
 }

@@ -186,5 +186,7 @@
   "direction": "Adreça (opcional)",
   "createUserButton": "Crear usuari",
   "none": "Cap",
-  "optionalData": "Dades opcionals"
+  "optionalData": "Dades opcionals",
+  "noUsersFounds": "No s'han trobat usuaris",
+  "usersPreliminarView": "Vista preliminar: toca un usuari per veure tota la seva informació."
 }

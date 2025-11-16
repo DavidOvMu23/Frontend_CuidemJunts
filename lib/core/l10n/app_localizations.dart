@@ -1029,6 +1029,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Datos opcionales'**
   String get optionalData;
+
+  /// No description provided for @noUsersFounds.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron usuarios'**
+  String get noUsersFounds;
+
+  /// No description provided for @usersPreliminarView.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista preliminar: toca un usuario para ver toda su información.'**
+  String get usersPreliminarView;
 }
 
 class _AppLocalizationsDelegate

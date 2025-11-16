@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/contacto_emergencia_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/service/usuario_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
@@ -11,7 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/usersCreate.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/usersCreate_page.dart';
 import 'package:intl/intl.dart';
 
 // -------- PANTALLA DE USUARIOS --------
@@ -52,7 +51,6 @@ enum UserSort {
 class _UsersPageState extends State<UsersPage> {
   // Servicio que trae los usuarios desde el backend.
   late final UsuarioService _usuarioService;
-  late final ContactoEmergenciaService _contactoEmergenciaService;
   // Future cacheado para no lanzar la petición en cada build.
   late Future<List<Usuario>> _usuariosFuture;
   // Estado del filtro seleccionado y del texto del buscador.
@@ -68,29 +66,21 @@ class _UsersPageState extends State<UsersPage> {
     super.initState();
     filtroSeleccionado = UserFilter.all; // De inicio mostramos todos.
     _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
-    _contactoEmergenciaService = ContactoEmergenciaService(
-      baseUrl: 'http://localhost:3000',
-    );
     _usuariosFuture = _cargarUsuariosConContactos(); // Carga inicial.
   }
 
-  /// Llama a backend, trae usuarios y añade sus contactos de emergencia.
+  void _mostrarDetalleUsuario(
+    BuildContext context,
+    Usuario usuario,
+    DateFormat dateFormatter,
+  ) {
+    //TODO: Implementar detalle usuario
+  }
+
+  /// Llama a backend y trae usuarios (sin contactos de emergencia).
   Future<List<Usuario>> _cargarUsuariosConContactos() async {
     final usuarios = await _usuarioService.getAll();
-    final enriched = await Future.wait(
-      usuarios.map((usuario) async {
-        try {
-          // Para cada usuario llamamos a su endpoint de contactos y los añadimos.
-          final contactos = await _contactoEmergenciaService.getByUsuarioDni(
-            usuario.dni,
-          );
-          return usuario.copyWith(contactosEmergencia: contactos);
-        } catch (_) {
-          return usuario; // Si falla, devolvemos al usuario sin contactos (no rompe la lista).
-        }
-      }),
-    );
-    return enriched;
+    return usuarios;
   }
 
   // Aplica búsqueda + filtro + ordenación sobre la lista original.
@@ -254,368 +244,423 @@ class _UsersPageState extends State<UsersPage> {
                 // -------- TITULAR --------
                 // Cabecera fija de la pantalla.
                 Text(
-                  l10n.createUser,
+                  l10n.users,
                   style: textTheme.titleMedium?.copyWith(fontSize: 27),
                 ),
-                Text(l10n.createUserDescription, style: textTheme.bodyMedium),
+                Text(l10n.manageUsers, style: textTheme.bodyMedium),
                 const SizedBox(height: 20),
 
                 // -------- TARJETA PRINCIPAL --------
                 // Todo el contenido está dentro y el scroll solo afecta a la lista.
                 Expanded(
-                  child: Material(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.searchUsers,
-                            textAlign: TextAlign.left,
-                            style: textTheme.headlineLarge?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 18,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.searchUsers,
+                              textAlign: TextAlign.left,
+                              style: textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
+                            const SizedBox(height: 20),
 
-                          // Buscador de texto.
-                          general_busqueda_textfield(
-                            l10n.searchUser,
-                            icono: Icons.search,
-                            onChanged: (value) {
-                              setState(() {
-                                textoFiltro = value;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 20),
-
-                          // Filtro por dependencia con dropdown.
-                          Row(
-                            children: [
-                              Icon(
-                                filtroSeleccionado != UserFilter.all
-                                    ? Icons.filter_alt
-                                    : Icons.filter_alt_off,
-                                color: colorScheme.primary,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: DropdownButtonFormField<UserFilter>(
-                                  initialValue: filtroSeleccionado,
-                                  icon: const Icon(Icons.arrow_drop_down),
-                                  borderRadius: BorderRadius.circular(12),
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                  items: [
-                                    DropdownMenuItem<UserFilter>(
-                                      value: UserFilter.all,
-                                      child: Text(l10n.searchAllUsers),
-                                    ),
-                                    DropdownMenuItem<UserFilter>(
-                                      value: UserFilter.ningunaDep,
-                                      child: Text(l10n.searchNoDependency),
-                                    ),
-                                    DropdownMenuItem<UserFilter>(
-                                      value: UserFilter.leve,
-                                      child: Text(
-                                        l10n.searchModerateDependency,
-                                      ),
-                                    ),
-                                    DropdownMenuItem<UserFilter>(
-                                      value: UserFilter.medio,
-                                      child: Text(l10n.searchSevereDependency),
-                                    ),
-                                    DropdownMenuItem<UserFilter>(
-                                      value: UserFilter.severo,
-                                      child: Text(l10n.searchHighDependency),
-                                    ),
-                                  ],
-                                  onChanged: (UserFilter? newValue) {
-                                    setState(() {
-                                      filtroSeleccionado =
-                                          newValue ?? UserFilter.all;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Divider(
-                            color: colorScheme.primary.withValues(alpha: 0.3),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // -------- LISTA DE USUARIOS --------
-                          // Solo esta sección es scrolleable.
-                          Expanded(
-                            child: FutureBuilder<List<Usuario>>(
-                              future: _usuariosFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                                if (snapshot.hasError) {
-                                  return Center(
-                                    child: Card(
-                                      margin: EdgeInsets.zero,
-                                      color: colorScheme.error.withOpacity(0.2),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Text(
-                                          l10n.errorUsersLoading,
-                                          style: textTheme.bodyMedium?.copyWith(
-                                            color: colorScheme.error,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-
-                                final usuarios = snapshot.data ?? [];
-                                final usuariosFiltrados = _aplicarFiltros(
-                                  usuarios,
-                                );
-                                final totalText =
-                                    textoFiltro.isEmpty &&
-                                        filtroSeleccionado == UserFilter.all
-                                    ? '${l10n.totalUsers}: ${usuarios.length}'
-                                    : '${l10n.usersFound} ${usuariosFiltrados.length}';
-
-                                if (usuarios.isEmpty) {
-                                  return Center(
-                                    child: Text(
-                                      'No se encontraron usuarios',
-                                      style: textTheme.bodyMedium,
-                                    ),
-                                  );
-                                }
-
-                                return Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            totalText,
-                                            style: textTheme.bodyMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16,
-                                                ),
-                                          ),
-                                        ),
-                                        general_iconbutton(
-                                          ordenSeleccionado == UserSort.noneAZ
-                                              ? Icons.filter_list_off
-                                              : Icons.filter_list,
-                                          onPressed: () {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) => Padding(
-                                                padding: const EdgeInsets.all(
-                                                  16.0,
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      l10n.sortType,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 12),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon:
-                                                          Icons.filter_list_off,
-                                                      texto: l10n.noSortedUsers,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort.noneAZ;
-                                                        });
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.noSortedUsers,
-                                                          2,
-                                                        );
-                                                        Navigator.pop(context);
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.sort_by_alpha,
-                                                      texto: l10n.sortNameZA,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort.nameZA;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedZASnackbar,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.sort_by_alpha,
-                                                      texto: l10n.sortNameAZ,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort.noneAZ;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedAZSnackbar,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.date_range,
-                                                      texto: l10n
-                                                          .sortDateBirthNewest,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .dateBirthNewest;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedDateBirthNewest,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.date_range,
-                                                      texto: l10n
-                                                          .sortDateBirthOldest,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .dateBirthOldest;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedDateBirthOldest,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.bar_chart,
-                                                      texto: l10n
-                                                          .sortDependencyHighLow,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .dependencyHighLow;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedDependencyLevelHighLow,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.bar_chart,
-                                                      texto: l10n
-                                                          .sortDependencyLowHigh,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .dependencyLowHigh;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedDependencyLevelLowHigh,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    if (usuariosFiltrados.isEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Text(
-                                          'No se encontraron usuarios',
-                                          style: textTheme.bodyMedium,
-                                        ),
-                                      )
-                                    else
-                                      Expanded(
-                                        //con esta propiedad scrolleamos la lista
-                                        child: ListView.separated(
-                                          itemCount: usuariosFiltrados.length,
-                                          separatorBuilder: (_, __) =>
-                                              const SizedBox(height: 10),
-                                          itemBuilder: (context, index) {
-                                            final usuario =
-                                                usuariosFiltrados[index];
-                                            return _UserCard(
-                                              usuario: usuario,
-                                              textTheme: textTheme,
-                                              colorScheme: colorScheme,
-                                              dateFormatter: dateFormatter,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                  ],
-                                );
+                            // Buscador de texto.
+                            general_busqueda_textfield(
+                              l10n.searchUser,
+                              icono: Icons.search,
+                              onChanged: (value) {
+                                setState(() {
+                                  textoFiltro = value;
+                                });
                               },
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 20),
+
+                            // Filtro por dependencia con dropdown.
+                            Row(
+                              children: [
+                                Icon(
+                                  filtroSeleccionado != UserFilter.all
+                                      ? Icons.filter_alt
+                                      : Icons.filter_alt_off,
+                                  color: colorScheme.primary,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: DropdownButtonFormField<UserFilter>(
+                                    initialValue: filtroSeleccionado,
+                                    icon: const Icon(Icons.arrow_drop_down),
+                                    borderRadius: BorderRadius.circular(12),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                    ),
+                                    items: [
+                                      DropdownMenuItem<UserFilter>(
+                                        value: UserFilter.all,
+                                        child: Text(l10n.searchAllUsers),
+                                      ),
+                                      DropdownMenuItem<UserFilter>(
+                                        value: UserFilter.ningunaDep,
+                                        child: Text(l10n.searchNoDependency),
+                                      ),
+                                      DropdownMenuItem<UserFilter>(
+                                        value: UserFilter.leve,
+                                        child: Text(
+                                          l10n.searchModerateDependency,
+                                        ),
+                                      ),
+                                      DropdownMenuItem<UserFilter>(
+                                        value: UserFilter.medio,
+                                        child: Text(
+                                          l10n.searchSevereDependency,
+                                        ),
+                                      ),
+                                      DropdownMenuItem<UserFilter>(
+                                        value: UserFilter.severo,
+                                        child: Text(l10n.searchHighDependency),
+                                      ),
+                                    ],
+                                    onChanged: (UserFilter? newValue) {
+                                      setState(() {
+                                        filtroSeleccionado =
+                                            newValue ?? UserFilter.all;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Divider(
+                              color: colorScheme.primary.withValues(alpha: 0.3),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // -------- LISTA DE USUARIOS --------
+                            // Solo esta sección es scrolleable.
+                            Expanded(
+                              child: FutureBuilder<List<Usuario>>(
+                                future: _usuariosFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                  if (snapshot.hasError) {
+                                    return Center(
+                                      child: Card(
+                                        margin: EdgeInsets.zero,
+                                        color: colorScheme.error.withOpacity(
+                                          0.2,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Text(
+                                            l10n.errorUsersLoading,
+                                            style: textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: colorScheme.error,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  final usuarios = snapshot.data ?? [];
+                                  final usuariosFiltrados = _aplicarFiltros(
+                                    usuarios,
+                                  );
+                                  final totalText =
+                                      textoFiltro.isEmpty &&
+                                          filtroSeleccionado == UserFilter.all
+                                      ? '${l10n.totalUsers}: ${usuarios.length}'
+                                      : '${l10n.usersFound} ${usuariosFiltrados.length}';
+
+                                  if (usuarios.isEmpty) {
+                                    return Center(
+                                      child: Text(
+                                        'No se encontraron usuarios',
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                    );
+                                  }
+
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              totalText,
+                                              style: textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 16,
+                                                  ),
+                                            ),
+                                          ),
+                                          general_iconbutton(
+                                            ordenSeleccionado == UserSort.noneAZ
+                                                ? Icons.filter_list_off
+                                                : Icons.filter_list,
+                                            onPressed: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder: (context) => Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    16.0,
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        l10n.sortType,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 12,
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon: Icons
+                                                            .filter_list_off,
+                                                        texto:
+                                                            l10n.noSortedUsers,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort.noneAZ;
+                                                          });
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.noSortedUsers,
+                                                            2,
+                                                          );
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                        },
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon:
+                                                            Icons.sort_by_alpha,
+                                                        texto: l10n.sortNameZA,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort.nameZA;
+                                                          });
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.sortedZASnackbar,
+                                                            2,
+                                                          );
+                                                        },
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon:
+                                                            Icons.sort_by_alpha,
+                                                        texto: l10n.sortNameAZ,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort.noneAZ;
+                                                          });
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.sortedAZSnackbar,
+                                                            2,
+                                                          );
+                                                        },
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon: Icons.date_range,
+                                                        texto: l10n
+                                                            .sortDateBirthNewest,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort
+                                                                    .dateBirthNewest;
+                                                          });
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.sortedDateBirthNewest,
+                                                            2,
+                                                          );
+                                                        },
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon: Icons.date_range,
+                                                        texto: l10n
+                                                            .sortDateBirthOldest,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort
+                                                                    .dateBirthOldest;
+                                                          });
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.sortedDateBirthOldest,
+                                                            2,
+                                                          );
+                                                        },
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon: Icons.bar_chart,
+                                                        texto: l10n
+                                                            .sortDependencyHighLow,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort
+                                                                    .dependencyHighLow;
+                                                          });
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.sortedDependencyLevelHighLow,
+                                                            2,
+                                                          );
+                                                        },
+                                                      ),
+                                                      general_listtile(
+                                                        context: context,
+                                                        icon: Icons.bar_chart,
+                                                        texto: l10n
+                                                            .sortDependencyLowHigh,
+                                                        onTap: () {
+                                                          setState(() {
+                                                            ordenSeleccionado =
+                                                                UserSort
+                                                                    .dependencyLowHigh;
+                                                          });
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          general_snackbar(
+                                                            context,
+                                                            l10n.sortedDependencyLevelLowHigh,
+                                                            2,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Icon(
+                                            Icons.info_outline,
+                                            size: 18,
+                                            color: colorScheme.primary,
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Expanded(
+                                            child: Text(
+                                              l10n.usersPreliminarView,
+                                              style: textTheme.bodySmall,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      if (usuariosFiltrados.isEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Text(
+                                            l10n.noUsersFounds,
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                        )
+                                      else
+                                        Expanded(
+                                          //con esta propiedad scrolleamos la lista
+                                          child: ListView.separated(
+                                            itemCount: usuariosFiltrados.length,
+                                            separatorBuilder: (_, __) =>
+                                                const SizedBox(height: 10),
+                                            itemBuilder: (context, index) {
+                                              final usuario =
+                                                  usuariosFiltrados[index];
+                                              return _UserCard(
+                                                usuario: usuario,
+                                                textTheme: textTheme,
+                                                colorScheme: colorScheme,
+                                                dateFormatter: dateFormatter,
+                                                onTap: () =>
+                                                    _mostrarDetalleUsuario(
+                                                      context,
+                                                      usuario,
+                                                      dateFormatter,
+                                                    ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -626,7 +671,7 @@ class _UsersPageState extends State<UsersPage> {
 
           // -------- BOTÓN FLOTANTE --------
           Positioned(
-            right: 25,
+            right: 45,
             bottom: 32,
             child: SafeArea(
               child: general_floatingbutton(
@@ -657,12 +702,14 @@ class _UserCard extends StatelessWidget {
   final TextTheme textTheme;
   final ColorScheme colorScheme;
   final DateFormat dateFormatter;
+  final VoidCallback onTap;
 
   const _UserCard({
     required this.usuario,
     required this.textTheme,
     required this.colorScheme,
     required this.dateFormatter,
+    required this.onTap,
   });
 
   String get _dependenciaTexto {
@@ -737,110 +784,90 @@ class _UserCard extends StatelessWidget {
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${usuario.nombre} ${usuario.apellidos}',
+                        style: textTheme.headlineLarge?.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    general_iconbutton(
+                      Icons.edit,
+                      onPressed: () {
+                        //TODO: Implementar edición de usuario
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.cake, size: 18),
+                    const SizedBox(width: 6),
+                    Text(fechaNacimiento, style: textTheme.bodyMedium),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.phone, size: 18),
+                    const SizedBox(width: 6),
+                    Text(usuario.telefono, style: textTheme.bodyMedium),
+                  ],
+                ),
+                if (direccion.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.location_on, size: 18),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(direccion, style: textTheme.bodyMedium),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: depBg,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Text(
-                    '${usuario.nombre} ${usuario.apellidos}',
-                    style: textTheme.headlineLarge?.copyWith(
-                      fontSize: 20,
+                    _dependenciaTexto,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: depText,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                general_iconbutton(
-                  Icons.edit,
-                  onPressed: () {
-                    //TODO: Implementar edición de usuario
-                  },
-                ),
               ],
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Icon(Icons.cake, size: 18),
-                const SizedBox(width: 6),
-                Text(fechaNacimiento, style: textTheme.bodyMedium),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                const Icon(Icons.phone, size: 18),
-                const SizedBox(width: 6),
-                Text(usuario.telefono, style: textTheme.bodyMedium),
-              ],
-            ),
-            if (direccion.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.location_on, size: 18),
-                  const SizedBox(width: 6),
-                  Expanded(child: Text(direccion, style: textTheme.bodyMedium)),
-                ],
-              ),
-            ],
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: depBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _dependenciaTexto,
-                style: textTheme.bodySmall?.copyWith(
-                  color: depText,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            if (usuario.contactosEmergencia.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Contactos de emergencia',
-                style: textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 6),
-              ...usuario.contactosEmergencia.map(
-                (contacto) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${contacto.nombre} ${contacto.apellidos}',
-                          style: textTheme.bodySmall,
-                        ),
-                      ),
-                      Text(
-                        contacto.telefono,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colorScheme.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

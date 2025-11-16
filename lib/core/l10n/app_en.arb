@@ -184,5 +184,7 @@
   "direction": "Address (optional)",
   "createUserButton": "Create user",
   "none": "None",
-  "optionalData": "Optional data"
+  "optionalData": "Optional data",
+  "noUsersFounds": "No users found",
+  "usersPreliminarView": "Preliminary view: tap a user to see all their information."
 }
