@@ -3,6 +3,7 @@ class ContactoEmergencia {
   final String nombre;
   final String apellidos;
   final String telefono;
+  final String direccion;
   final String relacion;
   final String? dniUsuarioRef;
 
@@ -10,6 +11,7 @@ class ContactoEmergencia {
     required this.id,
     required this.nombre,
     required this.apellidos,
+    required this.direccion,
     required this.telefono,
     required this.relacion,
     this.dniUsuarioRef,
@@ -21,6 +23,7 @@ class ContactoEmergencia {
       nombre: json['nombre'] as String? ?? '',
       apellidos: json['apellidos'] as String? ?? '',
       telefono: json['telefono'] as String? ?? '',
+      direccion: json['direccion'] as String? ?? '',
       relacion: json['relacion'] as String? ?? '',
       dniUsuarioRef:
           json['dni_usuario_ref'] as String? ??
