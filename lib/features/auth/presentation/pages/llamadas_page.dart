@@ -61,8 +61,10 @@ class _LlamadasPageState extends State<LlamadasPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = CallFilter.all;
-    _llamadasService = LlamadasService(baseUrl: 'http://localhost:3000');
-    _gruposService = GrupoService(baseUrl: 'http://localhost:3000');
+    _llamadasService = LlamadasService(
+      baseUrl: 'http://cuidemjunts.zapto.org:3000',
+    );
+    _gruposService = GrupoService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
     _llamadasFuture = _cargarLlamadasConGrupo();
   }
 

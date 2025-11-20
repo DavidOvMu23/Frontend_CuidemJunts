@@ -59,8 +59,10 @@ class _WorkersPageState extends State<WorkersPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = UserFilter.all;
-    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
-    _grupoService = GrupoService(baseUrl: 'http://localhost:3000');
+    _trabajadorService = TrabajadorService(
+      baseUrl: 'http://cuidemjunts.zapto.org:3000',
+    );
+    _grupoService = GrupoService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
     _trabajadoresFuture = _cargarTrabajadoresConGrupo();
   }
 

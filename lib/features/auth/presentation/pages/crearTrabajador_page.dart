@@ -51,7 +51,9 @@ class _CrearTrabajadorPageState extends State<CrearTrabajadorPage> {
   @override
   void initState() {
     super.initState();
-    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
+    _trabajadorService = TrabajadorService(
+      baseUrl: 'http://cuidemjunts.zapto.org:3000',
+    );
   }
 
   @override

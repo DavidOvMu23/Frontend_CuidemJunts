@@ -45,7 +45,9 @@ class _CrearUserPageState extends State<CrearUserPage> {
   @override
   void initState() {
     super.initState();
-    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
+    _usuarioService = UsuarioService(
+      baseUrl: 'http://cuidemjunts.zapto.org:3000',
+    );
   }
 
   @override
@@ -216,7 +218,10 @@ class _CrearUserPageState extends State<CrearUserPage> {
                                   borderRadius: 12.0,
                                 ),
                                 const SizedBox(height: 15),
-                                Text(l10n.telephone, style: textTheme.bodyMedium),
+                                Text(
+                                  l10n.telephone,
+                                  style: textTheme.bodyMedium,
+                                ),
                                 const SizedBox(height: 4),
                                 general_textfield_NoICON(
                                   l10n.telephone,
@@ -225,7 +230,10 @@ class _CrearUserPageState extends State<CrearUserPage> {
                                 ),
                                 const SizedBox(height: 15),
                                 // Fecha nacimiento
-                                Text(l10n.birthDate, style: textTheme.bodyMedium),
+                                Text(
+                                  l10n.birthDate,
+                                  style: textTheme.bodyMedium,
+                                ),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
@@ -261,7 +269,9 @@ class _CrearUserPageState extends State<CrearUserPage> {
                                     ),
                                     DropdownMenuItem(
                                       value: 'leve',
-                                      child: Text(l10n.searchModerateDependency),
+                                      child: Text(
+                                        l10n.searchModerateDependency,
+                                      ),
                                     ),
                                     DropdownMenuItem(
                                       value: 'moderada',
@@ -286,7 +296,10 @@ class _CrearUserPageState extends State<CrearUserPage> {
                                 const SizedBox(height: 15),
 
                                 // Informacion
-                                Text(l10n.information, style: textTheme.bodyMedium),
+                                Text(
+                                  l10n.information,
+                                  style: textTheme.bodyMedium,
+                                ),
                                 const SizedBox(height: 4),
                                 general_textfield_NoICON(
                                   l10n.information,
@@ -296,7 +309,10 @@ class _CrearUserPageState extends State<CrearUserPage> {
                                 ),
                                 const SizedBox(height: 15),
 
-                                Text(l10n.optionalData, style: textTheme.bodyMedium),
+                                Text(
+                                  l10n.optionalData,
+                                  style: textTheme.bodyMedium,
+                                ),
                                 const SizedBox(height: 4),
                                 general_textfield_NoICON(
                                   l10n.medicalData,

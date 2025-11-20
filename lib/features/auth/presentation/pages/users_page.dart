@@ -65,7 +65,9 @@ class _UsersPageState extends State<UsersPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = UserFilter.all; // De inicio mostramos todos.
-    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
+    _usuarioService = UsuarioService(
+      baseUrl: 'http://cuidemjunts.zapto.org:3000',
+    );
     _usuariosFuture = _cargarUsuariosConContactos(); // Carga inicial.
   }
 

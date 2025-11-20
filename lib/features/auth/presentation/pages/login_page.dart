@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    authService = AuthService(baseUrl: 'http://localhost:3000');
+    authService = AuthService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
   }
 
   Future<void> hacerLogin() async {
