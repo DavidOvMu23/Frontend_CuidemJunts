@@ -10,6 +10,8 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
@@ -29,10 +31,20 @@ class HomeSupervisorPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final DateTime hoy = DateTime.now();
 
+    // -------- DATOS DE LLAMADAS --------
+    final scheduledCallsAsync = ref.watch(scheduledCallsTodayProvider);
+    final completedCallsAsync = ref.watch(completedCallsTodayProvider);
+    final callsTodayAsync = ref.watch(callsTodayProvider);
+    final recentCallsAsync = ref.watch(recentCallsProvider);
+
+    // -------- DATOS DE NOTIFICACIÓN --------
+    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+
     // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
     // Obtenemos el estado de autenticación del provider
     final authState = ref.watch(authProvider);
     String? userName;
+    String? userRole;
 
     if (authState.userData != null) {
       try {
@@ -46,6 +58,7 @@ class HomeSupervisorPage extends ConsumerWidget {
             userData['name']?.toString() ??
             userData['correo']?.toString() ??
             userData['email']?.toString();
+        userRole = userData['rol']?.toString();
       } catch (e) {
         // Si hay error al parsear el JSON, simplemente no mostramos nombre
         userName = null;
@@ -57,8 +70,13 @@ class HomeSupervisorPage extends ConsumerWidget {
       // -------- BARRA SUPERIOR --------
       // AppBar: barra superior con título centrado e iconos de acción a la derecha.
       appBar: appMainAppBar(
+        numeroNotificaciones: notificacionesSinLeerAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (_, __) => 0,
+        ),
         onNotifications: () {
-          // TODO: Acción al pulsar el icono de notificaciones.
+          showNotificacionesDialog(context, ref);
         },
       ),
 
@@ -67,6 +85,7 @@ class HomeSupervisorPage extends ConsumerWidget {
       drawer: appDrawer(
         context: context,
         userName: userName, // Pasamos el nombre del usuario
+        userRole: userRole,
         selected: DrawerItem.home,
         onTapCalls: () {
           Navigator.push(
@@ -124,279 +143,428 @@ class HomeSupervisorPage extends ConsumerWidget {
           constraints: const BoxConstraints(minWidth: double.infinity),
 
           // Columna principal con todo el contenido de la página.
-          child: Column(
-            // Alineamos todo a la izquierda.
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: SingleChildScrollView(
+            child: Column(
+              // Alineamos todo a la izquierda.
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            // Elementos de la columna
-            children: [
-              // Título principal
-              Text(
-                l10n.supervisonPanel,
-                style: textTheme.titleMedium?.copyWith(fontSize: 27),
-              ),
+              // Elementos de la columna
+              children: [
+                // Título principal
+                Text(
+                  l10n.supervisonPanel,
+                  style: textTheme.titleMedium?.copyWith(fontSize: 27),
+                ),
 
-              // Fecha de hoy con textos traducidos (nombres de días/meses). (el chatgpt me ha ayudado con esto)
-              Builder(
-                builder: (context) {
-                  final weekdays = [
-                    l10n.lunes,
-                    l10n.martes,
-                    l10n.miercoles,
-                    l10n.jueves,
-                    l10n.viernes,
-                    l10n.sabado,
-                    l10n.domingo,
-                  ];
-                  final months = [
-                    l10n.enero,
-                    l10n.febrero,
-                    l10n.marzo,
-                    l10n.abril,
-                    l10n.mayo,
-                    l10n.junio,
-                    l10n.julio,
-                    l10n.agosto,
-                    l10n.septiembre,
-                    l10n.octubre,
-                    l10n.noviembre,
-                    l10n.diciembre,
-                  ];
-                  final fechaHoy =
-                      '${weekdays[hoy.weekday - 1]}, ${hoy.day} de ${months[hoy.month - 1]} de ${hoy.year}';
-                  return Text(fechaHoy, style: textTheme.bodyMedium);
-                },
-              ),
+                // Fecha de hoy con textos traducidos (nombres de días/meses). (el chatgpt me ha ayudado con esto)
+                Builder(
+                  builder: (context) {
+                    final weekdays = [
+                      l10n.lunes,
+                      l10n.martes,
+                      l10n.miercoles,
+                      l10n.jueves,
+                      l10n.viernes,
+                      l10n.sabado,
+                      l10n.domingo,
+                    ];
+                    final months = [
+                      l10n.enero,
+                      l10n.febrero,
+                      l10n.marzo,
+                      l10n.abril,
+                      l10n.mayo,
+                      l10n.junio,
+                      l10n.julio,
+                      l10n.agosto,
+                      l10n.septiembre,
+                      l10n.octubre,
+                      l10n.noviembre,
+                      l10n.diciembre,
+                    ];
+                    final fechaHoy =
+                        '${weekdays[hoy.weekday - 1]}, ${hoy.day} de ${months[hoy.month - 1]} de ${hoy.year}';
+                    return Text(fechaHoy, style: textTheme.bodyMedium);
+                  },
+                ),
 
-              const SizedBox(height: 20),
-              SingleChildScrollView(
-                child: (Column(
-                  children: [
-                    // -------- TARJETAS DE ESTADÍSTICAS --------
-                    Material(
-                      // Material para mostrar las llamadas programadas.
-                      borderRadius: BorderRadius.circular(30),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                const SizedBox(height: 20),
+                SingleChildScrollView(
+                  child: (Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // -------- TARJETAS DE ESTADÍSTICAS --------
+                      Material(
+                        // Material para mostrar las llamadas programadas.
+                        borderRadius: BorderRadius.circular(30),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
 
-                        // Fila con texto a la izquierda e icono a la derecha.
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
-                            Expanded(
-                              // Columna para tener título y contador uno debajo del otro.
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.programedCalls,
-                                    textAlign: TextAlign.left,
-                                    style: textTheme.headlineLarge?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  Text(
-                                    //TODO: implementar la consulta para saber cuantas llamadas hay hoy
-                                    '0',
-                                    style: textTheme.displayMedium?.copyWith(),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Icono de calendario a la derecha
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: Icon(
-                                Icons.today,
-                                color: colorScheme.primary,
-                                size: 60,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Material para mostrar las llamadas completadas.
-                    Material(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        // Fila con texto a la izquierda e icono a la derecha.
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
-                            Expanded(
-                              // Columna para tener título y contador uno debajo del otro.
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.completedCalls,
-                                    textAlign: TextAlign.left,
-                                    style: textTheme.headlineLarge?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  Text(
-                                    //TODO: implementar la consulta para saber cuantas llamadas realizadas se han hecho hoy
-                                    '0',
-                                    style: textTheme.displayMedium?.copyWith(),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Icono de teléfono a la derecha
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: Icon(
-                                Icons.phone,
-                                color: colorScheme.primary,
-                                size: 60,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    //TODO: implementar ifelse para mostrar llamadas a realizar hoy si no mostrar lo que hay actualmente
-                    const SizedBox(height: 20),
-                    // Material para mostrar las llamadas programadas para hoy.
-                    Material(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // titulo de la sección
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    l10n.todayCalls,
-                                    style: textTheme.headlineLarge?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            //divisor
-                            const SizedBox(height: 12),
-                            Divider(
-                              color: colorScheme.primary.withOpacity(0.25),
-                            ),
-
-                            // Contenido central cuando no hay llamadas programadas
-                            SizedBox(
-                              height: 120,
-                              child: Center(
+                          // Fila con texto a la izquierda e icono a la derecha.
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
+                              Expanded(
+                                // Columna para tener título y contador uno debajo del otro.
                                 child: Column(
-                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(
-                                      Icons.phone_in_talk,
-                                      size: 48,
-                                      color: colorScheme.primary.withOpacity(
-                                        0.25,
+                                    Text(
+                                      l10n.programedCalls,
+                                      textAlign: TextAlign.left,
+                                      style: textTheme.headlineLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 18,
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 15),
+
+                                    scheduledCallsAsync.when(
+                                      data: (count) => Text(
+                                        count.toString(),
+                                        style: textTheme.displayMedium,
+                                      ),
+                                      error: (_, __) => Text(
+                                        '-',
+                                        style: textTheme.displayMedium,
+                                      ),
+                                      loading: () =>
+                                          const CircularProgressIndicator(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Icono de calendario a la derecha
+                              Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Icon(
+                                  Icons.today,
+                                  color: colorScheme.primary,
+                                  size: 60,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Material para mostrar las llamadas completadas.
+                      Material(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          // Fila con texto a la izquierda e icono a la derecha.
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
+                              Expanded(
+                                // Columna para tener título y contador uno debajo del otro.
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      l10n.nothingTodayCalls,
-                                      style: textTheme.bodyMedium?.copyWith(
-                                        color: colorScheme.onSurface
-                                            .withOpacity(0.6),
+                                      l10n.completedCalls,
+                                      textAlign: TextAlign.left,
+                                      style: textTheme.headlineLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    completedCallsAsync.when(
+                                      data: (count) => Text(
+                                        count.toString(),
+                                        style: textTheme.displayMedium,
+                                      ),
+                                      loading: () =>
+                                          const CircularProgressIndicator(),
+                                      error: (_, __) => Text(
+                                        '-',
+                                        style: textTheme.displayMedium,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
 
-                    //TODO: implementar ifelse para mostrar actividad reciente en lista si no mostrar lo que hay actualmente
-                    const SizedBox(height: 20),
-                    Material(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Encabezado: icono + título + contador pequeño
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    l10n.activityRecent,
-                                    style: textTheme.headlineLarge?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 12),
-                            Divider(
-                              color: colorScheme.primary.withOpacity(0.25),
-                            ),
-
-                            // Contenido central cuando no hay llamadas programadas
-                            SizedBox(
-                              height: 120,
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.electric_bolt,
-                                      size: 48,
-                                      color: colorScheme.primary.withOpacity(
-                                        0.25,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      l10n.nothingActivityRecent,
-                                      style: textTheme.bodyMedium?.copyWith(
-                                        color: colorScheme.onSurface
-                                            .withOpacity(0.6),
-                                      ),
-                                    ),
-                                  ],
+                              // Icono de teléfono a la derecha
+                              Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Icon(
+                                  Icons.phone,
+                                  color: colorScheme.primary,
+                                  size: 60,
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      // Material para mostrar las llamadas programadas para hoy.
+                      Material(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // titulo de la sección
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      l10n.todayCalls,
+                                      style: textTheme.headlineLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              //divisor
+                              const SizedBox(height: 12),
+                              Divider(
+                                color: colorScheme.primary.withOpacity(0.25),
+                              ),
+                              callsTodayAsync.when(
+                                data: (calls) {
+                                  if (calls.isEmpty)
+                                    return const Text(
+                                      "No hay llamadas hoy",
+                                    ); // O tu widget de vacío original
+                                  return Column(
+                                    children: calls
+                                        .map(
+                                          (call) => ListTile(
+                                            title: Text(
+                                              call.grupoNombre ?? 'Sin grupo',
+                                            ),
+                                            subtitle: Text(
+                                              '${call.hora} - ${call.estado}',
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  );
+                                },
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                error: (_, __) => const Text("Error al cargar"),
+                              ),
+
+                              // Contenido central cuando no hay llamadas programadas
+                              SizedBox(
+                                height: 120,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.phone_in_talk,
+                                        size: 48,
+                                        color: colorScheme.primary.withOpacity(
+                                          0.25,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        l10n.nothingTodayCalls,
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          color: colorScheme.onSurface
+                                              .withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      Material(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Encabezado: icono + título + contador pequeño
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      l10n.activityRecent,
+                                      style: textTheme.headlineLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              recentCallsAsync.when(
+                                data: (calls) {
+                                  if (calls.isEmpty)
+                                    return const Text("Sin actividad reciente");
+                                  return Column(
+                                    children: calls
+                                        .map(
+                                          (call) => ListTile(
+                                            title: Text(
+                                              call.grupoNombre ?? 'Sin grupo',
+                                            ),
+                                            subtitle: Text(
+                                              '${call.hora} - ${call.estado}',
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  );
+                                },
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                error: (_, __) => const Text("Error al cargar"),
+                              ),
+
+                              const SizedBox(height: 12),
+                              Divider(
+                                color: colorScheme.primary.withOpacity(0.25),
+                              ),
+
+                              // Contenido central cuando no hay llamadas programadas
+                              SizedBox(
+                                height: 120,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.electric_bolt,
+                                        size: 48,
+                                        color: colorScheme.primary.withOpacity(
+                                          0.25,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        l10n.nothingActivityRecent,
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          color: colorScheme.onSurface
+                                              .withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // -------- DIÁLOGO DE NOTIFICACIONES --------
+  // Función que muestra una ventana flotante con todas las notificaciones
+  void showNotificacionesDialog(BuildContext context, WidgetRef ref) {
+    final notificacionesAsync = ref.watch(notificacionesProvider);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Notificaciones'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: notificacionesAsync.when(
+            data: (notificaciones) {
+              if (notificaciones.isEmpty) {
+                return const Text('No hay notificaciones');
+              }
+
+              // Separar notificaciones por estado
+              final sinLeer = notificaciones.where((n) => n.esSinLeer).toList();
+              final leidas = notificaciones.where((n) => n.esLeida).toList();
+
+              return ListView(
+                shrinkWrap: true,
+                children: [
+                  // Sección de NO LEÍDAS
+                  if (sinLeer.isNotEmpty) ...[
+                    const Text(
+                      'Sin leer',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...sinLeer.map(
+                      (notif) => ListTile(
+                        leading: const Icon(
+                          Icons.mark_email_unread,
+                          color: Colors.blue,
+                        ),
+                        title: Text(notif.contenido),
+                      ),
+                    ),
+                    const Divider(),
+                  ],
+
+                  // Sección de LEÍDAS
+                  if (leidas.isNotEmpty) ...[
+                    const Text(
+                      'Leídas',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...leidas.map(
+                      (notif) => ListTile(
+                        leading: const Icon(Icons.drafts, color: Colors.grey),
+                        title: Text(
+                          notif.contenido,
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ),
                     ),
                   ],
-                )),
-              ),
-            ],
+                ],
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, __) => const Text('Error al cargar notificaciones'),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cerrar'),
+          ),
+        ],
       ),
     );
   }

@@ -18,6 +18,7 @@ Drawer appDrawer({
   required BuildContext context,
   required DrawerItem selected,
   String? userName, // Nombre del usuario logueado
+  String? userRole,
   VoidCallback? onTapHome,
   VoidCallback? onTapCalls,
   VoidCallback? onTapUsers,
@@ -170,7 +171,10 @@ Drawer appDrawer({
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                subtitle: Text(l10n.supervisor, style: textTheme.bodyMedium),
+                subtitle: Text(
+                  userRole ?? 'Sin rol',
+                  style: textTheme.bodyMedium,
+                ),
               ),
               const SizedBox(height: 8),
               general_listtile_logout(

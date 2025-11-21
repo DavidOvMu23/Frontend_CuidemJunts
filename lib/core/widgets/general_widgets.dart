@@ -5,12 +5,19 @@ import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 
 // APPBAR
 // Título centrado + botón de notificaciones reutilizable
-PreferredSizeWidget appMainAppBar({required VoidCallback onNotifications}) {
+PreferredSizeWidget appMainAppBar({
+  required VoidCallback onNotifications,
+  int numeroNotificaciones = 0, // <- NUEVO PARÁMETRO
+}) {
   return AppBar(
     title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
     centerTitle: true,
     actions: [
-      general_badge(10, Icons.notifications, onPressed: onNotifications),
+      general_badge(
+        numeroNotificaciones,
+        Icons.notifications,
+        onPressed: onNotifications,
+      ), // <- USA EL PARÁMETRO
     ],
   );
 }
