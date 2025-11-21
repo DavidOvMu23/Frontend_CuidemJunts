@@ -7,7 +7,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 
 // Widget principal de la aplicación (MaterialApp).
 
@@ -27,8 +27,8 @@ class App extends ConsumerWidget {
     // la app se repinta y nos redirige a la pantalla correcta.
     final authState = ref.watch(authProvider);
 
-    // Comprobamos si el tema actual es el claro o el oscuro
-    final isDarkMode = ref.watch(themeProvider);
+    // Comprobamos el modo de tema actual (system, light, dark)
+    final themeMode = ref.watch(themeProvider);
 
     // Comprobamos cual es el idioma actual
     final locale = ref.watch(localeProvider);
@@ -67,7 +67,7 @@ class App extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
 
       // Le decimos a Flutter cuál de los dos usar según el provider
-      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeMode,
 
       // Aquí ponemos la página que decidimos antes dependiendo si el usuario
       // tiene sesión iniciada o no

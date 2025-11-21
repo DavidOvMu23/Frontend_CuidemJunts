@@ -21,7 +21,9 @@ class CatalogPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Leemos el estado actual del tema (true = oscuro, false = claro)
-    final isDark = ref.watch(themeProvider);
+    // Usamos Theme.of(context) para saber si se está mostrando oscuro o claro,
+    // independientemente de si es por sistema o manual.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       // -------- BARRA SUPERIOR (APPBAR) --------

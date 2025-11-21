@@ -20,7 +20,9 @@ class AuthService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error al iniciar sesión: ${response.body}');
+      throw Exception(
+        'Error al iniciar sesión (${response.statusCode}): ${response.body}',
+      );
     }
   }
 }

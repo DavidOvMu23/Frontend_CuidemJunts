@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/api_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
@@ -69,7 +69,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      general_snackbar_error(context, l10n.loginError, 3);
+
+      // Si el error contiene 503, es fallo del servidor
+      String message = l10n.loginError;
+      if (e.toString().contains('503')) {
+        message = 'Servidor no disponible (503). Inténtalo más tarde.';
+      } else if (e.toString().contains('Connection refused')) {
+        message = 'No se pudo conectar con el servidor.';
+      }
+
+      general_snackbar_error(context, message, 3);
     }
   }
 

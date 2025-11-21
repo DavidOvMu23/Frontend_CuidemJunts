@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // -------- SERVICIO DE PREFERENCIAS LOCALES --------
@@ -13,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferencesService {
   // Estas son las "etiquetas" que usamos para identificar cada preferencia.
   // Es como poner un nombre a cada cajón donde guardamos información.
-  static const String _keyIsDarkMode = 'isDarkMode';
+  static const String _keyThemeMode = 'themeMode';
   static const String _keyLanguageCode = 'languageCode';
 
   // Estas claves guardan información sobre si el usuario está logueado.
@@ -35,16 +36,23 @@ class PreferencesService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  // Guarda si el usuario prefiere el modo oscuro o claro.
-  Future<void> saveTheme(bool isDark) async {
-    // setBool() guarda un valor booleano (true/false) con la clave especificada.
-    // Es como escribir en un archivo: "isDarkMode = true"
-    await _prefs.setBool(_keyIsDarkMode, isDark);
+  // Guarda el modo de tema preferido (system, light, dark).
+  Future<void> saveTheme(ThemeMode mode) async {
+    await _prefs.setString(_keyThemeMode, mode.name);
   }
 
   // Lee el tema guardado anteriormente.
-  bool? getTheme() {
-    return _prefs.getBool(_keyIsDarkMode);
+  // Retorna null si no hay preferencia guardada (para usar default/system).
+  ThemeMode? getTheme() {
+    final themeName = _prefs.getString(_keyThemeMode);
+    if (themeName == null) return null;
+
+    // Convertimos el string guardado de vuelta a ThemeMode
+    try {
+      return ThemeMode.values.firstWhere((e) => e.name == themeName);
+    } catch (_) {
+      return null;
+    }
   }
 
   // Guarda el idioma preferido por el usuario
