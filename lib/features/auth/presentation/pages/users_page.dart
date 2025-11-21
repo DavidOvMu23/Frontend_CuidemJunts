@@ -115,8 +115,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
         case UserSort.dependencyLowHigh:
           return _dependencyRank(a.nivelDependencia) -
               _dependencyRank(b.nivelDependencia);
-        case UserSort.noneAZ:
-          return 0;
       }
     });
 
@@ -135,11 +133,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       default:
         return 0;
     }
-  }
-
-  // Primero los activos, después el resto.
-  int _estadoCuentaRank(String estado) {
-    return estado.toLowerCase() == 'activo' ? 0 : 1;
   }
 
   @override
