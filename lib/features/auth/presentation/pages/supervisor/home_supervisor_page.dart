@@ -1,40 +1,24 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
-import 'package:frontend_cuidemjunts/core/services/preferences_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
-class HomeSupervisorPage extends StatelessWidget {
-  // -------- SERVICIO DE PREFERENCIAS --------
-  // Lo necesitamos para cerrar sesión correctamente.
-  final PreferencesService? preferencesService;
-
-  // Callback que cambia el tema de la app.
-  // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.
-  final void Function(bool) onToggleTheme;
-
-  // Callback que cambia el idioma de la app.
-  // Se utiliza para que el cambio de idioma afecte a toda la app.
-  final void Function(Locale) onChangeLocale;
-
-  const HomeSupervisorPage({
-    super.key,
-    required this.onToggleTheme,
-    required this.onChangeLocale,
-    this.preferencesService, // Opcional
-  });
+// Ahora usa Riverpod para acceder al estado global.
+class HomeSupervisorPage extends ConsumerWidget {
+  const HomeSupervisorPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // -------- TEMAS, COLORES Y TEXTOS --------
     // Obtenemos tipografías y paleta del tema actual para mantener
     // estilos consistentes en toda la app.
@@ -45,31 +29,26 @@ class HomeSupervisorPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     DateTime hoy = DateTime.now();
 
-    // -------- OBTENER NOMBRE DEL USUARIO --------
-    // Intentamos obtener el nombre del usuario de las preferencias guardadas.
+    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
+    // Obtenemos el estado de autenticación del provider
+    final authState = ref.watch(authProvider);
     String? userName;
-    if (preferencesService != null) {
-      // Obtenemos los datos del usuario guardados
-      final userDataJson = preferencesService!.getUserData();
 
-      if (userDataJson != null) {
-        try {
-          // Convertimos el JSON a un Map
-          final userData = jsonDecode(userDataJson) as Map<String, dynamic>;
+    if (authState.userData != null) {
+      try {
+        // Convertimos el JSON a un Map
+        final userData =
+            jsonDecode(authState.userData!) as Map<String, dynamic>;
 
-          // Intentamos obtener el nombre del usuario.
-          // Probamos varios campos comunes que podría devolver el backend:
-          // - 'nombre' o 'name' para el nombre
-          // - 'correo' o 'email' como alternativa
-          userName =
-              userData['nombre']?.toString() ??
-              userData['name']?.toString() ??
-              userData['correo']?.toString() ??
-              userData['email']?.toString();
-        } catch (e) {
-          // Si hay error al parsear el JSON, simplemente no mostramos nombre
-          userName = null;
-        }
+        // Intentamos obtener el nombre del usuario
+        userName =
+            userData['nombre']?.toString() ??
+            userData['name']?.toString() ??
+            userData['correo']?.toString() ??
+            userData['email']?.toString();
+      } catch (e) {
+        // Si hay error al parsear el JSON, simplemente no mostramos nombre
+        userName = null;
       }
     }
 
@@ -92,53 +71,31 @@ class HomeSupervisorPage extends StatelessWidget {
         onTapCalls: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => LlamadasPage(
-                onToggleTheme: onToggleTheme,
-                onChangeLocale: onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const LlamadasPage()),
           );
         },
         onTapUsers: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => UsersPage(
-                onToggleTheme: onToggleTheme,
-                onChangeLocale: onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const UsersPage()),
           );
         },
         onTapTelemarketers: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => WorkersPage(
-                onToggleTheme: onToggleTheme,
-                onChangeLocale: onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const WorkersPage()),
           );
         },
         onTapPreferences: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => PreferencesPage(
-                onToggleTheme: onToggleTheme,
-                onChangeLocale: onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const PreferencesPage()),
           );
         },
         onLogoutConfirmed: () async {
-          // -------- CERRAR SESIÓN --------
-          // Borramos la sesión del almacenamiento local.
-          if (preferencesService != null) {
-            await preferencesService!.logout();
-          }
+          // -------- CERRAR SESIÓN CON RIVERPOD --------
+          // Usamos el provider de autenticación para cerrar sesión
+          await ref.read(authProvider.notifier).logout();
 
           // -------- NAVEGAR AL LOGIN --------
           // Usamos pushAndRemoveUntil para eliminar TODAS las pantallas
@@ -147,13 +104,7 @@ class HomeSupervisorPage extends StatelessWidget {
           if (!context.mounted) return;
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(
-              builder: (context) => LoginPage(
-                onToggleTheme: onToggleTheme,
-                onChangeLocale: onChangeLocale,
-                preferencesService: preferencesService,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
             (route) => false, // Elimina TODAS las rutas anteriores
           );
         },

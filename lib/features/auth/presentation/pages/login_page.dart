@@ -1,40 +1,25 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/api_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/api_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/core/services/preferences_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
 // -------- PANTALLA DE INICIO DE SESIÓN --------
 // Aquí pedimos email + contraseña y dejamos escoger idioma/tema.
-class LoginPage extends StatefulWidget {
-  const LoginPage({
-    super.key,
-    required this.onToggleTheme,
-    required this.onChangeLocale,
-    this.preferencesService, // Ahora es OPCIONAL (sin required)
-  });
+// Ahora usa Riverpod para acceder al estado global sin necesidad de callbacks.
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
 
-  // -------- SERVICIO DE PREFERENCIAS --------
-  // Lo necesitamos para guardar la sesión cuando el usuario haga login.
-  // Es opcional porque algunas páginas pueden navegar aquí sin pasarlo.
-  final PreferencesService? preferencesService; // Ahora es nullable (?)
-
-  // Callback que cambia el tema de la app.
-  // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afect  e a toda la app.
-  final void Function(bool) onToggleTheme;
-
-  // Callback que cambia el idioma de la app.
-  // Se utiliza para que el cambio de idioma afecte a toda la app.
-  final void Function(Locale) onChangeLocale;
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController correoController = TextEditingController();
   final TextEditingController contrasenaController = TextEditingController();
   late AuthService authService;
@@ -59,46 +44,27 @@ class _LoginPageState extends State<LoginPage> {
       // Enviamos las credenciales al servidor y esperamos la respuesta.
       final response = await authService.login(correo, contrasena);
 
-      // -------- GUARDAR LA SESIÓN --------
-      // Si el login fue exitoso, guardamos la información en el dispositivo
-      // para que la próxima vez no tenga que volver a hacer login.
-      //
-      // SOLO guardamos si tenemos el servicio de preferencias disponible.
-      // Si navegamos al login desde otra pantalla sin pasar el servicio,
-      // simplemente no guardamos la sesión (pero el login sigue funcionando).
+      // -------- GUARDAR LA SESIÓN CON RIVERPOD --------
+      // Extraemos el token de la respuesta del backend
+      final token = response['token'] ?? '';
 
-      if (widget.preferencesService != null) {
-        // ¡Tenemos el servicio! Guardamos la sesión.
+      // Convertimos los datos del usuario a JSON para guardarlos
+      final userDataJson = jsonEncode(response);
 
-        // Extraemos el token de la respuesta del backend
-        final token = response['token'] ?? '';
-
-        // Convertimos los datos del usuario a JSON para guardarlos
-        final userDataJson = jsonEncode(response);
-
-        // Guardamos todo en el almacenamiento local
-        await widget.preferencesService!.saveSession(
-          token: token,
-          email: correo,
-          userData: userDataJson,
-        );
-      }
+      // Guardamos la sesión usando el provider de autenticación
+      await ref
+          .read(authProvider.notifier)
+          .login(token: token, email: correo, userData: userDataJson);
 
       // Evitar usar BuildContext si el State fue desmontado durante el await
       if (!mounted) return;
 
       // -------- NAVEGAR A LA PANTALLA PRINCIPAL --------
       // Como el login fue exitoso, llevamos al usuario a su pantalla principal.
+      // Ya no necesitamos pasar callbacks ni servicios, Riverpod se encarga.
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => HomeSupervisorPage(
-            onToggleTheme: widget.onToggleTheme,
-            onChangeLocale: widget.onChangeLocale,
-            preferencesService:
-                widget.preferencesService, // Pasamos el servicio
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => const HomeSupervisorPage()),
       );
     } catch (e) {
       if (!mounted) return;
@@ -148,21 +114,21 @@ class _LoginPageState extends State<LoginPage> {
                           texto: l10n.languageSpanish,
                           onTap: () {
                             Navigator.pop(context);
-                            widget.onChangeLocale(const Locale('es'));
+                            ref.read(localeProvider.notifier).setSpanish();
                           },
                         ),
                         login_listile_demo(
                           texto: l10n.languageCatalan,
                           onTap: () {
                             Navigator.pop(context);
-                            widget.onChangeLocale(const Locale('ca'));
+                            ref.read(localeProvider.notifier).setCatalan();
                           },
                         ),
                         login_listile_demo(
                           texto: l10n.languageEnglish,
                           onTap: () {
                             Navigator.pop(context);
-                            widget.onChangeLocale(const Locale('en'));
+                            ref.read(localeProvider.notifier).setEnglish();
                           },
                         ),
                       ],

@@ -1,7 +1,7 @@
 // -------- IMPORTS --------
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 
 // -------- ENUM DE SECCIONES DEL DRAWER --------
 enum DrawerItem {

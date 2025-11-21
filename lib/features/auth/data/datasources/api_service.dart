@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+// Este archivo crea la clase AuthService responsable de manejar las llamadas a la API relacionadas con la autenticación.
 class AuthService {
   final String baseUrl;
 
   AuthService({required this.baseUrl});
 
+  // Este método maneja la llamada a la API para iniciar sesión.
   Future<Map<String, dynamic>> login(String correo, String contrasena) async {
     final url = Uri.parse('$baseUrl/trabajador/login');
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
@@ -7,33 +8,23 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
 // Configuración de idioma y tema sin salir de la app.
-class PreferencesPage extends StatefulWidget {
-  const PreferencesPage({
-    super.key,
-    required this.onToggleTheme,
-    required this.onChangeLocale,
-  });
-
-  // Callback que cambia el tema de la app.
-  // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.
-  final void Function(bool) onToggleTheme;
-
-  // Callback que cambia el idioma de la app.
-  // Se utiliza para que el cambio de idioma afecte a toda la app.
-  final void Function(Locale) onChangeLocale;
+class PreferencesPage extends ConsumerStatefulWidget {
+  const PreferencesPage({super.key});
 
   @override
-  State<PreferencesPage> createState() => _PreferencesPageState();
+  ConsumerState<PreferencesPage> createState() => _PreferencesPageState();
 }
 
 // Idiomas disponibles (valor estable, independiente de las traducciones)
 enum AppLanguage { es, ca, en }
 
-class _PreferencesPageState extends State<PreferencesPage> {
+class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   AppLanguage _languageFromLocale(Locale locale) {
     switch (locale.languageCode) {
       case 'ca':
@@ -74,59 +65,36 @@ class _PreferencesPageState extends State<PreferencesPage> {
         onTapHome: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => HomeSupervisorPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const HomeSupervisorPage()),
           );
         },
         onTapCalls: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => LlamadasPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const LlamadasPage()),
           );
         },
         onTapUsers: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => UsersPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const UsersPage()),
           );
         },
         onTapTelemarketers: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => WorkersPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const WorkersPage()),
           );
         },
         onTapNotifications: () {
           //TODO: Navegar a la página de notificaciones
         },
-        onLogoutConfirmed: () {
+        onLogoutConfirmed: () async {
+          await ref.read(authProvider.notifier).logout();
+          if (!context.mounted) return;
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => LoginPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
           );
         },
       ),
@@ -175,9 +143,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
                               borderRadius: BorderRadius.circular(12),
                               onChanged: (AppLanguage? newValue) {
                                 if (newValue == null) return;
-                                widget.onChangeLocale(
-                                  _localeFromLanguage(newValue),
-                                );
+                                final locale = _localeFromLanguage(newValue);
+                                ref
+                                    .read(localeProvider.notifier)
+                                    .setLocale(locale);
                               },
                               items: [
                                 DropdownMenuItem<AppLanguage>(
@@ -223,7 +192,8 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           ],
                         ),
                         value: Theme.of(context).brightness == Brightness.dark,
-                        onChanged: (value) => widget.onToggleTheme(value),
+                        onChanged: (value) =>
+                            ref.read(themeProvider.notifier).setTheme(value),
                       ),
                     ],
                   ),

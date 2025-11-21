@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// -------- PALETA DE COLORES --------
 // Aquí guardamos todos los colores que usamos en la app, tanto en modo claro como oscuro.
 // para compartir entre diferentes widgets y conseguir que la app tenga una apariencia consistente.
 

@@ -8,7 +8,8 @@ import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 // Basicamente aquí definimos los estilos globales para widgets comunes como AppBar, Text,
 // Buttons, Inputs, Cards, etc.
 
-// Este archivo me ha ayudado el chatGPT a generarlo basándose en la paleta de colores que definí.
+// Este archivo me ha ayudado el chatGPT a generarlo basándose en la paleta de colores que definí
+// por que iba muy perdido para hacerlo y no sabía como hacerlo, pero una vez hecho es fácil de entender
 
 class AppTheme {
   // -------- TEMA CLARO --------

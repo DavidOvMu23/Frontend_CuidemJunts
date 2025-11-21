@@ -1,29 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/usuario_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/usuario_service.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
-class CrearUserPage extends StatefulWidget {
-  final void Function(bool) onToggleTheme;
-  final void Function(Locale) onChangeLocale;
-
-  const CrearUserPage({
-    super.key,
-    required this.onToggleTheme,
-    required this.onChangeLocale,
-  });
+class CrearUserPage extends ConsumerStatefulWidget {
+  const CrearUserPage({super.key});
 
   @override
-  State<CrearUserPage> createState() => _CrearUserPageState();
+  ConsumerState<CrearUserPage> createState() => _CrearUserPageState();
 }
 
-class _CrearUserPageState extends State<CrearUserPage> {
+class _CrearUserPageState extends ConsumerState<CrearUserPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _dniCtrl = TextEditingController();
   final TextEditingController _nombreCtrl = TextEditingController();
@@ -124,40 +119,24 @@ class _CrearUserPageState extends State<CrearUserPage> {
         selected: DrawerItem.users,
         onTapHome: () => Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => HomeSupervisorPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const HomeSupervisorPage()),
         ),
         onTapCalls: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => UsersPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const UsersPage()),
         ),
         onTapPreferences: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => PreferencesPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const PreferencesPage()),
         ),
-        onLogoutConfirmed: () => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LoginPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
-        ),
+        onLogoutConfirmed: () async {
+          await ref.read(authProvider.notifier).logout();
+          if (!context.mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

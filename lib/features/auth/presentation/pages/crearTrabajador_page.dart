@@ -1,34 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/trabajador_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/trabajador_service.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
 // Página para crear un nuevo trabajador (teleoperador, supervisor, etc.).
 // Sigue el mismo patrón y estilo de comentarios que el resto de páginas
 // del proyecto para mantener consistencia y facilitar la lectura.
-class CrearTrabajadorPage extends StatefulWidget {
-  // Callback que cambia el tema de la app (propagado desde el padre).
-  final void Function(bool) onToggleTheme;
-
-  // Callback que cambia el idioma de la app (propagado desde el padre).
-  final void Function(Locale) onChangeLocale;
-
-  const CrearTrabajadorPage({
-    super.key,
-    required this.onToggleTheme,
-    required this.onChangeLocale,
-  });
+class CrearTrabajadorPage extends ConsumerStatefulWidget {
+  const CrearTrabajadorPage({super.key});
 
   @override
-  State<CrearTrabajadorPage> createState() => _CrearTrabajadorPageState();
+  ConsumerState<CrearTrabajadorPage> createState() =>
+      _CrearTrabajadorPageState();
 }
 
-class _CrearTrabajadorPageState extends State<CrearTrabajadorPage> {
+class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores de los campos del formulario.
@@ -171,40 +164,24 @@ class _CrearTrabajadorPageState extends State<CrearTrabajadorPage> {
         selected: DrawerItem.telemarketers,
         onTapHome: () => Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => HomeSupervisorPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const HomeSupervisorPage()),
         ),
         onTapCalls: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => WorkersPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const WorkersPage()),
         ),
         onTapPreferences: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => PreferencesPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const PreferencesPage()),
         ),
-        onLogoutConfirmed: () => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LoginPage(
-              onToggleTheme: widget.onToggleTheme,
-              onChangeLocale: widget.onChangeLocale,
-            ),
-          ),
-        ),
+        onLogoutConfirmed: () async {
+          await ref.read(authProvider.notifier).logout();
+          if (!context.mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

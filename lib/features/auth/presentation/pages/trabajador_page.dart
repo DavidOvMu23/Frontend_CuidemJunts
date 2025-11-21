@@ -1,35 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/trabajador_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/service/grupo_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/trabajador_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/crearTrabajador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
-class WorkersPage extends StatefulWidget {
-  // Callback que cambia el tema de la app.
-  // Si es true, activa modo oscuro; si es false, modo claro.
-  // Se utiliza para que el cambio de tema afecte a toda la app.appDrawer
-  final void Function(bool) onToggleTheme;
-
-  // Callback que cambia el idioma de la app.
-  // Se utiliza para que el cambio de idioma afecte a toda la app.
-  final void Function(Locale) onChangeLocale;
-
-  const WorkersPage({
-    super.key,
-    required this.onToggleTheme,
-    required this.onChangeLocale,
-  });
+class WorkersPage extends ConsumerStatefulWidget {
+  const WorkersPage({super.key});
 
   @override
-  State<WorkersPage> createState() => _WorkersPageState();
+  ConsumerState<WorkersPage> createState() => _WorkersPageState();
 }
 
 // Filtros disponibles de la busqueda de usuarios.
@@ -44,7 +33,7 @@ enum UserSort {
   accountStatusOrder,
 }
 
-class _WorkersPageState extends State<WorkersPage> {
+class _WorkersPageState extends ConsumerState<WorkersPage> {
   late final TrabajadorService _trabajadorService;
   late final GrupoService _grupoService;
   late Future<List<Trabajador>> _trabajadoresFuture;
@@ -134,57 +123,34 @@ class _WorkersPageState extends State<WorkersPage> {
         onTapHome: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => HomeSupervisorPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const HomeSupervisorPage()),
           );
         },
         onTapCalls: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => LlamadasPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const LlamadasPage()),
           );
         },
         onTapNotifications: () {},
         onTapPreferences: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => PreferencesPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const PreferencesPage()),
           );
         },
         onTapUsers: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => UsersPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const UsersPage()),
           );
         },
-        onLogoutConfirmed: () {
+        onLogoutConfirmed: () async {
+          await ref.read(authProvider.notifier).logout();
+          if (!context.mounted) return;
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => LoginPage(
-                onToggleTheme: widget.onToggleTheme,
-                onChangeLocale: widget.onChangeLocale,
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
           );
         },
       ),
@@ -562,10 +528,7 @@ class _WorkersPageState extends State<WorkersPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CrearTrabajadorPage(
-                        onToggleTheme: widget.onToggleTheme,
-                        onChangeLocale: widget.onChangeLocale,
-                      ),
+                      builder: (context) => const CrearTrabajadorPage(),
                     ),
                   );
                 },
