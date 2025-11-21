@@ -3,8 +3,6 @@ import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_buttons_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
-// Esta clase muestra ejemplos de comunicación visual en Flutter,
-// como notificaciones y mensajes breves tipo SnackBar.
 class CommunicationsDemo extends StatelessWidget {
   const CommunicationsDemo({super.key});
 
@@ -12,44 +10,64 @@ class CommunicationsDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // -------- BARRA SUPERIOR (APPBAR) --------
-      // Contiene el título de la pantalla en la parte superior
       appBar: AppBar(title: const Text('Demo: Communications')),
-
-      // -------- CUERPO PRINCIPAL --------
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-
-        // -------- PANEL PRINCIPAL (SURFACE) --------
-        // Contenedor visual con bordes redondeados
-        child: Material(
-          borderRadius: BorderRadius.circular(16),
-
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-
-            // -------- CONTENEDOR DE ELEMENTOS --------
-            // Wrap acomoda los elementos horizontalmente y los pasa a la siguiente fila si no caben.
-            child: Wrap(
-              spacing: 12, // Espacio horizontal entre elementos
-              runSpacing: 12, // Espacio vertical entre filas
-
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 10),
+            widget_badge_demo(
+              5,
+              Icons.notifications,
+              onPressed: () {
+                widget_snackbar_demo(context, "Click en Notificaciones", 2);
+              },
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 10,
               children: [
-                // -------- BADGE --------
-                // Muestra un ícono con un número encima, como las notificaciones de una app.
-                widget_badge_demo(10, Icons.notifications, onPressed: () {}),
-
-                // -------- FILLED BUTTON (sin SnackBar) --------
-                // Botón que ya no muestra un SnackBar aquí.
                 widget_filledbutton_demo(
-                  'Snack Bar',
+                  "Show Snackbar",
                   onPressed: () {
-                    widget_snackbar_demo(context, "Hola!!! Soy un SnackBar", 2);
+                    widget_snackbar_demo(
+                      context,
+                      "Operación realizada con éxito",
+                      3,
+                    );
+                  },
+                ),
+                widget_filledbutton_demo(
+                  "Show Error Snackbar",
+                  onPressed: () {
+                    widget_snackbar_error_demo(
+                      context,
+                      "Ha ocurrido un error crítico",
+                      3,
+                    );
                   },
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 24),
+            widget_filledbutton_demo(
+              "Show Dialog",
+              onPressed: () {
+                widget_showConfirmDialog_demo(
+                  context,
+                  title: "Confirm Dialog Title",
+                  content: "Dialog Content Text",
+                  confirmText: "Confirm Action",
+                  cancelText: "Cancel Action",
+                  onConfirm: () {
+                    widget_snackbar_demo(context, "Confirmado!", 2);
+                  },
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

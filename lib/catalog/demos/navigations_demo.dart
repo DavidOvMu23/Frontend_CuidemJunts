@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_navigations_demo.dart';
@@ -115,39 +116,39 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
                       children: [
-                        //llamamos al widget personalizado widget_DrawerTile
-                        widget_DrawerTile(
-                          context,
+                        //llamamos al widget personalizado widget_listtile_demo
+                        widget_listtile_demo(
+                          context: context,
                           icon: Icons.home,
-                          text: 'Inicio',
+                          texto: 'Inicio',
                           // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
                           selected: _selected == DemoDrawerItem.home,
                         ),
-                        widget_DrawerTile(
-                          context,
+                        widget_listtile_demo(
+                          context: context,
                           icon: Icons.phone,
-                          text: 'Llamadas',
+                          texto: 'Llamadas',
                           // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
                           selected: _selected == DemoDrawerItem.calls,
                         ),
-                        widget_DrawerTile(
-                          context,
+                        widget_listtile_demo(
+                          context: context,
                           icon: Icons.people,
-                          text: 'Usuarios',
+                          texto: 'Usuarios',
                           // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
                           selected: _selected == DemoDrawerItem.users,
                         ),
-                        widget_DrawerTile(
-                          context,
+                        widget_listtile_demo(
+                          context: context,
                           icon: Icons.support_agent,
-                          text: 'Teleoperadores',
+                          texto: 'Teleoperadores',
                           // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
                           selected: _selected == DemoDrawerItem.telemarketers,
                         ),
-                        widget_DrawerTile(
-                          context,
+                        widget_listtile_demo(
+                          context: context,
                           icon: Icons.settings,
-                          text: 'Preferencias',
+                          texto: 'Preferencias',
                           // comprobamos si es el elemento seleccionado, si lo es lo mostrará destacado
                           selected: _selected == DemoDrawerItem.preferences,
                         ),
@@ -179,20 +180,10 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
                     subtitle: Text("Supervisor", style: textTheme.bodyMedium),
                   ),
                   const SizedBox(height: 8),
-                  ListTile(
-                    horizontalTitleGap: 2,
-                    leading: const Icon(
-                      Icons.logout,
-                      color: Color(0xFF42a6ee),
-                      size: 16,
-                    ),
-                    title: const Text(
-                      'Cerrar sesión',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
+                  widget_listtile_logout_demo(
+                    context: context,
+                    icon: Icons.logout,
+                    texto: 'Cerrar sesión',
                     onTap: () async {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(

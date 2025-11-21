@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 
 // -------- WIDGETS GENERALES DE LA APP --------
 
@@ -53,7 +54,7 @@ Widget general_floatingbutton(
 // Útil cuando solo necesitamos un icono táctil (por ejemplo dar like a algo).
 Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
   return IconButton(
-    icon: Icon(icono, color: const Color(0xFF42a6ee)),
+    icon: Icon(icono, color: AppPalette.primaryLight),
     onPressed: onPressed,
   );
 }
@@ -122,7 +123,7 @@ TextField general_busqueda_textfield(
     onChanged: onChanged,
     decoration: InputDecoration(
       hintText: texto, // Texto gris que explica qué escribir.
-      prefixIcon: Icon(icono, color: Color(0xFF42a6ee)),
+      prefixIcon: Icon(icono, color: AppPalette.primaryLight),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide.none,
@@ -178,7 +179,8 @@ Widget general_listtile({
   VoidCallback? onTap,
   bool selected = false,
 }) {
-  const iconColor = Color(0xFF42a6ee); // Azul corporativo para los iconos.
+  const iconColor =
+      AppPalette.primaryLight; // Azul corporativo para los iconos.
   final surfaceColor = Theme.of(context).colorScheme.surface;
   final defaultTextColor =
       Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
@@ -211,7 +213,7 @@ Widget general_listtile_logout({
   required String texto,
   required VoidCallback onTap,
 }) {
-  const iconColor = Color(0xFF42a6ee);
+  const iconColor = AppPalette.primaryLight;
 
   return ListTile(
     horizontalTitleGap: 2,

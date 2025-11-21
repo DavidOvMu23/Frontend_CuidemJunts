@@ -11,6 +11,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
 // Configuración de idioma y tema sin salir de la app.
@@ -197,6 +198,20 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: general_filledbutton(
+                  "Ver Catálogo de Widgets",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CatalogPage(),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

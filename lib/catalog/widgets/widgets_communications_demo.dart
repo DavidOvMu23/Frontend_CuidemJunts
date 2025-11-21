@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 
-// -------- WIDGETS DE COMUNICACIÓN --------
-// Son funciones rápidas para no repetir el mismo widget en cada pantalla.
-
-// La idea es tener un solo lugar donde definir la apariencia y comportamiento de los widgets.
-// y así simplemente si vamos a usar un widget en una demo, llamamos a la función correspondiente.
-// o si queremos cambiar alguna cosa del widget, lo hacemos aquí y se refleja en todas las demos.
-
-// Badge sencillo para mostrar un número de notificaciones encima de un icono.
+// BADGE
+// Muestra un icono para las notificaciones
 Widget widget_badge_demo(
   int numeroNotificaciones,
   IconData icono, {
@@ -20,7 +14,8 @@ Widget widget_badge_demo(
   );
 }
 
-// Snackbar sencillo para mostrar un mensaje en la parte inferior de la pantalla.
+// SNACKBAR
+// Muestra un mensaje en la parte inferior durante unos segundos.
 void widget_snackbar_demo(
   BuildContext context,
   String content,
@@ -30,6 +25,60 @@ void widget_snackbar_demo(
     SnackBar(
       content: Text(content),
       duration: Duration(seconds: durationSeconds),
+    ),
+  );
+}
+
+// SNACKBAR ERROR
+// Lo mismo pero con otros colores
+void widget_snackbar_error_demo(
+  BuildContext context,
+  String content,
+  int durationSeconds,
+) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        content,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onError,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      duration: Duration(seconds: durationSeconds),
+      backgroundColor: Theme.of(context).colorScheme.error,
+    ),
+  );
+}
+
+// CONFIRM DIALOG
+// Para mostrar un menú que te de una opción para confirmar una acción importante
+Future<void> widget_showConfirmDialog_demo(
+  BuildContext context, {
+  required String title,
+  required String content,
+  required String confirmText,
+  required String cancelText,
+  required VoidCallback onConfirm,
+}) {
+  return showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(cancelText),
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.pop(ctx);
+            onConfirm();
+          },
+          child: Text(confirmText),
+        ),
+      ],
     ),
   );
 }
