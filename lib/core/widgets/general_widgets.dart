@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-// -------- WIDGETS QUE REPITO POR TODA LA APP --------
-// Son las piezas básicas que uso una y otra vez. Prefiero tenerlas aquí y listo.
+// -------- WIDGETS GENERALES DE LA APP --------
 
-// -------- APP BAR ESTÁNDAR DE LA APP --------
-// Título centrado + botón de notificaciones reutilizable.
+// APPBAR
+// Título centrado + botón de notificaciones reutilizable
 PreferredSizeWidget appMainAppBar({required VoidCallback onNotifications}) {
   return AppBar(
     title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
@@ -15,8 +14,8 @@ PreferredSizeWidget appMainAppBar({required VoidCallback onNotifications}) {
   );
 }
 
-// -------- BADGE CON ICONO --------
-// Muestra un icono con un numerito encima (ideal para notificaciones).
+// BADGE
+// Muestra un icono para las notificaciones
 Widget general_badge(
   int numeroNotificaciones,
   IconData icono, {
@@ -29,19 +28,20 @@ Widget general_badge(
   );
 }
 
-// -------- BOTÓN RELLENO (FilledButton) --------
-// Botón grande para acciones principales, solo necesita texto y qué hacer al pulsar.
+// FILLED BUTTON
+// Botón grande para acciones principales
 Widget general_filledbutton(String texto, {required VoidCallback onPressed}) {
   return FilledButton(onPressed: onPressed, child: Text(texto));
 }
 
-// -------- BOTÓN DE TEXTO --------
-// Ideal para enlaces o acciones secundarias sin fondo sólido.
+// TEXT BUTTON
+// Ideal para enlaces o acciones secundarias
 Widget general_textbutton(String texto, {required VoidCallback onPressed}) {
   return TextButton(onPressed: onPressed, child: Text(texto));
 }
 
-// FloatingActionButton para acciones destacadas en la pantalla.
+// FLOATING BUTTON
+// Para acciones destacadas en la pantalla
 Widget general_floatingbutton(
   IconData icono, {
   required VoidCallback onPressed,
@@ -49,8 +49,8 @@ Widget general_floatingbutton(
   return FloatingActionButton(onPressed: onPressed, child: Icon(icono));
 }
 
-// -------- BOTÓN DE ICONO --------
-// Útil cuando solo necesitamos un icono táctil (por ejemplo, editar o eliminar).
+// ICON BUTTON
+// Útil cuando solo necesitamos un icono táctil (por ejemplo dar like a algo).
 Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
   return IconButton(
     icon: Icon(icono, color: const Color(0xFF42a6ee)),
@@ -58,8 +58,8 @@ Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
   );
 }
 
-// -------- CAMPO DE TEXTO --------
-// Crea un TextField personalizable con icono opcional, radio y número de líneas.
+// TEXTFIELD
+// Con icono opcional, radio y número de líneas.
 TextField general_textfield(
   String texto,
   bool obscureText, {
@@ -74,7 +74,7 @@ TextField general_textfield(
     maxLines: maxLines,
     decoration: InputDecoration(
       hintText: texto, // Texto gris que explica qué escribir.
-      prefixIcon: Icon(icono),
+      prefixIcon: icono != null ? Icon(icono) : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide.none,
@@ -84,6 +84,9 @@ TextField general_textfield(
   );
 }
 
+//TEXTFIELD
+//Lo mismo que arriba pero sin icono, pero si lo hacía con icono opcional se quedaba
+//feo por que dejaba un espacio vacío antes de poner el texto y sin el obscure text
 TextField general_textfield_NoICON(
   String texto, {
   double borderRadius = 12.0,
@@ -104,6 +107,9 @@ TextField general_textfield_NoICON(
   );
 }
 
+//TEXTFIELD DE BÚSQUEDA
+//Lo mismo que el primero pero con un border radius mayor para que haya diferenciia entre
+//un textfield normal y este y que no fuiera solo el texto
 TextField general_busqueda_textfield(
   String texto, {
   IconData? icono,
@@ -126,8 +132,8 @@ TextField general_busqueda_textfield(
   );
 }
 
-// -------- SNACKBAR GENERAL --------
-// Muestra un mensajito en la parte inferior durante unos segundos.
+// SNACKBAR
+// Muestra un mensaje en la parte inferior durante unos segundos.
 void general_snackbar(
   BuildContext context,
   String content,
@@ -141,6 +147,8 @@ void general_snackbar(
   );
 }
 
+// SNACKNBAR ERROR
+// Lo mismo pero con otros colores
 void general_snackbar_error(
   BuildContext context,
   String content,
@@ -161,8 +169,8 @@ void general_snackbar_error(
   );
 }
 
-// -------- ELEMENTO DE LISTA PARA EL DRAWER --------
-// Es el botón del menú lateral con icono, texto y estado "seleccionado".
+// LISTILE
+// Un elemento para una lista con icono, texto
 Widget general_listtile({
   required BuildContext context,
   required IconData icon,
@@ -195,7 +203,8 @@ Widget general_listtile({
   );
 }
 
-// -------- ELEMENTO DE LISTA PARA CERRAR SESIÓN --------
+// LISTILE CERRAR SESIÓN
+// lo mismo que arriba pero especifico para cerrar sesión por el tamaño de fuente y cosas que cambian
 Widget general_listtile_logout({
   required BuildContext context,
   required IconData icon,
@@ -215,7 +224,9 @@ Widget general_listtile_logout({
   );
 }
 
-// -------- DIÁLOGO DE CONFIRMACIÓN GENÉRICO --------
+// CONFIRM DIALOG
+// Para mostrar un menú que te de una opción para confirmar una acción importante, como cerrar sesión o
+// eliminar un usuario, grupo, teleoperador etc...
 Future<void> showConfirmDialog(
   BuildContext context, {
   required String title,
