@@ -3,8 +3,7 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 
-// -------- SECCIÓN DE BÚSQUEDA Y FILTROS --------
-// Widget que agrupa el campo de búsqueda y el dropdown de filtros por dependencia.
+// Sección que agrupa el buscador de texto y el filtro por dependencia
 class SearchAndFilterSection extends StatelessWidget {
   final UsersPageFilter filtroSeleccionado;
   final ValueChanged<String> onSearchChanged;
@@ -24,14 +23,15 @@ class SearchAndFilterSection extends StatelessWidget {
 
     return Column(
       children: [
-        // Campo de búsqueda de texto.
+        // Buscador por nombre/DNI
         general_busqueda_textfield(
           l10n.searchUser,
           icono: Icons.search,
           onChanged: onSearchChanged,
         ),
         const SizedBox(height: 20),
-        // Filtro por dependencia con dropdown.
+
+        // Dropdown para filtrar por nivel de dependencia
         Row(
           children: [
             Icon(

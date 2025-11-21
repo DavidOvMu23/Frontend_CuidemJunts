@@ -6,19 +6,20 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/search_and_filter_section.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_future_list.dart';
 
-// -------- CUERPO PRINCIPAL DEL SCAFFOLD DE USUARIOS --------
-// Widget que contiene toda la estructura del body de la página de usuarios.
-// Incluye el título, la sección de búsqueda/filtros y la lista de usuarios.
+// Cuerpo principal de la pantalla de usuarios.
 class UsersScaffoldBody extends StatelessWidget {
   final Future<List<Usuario>> usuariosFuture;
   final UsersPageFilter filtroSeleccionado;
   final UsersPageSort ordenSeleccionado;
   final String textoFiltro;
 
+  // Funciones para aplicar filtros y ordenar
   final List<Usuario> Function(List<Usuario>) aplicarFiltros;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<UsersPageFilter> onFilterChanged;
   final ValueChanged<UsersPageSort> onSortChanged;
+
+  // Función para mostrar el detalle de un usuario
   final void Function(BuildContext, Usuario, DateFormat) onUsuarioTap;
 
   const UsersScaffoldBody({
@@ -46,8 +47,7 @@ class UsersScaffoldBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // -------- TITULAR --------
-          // Cabecera fija de la pantalla.
+          // Título de la sección
           Text(
             l10n.users,
             style: textTheme.titleMedium?.copyWith(fontSize: 27),
@@ -55,8 +55,7 @@ class UsersScaffoldBody extends StatelessWidget {
           Text(l10n.manageUsers, style: textTheme.bodyMedium),
           const SizedBox(height: 20),
 
-          // -------- TARJETA PRINCIPAL --------
-          // Todo el contenido está dentro y el scroll solo afecta a la lista.
+          // Contenedor principal con fondo blanco/tarjeta
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
@@ -76,7 +75,7 @@ class UsersScaffoldBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
 
-                      // Sección de búsqueda y filtros.
+                      // 1. Sección de búsqueda y filtros
                       SearchAndFilterSection(
                         filtroSeleccionado: filtroSeleccionado,
                         onSearchChanged: onSearchChanged,
@@ -88,8 +87,7 @@ class UsersScaffoldBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
 
-                      // -------- LISTA DE USUARIOS --------
-                      // Solo esta sección es scrolleable.
+                      // 2. Lista de usuarios (ocupa el resto del espacio)
                       Expanded(
                         child: UsersFutureList(
                           usuariosFuture: usuariosFuture,

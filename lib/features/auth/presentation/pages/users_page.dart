@@ -16,8 +16,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_scaffold_body.dart';
 
 // -------- PANTALLA DE USUARIOS --------
-// Aquí el supervisor consulta, busca y ordena usuarios llegados del backend.
-// Refactorizado siguiendo las mejoras del profesor: widgets separados y mejor organización.
+// Controlador principal de la vista de usuarios
+// Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos
 class UsersPage extends ConsumerStatefulWidget {
   const UsersPage({super.key});
 
@@ -26,47 +26,51 @@ class UsersPage extends ConsumerStatefulWidget {
 }
 
 class _UsersPageState extends ConsumerState<UsersPage> {
-  // Servicio que trae los usuarios desde el backend.
+  // Servicio para peticiones al backend
   late final UsuarioService _usuarioService;
-  // Future cacheado para no lanzar la petición en cada build.
+
+  // Cache del Future para evitar recargas innecesarias al reconstruir el widget
   late Future<List<Usuario>> _usuariosFuture;
 
-  // Estado del filtro seleccionado y del texto del buscador.
+  // Estado local de la interfaz
   late UsersPageFilter filtroSeleccionado;
   String textoFiltro = '';
-
-  // Orden actualmente seleccionado para la lista.
   UsersPageSort ordenSeleccionado = UsersPageSort.noneAZ;
 
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = UsersPageFilter.all; // De inicio mostramos todos.
+    filtroSeleccionado = UsersPageFilter.all; // Por defecto mostramos todos
     _usuarioService = UsuarioService(
       baseUrl: 'http://cuidemjunts.zapto.org:3000',
     );
-    _usuariosFuture = _cargarUsuariosConContactos(); // Carga inicial.
+    _usuariosFuture = _cargarUsuariosConContactos(); // Iniciamos la carga
   }
 
-  /// Llama a backend y trae usuarios (sin contactos de emergencia).
+  // Obtiene la lista completa de usuarios del servidor
   Future<List<Usuario>> _cargarUsuariosConContactos() async {
     final usuarios = await _usuarioService.getAll();
     return usuarios;
   }
 
-  // Callbacks para actualizar el estado desde los widgets hijos.
+  // --- Métodos para actualizar el estado desde los widgets hijos ---
+
+  // Actualiza el texto de búsqueda
   void _onSearchChanged(String value) {
     setState(() => textoFiltro = value);
   }
 
+  // Actualiza el filtro seleccionado
   void _onFilterChanged(UsersPageFilter value) {
     setState(() => filtroSeleccionado = value);
   }
 
+  // Actualiza el orden seleccionado
   void _onSortChanged(UsersPageSort value) {
     setState(() => ordenSeleccionado = value);
   }
 
+  // Muestra el detalle de un usuario
   void _mostrarDetalleUsuario(
     BuildContext context,
     Usuario usuario,
@@ -75,13 +79,14 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     // TODO: Implementar detalle usuario
   }
 
-  // Aplica búsqueda + filtro + ordenación sobre la lista original.
+  // Filtra y ordena la lista de usuarios según el estado actual
+  // Se ejecuta en el cliente sobre los datos ya cargados
   List<Usuario> _aplicarFiltros(List<Usuario> usuarios) {
     final query = textoFiltro.trim().toLowerCase();
 
-    // 1) Filtrado por texto y dependencia.
+    // 1. Filtrado
     final filtrados = usuarios.where((usuario) {
-      // Coincidencia de texto (nombre completo o DNI).
+      // Coincidencia de texto (nombre completo o DNI)
       final nombreCompleto = '${usuario.nombre} ${usuario.apellidos}'
           .toLowerCase();
       final coincideTexto =
@@ -89,7 +94,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           nombreCompleto.contains(query) ||
           usuario.dni.toLowerCase().contains(query);
 
-      // Coincidencia de filtro de dependencia.
+      // Coincidencia de filtro de dependencia
       final coincideFiltro = switch (filtroSeleccionado) {
         UsersPageFilter.all => true,
         UsersPageFilter.ningunaDep => usuario.nivelDependencia.isEmpty,
@@ -99,10 +104,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           usuario.nivelDependencia.toUpperCase() == 'G3',
       };
 
-      return coincideTexto && coincideFiltro; // Debe pasar ambas condiciones.
+      return coincideTexto && coincideFiltro;
     }).toList();
 
-    // 2) Ordenamos según la opción seleccionada en el botón de filtro/orden.
+    // 2. Ordenación
     filtrados.sort((a, b) {
       switch (ordenSeleccionado) {
         case UsersPageSort.nameZA:
@@ -125,7 +130,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     return filtrados;
   }
 
-  // Convierte los grados de dependencia en una prioridad numérica para ordenar.
+  // Helper para convertir el nivel de dependencia en un valor numérico comparable
   int _dependencyRank(String nivel) {
     switch (nivel.toUpperCase()) {
       case 'G3':
@@ -141,9 +146,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    //
     return Scaffold(
       // -------- BARRA SUPERIOR --------
-      // AppBar con botón de notificaciones (pendiente de implementar).
       appBar: appMainAppBar(
         onNotifications: () {
           // TODO: Acción al pulsar el icono de notificaciones.
@@ -151,7 +156,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ),
 
       // -------- MENÚ LATERAL --------
-      // Drawer con las secciones principales del supervisor.
       drawer: appDrawer(
         context: context,
         selected: DrawerItem.users,
@@ -190,7 +194,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
-      // Refactorizado en un widget separado para mejor organización.
       body: UsersScaffoldBody(
         usuariosFuture: _usuariosFuture,
         filtroSeleccionado: filtroSeleccionado,

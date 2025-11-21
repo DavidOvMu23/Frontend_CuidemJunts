@@ -7,8 +7,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_sort_bottom_sheet.dart';
 
-// -------- LISTA DE USUARIOS CON FUTUREBUILDER --------
-// Widget que maneja el estado asíncrono de la carga de usuarios y muestra la lista.
+// Lista de usuarios que gestiona los estados de carga (FutureBuilder).
 class UsersFutureList extends StatelessWidget {
   final Future<List<Usuario>> usuariosFuture;
   final List<Usuario> Function(List<Usuario>) aplicarFiltros;
@@ -37,15 +36,17 @@ class UsersFutureList extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    // FutureBuilder que gestiona los estados de carga, error y vacío.
+    // Lo que hacemos es que, según el estado de la FutureBuilder, mostramos un widget u otro.
     return FutureBuilder<List<Usuario>>(
       future: usuariosFuture,
       builder: (context, snapshot) {
-        // Estado de carga.
+        // 1. Estado de carga
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Estado de error.
+        // 2. Estado de error
         if (snapshot.hasError) {
           return Center(
             child: Card(
@@ -70,7 +71,7 @@ class UsersFutureList extends StatelessWidget {
 
         final usuarios = snapshot.data ?? [];
 
-        // Si no hay usuarios en absoluto.
+        // 3. Estado vacío (sin usuarios en la BD)
         if (usuarios.isEmpty) {
           return Center(
             child: Text(
@@ -80,7 +81,7 @@ class UsersFutureList extends StatelessWidget {
           );
         }
 
-        // Aplicamos filtros y ordenación.
+        // Aplicamos los filtros y ordenación sobre los datos recibidos
         final usuariosFiltrados = aplicarFiltros(usuarios);
         final totalText =
             textoFiltro.isEmpty && filtroSeleccionado == UsersPageFilter.all
@@ -89,7 +90,7 @@ class UsersFutureList extends StatelessWidget {
 
         return Column(
           children: [
-            // Cabecera con contador y botón de ordenación.
+            // Cabecera de la lista: contador y botón de ordenar
             Row(
               children: [
                 Expanded(
@@ -116,7 +117,8 @@ class UsersFutureList extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 2),
-            // Mensaje informativo.
+
+            // Mensaje informativo
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -131,13 +133,15 @@ class UsersFutureList extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            // Lista de usuarios o mensaje de "no encontrados".
+
+            // 4. Lista filtrada vacía (no hay coincidencias)
             if (usuariosFiltrados.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(l10n.noUsersFounds, style: textTheme.bodyMedium),
               )
             else
+              // 5. Lista de usuarios
               Expanded(
                 child: ListView.separated(
                   itemCount: usuariosFiltrados.length,

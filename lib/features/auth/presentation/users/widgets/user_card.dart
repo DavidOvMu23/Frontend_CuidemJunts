@@ -4,9 +4,7 @@ import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:intl/intl.dart';
 
-// -------- TARJETA DE USUARIO --------
-// Widget reutilizable que muestra la información de un usuario en formato de tarjeta.
-// Incluye nombre, fecha de nacimiento, teléfono, dirección y nivel de dependencia.
+// Tarjeta que muestra la información resumida de un usuario.
 class UserCard extends StatelessWidget {
   final Usuario usuario;
   final TextTheme textTheme;
@@ -23,7 +21,7 @@ class UserCard extends StatelessWidget {
     required this.onTap,
   });
 
-  // Convierte el nivel de dependencia a un texto legible.
+  // Traduce el código de dependencia (G1, G2...)
   String get _dependenciaTexto {
     final raw = usuario.nivelDependencia.trim();
     if (raw.isEmpty) return 'Sin especificar';
@@ -41,11 +39,11 @@ class UserCard extends StatelessWidget {
       case 'SEVERO':
         return 'Severa';
       default:
-        return raw; // Si viene otro valor, mostramos tal cual.
+        return raw;
     }
   }
 
-  // Retorna el color de fondo según el nivel de dependencia y el tema actual.
+  // Asigna un color de fondo según la severidad de la dependencia
   Color _dependenciaBg(BuildContext context) {
     final raw = usuario.nivelDependencia.trim().toUpperCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -66,7 +64,7 @@ class UserCard extends StatelessWidget {
     }
   }
 
-  // Retorna el color del texto según el nivel de dependencia y el tema actual.
+  // Asigna el color del texto para asegurar contraste con el fondo
   Color _dependenciaText(BuildContext context) {
     final raw = usuario.nivelDependencia.trim().toUpperCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -95,6 +93,8 @@ class UserCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fechaNacimiento = dateFormatter.format(usuario.f_nac);
     final direccion = usuario.direccion.trim();
+
+    // Calculamos los colores antes de pintar
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
 
@@ -113,6 +113,7 @@ class UserCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Cabecera con nombre y botón de edición
                 Row(
                   children: [
                     Expanded(
@@ -133,6 +134,8 @@ class UserCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
+
+                // Datos personales
                 Row(
                   children: [
                     const Icon(Icons.cake, size: 18),
@@ -148,6 +151,8 @@ class UserCard extends StatelessWidget {
                     Text(usuario.telefono, style: textTheme.bodyMedium),
                   ],
                 ),
+
+                // Dirección (solo si existe)
                 if (direccion.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Row(
@@ -162,6 +167,8 @@ class UserCard extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 10),
+
+                // Badge de dependencia
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,

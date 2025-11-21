@@ -3,14 +3,13 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 
-// -------- BOTTOM SHEET DE ORDENACIÓN --------
-// Modal que permite al usuario seleccionar el criterio de ordenación de la lista.
+/// Modal inferior para seleccionar el criterio de ordenación de la lista.
 class UsersSortBottomSheet extends StatelessWidget {
   final ValueChanged<UsersPageSort> onSortSelected;
 
   const UsersSortBottomSheet({super.key, required this.onSortSelected});
 
-  // Selecciona el orden, cierra el modal y muestra un snackbar.
+  // Helper para seleccionar, cerrar el modal y mostrar feedback
   void _select(BuildContext context, UsersPageSort sort, String snackbarText) {
     onSortSelected(sort);
     Navigator.pop(context);
@@ -32,6 +31,8 @@ class UsersSortBottomSheet extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 12),
+
+          // Opciones de ordenación
           general_listtile(
             context: context,
             icon: Icons.filter_list_off,
