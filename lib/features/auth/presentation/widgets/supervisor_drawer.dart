@@ -17,6 +17,7 @@ enum DrawerItem {
 Drawer appDrawer({
   required BuildContext context,
   required DrawerItem selected,
+  String? userName, // Nombre del usuario logueado
   VoidCallback? onTapHome,
   VoidCallback? onTapCalls,
   VoidCallback? onTapUsers,
@@ -163,7 +164,8 @@ Drawer appDrawer({
                   child: const Icon(Icons.person, size: 32),
                 ),
                 title: Text(
-                  'Supervisor Name',
+                  userName ??
+                      'Usuario', // Muestra el nombre del usuario que ha iniciado sesión
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

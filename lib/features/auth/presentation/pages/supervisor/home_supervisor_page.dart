@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
@@ -7,10 +8,15 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervis
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/llamadas_page.dart';
+import 'package:frontend_cuidemjunts/core/services/preferences_service.dart';
 
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
 class HomeSupervisorPage extends StatelessWidget {
+  // -------- SERVICIO DE PREFERENCIAS --------
+  // Lo necesitamos para cerrar sesión correctamente.
+  final PreferencesService? preferencesService;
+
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
   // Se utiliza para que el cambio de tema afecte a toda la app.
@@ -24,6 +30,7 @@ class HomeSupervisorPage extends StatelessWidget {
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
+    this.preferencesService, // Opcional
   });
 
   @override
@@ -37,6 +44,34 @@ class HomeSupervisorPage extends StatelessWidget {
     // Textos traducidos (según el idioma seleccionado en la app).
     final l10n = AppLocalizations.of(context)!;
     DateTime hoy = DateTime.now();
+
+    // -------- OBTENER NOMBRE DEL USUARIO --------
+    // Intentamos obtener el nombre del usuario de las preferencias guardadas.
+    String? userName;
+    if (preferencesService != null) {
+      // Obtenemos los datos del usuario guardados
+      final userDataJson = preferencesService!.getUserData();
+
+      if (userDataJson != null) {
+        try {
+          // Convertimos el JSON a un Map
+          final userData = jsonDecode(userDataJson) as Map<String, dynamic>;
+
+          // Intentamos obtener el nombre del usuario.
+          // Probamos varios campos comunes que podría devolver el backend:
+          // - 'nombre' o 'name' para el nombre
+          // - 'correo' o 'email' como alternativa
+          userName =
+              userData['nombre']?.toString() ??
+              userData['name']?.toString() ??
+              userData['correo']?.toString() ??
+              userData['email']?.toString();
+        } catch (e) {
+          // Si hay error al parsear el JSON, simplemente no mostramos nombre
+          userName = null;
+        }
+      }
+    }
 
     // -------- ESTRUCTURA DE LA PANTALLA --------
     return Scaffold(
@@ -52,6 +87,7 @@ class HomeSupervisorPage extends StatelessWidget {
       // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
         context: context,
+        userName: userName, // Pasamos el nombre del usuario
         selected: DrawerItem.home,
         onTapCalls: () {
           Navigator.push(
@@ -97,15 +133,28 @@ class HomeSupervisorPage extends StatelessWidget {
             ),
           );
         },
-        onLogoutConfirmed: () {
-          Navigator.pushReplacement(
+        onLogoutConfirmed: () async {
+          // -------- CERRAR SESIÓN --------
+          // Borramos la sesión del almacenamiento local.
+          if (preferencesService != null) {
+            await preferencesService!.logout();
+          }
+
+          // -------- NAVEGAR AL LOGIN --------
+          // Usamos pushAndRemoveUntil para eliminar TODAS las pantallas
+          // anteriores del stack de navegación. Así el usuario no puede
+          // volver atrás con el botón de "atrás".
+          if (!context.mounted) return;
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => LoginPage(
                 onToggleTheme: onToggleTheme,
                 onChangeLocale: onChangeLocale,
+                preferencesService: preferencesService,
               ),
             ),
+            (route) => false, // Elimina TODAS las rutas anteriores
           );
         },
       ),

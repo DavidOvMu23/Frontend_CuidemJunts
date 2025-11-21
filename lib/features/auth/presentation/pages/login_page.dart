@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/service/api_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/core/services/preferences_service.dart';
 
 // -------- PANTALLA DE INICIO DE SESIÓN --------
 // Aquí pedimos email + contraseña y dejamos escoger idioma/tema.
@@ -12,7 +14,13 @@ class LoginPage extends StatefulWidget {
     super.key,
     required this.onToggleTheme,
     required this.onChangeLocale,
+    this.preferencesService, // Ahora es OPCIONAL (sin required)
   });
+
+  // -------- SERVICIO DE PREFERENCIAS --------
+  // Lo necesitamos para guardar la sesión cuando el usuario haga login.
+  // Es opcional porque algunas páginas pueden navegar aquí sin pasarlo.
+  final PreferencesService? preferencesService; // Ahora es nullable (?)
 
   // Callback que cambia el tema de la app.
   // Si es true, activa modo oscuro; si es false, modo claro.
@@ -47,21 +55,48 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      await authService.login(correo, contrasena);
-      // TODO: guardar token
-      // ejemplo:
-      // await storage.write(key: 'token', value: token);
+      // -------- HACER LOGIN EN EL BACKEND --------
+      // Enviamos las credenciales al servidor y esperamos la respuesta.
+      final response = await authService.login(correo, contrasena);
+
+      // -------- GUARDAR LA SESIÓN --------
+      // Si el login fue exitoso, guardamos la información en el dispositivo
+      // para que la próxima vez no tenga que volver a hacer login.
+      //
+      // SOLO guardamos si tenemos el servicio de preferencias disponible.
+      // Si navegamos al login desde otra pantalla sin pasar el servicio,
+      // simplemente no guardamos la sesión (pero el login sigue funcionando).
+
+      if (widget.preferencesService != null) {
+        // ¡Tenemos el servicio! Guardamos la sesión.
+
+        // Extraemos el token de la respuesta del backend
+        final token = response['token'] ?? '';
+
+        // Convertimos los datos del usuario a JSON para guardarlos
+        final userDataJson = jsonEncode(response);
+
+        // Guardamos todo en el almacenamiento local
+        await widget.preferencesService!.saveSession(
+          token: token,
+          email: correo,
+          userData: userDataJson,
+        );
+      }
 
       // Evitar usar BuildContext si el State fue desmontado durante el await
       if (!mounted) return;
 
-      // navegar:
+      // -------- NAVEGAR A LA PANTALLA PRINCIPAL --------
+      // Como el login fue exitoso, llevamos al usuario a su pantalla principal.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HomeSupervisorPage(
             onToggleTheme: widget.onToggleTheme,
             onChangeLocale: widget.onChangeLocale,
+            preferencesService:
+                widget.preferencesService, // Pasamos el servicio
           ),
         ),
       );

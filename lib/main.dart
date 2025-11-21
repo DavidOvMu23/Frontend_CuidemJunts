@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/services/preferences_service.dart';
 
@@ -144,6 +145,31 @@ class _MyAppState extends State<MyApp> {
   // Devuelve la estructura visual de la aplicación.
   @override
   Widget build(BuildContext context) {
+    // -------- VERIFICAR SI HAY SESIÓN ACTIVA --------
+    // Preguntamos: "¿El usuario ya está logueado?"
+    final isLoggedIn = widget.preferencesService.isLoggedIn();
+
+    // -------- DECIDIR QUÉ PANTALLA MOSTRAR --------
+    // Si está logueado, vamos directo a la pantalla principal.
+    // Si NO está logueado, mostramos el login.
+    Widget homePage;
+
+    if (isLoggedIn) {
+      // ¡El usuario YA está logueado! Vamos directo a su pantalla principal.
+      homePage = HomeSupervisorPage(
+        onToggleTheme: toggleTheme,
+        onChangeLocale: setLocale,
+        preferencesService: widget.preferencesService, // Pasamos el servicio
+      );
+    } else {
+      // El usuario NO está logueado. Mostramos la pantalla de login.
+      homePage = LoginPage(
+        onToggleTheme: toggleTheme,
+        onChangeLocale: setLocale,
+        preferencesService: widget.preferencesService, // Pasamos el servicio
+      );
+    }
+
     return MaterialApp(
       // Nombre de la aplicación
       title: 'Cuidem Junts',
@@ -165,12 +191,9 @@ class _MyAppState extends State<MyApp> {
       // Si isDark es true, se usa el modo oscuro; si es false, el claro
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
 
-      // Página principal de la aplicación al abrirla.
-      // Le pasamos referencias (callbacks) a nuestras funciones de estado para que el Login
-      // pueda pedir cambios de idioma o tema. Así, el estado se mantiene aquí pero se controla
-      // desde cualquier lugar de la app.
-      home: LoginPage(onToggleTheme: toggleTheme, onChangeLocale: setLocale),
-      //home: CatalogPage(),
+      // -------- PANTALLA INICIAL --------
+      // Mostramos la pantalla que decidimos arriba (login o home).
+      home: homePage,
     );
   }
 }
