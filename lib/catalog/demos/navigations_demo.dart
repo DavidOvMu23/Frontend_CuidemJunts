@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_navigations_demo.dart';
