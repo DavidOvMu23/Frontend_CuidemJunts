@@ -449,6 +449,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userCreatedError => 'Error creating user.';
 
   @override
+  String get userUpdatedSuccess => 'User updated successfully.';
+
+  @override
+  String get userUpdatedError => 'Error updating user.';
+
+  @override
   String get userErrorDNiExists => 'Error creating user. DNI already exists.';
 
   @override

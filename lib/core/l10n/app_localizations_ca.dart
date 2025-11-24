@@ -460,6 +460,12 @@ class AppLocalizationsCa extends AppLocalizations {
   String get userCreatedError => 'Error en crear l\'usuari.';
 
   @override
+  String get userUpdatedSuccess => 'Usuari actualitzat amb èxit.';
+
+  @override
+  String get userUpdatedError => 'Error en actualitzar l\'usuari.';
+
+  @override
   String get userErrorDNiExists =>
       'Error en crear l\'usuari. El DNI ja existeix.';
 

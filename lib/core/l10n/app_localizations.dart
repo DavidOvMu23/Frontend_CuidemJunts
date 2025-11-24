@@ -940,6 +940,18 @@ abstract class AppLocalizations {
   /// **'Error al crear el usuario.'**
   String get userCreatedError;
 
+  /// No description provided for @userUpdatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario actualizado con éxito.'**
+  String get userUpdatedSuccess;
+
+  /// No description provided for @userUpdatedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar el usuario.'**
+  String get userUpdatedError;
+
   /// No description provided for @userErrorDNiExists.
   ///
   /// In es, this message translates to:

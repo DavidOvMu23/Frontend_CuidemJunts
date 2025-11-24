@@ -17,6 +17,7 @@ class UsersFutureList extends StatelessWidget {
   final ValueChanged<UsersPageSort> onSortChanged;
   final DateFormat dateFormatter;
   final void Function(BuildContext, Usuario, DateFormat) onUsuarioTap;
+  final void Function(BuildContext, Usuario) onUsuarioEdit;
 
   const UsersFutureList({
     super.key,
@@ -28,6 +29,7 @@ class UsersFutureList extends StatelessWidget {
     required this.onSortChanged,
     required this.dateFormatter,
     required this.onUsuarioTap,
+    required this.onUsuarioEdit,
   });
 
   @override
@@ -160,6 +162,7 @@ class UsersFutureList extends StatelessWidget {
                       dateFormatter: dateFormatter,
                       onTap: () =>
                           onUsuarioTap(context, usuario, dateFormatter),
+                      onEdit: () => onUsuarioEdit(context, usuario),
                     );
                   },
                 ),
