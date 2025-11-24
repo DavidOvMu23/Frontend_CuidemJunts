@@ -134,8 +134,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       final coincideTexto =
           query.isEmpty ||
           nombreCompleto.contains(query) ||
-          usuario.dni.toLowerCase().contains(query);
-
+          usuario.telefono.contains(query);
       // Coincidencia de filtro de dependencia
       final coincideFiltro = switch (filtroSeleccionado) {
         UsersPageFilter.all => true,
