@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- WIDGET PRINCIPAL --------
 // Esta clase muestra ejemplos de los diferentes estilos tipográficos
@@ -12,6 +13,7 @@ class TypographyDemo extends StatelessWidget {
     // -------- OBTENCIÓN DE ESTILOS DE TEXTO --------
     // Accedemos a los estilos de texto definidos en el tema actual (ThemeData)
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       // -------- BARRA SUPERIOR (APPBAR) --------
@@ -38,11 +40,11 @@ class TypographyDemo extends StatelessWidget {
 
               children: [
                 // -------- TITULAR PRINCIPAL --------
-                Text('Título principal', style: textTheme.headlineLarge),
+                Text(l10n.mainTitle, style: textTheme.headlineLarge),
                 const SizedBox(height: 8),
 
                 // -------- SUBTÍTULO --------
-                Text('Subtítulo de sección', style: textTheme.titleMedium),
+                Text(l10n.sectionSubtitle, style: textTheme.titleMedium),
                 const SizedBox(height: 8),
 
                 // -------- TEXTO DE CUERPO --------

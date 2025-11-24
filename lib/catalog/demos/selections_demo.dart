@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_selecions_demo.dart';
 
 // -------- WIDGET PRINCIPAL --------
@@ -22,6 +23,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
   // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       // -------- BARRA SUPERIOR (APPBAR) --------
       appBar: AppBar(title: const Text('Demo: Selections')),
@@ -103,7 +105,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                       lastDate: DateTime(2100),
                     );
                   },
-                  child: const Text('Seleccionar fecha'),
+                  child: Text(l10n.selectDate),
                 ),
 
                 const SizedBox(height: 12),
@@ -117,7 +119,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                       initialTime: TimeOfDay.now(),
                     );
                   },
-                  child: const Text('Seleccionar hora'),
+                  child: Text(l10n.selectTime),
                 ),
 
                 const SizedBox(height: 20),

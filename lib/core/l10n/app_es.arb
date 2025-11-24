@@ -158,5 +158,38 @@
   "none": "Ninguna",
   "optionalData": "Datos opcionales",
   "noUsersFounds": "No se encontraron usuarios",
-  "usersPreliminarView": "Vista preliminar: toca un usuario para ver toda su información."
+  "usersPreliminarView": "Vista preliminar: toca un usuario para ver toda su información.",
+  "callCancelled": "Cancelada",
+  "noStatus": "Sin estado",
+  "noNotifications": "No hay notificaciones",
+  "close": "Cerrar",
+  "role": "Rol",
+  "teleoperator": "Teleoperador",
+  "admin": "Admin",
+  "nia8digits": "NIA (8 dígitos)",
+  "groupIdOptional": "Grupo (id) - opcional",
+  "selectDate": "Seleccionar fecha",
+  "selectTime": "Seleccionar hora",
+  "dialogTitle": "Título del diálogo",
+  "notificationsPressed": "Notificaciones pulsadas",
+  "mainTitle": "Título principal",
+  "sectionSubtitle": "Subtítulo de sección",
+  "cuidemJunts": "CuidemJunts",
+  "errorLoadingActivity": "Error al cargar la actividad",
+  "nia": "NIA",
+  "groupId": "Grupo id",
+  "invalidNIA": "NIA inválido: debe tener 8 dígitos",
+  "invalidDNI": "DNI inválido: formato 12345678A",
+  "passwordLengthError": "La contraseña debe tener al menos 6 caracteres",
+  "workerCreatedSuccessfully": "Trabajador creado correctamente",
+  "errorCreatingWorker": "Error al crear trabajador: {error}",
+  "@errorCreatingWorker": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "createWorkerBtn": "Crear trabajador",
+  "dniLabel": "DNI (8 dígitos + letra)"
 }

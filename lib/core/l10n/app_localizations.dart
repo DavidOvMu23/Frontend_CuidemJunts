@@ -1053,6 +1053,162 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Vista preliminar: toca un usuario para ver toda su información.'**
   String get usersPreliminarView;
+
+  /// No description provided for @callCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelada'**
+  String get callCancelled;
+
+  /// No description provided for @noStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin estado'**
+  String get noStatus;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones'**
+  String get noNotifications;
+
+  /// No description provided for @close.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get close;
+
+  /// No description provided for @role.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol'**
+  String get role;
+
+  /// No description provided for @teleoperator.
+  ///
+  /// In es, this message translates to:
+  /// **'Teleoperador'**
+  String get teleoperator;
+
+  /// No description provided for @admin.
+  ///
+  /// In es, this message translates to:
+  /// **'Admin'**
+  String get admin;
+
+  /// No description provided for @nia8digits.
+  ///
+  /// In es, this message translates to:
+  /// **'NIA (8 dígitos)'**
+  String get nia8digits;
+
+  /// No description provided for @groupIdOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo (id) - opcional'**
+  String get groupIdOptional;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar fecha'**
+  String get selectDate;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar hora'**
+  String get selectTime;
+
+  /// No description provided for @dialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título del diálogo'**
+  String get dialogTitle;
+
+  /// No description provided for @notificationsPressed.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones pulsadas'**
+  String get notificationsPressed;
+
+  /// No description provided for @mainTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título principal'**
+  String get mainTitle;
+
+  /// No description provided for @sectionSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtítulo de sección'**
+  String get sectionSubtitle;
+
+  /// No description provided for @cuidemJunts.
+  ///
+  /// In es, this message translates to:
+  /// **'CuidemJunts'**
+  String get cuidemJunts;
+
+  /// No description provided for @errorLoadingActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar la actividad'**
+  String get errorLoadingActivity;
+
+  /// No description provided for @nia.
+  ///
+  /// In es, this message translates to:
+  /// **'NIA'**
+  String get nia;
+
+  /// No description provided for @groupId.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo id'**
+  String get groupId;
+
+  /// No description provided for @invalidNIA.
+  ///
+  /// In es, this message translates to:
+  /// **'NIA inválido: debe tener 8 dígitos'**
+  String get invalidNIA;
+
+  /// No description provided for @invalidDNI.
+  ///
+  /// In es, this message translates to:
+  /// **'DNI inválido: formato 12345678A'**
+  String get invalidDNI;
+
+  /// No description provided for @passwordLengthError.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña debe tener al menos 6 caracteres'**
+  String get passwordLengthError;
+
+  /// No description provided for @workerCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajador creado correctamente'**
+  String get workerCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingWorker.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear trabajador: {error}'**
+  String errorCreatingWorker(String error);
+
+  /// No description provided for @createWorkerBtn.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear trabajador'**
+  String get createWorkerBtn;
+
+  /// No description provided for @dniLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'DNI (8 dígitos + letra)'**
+  String get dniLabel;
 }
 
 class _AppLocalizationsDelegate

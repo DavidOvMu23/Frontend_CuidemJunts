@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_navigations_demo.dart';
@@ -22,11 +23,12 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
     // Obtener los temas de texto y color actuales para usarlos en el diseño
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       // -------- BARRA SUPERIOR (APPBAR) --------
       appBar: AppBar(
-        title: const Text('CuidemJunts'),
+        title: Text(l10n.cuidemJunts),
         centerTitle: true,
         actions: [
           widget_badge_demo(
@@ -34,7 +36,7 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
             Icons.notifications,
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notificaciones pulsadas')),
+                SnackBar(content: Text(l10n.notificationsPressed)),
               );
             },
           ),
@@ -65,7 +67,7 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
                           child: Column(
                             children: [
                               Text(
-                                'CuidemJunts',
+                                l10n.cuidemJunts,
                                 style: textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,

@@ -68,6 +68,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
   // Envía el payload al backend para crear el trabajador
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context)!;
 
     // Leemos el valor del campo grupo desde su controlador
     _grupoId = _grupoCtrl.text.trim().isEmpty ? null : _grupoCtrl.text.trim();
@@ -82,7 +83,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     if (contrasena.length < 6) {
       general_snackbar_error(
         context,
-        'La contraseña debe tener al menos 6 caracteres',
+        l10n.passwordLengthError,
         3,
       );
       return;
@@ -94,7 +95,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
       if (!RegExp(r'^[0-9]{8}$').hasMatch(nia)) {
         general_snackbar_error(
           context,
-          'NIA inválido: debe tener 8 dígitos',
+          l10n.invalidNIA,
           3,
         );
         return;
@@ -105,7 +106,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     if (_rol == 'supervisor') {
       final dni = _dniCtrl.text.trim().toUpperCase();
       if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(dni)) {
-        general_snackbar_error(context, 'DNI inválido: formato 12345678A', 3);
+        general_snackbar_error(context, l10n.invalidDNI, 3);
         return;
       }
     }
@@ -144,12 +145,12 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     //si todo va bien, mostramos un snackbar de exito y volvemos a la pagina de inicio
     try {
       await _trabajadorService.create(payload);
-      general_snackbar(context, 'Trabajador creado correctamente', 2);
+      general_snackbar(context, l10n.workerCreatedSuccessfully, 2);
       Navigator.pop(context);
     } catch (e) {
       general_snackbar_error(
         context,
-        'Error al crear trabajador: ${e.toString()}',
+        l10n.errorCreatingWorker(e.toString()),
         3,
       );
     }
@@ -233,16 +234,16 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                   const SizedBox(height: 12),
 
                   // Nombre
-                  Text('Nombre', style: textTheme.bodyMedium),
+                  Text(l10n.name, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
-                  general_textfield('Nombre', false, controller: _nombreCtrl),
+                  general_textfield(l10n.name, false, controller: _nombreCtrl),
                   const SizedBox(height: 12),
 
                   // Apellidos
-                  Text('Apellidos', style: textTheme.bodyMedium),
+                  Text(l10n.lastName, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   general_textfield(
-                    'Apellidos',
+                    l10n.lastName,
                     false,
                     controller: _apellidosCtrl,
                   ),
@@ -255,23 +256,23 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                   const SizedBox(height: 12),
 
                   // Teléfono
-                  Text('Teléfono', style: textTheme.bodyMedium),
+                  Text(l10n.telephone, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   general_textfield(
-                    'Teléfono',
+                    l10n.telephone,
                     false,
                     controller: _telefonoCtrl,
                   ),
                   const SizedBox(height: 12),
 
                   // Contraseña temporal/definitiva
-                  Text('Contraseña', style: textTheme.bodyMedium),
+                  Text(l10n.password, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _contrasenaCtrl,
                     obscureText: true,
                     decoration: InputDecoration(
-                      hintText: 'Contraseña',
+                      hintText: l10n.password,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -280,7 +281,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                     ),
                     validator: (v) {
                       if (v == null || v.trim().length < 6) {
-                        return 'La contraseña debe tener al menos 6 caracteres';
+                        return l10n.passwordLengthError;
                       }
                       return null;
                     },
@@ -288,20 +289,20 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                   const SizedBox(height: 12),
 
                   // Rol
-                  Text('Rol', style: textTheme.bodyMedium),
+                  Text(l10n.role, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     value: _rol,
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'teleoperador',
-                        child: Text('Teleoperador'),
+                        child: Text(l10n.teleoperator),
                       ),
                       DropdownMenuItem(
                         value: 'supervisor',
-                        child: Text('Supervisor'),
+                        child: Text(l10n.supervisor),
                       ),
-                      DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                      DropdownMenuItem(value: 'admin', child: Text(l10n.admin)),
                     ],
                     onChanged: (v) =>
                         setState(() => _rol = v ?? 'teleoperador'),
@@ -318,13 +319,13 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                   // Campos dependientes del rol
                   if (_rol == 'teleoperador') ...[
                     const SizedBox(height: 18),
-                    Text('NIA (8 dígitos)', style: textTheme.bodyMedium),
+                    Text(l10n.nia8digits, style: textTheme.bodyMedium),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _niaCtrl,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: 'NIA',
+                        hintText: l10n.nia,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -334,23 +335,23 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                       validator: (v) {
                         final s = v?.trim() ?? '';
                         if (!RegExp(r'^[0-9]{8}$').hasMatch(s)) {
-                          return 'NIA inválido: debe tener 8 dígitos';
+                          return l10n.invalidNIA;
                         }
                         return null;
                       },
                     ),
                     // Grupo (id) - opcional
-                    Text('Grupo (id) - opcional', style: textTheme.bodyMedium),
+                    Text(l10n.groupIdOptional, style: textTheme.bodyMedium),
                     const SizedBox(height: 6),
                     general_textfield(
-                      'Grupo id',
+                      l10n.groupId,
                       false,
                       controller: _grupoCtrl,
                     ),
                     const SizedBox(height: 12),
                   ] else if (_rol == 'supervisor') ...[
                     Text(
-                      'DNI (8 dígitos + letra)',
+                      l10n.dniLabel,
                       style: textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 6),
@@ -358,7 +359,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                       controller: _dniCtrl,
                       textCapitalization: TextCapitalization.characters,
                       decoration: InputDecoration(
-                        hintText: 'DNI',
+                        hintText: l10n.dni,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -368,7 +369,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                       validator: (v) {
                         final s = (v ?? '').trim().toUpperCase();
                         if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(s)) {
-                          return 'DNI inválido: formato 12345678A';
+                          return l10n.invalidDNI;
                         }
                         return null;
                       },
@@ -380,7 +381,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                     children: [
                       Expanded(
                         child: general_filledbutton(
-                          'Crear trabajador',
+                          l10n.createWorkerBtn,
                           onPressed: _submit,
                         ),
                       ),

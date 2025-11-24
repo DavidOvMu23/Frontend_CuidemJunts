@@ -190,5 +190,108 @@
   "none": "Cap",
   "optionalData": "Dades opcionals",
   "noUsersFounds": "No s'han trobat usuaris",
-  "usersPreliminarView": "Vista preliminar: toca un usuari per veure tota la seva informació."
+  "usersPreliminarView": "Vista preliminar: toca un usuari per veure tota la seva informació.",
+  "callCancelled": "Cancelada",
+  "noStatus": "Sense estat",
+  "noNotifications": "No hi ha notificacions",
+  "@noNotifications": {
+    "description": "Text que es mostra quan no hi ha notificacions"
+  },
+  "close": "Tancar",
+  "@close": {
+    "description": "Text per a un botó de tancar"
+  },
+  "role": "Rol",
+  "@role": {
+    "description": "Text per a la selecció de rol"
+  },
+  "teleoperator": "Teleoperador",
+  "@teleoperator": {
+    "description": "Rol de teleoperador"
+  },
+  "admin": "Admin",
+  "@admin": {
+    "description": "Rol d'administrador"
+  },
+  "nia8digits": "NIA (8 dígits)",
+  "@nia8digits": {
+    "description": "Etiqueta per al camp d'entrada NIA amb requisit de 8 dígits"
+  },
+  "groupIdOptional": "Grup (id) - opcional",
+  "@groupIdOptional": {
+    "description": "Etiqueta per a l'ID de grup opcional"
+  },
+  "selectDate": "Seleccionar data",
+  "@selectDate": {
+    "description": "Text del botó per obrir un selector de data"
+  },
+  "selectTime": "Seleccionar hora",
+  "@selectTime": {
+    "description": "Text del botó per obrir un selector d'hora"
+  },
+  "dialogTitle": "Títol del diàleg",
+  "@dialogTitle": {
+    "description": "Títol genèric per a un diàleg"
+  },
+  "notificationsPressed": "Notificacions premudes",
+  "@notificationsPressed": {
+    "description": "Missatge de snackbar quan es premen les notificacions"
+  },
+  "mainTitle": "Títol principal",
+  "@mainTitle": {
+    "description": "Un títol principal genèric"
+  },
+  "sectionSubtitle": "Subtítol de secció",
+  "@sectionSubtitle": {
+    "description": "Un subtítol de secció genèric"
+  },
+  "cuidemJunts": "CuidemJunts",
+  "@cuidemJunts": {
+    "description": "El nom de l'aplicació"
+  },
+  "errorLoadingActivity": "Error en carregar l'activitat",
+  "@errorLoadingActivity": {
+    "description": "Missatge d'error quan l'activitat no es carrega"
+  },
+  "nia": "NIA",
+  "@nia": {
+    "description": "Etiqueta per a l'entrada de NIA"
+  },
+  "groupId": "ID de grup",
+  "@groupId": {
+    "description": "Etiqueta per a l'entrada de l'ID de grup"
+  },
+  "invalidNIA": "NIA invàlid: ha de tenir 8 dígits",
+  "@invalidNIA": {
+    "description": "Error de validació per a NIA"
+  },
+  "invalidDNI": "DNI invàlid: format 12345678A",
+  "@invalidDNI": {
+    "description": "Error de validació per a DNI"
+  },
+  "passwordLengthError": "La contrasenya ha de tenir almenys 6 caràcters",
+  "@passwordLengthError": {
+    "description": "Error de validació per a la longitud de la contrasenya"
+  },
+  "workerCreatedSuccessfully": "Treballador creat correctament",
+  "@workerCreatedSuccessfully": {
+    "description": "Missatge de snackbar en crear el treballador amb èxit"
+  },
+  "errorCreatingWorker": "Error en crear el treballador: {error}",
+  "@errorCreatingWorker": {
+    "description": "Missatge de snackbar en fallar la creació del treballador",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "createWorkerBtn": "Crear treballador",
+  "@createWorkerBtn": {
+    "description": "Text del botó per crear un treballador"
+  },
+  "dniLabel": "DNI (8 dígits + lletra)",
+  "@dniLabel": {
+    "description": "Etiqueta per a l'entrada de DNI"
+  }
 }
