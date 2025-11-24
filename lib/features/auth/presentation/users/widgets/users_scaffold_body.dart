@@ -53,7 +53,7 @@ class UsersScaffoldBody extends StatelessWidget {
             style: textTheme.titleMedium?.copyWith(fontSize: 27),
           ),
           Text(l10n.manageUsers, style: textTheme.bodyMedium),
-          const SizedBox(height: 20),
+          const SizedBox(height: 7),
 
           // Contenedor principal con fondo blanco/tarjeta
           Expanded(
@@ -73,7 +73,7 @@ class UsersScaffoldBody extends StatelessWidget {
                           fontSize: 18,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 5),
 
                       // 1. Sección de búsqueda y filtros
                       SearchAndFilterSection(
@@ -81,11 +81,11 @@ class UsersScaffoldBody extends StatelessWidget {
                         onSearchChanged: onSearchChanged,
                         onFilterChanged: onFilterChanged,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 8),
                       Divider(
+                        height: 8,
                         color: colorScheme.primary.withValues(alpha: 0.3),
                       ),
-                      const SizedBox(height: 10),
 
                       // 2. Lista de usuarios (ocupa el resto del espacio)
                       Expanded(

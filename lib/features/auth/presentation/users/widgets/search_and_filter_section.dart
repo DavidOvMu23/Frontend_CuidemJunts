@@ -29,7 +29,7 @@ class SearchAndFilterSection extends StatelessWidget {
           icono: Icons.search,
           onChanged: onSearchChanged,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
 
         // Dropdown para filtrar por nivel de dependencia
         Row(

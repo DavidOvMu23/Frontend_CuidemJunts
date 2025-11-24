@@ -11,6 +11,7 @@ class UserCard extends StatelessWidget {
   final ColorScheme colorScheme;
   final DateFormat dateFormatter;
   final VoidCallback onTap;
+  final VoidCallback? onEdit;
 
   const UserCard({
     super.key,
@@ -19,6 +20,7 @@ class UserCard extends StatelessWidget {
     required this.colorScheme,
     required this.dateFormatter,
     required this.onTap,
+    this.onEdit,
   });
 
   // Traduce el código de dependencia (G1, G2...)
@@ -109,7 +111,7 @@ class UserCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.fromLTRB(14, 2, 14, 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -125,15 +127,19 @@ class UserCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    general_iconbutton(
-                      Icons.edit,
-                      onPressed: () {
-                        // TODO: Implementar edición de usuario
-                      },
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                          child: general_iconbutton(
+                            Icons.edit,
+                            onPressed: onEdit ?? () {},
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
 
                 // Datos personales
                 Row(
@@ -143,7 +149,7 @@ class UserCard extends StatelessWidget {
                     Text(fechaNacimiento, style: textTheme.bodyMedium),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     const Icon(Icons.phone, size: 18),
@@ -154,7 +160,7 @@ class UserCard extends StatelessWidget {
 
                 // Dirección (solo si existe)
                 if (direccion.isNotEmpty) ...[
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -166,7 +172,7 @@ class UserCard extends StatelessWidget {
                     ],
                   ),
                 ],
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
 
                 // Badge de dependencia
                 Container(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
-import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_card.dart';
@@ -102,13 +102,18 @@ class UsersFutureList extends StatelessWidget {
                     ),
                   ),
                 ),
-                general_iconbutton(
-                  ordenSeleccionado == UsersPageSort.noneAZ
-                      ? Icons.filter_list_off
-                      : Icons.filter_list,
+                IconButton(
+                  icon: Icon(
+                    ordenSeleccionado == UsersPageSort.noneAZ
+                        ? Icons.filter_list_off
+                        : Icons.filter_list,
+                    color: colorScheme.primary,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
+                      isScrollControlled: true,
                       builder: (_) =>
                           UsersSortBottomSheet(onSortSelected: onSortChanged),
                     );
@@ -116,14 +121,14 @@ class UsersFutureList extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 2),
+            // Eliminamos el SizedBox para reducir la separación
 
             // Mensaje informativo
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 2),
+                const SizedBox(width: 3),
                 Expanded(
                   child: Text(
                     l10n.usersPreliminarView,
