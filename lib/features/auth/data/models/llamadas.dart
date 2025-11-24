@@ -8,6 +8,9 @@ class Llamadas {
   final String estado;
   final int grupoId;
   final String? grupoNombre;
+  final int? usuarioId;
+  final String? usuarioNombre;
+  final String? usuarioApellidos;
 
   const Llamadas({
     required this.id,
@@ -19,6 +22,9 @@ class Llamadas {
     required this.estado,
     required this.grupoId,
     required this.grupoNombre,
+    this.usuarioId,
+    this.usuarioNombre,
+    this.usuarioApellidos,
   });
 
   Llamadas copyWith({
@@ -31,6 +37,9 @@ class Llamadas {
     String? estado,
     int? grupoId,
     String? grupoNombre,
+    int? usuarioId,
+    String? usuarioNombre,
+    String? usuarioApellidos,
   }) {
     return Llamadas(
       id: id ?? this.id,
@@ -42,6 +51,9 @@ class Llamadas {
       estado: estado ?? this.estado,
       grupoId: grupoId ?? this.grupoId,
       grupoNombre: grupoNombre ?? this.grupoNombre,
+      usuarioId: usuarioId ?? this.usuarioId,
+      usuarioNombre: usuarioNombre ?? this.usuarioNombre,
+      usuarioApellidos: usuarioApellidos ?? this.usuarioApellidos,
     );
   }
 
@@ -49,6 +61,7 @@ class Llamadas {
     final rawId = json['id_com'] ?? json['id'];
     final fechaRaw = json['fecha']?.toString();
     final parsedFecha = fechaRaw != null ? DateTime.tryParse(fechaRaw) : null;
+
     return Llamadas(
       id: rawId is int ? rawId : int.tryParse('$rawId') ?? 0,
       fecha: parsedFecha ?? DateTime.fromMillisecondsSinceEpoch(0),
@@ -67,6 +80,19 @@ class Llamadas {
       grupoNombre: (json['grupo'] is Map)
           ? (json['grupo']['nombre'] as String?)
           : (json['grupoNombre'] as String?),
+      // El backend puede devolver la relación 'usuario' como objeto o
+      // solo enviar usuarioId/usuarioNombre. Soportamos ambos formatos.
+      usuarioId: (json['usuario'] is Map)
+          ? (json['usuario']['id_usu'] is int
+                ? json['usuario']['id_usu'] as int
+                : int.tryParse('${json['usuario']['id_usu']}') ?? 0)
+          : (json['usuarioId'] as int?),
+      usuarioNombre: (json['usuario'] is Map)
+          ? (json['usuario']['nombre'] as String?)
+          : (json['usuarioNombre'] as String?),
+      usuarioApellidos: (json['usuario'] is Map)
+          ? (json['usuario']['apellidos'] as String?)
+          : (json['usuarioApellidos'] as String?),
     );
   }
 }
