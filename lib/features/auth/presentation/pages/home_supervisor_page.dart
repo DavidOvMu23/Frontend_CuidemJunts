@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
@@ -131,359 +132,551 @@ class HomeSupervisorPage extends ConsumerWidget {
 
       // -------- CONTENIDO PRINCIPAL --------
       body: Padding(
-        // SingleChildScrollView permite que toda la columna sea scrolleable
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-
-        // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
-        child: ConstrainedBox(
-          // Hacemos que la columna ocupe todo el ancho disponible.
-
-          // Esto es necesario para que los elementos dentro de la columna
-          // (como las "tarjetas" de Material) ocupen todo el ancho posible.
-          constraints: const BoxConstraints(minWidth: double.infinity),
-
-          // Columna principal con todo el contenido de la página.
-          child: SingleChildScrollView(
-            child: Column(
-              // Alineamos todo a la izquierda.
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              // Elementos de la columna
-              children: [
-                // Título principal
-                Text(
-                  l10n.supervisonPanel,
-                  style: textTheme.titleMedium?.copyWith(fontSize: 27),
-                ),
-
-                // Fecha de hoy con textos traducidos (nombres de días/meses). (el chatgpt me ha ayudado con esto)
-                Builder(
-                  builder: (context) {
-                    final weekdays = [
-                      l10n.lunes,
-                      l10n.martes,
-                      l10n.miercoles,
-                      l10n.jueves,
-                      l10n.viernes,
-                      l10n.sabado,
-                      l10n.domingo,
-                    ];
-                    final months = [
-                      l10n.enero,
-                      l10n.febrero,
-                      l10n.marzo,
-                      l10n.abril,
-                      l10n.mayo,
-                      l10n.junio,
-                      l10n.julio,
-                      l10n.agosto,
-                      l10n.septiembre,
-                      l10n.octubre,
-                      l10n.noviembre,
-                      l10n.diciembre,
-                    ];
-                    final fechaHoy =
-                        '${weekdays[hoy.weekday - 1]}, ${hoy.day} de ${months[hoy.month - 1]} de ${hoy.year}';
-                    return Text(fechaHoy, style: textTheme.bodyMedium);
-                  },
-                ),
-
-                const SizedBox(height: 20),
-                SingleChildScrollView(
-                  child: (Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // -------- TARJETAS DE ESTADÍSTICAS --------
-                      Material(
-                        // Material para mostrar las llamadas programadas.
-                        borderRadius: BorderRadius.circular(30),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-
-                          // Fila con texto a la izquierda e icono a la derecha.
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
-                              Expanded(
-                                // Columna para tener título y contador uno debajo del otro.
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.programedCalls,
-                                      textAlign: TextAlign.left,
-                                      style: textTheme.headlineLarge?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-
-                                    scheduledCallsAsync.when(
-                                      data: (count) => Text(
-                                        count.toString(),
-                                        style: textTheme.displayMedium,
-                                      ),
-                                      error: (_, __) => Text(
-                                        '-',
-                                        style: textTheme.displayMedium,
-                                      ),
-                                      loading: () =>
-                                          const CircularProgressIndicator(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Icono de calendario a la derecha
-                              Padding(
-                                padding: const EdgeInsets.only(top: 15),
-                                child: Icon(
-                                  Icons.today,
-                                  color: colorScheme.primary,
-                                  size: 60,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Material para mostrar las llamadas completadas.
-                      Material(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          // Fila con texto a la izquierda e icono a la derecha.
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
-                              Expanded(
-                                // Columna para tener título y contador uno debajo del otro.
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.completedCalls,
-                                      textAlign: TextAlign.left,
-                                      style: textTheme.headlineLarge?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    completedCallsAsync.when(
-                                      data: (count) => Text(
-                                        count.toString(),
-                                        style: textTheme.displayMedium,
-                                      ),
-                                      loading: () =>
-                                          const CircularProgressIndicator(),
-                                      error: (_, __) => Text(
-                                        '-',
-                                        style: textTheme.displayMedium,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Icono de teléfono a la derecha
-                              Padding(
-                                padding: const EdgeInsets.only(top: 15),
-                                child: Icon(
-                                  Icons.phone,
-                                  color: colorScheme.primary,
-                                  size: 60,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-                      // Material para mostrar las llamadas programadas para hoy.
-                      Material(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // titulo de la sección
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      l10n.todayCalls,
-                                      style: textTheme.headlineLarge?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              //divisor
-                              const SizedBox(height: 12),
-                              Divider(
-                                color: colorScheme.primary.withOpacity(0.25),
-                              ),
-                              callsTodayAsync.when(
-                                data: (calls) {
-                                  if (calls.isEmpty)
-                                    return const Text(
-                                      "No hay llamadas hoy",
-                                    ); // O tu widget de vacío original
-                                  return Column(
-                                    children: calls
-                                        .map(
-                                          (call) => ListTile(
-                                            title: Text(
-                                              call.grupoNombre ?? 'Sin grupo',
-                                            ),
-                                            subtitle: Text(
-                                              '${call.hora} - ${call.estado}',
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  );
-                                },
-                                loading: () => const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                                error: (_, __) => const Text("Error al cargar"),
-                              ),
-
-                              // Contenido central cuando no hay llamadas programadas
-                              SizedBox(
-                                height: 120,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.phone_in_talk,
-                                        size: 48,
-                                        color: colorScheme.primary.withOpacity(
-                                          0.25,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        l10n.nothingTodayCalls,
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          color: colorScheme.onSurface
-                                              .withOpacity(0.6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-                      Material(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Encabezado: icono + título + contador pequeño
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      l10n.activityRecent,
-                                      style: textTheme.headlineLarge?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              recentCallsAsync.when(
-                                data: (calls) {
-                                  if (calls.isEmpty)
-                                    return const Text("Sin actividad reciente");
-                                  return Column(
-                                    children: calls
-                                        .map(
-                                          (call) => ListTile(
-                                            title: Text(
-                                              call.grupoNombre ?? 'Sin grupo',
-                                            ),
-                                            subtitle: Text(
-                                              '${call.hora} - ${call.estado}',
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  );
-                                },
-                                loading: () => const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                                error: (_, __) => const Text("Error al cargar"),
-                              ),
-
-                              const SizedBox(height: 12),
-                              Divider(
-                                color: colorScheme.primary.withOpacity(0.25),
-                              ),
-
-                              // Contenido central cuando no hay llamadas programadas
-                              SizedBox(
-                                height: 120,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.electric_bolt,
-                                        size: 48,
-                                        color: colorScheme.primary.withOpacity(
-                                          0.25,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        l10n.nothingActivityRecent,
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          color: colorScheme.onSurface
-                                              .withOpacity(0.6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-                ),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Título principal (fijo)
+            Text(
+              l10n.supervisonPanel,
+              style: textTheme.titleMedium?.copyWith(fontSize: 27),
             ),
-          ),
+
+            // Fecha de hoy con textos traducidos (fijo)
+            Builder(
+              builder: (context) {
+                final weekdays = [
+                  l10n.lunes,
+                  l10n.martes,
+                  l10n.miercoles,
+                  l10n.jueves,
+                  l10n.viernes,
+                  l10n.sabado,
+                  l10n.domingo,
+                ];
+                final months = [
+                  l10n.enero,
+                  l10n.febrero,
+                  l10n.marzo,
+                  l10n.abril,
+                  l10n.mayo,
+                  l10n.junio,
+                  l10n.julio,
+                  l10n.agosto,
+                  l10n.septiembre,
+                  l10n.octubre,
+                  l10n.noviembre,
+                  l10n.diciembre,
+                ];
+                final fechaHoy =
+                    '${weekdays[hoy.weekday - 1]}, ${hoy.day} de ${months[hoy.month - 1]} de ${hoy.year}';
+                return Text(fechaHoy, style: textTheme.bodyMedium);
+              },
+            ),
+
+            const SizedBox(height: 6),
+
+            // Contenido scrolleable
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // -------- TARJETAS DE ESTADÍSTICAS --------
+                    Material(
+                      // Material para mostrar las llamadas programadas.
+                      borderRadius: BorderRadius.circular(30),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+
+                        // Fila con texto a la izquierda e icono a la derecha.
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
+                            Expanded(
+                              // Columna para tener título y contador uno debajo del otro.
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.programedCalls,
+                                    textAlign: TextAlign.left,
+                                    style: textTheme.headlineLarge?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+
+                                  scheduledCallsAsync.when(
+                                    data: (count) => Text(
+                                      count.toString(),
+                                      style: textTheme.displayMedium,
+                                    ),
+                                    error: (_, __) => Text(
+                                      '-',
+                                      style: textTheme.displayMedium,
+                                    ),
+                                    loading: () =>
+                                        const CircularProgressIndicator(),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Icono de calendario a la derecha
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15),
+                              child: Icon(
+                                Icons.today,
+                                color: colorScheme.primary,
+                                size: 60,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Material para mostrar las llamadas completadas.
+                    Material(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        // Fila con texto a la izquierda e icono a la derecha.
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Texto con título y contador grande. el expanded hace que ocupe todo el espacio posible
+                            Expanded(
+                              // Columna para tener título y contador uno debajo del otro.
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.completedCalls,
+                                    textAlign: TextAlign.left,
+                                    style: textTheme.headlineLarge?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  completedCallsAsync.when(
+                                    data: (count) => Text(
+                                      count.toString(),
+                                      style: textTheme.displayMedium,
+                                    ),
+                                    loading: () =>
+                                        const CircularProgressIndicator(),
+                                    error: (_, __) => Text(
+                                      '-',
+                                      style: textTheme.displayMedium,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Icono de teléfono a la derecha
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15),
+                              child: Icon(
+                                Icons.phone,
+                                color: colorScheme.primary,
+                                size: 60,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                    // Material para mostrar las llamadas programadas para hoy.
+                    Material(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // titulo de la sección
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l10n.todayCalls,
+                                    style: textTheme.headlineLarge?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            //divisor
+                            const SizedBox(height: 2),
+                            Divider(
+                              color: colorScheme.primary.withOpacity(0.25),
+                            ),
+
+                            // Mostrar las llamadas o el mensaje de vacío
+                            callsTodayAsync.when(
+                              data: (calls) {
+                                // Si no hay llamadas, mostramos el icono y mensaje
+                                if (calls.isEmpty) {
+                                  return SizedBox(
+                                    height: 120,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.phone_in_talk,
+                                            size: 48,
+                                            color: colorScheme.primary
+                                                .withOpacity(0.25),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            l10n.nothingTodayCalls,
+                                            style: textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: colorScheme.onSurface
+                                                      .withOpacity(0.6),
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // Si hay llamadas, las mostramos en cards
+                                return Column(
+                                  children: calls
+                                      .map(
+                                        (call) => Card(
+                                          margin: const EdgeInsets.only(
+                                            top: 8.0,
+                                            bottom: 2.0,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Nombre del paciente
+                                                if (call.usuarioNombre != null)
+                                                  Text(
+                                                    '${call.usuarioNombre}${call.usuarioApellidos != null ? ' ${call.usuarioApellidos}' : ''}',
+                                                    style: textTheme.titleMedium
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          fontSize: 16,
+                                                        ),
+                                                  ),
+                                                if (call.usuarioNombre != null)
+                                                  const SizedBox(height: 4),
+
+                                                // Nombre del grupo
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.group,
+                                                      size: 16,
+                                                      color: colorScheme
+                                                          .onSurface
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      call.grupoNombre ??
+                                                          'Sin grupo',
+                                                      style: textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: colorScheme
+                                                                .onSurface
+                                                                .withOpacity(
+                                                                  0.7,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 6),
+
+                                                // Hora
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.access_time,
+                                                      size: 16,
+                                                      color: colorScheme
+                                                          .onSurface
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      call.hora,
+                                                      style: textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: colorScheme
+                                                                .onSurface
+                                                                .withOpacity(
+                                                                  0.7,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+
+                                                // Badge de estado con color
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 6,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: _getEstadoColor(
+                                                        call.estado,
+                                                        isDark:
+                                                            Theme.of(
+                                                              context,
+                                                            ).brightness ==
+                                                            Brightness.dark,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      _getEstadoTexto(
+                                                        call.estado,
+                                                      ),
+                                                      style: textTheme.bodySmall
+                                                          ?.copyWith(
+                                                            color: _getEstadoTextColor(
+                                                              call.estado,
+                                                              isDark:
+                                                                  Theme.of(
+                                                                    context,
+                                                                  ).brightness ==
+                                                                  Brightness
+                                                                      .dark,
+                                                            ),
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                );
+                              },
+                              loading: () => const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              error: (_, __) => const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text("Error al cargar las llamadas"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                    Material(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Encabezado: icono + título + contador pequeño
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l10n.activityRecent,
+                                    style: textTheme.headlineLarge?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            recentCallsAsync.when(
+                              data: (calls) {
+                                if (calls.isEmpty)
+                                  return const Text("Sin actividad reciente");
+                                return Column(
+                                  children: calls
+                                      .map(
+                                        (call) => ListTile(
+                                          title: Text(
+                                            call.grupoNombre ?? 'Sin grupo',
+                                          ),
+                                          subtitle: Text(
+                                            '${call.hora} - ${call.estado}',
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                );
+                              },
+                              loading: () => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              error: (_, __) => const Text("Error al cargar"),
+                            ),
+
+                            const SizedBox(height: 12),
+                            Divider(
+                              color: colorScheme.primary.withOpacity(0.25),
+                            ),
+
+                            // Contenido central cuando no hay llamadas programadas
+                            SizedBox(
+                              height: 120,
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.electric_bolt,
+                                      size: 48,
+                                      color: colorScheme.primary.withOpacity(
+                                        0.25,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      l10n.nothingActivityRecent,
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onSurface
+                                            .withOpacity(0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  // -------- FUNCIONES HELPER PARA COLORES DE ESTADO --------
+  // Obtiene el texto formateado del estado
+  String _getEstadoTexto(String? estado) {
+    if (estado == null || estado.trim().isEmpty) return 'Sin estado';
+    final upper = estado.trim().toUpperCase();
+    switch (upper) {
+      case 'COMPLETADA':
+      case 'COMPLETED':
+        return 'Completada';
+      case 'PENDIENTE':
+      case 'PENDING':
+        return 'Pendiente';
+      case 'CANCELADA':
+      case 'CANCELLED':
+      case 'CANCELED':
+        return 'Cancelada';
+      default:
+        return estado.trim();
+    }
+  }
+
+  // Obtiene el color de fondo según el estado
+  Color _getEstadoColor(String? estado, {required bool isDark}) {
+    if (estado == null || estado.trim().isEmpty) {
+      return isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    }
+    final upper = estado.trim().toUpperCase();
+    switch (upper) {
+      case 'COMPLETADA':
+      case 'COMPLETED':
+        // Verde para completadas (mismo que dependencia leve)
+        return isDark ? AppPalette.successDark : AppPalette.successLight;
+      case 'PENDIENTE':
+      case 'PENDING':
+        // Naranja/amarillo para pendientes (mismo que dependencia moderada)
+        return isDark ? AppPalette.warningDark : AppPalette.warningLight;
+      case 'CANCELADA':
+      case 'CANCELLED':
+      case 'CANCELED':
+        // Rojo para canceladas (mismo que dependencia severa)
+        return isDark ? AppPalette.errorDark : AppPalette.errorLight;
+      default:
+        return isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    }
+  }
+
+  // Obtiene el color del texto según el estado
+  Color _getEstadoTextColor(String? estado, {required bool isDark}) {
+    if (estado == null || estado.trim().isEmpty) {
+      return isDark ? Colors.grey[300]! : Colors.grey[700]!;
+    }
+    final upper = estado.trim().toUpperCase();
+    switch (upper) {
+      case 'COMPLETADA':
+      case 'COMPLETED':
+        return isDark
+            ? AppPalette.successFontDark
+            : AppPalette.successFontLight;
+      case 'PENDIENTE':
+      case 'PENDING':
+        return isDark
+            ? AppPalette.warningFontDark
+            : AppPalette.warningFontLight;
+      case 'CANCELADA':
+      case 'CANCELLED':
+      case 'CANCELED':
+        return isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight;
+      default:
+        return isDark ? Colors.grey[300]! : Colors.grey[700]!;
+    }
   }
 
   // -------- DIÁLOGO DE NOTIFICACIONES --------
