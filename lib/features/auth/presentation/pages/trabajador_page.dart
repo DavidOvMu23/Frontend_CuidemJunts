@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/trabajador_service.dart';
@@ -106,6 +108,31 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     // Textos traducidos (según el idioma seleccionado en la app).
     final l10n = AppLocalizations.of(context)!;
 
+    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
+    // Obtenemos el estado de autenticación del provider
+    final authState = ref.watch(authProvider);
+    String? userName;
+    String? userRole;
+
+    if (authState.userData != null) {
+      try {
+        // Convertimos el JSON a un Map
+        final userData =
+            jsonDecode(authState.userData!) as Map<String, dynamic>;
+
+        // Intentamos obtener el nombre del usuario
+        userName =
+            userData['nombre']?.toString() ??
+            userData['name']?.toString() ??
+            userData['correo']?.toString() ??
+            userData['email']?.toString();
+        userRole = userData['rol']?.toString();
+      } catch (e) {
+        // Si hay error al parsear el JSON, simplemente no mostramos nombre
+        userName = null;
+      }
+    }
+
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       // AppBar: barra superior con título centrado e iconos de acción a la derecha.
@@ -118,6 +145,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
       // -------- MENÚ LATERAL (DRAWER) --------
       // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
+        userName: userName,
+        userRole: userRole,
         context: context,
         selected: DrawerItem.telemarketers,
         onTapHome: () {

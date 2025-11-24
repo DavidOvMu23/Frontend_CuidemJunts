@@ -33,16 +33,35 @@ class UsuarioService {
   }
 
   Future<Usuario> update(String dni, Map<String, dynamic> payload) async {
-    final resp = await _client.put(
-      Uri.parse('$baseUrl/usuario/$dni'),
+    // Añadir el DNI al payload
+    final payloadConDni = {'dni': dni, ...payload};
+
+    final resp = await _client.patch(
+      Uri.parse('$baseUrl/usuario/dni'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
+      body: jsonEncode(payloadConDni),
     );
+
     if (resp.statusCode != 200) {
       throw Exception('Error ${resp.statusCode}: ${resp.body}');
     }
+
     final Map<String, dynamic> data =
         jsonDecode(resp.body) as Map<String, dynamic>;
     return Usuario.fromJson(data);
+  }
+
+  Future<void> delete(String dni) async {
+    final payloadConDni = {'dni': dni};
+
+    final resp = await _client.delete(
+      Uri.parse('$baseUrl/usuario/dni'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payloadConDni),
+    );
+
+    if (resp.statusCode != 204 && resp.statusCode != 200) {
+      throw Exception('Error ${resp.statusCode}: ${resp.body}');
+    }
   }
 }
