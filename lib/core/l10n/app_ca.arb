@@ -172,6 +172,8 @@
   "errorCreateUserDependency": "Error en crear l'usuari. Has de seleccionar un nivell de dependència.",
   "userCreatedSuccess": "Usuari creat amb èxit.",
   "userCreatedError": "Error en crear l'usuari.",
+  "userUpdatedSuccess": "Usuari actualitzat amb èxit.",
+  "userUpdatedError": "Error en actualitzar l'usuari.",
   "userErrorDNiExists": "Error en crear l'usuari. El DNI ja existeix.",
   "dni": "DNI",
   "name": "Nom",

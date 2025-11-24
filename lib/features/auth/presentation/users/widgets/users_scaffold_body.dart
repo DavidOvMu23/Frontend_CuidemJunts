@@ -22,6 +22,8 @@ class UsersScaffoldBody extends StatelessWidget {
   // Función para mostrar el detalle de un usuario
   final void Function(BuildContext, Usuario, DateFormat) onUsuarioTap;
 
+  final void Function(BuildContext, Usuario) onUsuarioEdit;
+
   const UsersScaffoldBody({
     super.key,
     required this.usuariosFuture,
@@ -33,6 +35,7 @@ class UsersScaffoldBody extends StatelessWidget {
     required this.onFilterChanged,
     required this.onSortChanged,
     required this.onUsuarioTap,
+    required this.onUsuarioEdit,
   });
 
   @override
@@ -98,6 +101,7 @@ class UsersScaffoldBody extends StatelessWidget {
                           onSortChanged: onSortChanged,
                           dateFormatter: dateFormatter,
                           onUsuarioTap: onUsuarioTap,
+                          onUsuarioEdit: onUsuarioEdit,
                         ),
                       ),
                     ],

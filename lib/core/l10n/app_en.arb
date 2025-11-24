@@ -170,6 +170,8 @@
   "errorCreateUserDependency": "Error creating user. You must select a dependency level.",
   "userCreatedSuccess": "User created successfully.",
   "userCreatedError": "Error creating user.",
+  "userUpdatedSuccess": "User updated successfully.",
+  "userUpdatedError": "Error updating user.",
   "userErrorDNiExists": "Error creating user. DNI already exists.",
   "dni": "DNI",
   "name": "Name",

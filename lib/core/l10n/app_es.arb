@@ -140,6 +140,8 @@
   "errorCreateUserDependency": "Error al crear el usuario. Debes seleccionar un nivel de dependencia.",
   "userCreatedSuccess": "Usuario creado con éxito.",
   "userCreatedError": "Error al crear el usuario.",
+  "userUpdatedSuccess": "Usuario actualizado con éxito.",
+  "userUpdatedError": "Error al actualizar el usuario.",
   "userErrorDNiExists": "Error al crear el usuario. El DNI ya existe.",
   "dni": "DNI",
   "name": "Nombre",

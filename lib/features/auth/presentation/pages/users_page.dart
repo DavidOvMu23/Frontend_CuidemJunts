@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_scaffold_body.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_edit_page.dart';
 
 // -------- PANTALLA DE USUARIOS --------
 // Controlador principal de la vista de usuarios
@@ -77,6 +78,19 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     DateFormat dateFormatter,
   ) {
     // TODO: Implementar detalle usuario
+  }
+  void _editarUsuario(BuildContext context, Usuario usuario) async {
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditarUserPage(usuario: usuario)),
+    );
+
+    // Si se editó correctamente, recarga la lista
+    if (resultado == true) {
+      setState(() {
+        _usuariosFuture = _cargarUsuariosConContactos();
+      });
+    }
   }
 
   // Filtra y ordena la lista de usuarios según el estado actual
@@ -204,16 +218,22 @@ class _UsersPageState extends ConsumerState<UsersPage> {
         onFilterChanged: _onFilterChanged,
         onSortChanged: _onSortChanged,
         onUsuarioTap: _mostrarDetalleUsuario,
+        onUsuarioEdit: _editarUsuario,
       ),
 
       // -------- BOTÓN FLOTANTE --------
       floatingActionButton: general_floatingbutton(
         Icons.add,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final resultado = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const CrearUserPage()),
           );
+          if (resultado == true) {
+            setState(() {
+              _usuariosFuture = _cargarUsuariosConContactos();
+            });
+          }
         },
       ),
     );
