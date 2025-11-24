@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
 
 // Guarda si el usuario está logueado o no, y si está logueado,
 // también guarda su token, email y otros datos que necesitemos.
@@ -39,36 +38,16 @@ class AuthState {
   }
 }
 
-// Este es el metodo que controla el login, logout y mantiene
-// la sesión del usuario. Cuando la app arranca, automáticamente
-// verifica si hay una sesión guardada para no tener que volver a hacer login.
+// Este es el método que controla el login y logout.
+// La sesión solo se mantiene en memoria mientras la app está abierta.
+// Cuando se cierra la app, el usuario tendrá que volver a hacer login.
 class AuthNotifier extends Notifier<AuthState> {
   // Se ejecuta automáticamente cuando se crea el provider.
-  // Aquí comprobamos si el usuario ya había iniciado sesión antes.
+  // Siempre retorna un estado no autenticado al iniciar la app.
   @override
   AuthState build() {
-    final prefsService = ref.watch(preferencesServiceProvider);
-
-    // Miramos si hay una sesión guardada en el dispositivo
-    final isLoggedIn = prefsService.isLoggedIn();
-
-    if (isLoggedIn) {
-      // Hay sesión guardada, recuperamos los datos
-      final token = prefsService.getToken();
-      final email = prefsService.getUserEmail();
-      final userData = prefsService.getUserData();
-
-      return AuthState(
-        isAuthenticated: true,
-        loading: false,
-        token: token,
-        email: email,
-        userData: userData,
-      );
-    } else {
-      // No hay sesión, el usuario tendrá que hacer login
-      return const AuthState(isAuthenticated: false, loading: false);
-    }
+    // No hay sesión guardada, el usuario tendrá que hacer login
+    return const AuthState(isAuthenticated: false, loading: false);
   }
 
   // Guarda la sesión cuando el usuario hace login correctamente.
@@ -82,15 +61,8 @@ class AuthNotifier extends Notifier<AuthState> {
     // Ponemos loading en true para mostrar un spinner o algo
     state = state.copyWith(loading: true);
 
-    // Guardamos la sesión en el almacenamiento local del dispositivo
-    final prefsService = ref.read(preferencesServiceProvider);
-    await prefsService.saveSession(
-      token: token,
-      email: email,
-      userData: userData,
-    );
-
     // Actualizamos el estado: ahora el usuario está autenticado
+    // NOTA: Solo guardamos en memoria, no en disco
     state = AuthState(
       isAuthenticated: true,
       loading: false,
@@ -100,34 +72,13 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
-  // Cierra la sesión del usuario y borra todos sus datos guardados.
+  // Cierra la sesión del usuario.
   // Después de esto, el usuario volverá a la pantalla de login.
   Future<void> logout() async {
     state = state.copyWith(loading: true);
 
-    // Borramos la sesión del almacenamiento local
-    final prefsService = ref.read(preferencesServiceProvider);
-    await prefsService.logout();
-
     // Volvemos al estado inicial: no autenticado
     state = const AuthState(isAuthenticated: false, loading: false);
-  }
-
-  // Actualiza solo el token sin tocar el resto de datos.
-
-  // Útil si el backend nos da un token nuevo (refresh token) sin
-  // tener que hacer login otra vez. (ESTO ES DEL CHAT GPT)
-  Future<void> updateToken(String newToken) async {
-    if (!state.isAuthenticated) return; // Solo si ya está logueado
-
-    final prefsService = ref.read(preferencesServiceProvider);
-    await prefsService.saveSession(
-      token: newToken,
-      email: state.email!,
-      userData: state.userData,
-    );
-
-    state = state.copyWith(token: newToken);
   }
 }
 
