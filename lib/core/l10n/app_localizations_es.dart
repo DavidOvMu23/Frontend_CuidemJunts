@@ -516,4 +516,85 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get usersPreliminarView =>
       'Vista preliminar: toca un usuario para ver toda su información.';
+
+  @override
+  String get callCancelled => 'Cancelada';
+
+  @override
+  String get noStatus => 'Sin estado';
+
+  @override
+  String get noNotifications => 'No hay notificaciones';
+
+  @override
+  String get close => 'Cerrar';
+
+  @override
+  String get role => 'Rol';
+
+  @override
+  String get teleoperator => 'Teleoperador';
+
+  @override
+  String get admin => 'Admin';
+
+  @override
+  String get nia8digits => 'NIA (8 dígitos)';
+
+  @override
+  String get groupIdOptional => 'Grupo (id) - opcional';
+
+  @override
+  String get selectDate => 'Seleccionar fecha';
+
+  @override
+  String get selectTime => 'Seleccionar hora';
+
+  @override
+  String get dialogTitle => 'Título del diálogo';
+
+  @override
+  String get notificationsPressed => 'Notificaciones pulsadas';
+
+  @override
+  String get mainTitle => 'Título principal';
+
+  @override
+  String get sectionSubtitle => 'Subtítulo de sección';
+
+  @override
+  String get cuidemJunts => 'CuidemJunts';
+
+  @override
+  String get errorLoadingActivity => 'Error al cargar la actividad';
+
+  @override
+  String get nia => 'NIA';
+
+  @override
+  String get groupId => 'Grupo id';
+
+  @override
+  String get invalidNIA => 'NIA inválido: debe tener 8 dígitos';
+
+  @override
+  String get invalidDNI => 'DNI inválido: formato 12345678A';
+
+  @override
+  String get passwordLengthError =>
+      'La contraseña debe tener al menos 6 caracteres';
+
+  @override
+  String get workerCreatedSuccessfully => 'Trabajador creado correctamente';
+
+  @override
+  String errorCreatingWorker(String error) {
+    return 'Error al crear trabajador: $error';
+  }
+
+  @override
+  String get createWorkerBtn => 'Crear trabajador';
+
+  @override
+  String get dniLabel => 'DNI (8 dígitos + letra)';
 }

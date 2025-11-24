@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_buttons_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_containers_demo.dart';
 
@@ -11,6 +12,7 @@ class ContainersDemo extends StatelessWidget {
   // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       // -------- BARRA SUPERIOR (APPBAR) --------
       // Muestra el título en la parte superior de la pantalla
@@ -73,7 +75,7 @@ class ContainersDemo extends StatelessWidget {
 
                       // -------- ALERT DIALOG --------
                       builder: (context) => AlertDialog(
-                        title: const Text('Título del diálogo'),
+                        title: Text(l10n.dialogTitle),
                         content: const Text(
                           'Descripción o mensaje del diálogo.',
                         ),
@@ -83,12 +85,12 @@ class ContainersDemo extends StatelessWidget {
                           // Botón de cancelar
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancelar'),
+                            child: Text(l10n.cancel),
                           ),
                           // Botón de aceptar
                           FilledButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Aceptar'),
+                            child: Text(l10n.accept),
                           ),
                         ],
                       ),

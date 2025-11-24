@@ -130,7 +130,7 @@ class UsersFutureList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 3),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     l10n.usersPreliminarView,

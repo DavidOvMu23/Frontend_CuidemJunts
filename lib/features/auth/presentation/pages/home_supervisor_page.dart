@@ -77,7 +77,7 @@ class HomeSupervisorPage extends ConsumerWidget {
           error: (_, __) => 0,
         ),
         onNotifications: () {
-          showNotificacionesDialog(context, ref);
+          showNotificacionesDialog(context, ref, l10n);
         },
       ),
 
@@ -473,6 +473,7 @@ class HomeSupervisorPage extends ConsumerWidget {
                                                     child: Text(
                                                       _getEstadoTexto(
                                                         call.estado,
+                                                        l10n,
                                                       ),
                                                       style: textTheme.bodySmall
                                                           ?.copyWith(
@@ -505,9 +506,9 @@ class HomeSupervisorPage extends ConsumerWidget {
                                   child: CircularProgressIndicator(),
                                 ),
                               ),
-                              error: (_, __) => const Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Text("Error al cargar las llamadas"),
+                              error: (_, __) => Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(l10n.errorCallsLoading),
                               ),
                             ),
                           ],
@@ -537,19 +538,179 @@ class HomeSupervisorPage extends ConsumerWidget {
                                 ),
                               ],
                             ),
+                            //divisor
+                            const SizedBox(height: 2),
+                            Divider(
+                              color: colorScheme.primary.withOpacity(0.25),
+                            ),
+
                             recentCallsAsync.when(
                               data: (calls) {
-                                if (calls.isEmpty)
-                                  return const Text("Sin actividad reciente");
+                                // Si no hay actividad reciente, mostramos el icono y mensaje
+                                if (calls.isEmpty) {
+                                  return SizedBox(
+                                    height: 120,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.electric_bolt,
+                                            size: 48,
+                                            color: colorScheme.primary
+                                                .withOpacity(0.25),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            l10n.nothingActivityRecent,
+                                            style: textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: colorScheme.onSurface
+                                                      .withOpacity(0.6),
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                                // Si hay actividad, la mostramos en cards
                                 return Column(
                                   children: calls
                                       .map(
-                                        (call) => ListTile(
-                                          title: Text(
-                                            call.grupoNombre ?? 'Sin grupo',
+                                        (call) => Card(
+                                          margin: const EdgeInsets.only(
+                                            top: 8.0,
+                                            bottom: 2.0,
                                           ),
-                                          subtitle: Text(
-                                            '${call.hora} - ${call.estado}',
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Nombre del paciente
+                                                if (call.usuarioNombre != null)
+                                                  Text(
+                                                    '${call.usuarioNombre}${call.usuarioApellidos != null ? ' ${call.usuarioApellidos}' : ''}',
+                                                    style: textTheme.titleMedium
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          fontSize: 16,
+                                                        ),
+                                                  ),
+                                                if (call.usuarioNombre != null)
+                                                  const SizedBox(height: 4),
+
+                                                // Nombre del grupo
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.group,
+                                                      size: 16,
+                                                      color: colorScheme
+                                                          .onSurface
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      call.grupoNombre ??
+                                                          'Sin grupo',
+                                                      style: textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: colorScheme
+                                                                .onSurface
+                                                                .withOpacity(
+                                                                  0.7,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 6),
+
+                                                // Hora
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.access_time,
+                                                      size: 16,
+                                                      color: colorScheme
+                                                          .onSurface
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      call.hora,
+                                                      style: textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: colorScheme
+                                                                .onSurface
+                                                                .withOpacity(
+                                                                  0.7,
+                                                                ),
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+
+                                                // Badge de estado con color
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 6,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: _getEstadoColor(
+                                                        call.estado,
+                                                        isDark:
+                                                            Theme.of(
+                                                              context,
+                                                            ).brightness ==
+                                                            Brightness.dark,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      _getEstadoTexto(
+                                                        call.estado,
+                                                        l10n,
+                                                      ),
+                                                      style: textTheme.bodySmall
+                                                          ?.copyWith(
+                                                            color: _getEstadoTextColor(
+                                                              call.estado,
+                                                              isDark:
+                                                                  Theme.of(
+                                                                    context,
+                                                                  ).brightness ==
+                                                                  Brightness
+                                                                      .dark,
+                                                            ),
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       )
@@ -557,40 +718,14 @@ class HomeSupervisorPage extends ConsumerWidget {
                                 );
                               },
                               loading: () => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                              error: (_, __) => const Text("Error al cargar"),
-                            ),
-
-                            const SizedBox(height: 12),
-                            Divider(
-                              color: colorScheme.primary.withOpacity(0.25),
-                            ),
-
-                            // Contenido central cuando no hay llamadas programadas
-                            SizedBox(
-                              height: 120,
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.electric_bolt,
-                                      size: 48,
-                                      color: colorScheme.primary.withOpacity(
-                                        0.25,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      l10n.nothingActivityRecent,
-                                      style: textTheme.bodyMedium?.copyWith(
-                                        color: colorScheme.onSurface
-                                            .withOpacity(0.6),
-                                      ),
-                                    ),
-                                  ],
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: CircularProgressIndicator(),
                                 ),
+                              ),
+                              error: (_, __) => Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(l10n.errorLoadingActivity),
                               ),
                             ),
                           ],
@@ -609,21 +744,25 @@ class HomeSupervisorPage extends ConsumerWidget {
 
   // -------- FUNCIONES HELPER PARA COLORES DE ESTADO --------
   // Obtiene el texto formateado del estado
-  String _getEstadoTexto(String? estado) {
-    if (estado == null || estado.trim().isEmpty) return 'Sin estado';
+  String _getEstadoTexto(String? estado, AppLocalizations l10n) {
+    if (estado == null || estado.trim().isEmpty) return l10n.noStatus;
     final upper = estado.trim().toUpperCase();
     switch (upper) {
       case 'COMPLETADA':
       case 'COMPLETED':
-        return 'Completada';
+        return l10n.callCompleted;
       case 'PENDIENTE':
       case 'PENDING':
-        return 'Pendiente';
+        return l10n.callPending;
       case 'CANCELADA':
       case 'CANCELLED':
       case 'CANCELED':
-        return 'Cancelada';
+        return l10n.callCancelled;
+      case 'NO_CONTESTO':
+      case 'NO_ANSWER':
+        return l10n.callNoAnswer;
       default:
+        // Consider if a default localization string is better than raw `estado.trim()`
         return estado.trim();
     }
   }
@@ -637,16 +776,20 @@ class HomeSupervisorPage extends ConsumerWidget {
     switch (upper) {
       case 'COMPLETADA':
       case 'COMPLETED':
-        // Verde para completadas (mismo que dependencia leve)
+        // Verde para completadas
         return isDark ? AppPalette.successDark : AppPalette.successLight;
       case 'PENDIENTE':
       case 'PENDING':
-        // Naranja/amarillo para pendientes (mismo que dependencia moderada)
+        // Naranja/amarillo para pendientes
         return isDark ? AppPalette.warningDark : AppPalette.warningLight;
       case 'CANCELADA':
       case 'CANCELLED':
       case 'CANCELED':
-        // Rojo para canceladas (mismo que dependencia severa)
+        // Gris para canceladas
+        return isDark ? Colors.grey[800]! : Colors.grey[300]!;
+      case 'NO_CONTESTO':
+      case 'NO_ANSWER':
+        // Rojo para no contestó
         return isDark ? AppPalette.errorDark : AppPalette.errorLight;
       default:
         return isDark ? Colors.grey[800]! : Colors.grey[300]!;
@@ -673,6 +816,9 @@ class HomeSupervisorPage extends ConsumerWidget {
       case 'CANCELADA':
       case 'CANCELLED':
       case 'CANCELED':
+        return isDark ? Colors.grey[300]! : Colors.grey[700]!;
+      case 'NO_CONTESTO':
+      case 'NO_ANSWER':
         return isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight;
       default:
         return isDark ? Colors.grey[300]! : Colors.grey[700]!;
@@ -681,19 +827,20 @@ class HomeSupervisorPage extends ConsumerWidget {
 
   // -------- DIÁLOGO DE NOTIFICACIONES --------
   // Función que muestra una ventana flotante con todas las notificaciones
-  void showNotificacionesDialog(BuildContext context, WidgetRef ref) {
+  void showNotificacionesDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final notificacionesAsync = ref.watch(notificacionesProvider);
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Notificaciones'),
+        title: Text(l10n.notifications),
         content: SizedBox(
           width: double.maxFinite,
           child: notificacionesAsync.when(
             data: (notificaciones) {
               if (notificaciones.isEmpty) {
-                return const Text('No hay notificaciones');
+                return Text(l10n.noNotifications);
               }
 
               // Separar notificaciones por estado
@@ -705,9 +852,9 @@ class HomeSupervisorPage extends ConsumerWidget {
                 children: [
                   // Sección de NO LEÍDAS
                   if (sinLeer.isNotEmpty) ...[
-                    const Text(
-                      'Sin leer',
-                      style: TextStyle(
+                    Text(
+                      l10n.unread,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -727,9 +874,9 @@ class HomeSupervisorPage extends ConsumerWidget {
 
                   // Sección de LEÍDAS
                   if (leidas.isNotEmpty) ...[
-                    const Text(
-                      'Leídas',
-                      style: TextStyle(
+                    Text(
+                      l10n.read,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -749,13 +896,13 @@ class HomeSupervisorPage extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Text('Error al cargar notificaciones'),
+            error: (_, __) => Text(l10n.errorNotificationsLoading),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cerrar'),
+            child: Text(l10n.close),
           ),
         ],
       ),
