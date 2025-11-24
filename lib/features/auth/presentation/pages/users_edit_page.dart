@@ -52,14 +52,16 @@ class _EditarUserPageState extends ConsumerState<EditarUserPage> {
     _direccionCtrl.text = widget.usuario.direccion;
     _fechaNacimiento = widget.usuario.f_nac;
 
-    final nivel = widget.usuario.nivelDependencia.toUpperCase();
-    if (nivel == 'G1') {
+    // Mapear el nivel de dependencia del backend al formato del dropdown
+    final nivel = widget.usuario.nivelDependencia.trim().toUpperCase();
+    if (nivel == 'G1' || nivel == 'LEVE') {
       _nivelDependencia = 'leve';
-    } else if (nivel == 'G2') {
+    } else if (nivel == 'G2' || nivel == 'MODERADA' || nivel == 'MODERADO') {
       _nivelDependencia = 'moderada';
-    } else if (nivel == 'G3') {
+    } else if (nivel == 'G3' || nivel == 'SEVERA' || nivel == 'SEVERO') {
       _nivelDependencia = 'severa';
     } else {
+      // Para valores vacíos o "NINGUNA"
       _nivelDependencia = 'ninguna';
     }
 
@@ -125,7 +127,7 @@ class _EditarUserPageState extends ConsumerState<EditarUserPage> {
     try {
       await _usuarioService.update(widget.usuario.dni, payload);
       general_snackbar(context, l10n.userUpdatedSuccess, 2);
-      Navigator.pop(context);
+      Navigator.pop(context, true); // Devuelve true para recargar la lista
     } catch (e) {
       general_snackbar_error(context, l10n.userUpdatedError, 3);
     }

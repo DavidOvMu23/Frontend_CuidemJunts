@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -111,10 +112,36 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
+    // Obtenemos el estado de autenticación del provider
+    final authState = ref.watch(authProvider);
+    String? userName;
+    String? userRole;
+
+    if (authState.userData != null) {
+      try {
+        // Convertimos el JSON a un Map
+        final userData =
+            jsonDecode(authState.userData!) as Map<String, dynamic>;
+
+        // Intentamos obtener el nombre del usuario
+        userName =
+            userData['nombre']?.toString() ??
+            userData['name']?.toString() ??
+            userData['correo']?.toString() ??
+            userData['email']?.toString();
+        userRole = userData['rol']?.toString();
+      } catch (e) {
+        // Si hay error al parsear el JSON, simplemente no mostramos nombre
+        userName = null;
+      }
+    }
 
     return Scaffold(
       appBar: appMainAppBar(onNotifications: () {}),
       drawer: appDrawer(
+        userName: userName,
+        userRole: userRole,
         context: context,
         selected: DrawerItem.users,
         onTapHome: () => Navigator.pushReplacement(

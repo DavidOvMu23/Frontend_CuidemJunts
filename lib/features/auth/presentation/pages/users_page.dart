@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
@@ -15,6 +16,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_scaffold_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_edit_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_detail_dialog.dart';
 
 // -------- PANTALLA DE USUARIOS --------
 // Controlador principal de la vista de usuarios
@@ -77,8 +79,30 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     Usuario usuario,
     DateFormat dateFormatter,
   ) {
-    // TODO: Implementar detalle usuario
+    showDialog(
+      context: context,
+      builder: (ctx) => UserDetailDialog(
+        usuario: usuario,
+        dateFormatter: dateFormatter,
+        onDelete: () async {
+          try {
+            await _usuarioService.delete(usuario.dni);
+            if (!context.mounted) return;
+            Navigator.pop(ctx); // Cerrar diálogo
+            general_snackbar(context, 'Usuario eliminado correctamente', 2);
+            // Recargar lista
+            setState(() {
+              _usuariosFuture = _cargarUsuariosConContactos();
+            });
+          } catch (e) {
+            if (!context.mounted) return;
+            general_snackbar_error(context, 'Error al eliminar usuario', 3);
+          }
+        },
+      ),
+    );
   }
+
   void _editarUsuario(BuildContext context, Usuario usuario) async {
     final resultado = await Navigator.push(
       context,
@@ -103,6 +127,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       // Coincidencia de texto (nombre completo o DNI)
       final nombreCompleto = '${usuario.nombre} ${usuario.apellidos}'
           .toLowerCase();
+
+      print(
+        'Usuario: ${usuario.nombre}, Dependencia: "${usuario.nivelDependencia}"',
+      );
       final coincideTexto =
           query.isEmpty ||
           nombreCompleto.contains(query) ||
@@ -111,11 +139,15 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       // Coincidencia de filtro de dependencia
       final coincideFiltro = switch (filtroSeleccionado) {
         UsersPageFilter.all => true,
-        UsersPageFilter.ningunaDep => usuario.nivelDependencia.isEmpty,
-        UsersPageFilter.leve => usuario.nivelDependencia.toUpperCase() == 'G1',
-        UsersPageFilter.medio => usuario.nivelDependencia.toUpperCase() == 'G2',
+        UsersPageFilter.ningunaDep =>
+          usuario.nivelDependencia.toLowerCase() == 'ninguna' ||
+              usuario.nivelDependencia.isEmpty,
+        UsersPageFilter.leve =>
+          usuario.nivelDependencia.toLowerCase() == 'leve',
+        UsersPageFilter.medio =>
+          usuario.nivelDependencia.toLowerCase() == 'moderada',
         UsersPageFilter.severo =>
-          usuario.nivelDependencia.toUpperCase() == 'G3',
+          usuario.nivelDependencia.toLowerCase() == 'severa',
       };
 
       return coincideTexto && coincideFiltro;
@@ -146,12 +178,12 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
   // Helper para convertir el nivel de dependencia en un valor numérico comparable
   int _dependencyRank(String nivel) {
-    switch (nivel.toUpperCase()) {
-      case 'G3':
+    switch (nivel.toLowerCase()) {
+      case 'severa':
         return 3;
-      case 'G2':
+      case 'moderada':
         return 2;
-      case 'G1':
+      case 'leve':
         return 1;
       default:
         return 0;
@@ -160,6 +192,31 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
+    // Obtenemos el estado de autenticación del provider
+    final authState = ref.watch(authProvider);
+    String? userName;
+    String? userRole;
+
+    if (authState.userData != null) {
+      try {
+        // Convertimos el JSON a un Map
+        final userData =
+            jsonDecode(authState.userData!) as Map<String, dynamic>;
+
+        // Intentamos obtener el nombre del usuario
+        userName =
+            userData['nombre']?.toString() ??
+            userData['name']?.toString() ??
+            userData['correo']?.toString() ??
+            userData['email']?.toString();
+        userRole = userData['rol']?.toString();
+      } catch (e) {
+        // Si hay error al parsear el JSON, simplemente no mostramos nombre
+        userName = null;
+      }
+    }
+
     //
     return Scaffold(
       // -------- BARRA SUPERIOR --------
@@ -171,6 +228,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
       // -------- MENÚ LATERAL --------
       drawer: appDrawer(
+        userName: userName,
+        userRole: userRole,
         context: context,
         selected: DrawerItem.users,
         onTapHome: () {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
@@ -54,6 +55,28 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final authState = ref.watch(authProvider);
+    String? userName;
+    String? userRole;
+
+    if (authState.userData != null) {
+      try {
+        // Convertimos el JSON a un Map
+        final userData =
+            jsonDecode(authState.userData!) as Map<String, dynamic>;
+
+        // Intentamos obtener el nombre del usuario
+        userName =
+            userData['nombre']?.toString() ??
+            userData['name']?.toString() ??
+            userData['correo']?.toString() ??
+            userData['email']?.toString();
+        userRole = userData['rol']?.toString();
+      } catch (e) {
+        // Si hay error al parsear el JSON, simplemente no mostramos nombre
+        userName = null;
+      }
+    }
 
     return Scaffold(
       // -------- APPBAR CON EL BOTÓN DE NOTIS --------
@@ -61,6 +84,8 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 
       // -------- MENÚ LATERAL --------
       drawer: appDrawer(
+        userName: userName,
+        userRole: userRole,
         context: context,
         selected: DrawerItem.preferences,
         onTapHome: () {
