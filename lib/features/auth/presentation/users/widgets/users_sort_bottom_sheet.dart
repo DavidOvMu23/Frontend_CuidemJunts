@@ -49,13 +49,6 @@ class UsersSortBottomSheet extends StatelessWidget {
           ),
           general_listtile(
             context: context,
-            icon: Icons.sort_by_alpha,
-            texto: l10n.sortNameAZ,
-            onTap: () =>
-                _select(context, UsersPageSort.noneAZ, l10n.sortedAZSnackbar),
-          ),
-          general_listtile(
-            context: context,
             icon: Icons.date_range,
             texto: l10n.sortDateBirthNewest,
             onTap: () => _select(
