@@ -101,100 +101,101 @@ class UserCard extends StatelessWidget {
     final depText = _dependenciaText(context);
 
     return Material(
-      color: Colors.transparent,
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 2, 14, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Cabecera con nombre y botón de edición
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${usuario.nombre} ${usuario.apellidos}',
-                        style: textTheme.headlineLarge?.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 40, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nombre del usuario
+                  Text(
+                    '${usuario.nombre} ${usuario.apellidos}',
+                    style: textTheme.headlineLarge?.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
                     ),
-                    Column(
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Datos personales
+                  Row(
+                    children: [
+                      const Icon(Icons.cake, size: 18),
+                      const SizedBox(width: 6),
+                      Text(fechaNacimiento, style: textTheme.bodyMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.phone, size: 18),
+                      const SizedBox(width: 6),
+                      Text(usuario.telefono, style: textTheme.bodyMedium),
+                    ],
+                  ),
+
+                  // Dirección (solo si existe)
+                  if (direccion.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                          child: general_iconbutton(
-                            Icons.edit,
-                            onPressed: onEdit ?? () {},
-                          ),
+                        const Icon(Icons.location_on, size: 18),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(direccion, style: textTheme.bodyMedium),
                         ),
                       ],
                     ),
                   ],
-                ),
+                  const SizedBox(height: 8),
 
-                // Datos personales
-                Row(
-                  children: [
-                    const Icon(Icons.cake, size: 18),
-                    const SizedBox(width: 6),
-                    Text(fechaNacimiento, style: textTheme.bodyMedium),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.phone, size: 18),
-                    const SizedBox(width: 6),
-                    Text(usuario.telefono, style: textTheme.bodyMedium),
-                  ],
-                ),
-
-                // Dirección (solo si existe)
-                if (direccion.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.location_on, size: 18),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(direccion, style: textTheme.bodyMedium),
+                  // Badge de dependencia
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: depBg,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _dependenciaTexto,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: depText,
+                        fontWeight: FontWeight.w700,
                       ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 5),
-
-                // Badge de dependencia
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: depBg,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _dependenciaTexto,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: depText,
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            // Botón de editar (Arriba a la derecha)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: general_iconbutton(Icons.edit, onPressed: onEdit ?? () {}),
+            ),
+            // Flecha (Centrada verticalmente a la derecha)
+            Positioned(
+              right: 12,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Icon(
+                  Icons.chevron_right,
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
