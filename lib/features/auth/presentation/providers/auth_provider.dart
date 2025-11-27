@@ -1,19 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Guarda si el usuario está logueado o no, y si está logueado,
-// también guarda su token, email y otros datos que necesitemos.
+// ----- Provider de AuthState -----
+
+// NOTA: no usamos el token en el AuthState, ya que Cristian nos dijo que no lo usaramos
+// por que eso sería algo que haríamos con el en el segundo trimestre y que no lo hicesemos por no
+// adelantarnos a sus clases
+
 class AuthState {
   final bool isAuthenticated; // ¿Está el usuario logueado?
   final bool
   loading; // Indica si se está realizando alguna operación asíncrona (ej. login, registro)
-  final String? token; // Token de autenticación del backend
   final String? email; // Email del usuario
   final String? userData; // Datos adicionales del usuario (JSON)
 
   const AuthState({
     this.isAuthenticated = false,
     this.loading = false,
-    this.token,
     this.email,
     this.userData,
   });
@@ -24,14 +26,12 @@ class AuthState {
   AuthState copyWith({
     bool? isAuthenticated,
     bool? loading,
-    String? token,
     String? email,
     String? userData,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       loading: loading ?? this.loading,
-      token: token ?? this.token,
       email: email ?? this.email,
       userData: userData ?? this.userData,
     );
@@ -53,11 +53,7 @@ class AuthNotifier extends Notifier<AuthState> {
   // Guarda la sesión cuando el usuario hace login correctamente.
   // Esto se llama desde la pantalla de login después de que el backend
   // confirme que las credenciales son correctas.
-  Future<void> login({
-    required String token,
-    required String email,
-    String? userData,
-  }) async {
+  Future<void> login({required String email, String? userData}) async {
     // Ponemos loading en true para mostrar un spinner o algo
     state = state.copyWith(loading: true);
 
@@ -66,7 +62,6 @@ class AuthNotifier extends Notifier<AuthState> {
     state = AuthState(
       isAuthenticated: true,
       loading: false,
-      token: token,
       email: email,
       userData: userData,
     );

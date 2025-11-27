@@ -3,56 +3,51 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_buttons_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_containers_demo.dart';
 
-// -------- WIDGET PRINCIPAL --------
-// Esta clase muestra diferentes tipos de contenedores visuales en Flutter:
-// Surface (Material), Card, AlertDialog y ListTile.
+// -------- DEMO: CONTENEDORES --------
+// Muestra diferentes tipos de contenedores
 class ContainersDemo extends StatelessWidget {
   const ContainersDemo({super.key});
 
-  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      // -------- BARRA SUPERIOR (APPBAR) --------
-      // Muestra el título en la parte superior de la pantalla
+      // AppBar con el título del demo
       appBar: AppBar(title: const Text('Demo: Containers')),
 
-      // -------- CUERPO PRINCIPAL --------
+      // Padding para dar espacio al contenido
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
-        // -------- PANEL PRINCIPAL (SURFACE) --------
-        // Este Material sirve como el "fondo" principal de la pantalla
+        // Material sirve como el "fondo" principal de la pantalla, lo hice así por que así simulo
+        // un panel principal sombre en el que estará el contenido y así hacer mas chula la app
         child: Material(
           borderRadius: BorderRadius.circular(16), // Bordes redondeados
 
           child: Padding(
             padding: const EdgeInsets.all(16.0),
 
-            // -------- COLUMNA DE CONTENIDO --------
-            // Coloca los elementos uno debajo del otro
+            // Columna de contenido
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize:
                   MainAxisSize.min, // Se ajusta al tamaño del contenido
 
               children: [
-                // -------- TEXTO PRINCIPAL --------
+                // Texto principal
                 const Text(
                   'Soy una Surface (panel principal).',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
 
-                // -------- CARD --------
+                // Card
                 // Una Card es un contenedor visual más oscuro que el fondo,
-                // útil para agrupar información o destacar contenido.
                 const Card(
-                  elevation: 0, // Sin sombra
+                  elevation: 0, // Sin sombra, no me gusta
                   child: SizedBox(
                     width: double.infinity, // Ocupa todo el ancho disponible
-                    height: 100, // Altura fija solo para el ejemplo
+                    height: 100, // Altura fija
                     child: Center(
                       child: Text(
                         'Soy una Card (más oscura que la Surface).',
@@ -65,7 +60,6 @@ class ContainersDemo extends StatelessWidget {
                 // Espacio entre la Card y el siguiente elemento
                 const SizedBox(height: 20),
 
-                // -------- BOTÓN: ABRIR DIÁLOGO --------
                 // Botón que al pulsarlo muestra un AlertDialog (ventana emergente)
                 widget_filledbutton_demo(
                   "Abrir AlertDialog",
@@ -73,14 +67,14 @@ class ContainersDemo extends StatelessWidget {
                     showDialog(
                       context: context,
 
-                      // -------- ALERT DIALOG --------
+                      // Alert Dialog
                       builder: (context) => AlertDialog(
                         title: Text(l10n.dialogTitle),
                         content: const Text(
                           'Descripción o mensaje del diálogo.',
                         ),
 
-                        // -------- BOTONES DEL DIÁLOGO --------
+                        // Botones del diálogo
                         actions: [
                           // Botón de cancelar
                           TextButton(
@@ -99,12 +93,11 @@ class ContainersDemo extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // -------- BOTÓN: ABRIR BOTTOMPICKER --------
-                // Botón que al pulsarlo muestra un AlertDialog (ventana emergente)
+                // Botón que al pulsarlo muestra un BottomSheet (ventana emergente desde abajo)
                 widget_filledbutton_demo(
                   "Abrir BottomPicker",
                   onPressed: () {
-                    // -------- BOTTOM SHEET --------
+                    // Bottom Sheet
                     showModalBottomSheet(
                       context: context,
                       builder: (context) => SizedBox(
@@ -121,7 +114,7 @@ class ContainersDemo extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // -------- LISTA SIMPLE (LISTTILE) --------
+                // Lista simple (ListTile)
                 // Ejemplo de elementos tipo lista con separadores.
                 widget_listile_demo(
                   texto: "ListTile1",

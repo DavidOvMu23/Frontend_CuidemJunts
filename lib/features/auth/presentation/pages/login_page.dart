@@ -45,16 +45,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final response = await authService.login(correo, contrasena);
 
       // -------- GUARDAR LA SESIÓN CON RIVERPOD --------
-      // Extraemos el token de la respuesta del backend
-      final token = response['token'] ?? '';
-
       // Convertimos los datos del usuario a JSON para guardarlos
       final userDataJson = jsonEncode(response);
 
       // Guardamos la sesión usando el provider de autenticación
       await ref
           .read(authProvider.notifier)
-          .login(token: token, email: correo, userData: userDataJson);
+          .login(email: correo, userData: userDataJson);
 
       // Evitar usar BuildContext si el State fue desmontado durante el await
       if (!mounted) return;

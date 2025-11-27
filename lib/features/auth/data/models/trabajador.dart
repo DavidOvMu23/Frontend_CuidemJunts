@@ -1,3 +1,6 @@
+// -------- TRABAJADOR MODEL --------
+
+// Este modelo representa un trabajador. y lo que hace es que al recibir un json, sepa como convertir cada elemento del json a un objeto Trabajador.
 class Trabajador {
   final int id;
   final String nombre;
@@ -7,6 +10,7 @@ class Trabajador {
   final int? grupoId;
   final String? grupoNombre;
 
+  // Constructor que recibe los parámetros necesarios para crear un objeto Trabajador.
   const Trabajador({
     required this.id,
     required this.nombre,
@@ -17,6 +21,7 @@ class Trabajador {
     this.grupoNombre,
   });
 
+  // copyWith crea una copia del objeto Trabajador con los valores proporcionados.
   Trabajador copyWith({
     int? id,
     String? nombre,
@@ -37,6 +42,7 @@ class Trabajador {
     );
   }
 
+  // fromJson crea un objeto Trabajador a partir de un json.
   factory Trabajador.fromJson(Map<String, dynamic> json) {
     final rawId = json['id_trab'] ?? json['id'];
     final grupoNombre =

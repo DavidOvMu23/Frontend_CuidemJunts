@@ -4,9 +4,13 @@ import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_navigations_demo.dart';
 
+// -------- DEMO: NAVEGACIÓN --------
+// Muestra diferentes tipos de navegación
+
 //Este enum define los elementos del drawer
 enum DemoDrawerItem { home, calls, users, telemarketers, preferences }
 
+// Esto es para que la pantalla sea un StatefulWidget es decir, que pueda tener estado
 class NavigationsDemo extends StatefulWidget {
   const NavigationsDemo({super.key});
 
@@ -26,7 +30,7 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      // -------- BARRA SUPERIOR (APPBAR) --------
+      // AppBar con el título del demo
       appBar: AppBar(
         title: Text(l10n.cuidemJunts),
         centerTitle: true,
@@ -43,14 +47,17 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
         ],
       ),
 
-      // -------- DRAWER (MENÚ LATERAL) --------
+      // Drawer (Menú lateral)
       drawer: Drawer(
         child: Column(
           children: [
+            // Expanded para que el drawer ocupe todo el espacio disponible
             Expanded(
+              // ListView para que el drawer sea scrollable, hay varias formas de hacer un contenido scrollable como SingleChildScrollView
+              // pero yo estoy probando varias formas
               child: ListView(
                 children: [
-                  // -------- CABECERA CON LOGO --------
+                  // Cabecera con logo
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -90,14 +97,14 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
                     ),
                   ),
 
-                  // -------- DIVISOR --------
+                  // Divisor
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Divider(color: colorScheme.primary.withOpacity(0.3)),
                   ),
                   const SizedBox(height: 10),
 
-                  // -------- TÍTULO DE SECCIÓN --------
+                  // Título de sección
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -112,7 +119,7 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
                   ),
                   const SizedBox(height: 20),
 
-                  // -------- OPCIONES--------
+                  // Opciones
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
@@ -160,7 +167,7 @@ class _NavigationsDemoState extends State<NavigationsDemo> {
               ),
             ),
 
-            // -------- PERFIL + CERRAR SESIÓN --------
+            // Perfil y Cerrar sesión
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: Column(

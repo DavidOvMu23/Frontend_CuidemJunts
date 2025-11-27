@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// -------- SERVICIO DE PREFERENCIAS LOCALES --------
+// -------- SHARED PREFERENCES --------
 // Este servicio se encarga de GUARDAR y CARGAR las preferencias del usuario
 // en el almacenamiento local del dispositivo (como si fuera un archivo de configuración).
 
@@ -11,9 +11,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 // - Windows/Linux: En un archivo local
 // - Web: En LocalStorage del navegador
 
+// ¿Qué hace?
+// - Guarda preferencias como el tema (oscuro/claro) o el idioma preferido.
+// - Permite acceder a estas preferencias desde cualquier parte de la app.
+
+// NOTA: el chatgpt nos ha ayudado con este archivo por que estube pegandome cabezazos
+// para que funcionase correctamente y no lo consegía, pero una vez que corregió los errores
+// ya todo tenía sentido, y al final no era tan dificil de entender. Lo que mas me costó hacer
+// era hacer que otra página pudiera acceder a las preferencias y poder modificar ciertos elementos como el tema
+
 class PreferencesService {
   // Estas son las "etiquetas" que usamos para identificar cada preferencia.
-  // Es como poner un nombre a cada cajón donde guardamos información.
   static const String _keyThemeMode = 'themeMode';
   static const String _keyLanguageCode = 'languageCode';
 

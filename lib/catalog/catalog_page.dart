@@ -6,7 +6,6 @@ import 'package:frontend_cuidemjunts/catalog/demos/textfields_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/communications_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/containers_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/selections_demo.dart';
-import 'package:frontend_cuidemjunts/catalog/demos/typography_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/appbar_demo.dart';
 import 'package:frontend_cuidemjunts/catalog/demos/navigations_demo.dart';
 
@@ -145,19 +144,6 @@ class CatalogPage extends ConsumerWidget {
                 },
               ),
               const Divider(height: 1),
-
-              // -------- DEMO: TYPOGRAPHY --------
-              ListTile(
-                title: const Text('Typography'),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const TypographyDemo(),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
         ),

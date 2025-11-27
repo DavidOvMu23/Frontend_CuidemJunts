@@ -35,6 +35,7 @@ class CallCard extends StatelessWidget {
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
+  // para esto nos a ayudado un poco el chat
   String _formatDuration(String duration) {
     if (duration.toLowerCase().contains('min')) return duration;
 
@@ -69,6 +70,7 @@ class CallCard extends StatelessWidget {
       return 'No contestó';
     }
     if (llamada.estado.isEmpty) return '';
+
     // Reemplazamos guiones bajos por espacios y capitalizamos
     final limpio = llamada.estado.replaceAll('_', ' ');
     return limpio[0].toUpperCase() + limpio.substring(1);
@@ -124,7 +126,7 @@ class CallCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Título (Resumen)
+                  // Título
                   Text(
                     llamada.resumen.isNotEmpty
                         ? llamada.resumen
@@ -161,7 +163,7 @@ class CallCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Fecha y Duración (MODIFICADO)
+                  // Fecha y Duración
                   Row(
                     children: [
                       Icon(
@@ -190,7 +192,7 @@ class CallCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Badge de estado (Abajo)
+                  // Badge de estado de la llamada
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -212,7 +214,7 @@ class CallCard extends StatelessWidget {
               ),
             ),
 
-            // Flecha (Centrada verticalmente a la derecha)
+            // Flecha simplemente para indicar que la tarjeta es clicable
             Positioned(
               right: 12,
               top: 0,

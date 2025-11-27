@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/catalog/widgets/widgets_selecions_demo.dart';
 
-// -------- WIDGET PRINCIPAL --------
-// Esta clase muestra ejemplos de distintos elementos seleccionables:
+// -------- DEMO: SELECCIONES --------
+// Muestra ejemplos de distintos elementos seleccionables:
 // Checkbox, Switch, Radio Buttons y Selectores de Fecha/Hora.
 class SelectionsDemo extends StatefulWidget {
   const SelectionsDemo({super.key});
@@ -12,27 +12,26 @@ class SelectionsDemo extends StatefulWidget {
   State<SelectionsDemo> createState() => _SelectionsDemoState();
 }
 
-// -------- ESTADO DEL WIDGET --------
 // Aquí se guardan las variables que cambian según las selecciones del usuario.
 class _SelectionsDemoState extends State<SelectionsDemo> {
-  // -------- VARIABLES DE ESTADO --------
+  // Variables de estado
   bool isChecked = false; // Inicializa el valor del checkbox
   bool isSwitched = false; // Inicializa el valor del switch
   String selectedOption = 'A'; // Opción seleccionada en los radio buttons
 
-  // -------- CONSTRUCCIÓN DE LA INTERFAZ --------
+  // Construcción de la interfaz
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      // -------- BARRA SUPERIOR (APPBAR) --------
+      // AppBar con el título del demo
       appBar: AppBar(title: const Text('Demo: Selections')),
 
-      // -------- CUERPO PRINCIPAL --------
+      // Cuerpo principal
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
-        // -------- SURFACE PRINCIPAL --------
+        // Surface principal
         // Contenedor con bordes redondeados que sirve como fondo visual
         child: Material(
           borderRadius: BorderRadius.circular(16),
@@ -40,7 +39,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
 
-            // -------- COLUMNA DE ELEMENTOS --------
+            // Columna de elementos
             // Contiene todos los componentes seleccionables uno debajo del otro
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +47,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                   MainAxisSize.min, // Se ajusta al tamaño del contenido
 
               children: [
-                // -------- CHECKBOX --------
+                // Checkbox
                 // Permite activar o desactivar una opción
                 widgetCheckboxTextoDemo(isChecked, "Activar checkbox", (
                   bool? value,
@@ -59,7 +58,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                 }),
                 const SizedBox(height: 12),
 
-                // -------- SWITCH --------
+                // Switch
                 // Interruptor de encendido/apagado
                 widgetSwitchTextoDemo(isSwitched, "Encender/Apagar", (
                   bool value,
@@ -70,7 +69,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
                 }),
                 const SizedBox(height: 12),
 
-                // -------- RADIO BUTTONS --------
+                // Radio buttons
                 // Solo se puede seleccionar una opción del grupo
                 // Opción A
                 RadioListTile<String>(
@@ -94,7 +93,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
 
                 const SizedBox(height: 20),
 
-                // -------- SELECTOR DE FECHA --------
+                // Selector de fecha
                 // Botón que abre un calendario para elegir una fecha
                 FilledButton(
                   onPressed: () async {
@@ -110,7 +109,7 @@ class _SelectionsDemoState extends State<SelectionsDemo> {
 
                 const SizedBox(height: 12),
 
-                // -------- SELECTOR DE HORA --------
+                // Selector de hora
                 // Botón que abre un reloj para elegir una hora
                 FilledButton(
                   onPressed: () async {

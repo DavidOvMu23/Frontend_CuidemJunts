@@ -1,3 +1,6 @@
+// -------- CONTACTO EMERGENCIA MODEL --------
+
+// Este modelo representa un contacto de emergencia. y lo que hace es que al recibir un json, sepa como convertir cada elemento del json a un objeto ContactoEmergencia.
 class ContactoEmergencia {
   final int id;
   final String nombre;
@@ -17,6 +20,7 @@ class ContactoEmergencia {
     this.dniUsuarioRef,
   });
 
+  // Constructor que recibe un json y lo convierte en un objeto ContactoEmergencia.
   factory ContactoEmergencia.fromJson(Map<String, dynamic> json) {
     return ContactoEmergencia(
       id: (json['id_cont'] as num?)?.toInt() ?? 0,
@@ -35,6 +39,9 @@ class ContactoEmergencia {
   }
 }
 
+// -------- USUARIO MODEL --------
+
+// Este modelo representa un usuario. y lo que hace es que al recibir un json, sepa como convertir cada elemento del json a un objeto Usuario.
 class Usuario {
   final String dni;
   final String nombre;
@@ -58,6 +65,7 @@ class Usuario {
     this.contactosEmergencia = const [],
   });
 
+  // copyWith crea una copia del objeto Usuario con los valores proporcionados.
   Usuario copyWith({
     String? dni,
     String? nombre,
@@ -82,6 +90,7 @@ class Usuario {
     );
   }
 
+  // fromJson crea un objeto Usuario a partir de un json.
   factory Usuario.fromJson(Map<String, dynamic> json) {
     final fechaRaw =
         json['f_nac'] ??
@@ -108,6 +117,7 @@ class Usuario {
     );
   }
 
+  // _parseFecha convierte una fecha en un objeto DateTime.
   static DateTime _parseFecha(dynamic rawFecha) {
     if (rawFecha == null) {
       return DateTime.fromMillisecondsSinceEpoch(0);

@@ -2,13 +2,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/trabajador.dart';
 
+// -------- TRABAJADOR SERVICE --------
+
+// Este servicio se encarga de manejar las llamadas a la API relacionadas con los trabajadores.
 class TrabajadorService {
   final String baseUrl;
   final http.Client _client;
 
+  // Constructor que recibe la URL base y un cliente HTTP.
   TrabajadorService({required this.baseUrl, http.Client? client})
     : _client = client ?? http.Client();
 
+  // getAll maneja la llamada a la API para obtener todas las notificaciones.
   Future<List<Trabajador>> getAll() async {
     final resp = await _client.get(Uri.parse('$baseUrl/trabajador'));
     if (resp.statusCode != 200) {
@@ -20,6 +25,7 @@ class TrabajadorService {
         .toList();
   }
 
+  // create maneja la llamada a la API para crear un nuevo trabajador.
   Future<Trabajador> create(Map<String, dynamic> payload) async {
     final resp = await _client.post(
       Uri.parse('$baseUrl/trabajador'),

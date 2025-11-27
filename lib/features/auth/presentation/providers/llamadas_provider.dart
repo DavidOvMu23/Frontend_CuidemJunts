@@ -2,18 +2,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/llamadas_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 
-// 1. Provider del servicio (ajusta la URL si es necesario)
+// ----- Provider de LlamadasService -----
+
+// Este provider crea UNA SOLA INSTANCIA de LlamadasService para toda la app.
+// Sirve para que cualquier widget pueda acceder al servicio de llamadas sin tener que pasar el servicio manualmente por todos los widgets.
 final llamadasServiceProvider = Provider<LlamadasService>((ref) {
   return LlamadasService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
 });
 
-// 2. Provider base que trae TODAS las llamadas
+// Provider base que trae TODAS las llamadas
 final llamadasProvider = FutureProvider<List<Llamadas>>((ref) async {
   final service = ref.watch(llamadasServiceProvider);
   return service.getAll();
 });
 
-// 3. Provider filtrado: Llamadas de HOY
+// Provider filtrado: Llamadas de HOY
 final callsTodayProvider = Provider<AsyncValue<List<Llamadas>>>((ref) {
   final llamadasAsync = ref.watch(llamadasProvider);
   return llamadasAsync.whenData((llamadas) {
@@ -29,7 +32,7 @@ final callsTodayProvider = Provider<AsyncValue<List<Llamadas>>>((ref) {
   });
 });
 
-// 4. Provider filtrado: Llamadas COMPLETADAS hoy
+// Provider filtrado: Llamadas COMPLETADAS hoy
 final completedCallsTodayProvider = Provider<AsyncValue<int>>((ref) {
   final callsToday = ref.watch(callsTodayProvider);
   return callsToday.whenData(
@@ -38,7 +41,7 @@ final completedCallsTodayProvider = Provider<AsyncValue<int>>((ref) {
   );
 });
 
-// 5. Provider filtrado: Llamadas PROGRAMADAS (pendientes) hoy
+// Provider filtrado: Llamadas PROGRAMADAS (pendientes) hoy
 final scheduledCallsTodayProvider = Provider<AsyncValue<int>>((ref) {
   final callsToday = ref.watch(callsTodayProvider);
   return callsToday.whenData(
@@ -47,7 +50,7 @@ final scheduledCallsTodayProvider = Provider<AsyncValue<int>>((ref) {
   );
 });
 
-// 6. Provider filtrado: Actividad RECIENTE (últimas 5)
+// Provider filtrado: Actividad RECIENTE (últimas 5)
 final recentCallsProvider = Provider<AsyncValue<List<Llamadas>>>((ref) {
   final llamadasAsync = ref.watch(llamadasProvider);
   return llamadasAsync.whenData((llamadas) {

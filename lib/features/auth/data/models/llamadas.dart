@@ -1,3 +1,6 @@
+// -------- LLAMADAS MODEL --------
+
+// Este modelo representa una llamada. y lo que hace es que al recibir un json, sepa como convertir cada elemento del json a un objeto Llamadas.
 class Llamadas {
   final int id;
   final DateTime fecha;
@@ -12,6 +15,7 @@ class Llamadas {
   final String? usuarioNombre;
   final String? usuarioApellidos;
 
+  // Constructor que recibe los parámetros necesarios para crear un objeto Llamadas.
   const Llamadas({
     required this.id,
     required this.fecha,
@@ -27,6 +31,7 @@ class Llamadas {
     this.usuarioApellidos,
   });
 
+  // copyWith crea una copia del objeto Llamadas con los valores proporcionados.
   Llamadas copyWith({
     int? id,
     DateTime? fecha,
@@ -57,6 +62,7 @@ class Llamadas {
     );
   }
 
+  // fromJson crea un objeto Llamadas a partir de un json.
   factory Llamadas.fromJson(Map<String, dynamic> json) {
     final rawId = json['id_com'] ?? json['id'];
     final fechaRaw = json['fecha']?.toString();

@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
 
-// Controla el idioma de la aplicación.
+// ----- Provider de LocaleNotifier -----
+
 // Este provider se encarga de:
 // - Cargar el idioma guardado cuando arranca la app
 // - Cambiar entre español, catalán e inglés
 // - Guardar la preferencia para que se mantenga al cerrar la app
 class LocaleNotifier extends Notifier<Locale> {
-  // Carga el idioma guardado al iniciar la app.
-
-  // Si el usuario había elegido un idioma antes, se carga automáticamente.
-  // Si es la primera vez que abre la app, por defecto usa español.
   @override
   Locale build() {
+    // Leemos el servicio de preferencias
     final prefsService = ref.watch(preferencesServiceProvider);
 
     // Intentamos cargar el idioma guardado

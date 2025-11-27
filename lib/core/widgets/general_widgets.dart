@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 
 // -------- WIDGETS GENERALES DE LA APP --------
+// estos widgets serán los que se usarán en toda la app
+// los tenemos aquí guardados y no en presentations/widgets por que nuestro
+// proyecto usa la arquitectura "clean architecture" y se supone que los widgets globales
+// se deben de almacenar aquí en un proyecto de flutter, se me hace raro que estén aquí y no en
+// presentations/widgets pero bueno
 
 // APPBAR
-// Título centrado + botón de notificaciones reutilizable
+// Título centrado con botón de notificaciones
 PreferredSizeWidget appMainAppBar({
   required VoidCallback onNotifications,
-  int numeroNotificaciones = 0, // <- NUEVO PARÁMETRO
+  int numeroNotificaciones = 0, // NUEVO PARÁMETRO
 }) {
   return AppBar(
     title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
@@ -17,7 +22,7 @@ PreferredSizeWidget appMainAppBar({
         numeroNotificaciones,
         Icons.notifications,
         onPressed: onNotifications,
-      ), // <- USA EL PARÁMETRO
+      ), // USA EL PARÁMETRO
     ],
   );
 }
@@ -67,7 +72,7 @@ Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
 }
 
 // TEXTFIELD
-// Con icono opcional, radio y número de líneas.
+// Con icono opcional, radio y número de líneas
 TextField general_textfield(
   String texto,
   bool obscureText, {
@@ -141,7 +146,7 @@ TextField general_busqueda_textfield(
 }
 
 // SNACKBAR
-// Muestra un mensaje en la parte inferior durante unos segundos.
+// Muestra un mensaje en la parte inferior durante unos segundos
 void general_snackbar(
   BuildContext context,
   String content,
@@ -187,13 +192,12 @@ Widget general_listtile({
   bool selected = false,
 }) {
   const iconColor =
-      AppPalette.primaryLight; // Azul corporativo para los iconos.
+      AppPalette.primaryLight; // Azul principal de la app para los iconos
   final surfaceColor = Theme.of(context).colorScheme.surface;
   final defaultTextColor =
       Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
 
   return Container(
-    // Fondo redondeado para que parezca una pastilla.
     decoration: BoxDecoration(
       color: selected ? surfaceColor : Colors.transparent,
       borderRadius: BorderRadius.circular(24),
@@ -267,7 +271,7 @@ Future<void> showConfirmDialog(
 }
 
 // DELETE BUTTON
-// Botón de eliminar con los colores de error (mismo que badge Severa)
+// Botón de eliminar
 Widget general_deletebutton(
   BuildContext context,
   String texto, {
