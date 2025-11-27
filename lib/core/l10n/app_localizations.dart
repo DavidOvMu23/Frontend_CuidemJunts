@@ -1196,7 +1196,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Error al crear trabajador: {error}'**
-  String errorCreatingWorker(String error);
+  String errorCreatingWorker(Object error);
 
   /// No description provided for @createWorkerBtn.
   ///

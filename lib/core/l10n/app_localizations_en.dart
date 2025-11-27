@@ -577,7 +577,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workerCreatedSuccessfully => 'Worker created successfully';
 
   @override
-  String errorCreatingWorker(String error) {
+  String errorCreatingWorker(Object error) {
     return 'Error creating worker: $error';
   }
 

@@ -589,7 +589,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get workerCreatedSuccessfully => 'Treballador creat correctament';
 
   @override
-  String errorCreatingWorker(String error) {
+  String errorCreatingWorker(Object error) {
     return 'Error en crear el treballador: $error';
   }
 
