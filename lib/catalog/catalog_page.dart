@@ -47,8 +47,6 @@ class CatalogPage extends ConsumerWidget {
         // -------- PANEL PRINCIPAL (SURFACE) --------
         child: Material(
           borderRadius: BorderRadius.circular(16),
-          // Usamos el color de tarjeta del tema actual
-          color: Theme.of(context).cardTheme.color,
           child: ListView(
             shrinkWrap: true,
             children: [
