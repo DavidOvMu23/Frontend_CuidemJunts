@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
-import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 
 // Tarjeta individual de una llamada
@@ -9,7 +8,6 @@ class CallCard extends StatelessWidget {
   final TextTheme textTheme;
   final ColorScheme colorScheme;
   final VoidCallback onTap;
-  final VoidCallback? onEdit;
 
   const CallCard({
     super.key,
@@ -17,7 +15,6 @@ class CallCard extends StatelessWidget {
     required this.textTheme,
     required this.colorScheme,
     required this.onTap,
-    this.onEdit,
   });
 
   String _formatDate(DateTime date) {
@@ -39,13 +36,24 @@ class CallCard extends StatelessWidget {
   }
 
   String _formatDuration(String duration) {
+    if (duration.toLowerCase().contains('min')) return duration;
+
     try {
-      final parts = duration.split(':');
-      if (parts.length >= 2) {
-        final minutes = int.tryParse(parts[0]) ?? 0;
-        return '$minutes min';
+      if (duration.contains(':')) {
+        final parts = duration.split(':');
+        if (parts.length >= 2) {
+          final minutes = int.tryParse(parts[0]) ?? 0;
+          return '$minutes min';
+        }
+      }
+      // Si es solo un número, asumimos minutos
+      if (int.tryParse(duration) != null) {
+        return '$duration min';
       }
     } catch (_) {}
+
+    // Fallback: si no está vacío, añadimos min
+    if (duration.isNotEmpty) return '$duration min';
     return duration;
   }
 
@@ -202,13 +210,6 @@ class CallCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-
-            // Botón de editar (Arriba a la derecha)
-            Positioned(
-              top: 4,
-              right: 4,
-              child: general_iconbutton(Icons.edit, onPressed: onEdit ?? () {}),
             ),
 
             // Flecha (Centrada verticalmente a la derecha)

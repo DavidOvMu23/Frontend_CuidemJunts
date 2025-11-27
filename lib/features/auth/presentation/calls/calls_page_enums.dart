@@ -9,4 +9,6 @@ enum CallsPageSort {
   nameZA,
   callDurationShortLong,
   callDurationLongShort,
+  dependencyHighLow,
+  dependencyLowHigh,
 }

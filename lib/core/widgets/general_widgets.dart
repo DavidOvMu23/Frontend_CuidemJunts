@@ -265,3 +265,26 @@ Future<void> showConfirmDialog(
     ),
   );
 }
+
+// DELETE BUTTON
+// Botón de eliminar con los colores de error (mismo que badge Severa)
+Widget general_deletebutton(
+  BuildContext context,
+  String texto, {
+  required VoidCallback onPressed,
+}) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final backgroundColor = isDark ? AppPalette.errorDark : AppPalette.errorLight;
+  final textColor = isDark
+      ? AppPalette.errorFontDark
+      : AppPalette.errorFontLight;
+
+  return FilledButton(
+    onPressed: onPressed,
+    style: FilledButton.styleFrom(
+      backgroundColor: backgroundColor,
+      foregroundColor: textColor,
+    ),
+    child: Text(texto),
+  );
+}

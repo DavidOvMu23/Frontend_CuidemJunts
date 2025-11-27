@@ -146,7 +146,9 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           llamada.estado.toLowerCase() == 'completada',
         CallsPageFilter.pending => llamada.estado.toLowerCase() == 'pendiente',
         CallsPageFilter.incomplete =>
-          llamada.estado.toLowerCase() == 'no contestada',
+          llamada.estado.toLowerCase().contains('no contestada') ||
+              llamada.estado.toLowerCase().contains('no contestó') ||
+              llamada.estado.toLowerCase().contains('no_contesto'),
       };
 
       // Coincidencia de filtro de fecha
@@ -194,6 +196,10 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           return _parseDuration(
             b.duracion,
           ).compareTo(_parseDuration(a.duracion));
+        case CallsPageSort.dependencyHighLow:
+          return b.grupoId.compareTo(a.grupoId);
+        case CallsPageSort.dependencyLowHigh:
+          return a.grupoId.compareTo(b.grupoId);
       }
     });
 

@@ -2,35 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:intl/intl.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 class UserDetailDialog extends StatelessWidget {
   final Usuario usuario;
   final DateFormat dateFormatter;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   const UserDetailDialog({
     super.key,
     required this.usuario,
     required this.dateFormatter,
     required this.onDelete,
+    required this.onEdit,
   });
 
-  String get _dependenciaTexto {
+  String _dependenciaTexto(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final raw = usuario.nivelDependencia.trim();
-    if (raw.isEmpty) return 'Sin especificar';
+    if (raw.isEmpty) return l10n.sinEspecificar;
     final upper = raw.toUpperCase();
     switch (upper) {
       case 'G1':
       case 'LEVE':
-        return 'Leve';
+        return l10n.mild;
       case 'G2':
       case 'MODERADA':
       case 'MODERADO':
-        return 'Moderada';
+        return l10n.moderate;
       case 'G3':
       case 'SEVERA':
       case 'SEVERO':
-        return 'Severa';
+        return l10n.grave;
+      case 'NINGUNA':
+      case 'SIN DEPENDENCIA':
+        return l10n.none;
       default:
         return raw;
     }
@@ -51,6 +59,9 @@ class UserDetailDialog extends StatelessWidget {
       case 'SEVERA':
       case 'SEVERO':
         return isDark ? AppPalette.errorDark : AppPalette.errorLight;
+      case 'NINGUNA':
+      case 'SIN DEPENDENCIA':
+        return Theme.of(context).colorScheme.secondaryContainer;
       default:
         return Theme.of(context).colorScheme.surface;
     }
@@ -75,31 +86,74 @@ class UserDetailDialog extends StatelessWidget {
       case 'SEVERA':
       case 'SEVERO':
         return isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight;
+      case 'NINGUNA':
+      case 'SIN DEPENDENCIA':
+        return Theme.of(context).colorScheme.onSecondaryContainer;
       default:
         return Theme.of(context).colorScheme.onSurface;
     }
   }
 
   void _confirmarEliminacion(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar Usuario'),
-        content: const Text(
-          '¿Estás seguro de que quieres eliminar este usuario?\n\nEsta acción no se puede deshacer.',
-        ),
+        title: Text(l10n.deleteUserTitle),
+        content: Text(l10n.deleteUserContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel),
           ),
-          FilledButton(
+          general_deletebutton(
+            ctx,
+            l10n.delete,
             onPressed: () {
-              Navigator.pop(ctx); // Cerrar confirmación
-              onDelete(); // Ejecutar eliminación
+              Navigator.pop(ctx);
+              onDelete();
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: colorScheme.onSurface),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: textTheme.bodyMedium?.copyWith(fontSize: 15),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -108,13 +162,41 @@ class UserDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
     final fechaNacimiento = dateFormatter.format(usuario.f_nac);
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
 
     return AlertDialog(
-      title: Text('${usuario.nombre} ${usuario.apellidos}'),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '${usuario.nombre} ${usuario.apellidos}',
+              style: textTheme.headlineLarge?.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+              softWrap: true,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onEdit();
+            },
+            icon: const Icon(Icons.edit, size: 20),
+            tooltip: l10n.edit,
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              padding: EdgeInsets.zero,
+            ),
+          ),
+        ],
+      ),
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
@@ -122,108 +204,132 @@ class UserDetailDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 8),
               // DNI
-              ListTile(
-                leading: const Icon(Icons.badge),
-                title: const Text('DNI'),
-                subtitle: Text(usuario.dni),
-                contentPadding: EdgeInsets.zero,
+              _buildDetailRow(
+                context,
+                Icons.badge_outlined,
+                l10n.dni,
+                usuario.dni,
               ),
 
-              // Nombre completo (ya está en el título, pero lo incluyo por completitud)
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Nombre completo'),
-                subtitle: Text('${usuario.nombre} ${usuario.apellidos}'),
-                contentPadding: EdgeInsets.zero,
+              // Nombre completo
+              _buildDetailRow(
+                context,
+                Icons.person_outline,
+                l10n.fullName,
+                '${usuario.nombre} ${usuario.apellidos}',
               ),
 
               // Fecha de nacimiento
-              ListTile(
-                leading: const Icon(Icons.cake),
-                title: const Text('Fecha de nacimiento'),
-                subtitle: Text(fechaNacimiento),
-                contentPadding: EdgeInsets.zero,
+              _buildDetailRow(
+                context,
+                Icons.cake_outlined,
+                l10n.birthDate,
+                fechaNacimiento,
               ),
 
               // Teléfono
-              ListTile(
-                leading: const Icon(Icons.phone),
-                title: const Text('Teléfono'),
-                subtitle: Text(
-                  usuario.telefono.isNotEmpty
-                      ? usuario.telefono
-                      : 'No especificado',
-                ),
-                contentPadding: EdgeInsets.zero,
+              _buildDetailRow(
+                context,
+                Icons.phone_outlined,
+                l10n.telephone,
+                usuario.telefono.isNotEmpty
+                    ? usuario.telefono
+                    : l10n.notSpecified,
               ),
 
               // Dirección
-              ListTile(
-                leading: const Icon(Icons.location_on),
-                title: const Text('Dirección'),
-                subtitle: Text(
-                  usuario.direccion.isNotEmpty
-                      ? usuario.direccion
-                      : 'No especificada',
-                ),
-                contentPadding: EdgeInsets.zero,
+              _buildDetailRow(
+                context,
+                Icons.location_on_outlined,
+                l10n.address,
+                usuario.direccion.isNotEmpty
+                    ? usuario.direccion
+                    : l10n.notSpecifiedFeminine,
               ),
 
-              // Estado de cuenta
-              ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: const Text('Estado de cuenta'),
-                subtitle: Text(usuario.estadoCuenta),
-                contentPadding: EdgeInsets.zero,
-              ),
-
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // Nivel de dependencia
-              const Text(
-                'Nivel de dependencia',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              Text(
+                l10n.dependencyLevel,
+                style: textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                  horizontal: 16,
+                  vertical: 10,
                 ),
                 decoration: BoxDecoration(
                   color: depBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  _dependenciaTexto,
-                  style: textTheme.bodyMedium?.copyWith(
+                  _dependenciaTexto(context),
+                  style: textTheme.titleMedium?.copyWith(
                     color: depText,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
 
               // Contactos de emergencia
               if (usuario.contactosEmergencia.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                const Text(
-                  'Contactos de emergencia',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.emergencyContacts,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 ...usuario.contactosEmergencia.map(
                   (contacto) => Card(
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
                     margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      leading: const Icon(Icons.contact_phone),
-                      title: Text('${contacto.nombre} ${contacto.apellidos}'),
-                      subtitle: Text(
-                        '${contacto.relacion} - ${contacto.telefono}',
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.contact_phone_outlined,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${contacto.nombre} ${contacto.apellidos}',
+                                  style: textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  '${contacto.relacion} • ${contacto.telefono}',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -236,12 +342,12 @@ class UserDetailDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cerrar'),
+          child: Text(l10n.close),
         ),
-        FilledButton(
+        general_deletebutton(
+          context,
+          l10n.delete,
           onPressed: () => _confirmarEliminacion(context),
-          style: FilledButton.styleFrom(backgroundColor: Colors.red),
-          child: const Text('Eliminar'),
         ),
       ],
     );

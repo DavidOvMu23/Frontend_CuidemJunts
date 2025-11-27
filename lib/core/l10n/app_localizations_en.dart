@@ -586,4 +586,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dniLabel => 'DNI (8 digits + letter)';
+
+  @override
+  String get deleteUserTitle => 'Delete User';
+
+  @override
+  String get deleteUserContent =>
+      'Are you sure you want to delete this user?\n\nThis action cannot be undone.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get notSpecifiedFeminine => 'Not specified';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get accountStatus => 'Account status';
+
+  @override
+  String get emergencyContacts => 'Emergency contacts';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get sinEspecificar => 'Not specified';
 }

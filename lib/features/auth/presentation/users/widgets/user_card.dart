@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
-import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // Tarjeta que muestra la información resumida de un usuario.
 class UserCard extends StatelessWidget {
@@ -11,7 +11,6 @@ class UserCard extends StatelessWidget {
   final ColorScheme colorScheme;
   final DateFormat dateFormatter;
   final VoidCallback onTap;
-  final VoidCallback? onEdit;
 
   const UserCard({
     super.key,
@@ -20,26 +19,29 @@ class UserCard extends StatelessWidget {
     required this.colorScheme,
     required this.dateFormatter,
     required this.onTap,
-    this.onEdit,
   });
 
   // Traduce el código de dependencia (G1, G2...)
-  String get _dependenciaTexto {
+  String _dependenciaTexto(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final raw = usuario.nivelDependencia.trim();
-    if (raw.isEmpty) return 'Sin especificar';
+    if (raw.isEmpty) return l10n.sinEspecificar;
     final upper = raw.toUpperCase();
     switch (upper) {
       case 'G1':
       case 'LEVE':
-        return 'Leve';
+        return l10n.mild;
       case 'G2':
       case 'MODERADA':
       case 'MODERADO':
-        return 'Moderada';
+        return l10n.moderate;
       case 'G3':
       case 'SEVERA':
       case 'SEVERO':
-        return 'Severa';
+        return l10n.grave;
+      case 'NINGUNA':
+      case 'SIN DEPENDENCIA':
+        return l10n.none;
       default:
         return raw;
     }
@@ -61,6 +63,9 @@ class UserCard extends StatelessWidget {
       case 'SEVERA':
       case 'SEVERO':
         return isDark ? AppPalette.errorDark : AppPalette.errorLight;
+      case 'NINGUNA':
+      case 'SIN DEPENDENCIA':
+        return Theme.of(context).colorScheme.surfaceContainerHighest;
       default:
         return colorScheme.surface;
     }
@@ -86,6 +91,9 @@ class UserCard extends StatelessWidget {
       case 'SEVERA':
       case 'SEVERO':
         return isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight;
+      case 'NINGUNA':
+      case 'SIN DEPENDENCIA':
+        return Theme.of(context).colorScheme.onSurface;
       default:
         return colorScheme.onSurface;
     }
@@ -167,7 +175,7 @@ class UserCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      _dependenciaTexto,
+                      _dependenciaTexto(context),
                       style: textTheme.bodySmall?.copyWith(
                         color: depText,
                         fontWeight: FontWeight.w700,
@@ -176,12 +184,6 @@ class UserCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            // Botón de editar (Arriba a la derecha)
-            Positioned(
-              top: 4,
-              right: 4,
-              child: general_iconbutton(Icons.edit, onPressed: onEdit ?? () {}),
             ),
             // Flecha (Centrada verticalmente a la derecha)
             Positioned(

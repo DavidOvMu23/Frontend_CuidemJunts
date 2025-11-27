@@ -183,13 +183,17 @@
   "passwordLengthError": "La contraseña debe tener al menos 6 caracteres",
   "workerCreatedSuccessfully": "Trabajador creado correctamente",
   "errorCreatingWorker": "Error al crear trabajador: {error}",
-  "@errorCreatingWorker": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "createWorkerBtn": "Crear trabajador",
-  "dniLabel": "DNI (8 dígitos + letra)"
+  "dniLabel": "DNI (8 dígitos + letra)",
+  "deleteUserTitle": "Eliminar Usuario",
+  "deleteUserContent": "¿Estás seguro de que quieres eliminar este usuario?\n\nEsta acción no se puede deshacer.",
+  "delete": "Eliminar",
+  "fullName": "Nombre completo",
+  "notSpecified": "No especificado",
+  "notSpecifiedFeminine": "No especificada",
+  "address": "Dirección",
+  "accountStatus": "Estado de cuenta",
+  "emergencyContacts": "Contactos de emergencia",
+  "edit": "Editar",
+  "sinEspecificar": "Sin especificar"
 }

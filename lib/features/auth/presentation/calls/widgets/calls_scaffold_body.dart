@@ -62,33 +62,6 @@ class CallsScaffoldBody extends StatelessWidget {
           Text(l10n.superviseCalls, style: textTheme.bodyMedium),
           const SizedBox(height: 7),
 
-          // Aviso de vista preliminar
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              border: Border.all(
-                color: colorScheme.primary.withValues(alpha: 0.3),
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline, color: colorScheme.primary),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.usersPreliminarView,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Contenedor principal con fondo blanco/tarjeta
           Expanded(
             child: Padding(

@@ -48,7 +48,9 @@ class DateFilterSection extends StatelessWidget {
             Text(
               'Filtrar por fecha:',
               style: textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 16,
               ),
             ),
           ],
@@ -65,25 +67,22 @@ class DateFilterSection extends StatelessWidget {
                     'Fecha Desde',
                     style: textTheme.bodySmall?.copyWith(
                       color: colorScheme.primary,
-                      fontSize: 12,
+                      fontSize: 13,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   InkWell(
                     onTap: () =>
                         _selectDate(context, fechaDesde, onFechaDesdeChanged),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: colorScheme.primary.withValues(alpha: 0.3),
-                          width: 1.5,
+                          color: colorScheme.primary.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Text(
@@ -94,6 +93,7 @@ class DateFilterSection extends StatelessWidget {
                           color: fechaDesde != null
                               ? colorScheme.onSurface
                               : colorScheme.onSurface.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -101,7 +101,7 @@ class DateFilterSection extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             // Fecha Hasta
             Expanded(
               child: Column(
@@ -111,25 +111,22 @@ class DateFilterSection extends StatelessWidget {
                     'Fecha Hasta',
                     style: textTheme.bodySmall?.copyWith(
                       color: colorScheme.primary,
-                      fontSize: 12,
+                      fontSize: 13,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   InkWell(
                     onTap: () =>
                         _selectDate(context, fechaHasta, onFechaHastaChanged),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: colorScheme.primary.withValues(alpha: 0.3),
-                          width: 1.5,
+                          color: colorScheme.primary.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Text(
@@ -140,6 +137,7 @@ class DateFilterSection extends StatelessWidget {
                           color: fechaHasta != null
                               ? colorScheme.onSurface
                               : colorScheme.onSurface.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),

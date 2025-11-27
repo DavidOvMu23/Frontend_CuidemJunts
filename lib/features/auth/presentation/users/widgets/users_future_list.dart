@@ -126,19 +126,6 @@ class UsersFutureList extends StatelessWidget {
             // Eliminamos el SizedBox para reducir la separación
 
             // Mensaje informativo
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    l10n.usersPreliminarView,
-                    style: textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 10),
 
             // 4. Lista filtrada vacía (no hay coincidencias)
@@ -162,7 +149,6 @@ class UsersFutureList extends StatelessWidget {
                       dateFormatter: dateFormatter,
                       onTap: () =>
                           onUsuarioTap(context, usuario, dateFormatter),
-                      onEdit: () => onUsuarioEdit(context, usuario),
                     );
                   },
                 ),

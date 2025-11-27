@@ -99,6 +99,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             general_snackbar_error(context, 'Error al eliminar usuario', 3);
           }
         },
+        onEdit: () => _editarUsuario(context, usuario),
       ),
     );
   }

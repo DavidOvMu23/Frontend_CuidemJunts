@@ -598,4 +598,38 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get dniLabel => 'DNI (8 dígits + lletra)';
+
+  @override
+  String get deleteUserTitle => 'Eliminar Usuari';
+
+  @override
+  String get deleteUserContent =>
+      'Esteu segur que voleu eliminar aquest usuari?\n\nAquesta acció no es pot desfer.';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get fullName => 'Nom complet';
+
+  @override
+  String get notSpecified => 'No especificat';
+
+  @override
+  String get notSpecifiedFeminine => 'No especificada';
+
+  @override
+  String get address => 'Adreça';
+
+  @override
+  String get accountStatus => 'Estat del compte';
+
+  @override
+  String get emergencyContacts => 'Contactes d\'emergència';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get sinEspecificar => 'Sense especificar';
 }

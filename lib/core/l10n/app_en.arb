@@ -1,45 +1,15 @@
 {
   "@@locale": "en",
   "selectLanguage": "Select a language:",
-  "@selectLanguage": {
-    "description": "Text indicating to the user to select a language"
-  },
   "languageSpanish": "Spanish",
-  "@languageSpanish": {
-    "description": "Name of the Spanish language"
-  },
   "languageCatalan": "Catalan",
-  "@languageCatalan": {
-    "description": "Name of the Catalan language"
-  },
   "languageEnglish": "English",
-  "@languageEnglish": {
-    "description": "Name of the English language"
-  },
   "welcome": "Welcome to CuidemJunts",
-  "@welcome": {
-    "description": "Welcome title on the login page"
-  },
   "email": "Email",
-  "@email": {
-    "description": "Text for the email field"
-  },
   "password": "Password",
-  "@password": {
-    "description": "Text for the password field"
-  },
   "loginButton": "Log in",
-  "@loginButton": {
-    "description": "Text for the log in button"
-  },
   "forgotPassword": "Forgot your account?",
-  "@forgotPassword": {
-    "description": "Text for the button/link to recover the account"
-  },
   "forgotPasswordSnackbar": "Contact a supervisor to recover your account.",
-  "@forgotPasswordSnackbar": {
-    "description": "Message showing instructions to recover the account"
-  },
   "preferences": "Preferences",
   "mainPage": "Main Page",
   "appPreferences": "App Preferences",
@@ -192,104 +162,38 @@
   "callCancelled": "Cancelled",
   "noStatus": "No status",
   "noNotifications": "No notifications",
-  "@noNotifications": {
-    "description": "Text shown when there are no notifications"
-  },
   "close": "Close",
-  "@close": {
-    "description": "Text for a close button"
-  },
   "role": "Role",
-  "@role": {
-    "description": "Text for role selection"
-  },
   "teleoperator": "Teleoperator",
-  "@teleoperator": {
-    "description": "Teleoperator role"
-  },
   "admin": "Admin",
-  "@admin": {
-    "description": "Administrator role"
-  },
   "nia8digits": "NIA (8 digits)",
-  "@nia8digits": {
-    "description": "Label for NIA input field with 8-digit requirement"
-  },
   "groupIdOptional": "Group (id) - optional",
-  "@groupIdOptional": {
-    "description": "Label for optional group ID"
-  },
   "selectDate": "Select date",
-  "@selectDate": {
-    "description": "Button text to open a date picker"
-  },
   "selectTime": "Select time",
-  "@selectTime": {
-    "description": "Button text to open a time picker"
-  },
   "dialogTitle": "Dialog title",
-  "@dialogTitle": {
-    "description": "Generic title for a dialog"
-  },
   "notificationsPressed": "Notifications pressed",
-  "@notificationsPressed": {
-    "description": "Snackbar message when notifications are pressed"
-  },
   "mainTitle": "Main title",
-  "@mainTitle": {
-    "description": "A generic main title"
-  },
   "sectionSubtitle": "Section subtitle",
-  "@sectionSubtitle": {
-    "description": "A generic section subtitle"
-  },
   "cuidemJunts": "CuidemJunts",
-  "@cuidemJunts": {
-    "description": "The name of the application"
-  },
   "errorLoadingActivity": "Error loading activity",
-  "@errorLoadingActivity": {
-    "description": "Error message when activity fails to load"
-  },
   "nia": "NIA",
-  "@nia": {
-    "description": "Label for NIA input"
-  },
   "groupId": "Group id",
-  "@groupId": {
-    "description": "Label for group id input"
-  },
   "invalidNIA": "Invalid NIA: must have 8 digits",
-  "@invalidNIA": {
-    "description": "Validation error for NIA"
-  },
   "invalidDNI": "Invalid DNI: format 12345678A",
-  "@invalidDNI": {
-    "description": "Validation error for DNI"
-  },
   "passwordLengthError": "Password must be at least 6 characters long",
-  "@passwordLengthError": {
-    "description": "Validation error for password length"
-  },
   "workerCreatedSuccessfully": "Worker created successfully",
-  "@workerCreatedSuccessfully": {
-    "description": "Snackbar message on successful worker creation"
-  },
   "errorCreatingWorker": "Error creating worker: {error}",
-  "@errorCreatingWorker": {
-    "description": "Snackbar message on failed worker creation",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "createWorkerBtn": "Create worker",
-  "@createWorkerBtn": {
-    "description": "Button text to create a worker"
-  },
   "dniLabel": "DNI (8 digits + letter)",
-  "@dniLabel": {
-    "description": "Label for DNI input"
-  }
+  "deleteUserTitle": "Delete User",
+  "deleteUserContent": "Are you sure you want to delete this user?\n\nThis action cannot be undone.",
+  "delete": "Delete",
+  "fullName": "Full name",
+  "notSpecified": "Not specified",
+  "notSpecifiedFeminine": "Not specified",
+  "address": "Address",
+  "accountStatus": "Account status",
+  "emergencyContacts": "Emergency contacts",
+  "edit": "Edit",
+  "sinEspecificar": "Not specified"
 }

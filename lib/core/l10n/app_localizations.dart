@@ -1209,6 +1209,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'DNI (8 dígitos + letra)'**
   String get dniLabel;
+
+  /// No description provided for @deleteUserTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Usuario'**
+  String get deleteUserTitle;
+
+  /// No description provided for @deleteUserContent.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar este usuario?\n\nEsta acción no se puede deshacer.'**
+  String get deleteUserContent;
+
+  /// No description provided for @delete.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get delete;
+
+  /// No description provided for @fullName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre completo'**
+  String get fullName;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In es, this message translates to:
+  /// **'No especificado'**
+  String get notSpecified;
+
+  /// No description provided for @notSpecifiedFeminine.
+  ///
+  /// In es, this message translates to:
+  /// **'No especificada'**
+  String get notSpecifiedFeminine;
+
+  /// No description provided for @address.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección'**
+  String get address;
+
+  /// No description provided for @accountStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado de cuenta'**
+  String get accountStatus;
+
+  /// No description provided for @emergencyContacts.
+  ///
+  /// In es, this message translates to:
+  /// **'Contactos de emergencia'**
+  String get emergencyContacts;
+
+  /// No description provided for @edit.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar'**
+  String get edit;
+
+  /// No description provided for @sinEspecificar.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin especificar'**
+  String get sinEspecificar;
 }
 
 class _AppLocalizationsDelegate
