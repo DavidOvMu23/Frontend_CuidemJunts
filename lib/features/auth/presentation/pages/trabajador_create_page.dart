@@ -47,9 +47,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
   @override
   void initState() {
     super.initState();
-    _trabajadorService = TrabajadorService(
-      baseUrl: 'http://cuidemjunts.zapto.org:3000',
-    );
+    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
   }
 
   @override
@@ -81,11 +79,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
 
     // Si la contraseña es menor a 6 caracteres, mostramos un snackbar de error
     if (contrasena.length < 6) {
-      general_snackbar_error(
-        context,
-        l10n.passwordLengthError,
-        3,
-      );
+      general_snackbar_error(context, l10n.passwordLengthError, 3);
       return;
     }
 
@@ -93,11 +87,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     if (_rol == 'teleoperador') {
       final nia = _niaCtrl.text.trim();
       if (!RegExp(r'^[0-9]{8}$').hasMatch(nia)) {
-        general_snackbar_error(
-          context,
-          l10n.invalidNIA,
-          3,
-        );
+        general_snackbar_error(context, l10n.invalidNIA, 3);
         return;
       }
     }
@@ -350,10 +340,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                     ),
                     const SizedBox(height: 12),
                   ] else if (_rol == 'supervisor') ...[
-                    Text(
-                      l10n.dniLabel,
-                      style: textTheme.bodyMedium,
-                    ),
+                    Text(l10n.dniLabel, style: textTheme.bodyMedium),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _dniCtrl,

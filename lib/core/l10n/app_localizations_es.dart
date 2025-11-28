@@ -413,6 +413,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Rellena el siguiente formulario para crear un nuevo usuario.';
 
   @override
+  String get editUserDescription =>
+      'Modifica los datos del usuario en el siguiente formulario.';
+
+  @override
   String get errorCrateUserBirthday =>
       'Error al crear el usuario. La fecha de nacimiento no puede estar vacía';
 
@@ -490,16 +494,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dependencyLevel => 'Nivel de dependencia';
 
   @override
-  String get medicalData => 'Datos médicos / dolencias (opcional)';
+  String get medicalData => 'Datos médicos / dolencias';
 
   @override
-  String get medication => 'Medicación (opcional)';
+  String get medication => 'Medicación';
 
   @override
   String get telephone => 'Teléfono';
 
   @override
-  String get direction => 'Dirección (opcional)';
+  String get direction => 'Dirección';
 
   @override
   String get createUserButton => 'Crear usuario';
@@ -588,7 +592,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get workerCreatedSuccessfully => 'Trabajador creado correctamente';
 
   @override
-  String errorCreatingWorker(Object error) {
+  String errorCreatingWorker(String error) {
     return 'Error al crear trabajador: $error';
   }
 
@@ -631,4 +635,41 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sinEspecificar => 'Sin especificar';
+
+  @override
+  String get fillAllFields => 'Rellena todos los campos';
+
+  @override
+  String get userDeletedSuccessfully => 'Usuario eliminado correctamente';
+
+  @override
+  String get errorDeletingUser => 'Error al eliminar usuario';
+
+  @override
+  String get errorLoadingWorkers => 'Error al cargar trabajadores';
+
+  @override
+  String get noWorkersFound => 'No se encontraron trabajadores';
+
+  @override
+  String get noGroupAssigned => 'Sin grupo asignado';
+
+  @override
+  String get email_label => 'Correo';
+
+  @override
+  String get role_label => 'Rol';
+
+  @override
+  String get group_label => 'Grupo';
+
+  @override
+  String get serverUnavailable =>
+      'Servidor no disponible (503). Inténtalo más tarde.';
+
+  @override
+  String get connectionRefused => 'No se pudo conectar con el servidor.';
+
+  @override
+  String get viewWidgetCatalog => 'Ver Catálogo de Widgets';
 }

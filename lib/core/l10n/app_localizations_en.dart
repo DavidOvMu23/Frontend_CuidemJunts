@@ -404,6 +404,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Fill out the following form to create a new user.';
 
   @override
+  String get editUserDescription =>
+      'Modify the user data in the following form.';
+
+  @override
   String get errorCrateUserBirthday =>
       'Error creating user. Birthdate cannot be empty.';
 
@@ -479,16 +483,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dependencyLevel => 'Dependency level';
 
   @override
-  String get medicalData => 'Medical data / ailments (optional)';
+  String get medicalData => 'Medical Data / Ailments';
 
   @override
-  String get medication => 'Medication (optional)';
+  String get medication => 'Medication';
 
   @override
   String get telephone => 'Phone';
 
   @override
-  String get direction => 'Address (optional)';
+  String get direction => 'Address';
 
   @override
   String get createUserButton => 'Create user';
@@ -577,7 +581,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workerCreatedSuccessfully => 'Worker created successfully';
 
   @override
-  String errorCreatingWorker(Object error) {
+  String errorCreatingWorker(String error) {
     return 'Error creating worker: $error';
   }
 
@@ -620,4 +624,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sinEspecificar => 'Not specified';
+
+  @override
+  String get fillAllFields => 'Fill in all fields';
+
+  @override
+  String get userDeletedSuccessfully => 'User deleted successfully';
+
+  @override
+  String get errorDeletingUser => 'Error deleting user';
+
+  @override
+  String get errorLoadingWorkers => 'Error loading workers';
+
+  @override
+  String get noWorkersFound => 'No workers found';
+
+  @override
+  String get noGroupAssigned => 'No group assigned';
+
+  @override
+  String get email_label => 'Email';
+
+  @override
+  String get role_label => 'Role';
+
+  @override
+  String get group_label => 'Group';
+
+  @override
+  String get serverUnavailable =>
+      'Server unavailable (503). Please try again later.';
+
+  @override
+  String get connectionRefused => 'Could not connect to the server.';
+
+  @override
+  String get viewWidgetCatalog => 'View Widget Catalog';
 }

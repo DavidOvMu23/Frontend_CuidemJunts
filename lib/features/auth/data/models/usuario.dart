@@ -51,6 +51,9 @@ class Usuario {
   final String direccion;
   final String estadoCuenta;
   final String nivelDependencia;
+  final String informacion;
+  final String? datosMedicosDolencias;
+  final String? medicacion;
   final List<ContactoEmergencia> contactosEmergencia;
 
   const Usuario({
@@ -62,6 +65,9 @@ class Usuario {
     this.direccion = '',
     required this.estadoCuenta,
     required this.nivelDependencia,
+    this.informacion = '',
+    this.datosMedicosDolencias,
+    this.medicacion,
     this.contactosEmergencia = const [],
   });
 
@@ -75,6 +81,9 @@ class Usuario {
     String? direccion,
     String? estadoCuenta,
     String? nivelDependencia,
+    String? informacion,
+    String? datosMedicosDolencias,
+    String? medicacion,
     List<ContactoEmergencia>? contactosEmergencia,
   }) {
     return Usuario(
@@ -86,6 +95,10 @@ class Usuario {
       direccion: direccion ?? this.direccion,
       estadoCuenta: estadoCuenta ?? this.estadoCuenta,
       nivelDependencia: nivelDependencia ?? this.nivelDependencia,
+      informacion: informacion ?? this.informacion,
+      datosMedicosDolencias:
+          datosMedicosDolencias ?? this.datosMedicosDolencias,
+      medicacion: medicacion ?? this.medicacion,
       contactosEmergencia: contactosEmergencia ?? this.contactosEmergencia,
     );
   }
@@ -108,6 +121,9 @@ class Usuario {
       direccion: (json['direccion'] ?? json['address'] ?? '') as String,
       estadoCuenta: json['estado_cuenta'] as String,
       nivelDependencia: json['nivel_dependencia'] as String? ?? '',
+      informacion: json['informacion'] as String? ?? '',
+      datosMedicosDolencias: json['datos_medicos_dolencias'] as String?,
+      medicacion: json['medicacion'] as String?,
       contactosEmergencia:
           contactosRaw
               ?.whereType<Map<String, dynamic>>()

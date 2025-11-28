@@ -50,10 +50,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = UserFilter.all;
-    _trabajadorService = TrabajadorService(
-      baseUrl: 'http://cuidemjunts.zapto.org:3000',
-    );
-    _grupoService = GrupoService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
+    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
+    _grupoService = GrupoService(baseUrl: 'http://localhost:3000');
     _trabajadoresFuture = _cargarTrabajadoresConGrupo();
   }
 
@@ -320,7 +318,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                   return Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'Error al cargar trabajadores',
+                                      l10n.errorLoadingWorkers,
                                       style: textTheme.bodyMedium,
                                     ),
                                   );
@@ -338,7 +336,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                   return Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'No se encontraron trabajadores',
+                                      l10n.noWorkersFound,
                                       style: textTheme.bodyMedium,
                                     ),
                                   );
@@ -501,7 +499,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                             (trabajador.grupoNombre ?? '')
                                                 .trim();
                                         final grupoTexto = esTeleoperador
-                                            ? ' · Grupo: ${grupoNombreLimpio.isEmpty ? 'Sin grupo asignado' : grupoNombreLimpio}'
+                                            ? ' · ${l10n.group_label}: ${grupoNombreLimpio.isEmpty ? l10n.noGroupAssigned : grupoNombreLimpio}'
                                             : '';
                                         return ListTile(
                                           shape: RoundedRectangleBorder(
@@ -517,7 +515,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                             style: textTheme.titleMedium,
                                           ),
                                           subtitle: Text(
-                                            'Correo: ${trabajador.correo} · Rol: ${trabajador.rol}$grupoTexto',
+                                            '${l10n.email_label}: ${trabajador.correo} · ${l10n.role_label}: ${trabajador.rol}$grupoTexto',
                                             style: textTheme.bodyMedium,
                                           ),
                                           trailing: const Icon(

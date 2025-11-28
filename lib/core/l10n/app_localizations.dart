@@ -868,6 +868,12 @@ abstract class AppLocalizations {
   /// **'Rellena el siguiente formulario para crear un nuevo usuario.'**
   String get createUserDescription;
 
+  /// No description provided for @editUserDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Modifica los datos del usuario en el siguiente formulario.'**
+  String get editUserDescription;
+
   /// No description provided for @errorCrateUserBirthday.
   ///
   /// In es, this message translates to:
@@ -1003,13 +1009,13 @@ abstract class AppLocalizations {
   /// No description provided for @medicalData.
   ///
   /// In es, this message translates to:
-  /// **'Datos médicos / dolencias (opcional)'**
+  /// **'Datos médicos / dolencias'**
   String get medicalData;
 
   /// No description provided for @medication.
   ///
   /// In es, this message translates to:
-  /// **'Medicación (opcional)'**
+  /// **'Medicación'**
   String get medication;
 
   /// No description provided for @telephone.
@@ -1021,7 +1027,7 @@ abstract class AppLocalizations {
   /// No description provided for @direction.
   ///
   /// In es, this message translates to:
-  /// **'Dirección (opcional)'**
+  /// **'Dirección'**
   String get direction;
 
   /// No description provided for @createUserButton.
@@ -1196,7 +1202,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Error al crear trabajador: {error}'**
-  String errorCreatingWorker(Object error);
+  String errorCreatingWorker(String error);
 
   /// No description provided for @createWorkerBtn.
   ///
@@ -1275,6 +1281,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin especificar'**
   String get sinEspecificar;
+
+  /// No description provided for @fillAllFields.
+  ///
+  /// In es, this message translates to:
+  /// **'Rellena todos los campos'**
+  String get fillAllFields;
+
+  /// No description provided for @userDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario eliminado correctamente'**
+  String get userDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar usuario'**
+  String get errorDeletingUser;
+
+  /// No description provided for @errorLoadingWorkers.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar trabajadores'**
+  String get errorLoadingWorkers;
+
+  /// No description provided for @noWorkersFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron trabajadores'**
+  String get noWorkersFound;
+
+  /// No description provided for @noGroupAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin grupo asignado'**
+  String get noGroupAssigned;
+
+  /// No description provided for @email_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo'**
+  String get email_label;
+
+  /// No description provided for @role_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol'**
+  String get role_label;
+
+  /// No description provided for @group_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo'**
+  String get group_label;
+
+  /// No description provided for @serverUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Servidor no disponible (503). Inténtalo más tarde.'**
+  String get serverUnavailable;
+
+  /// No description provided for @connectionRefused.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo conectar con el servidor.'**
+  String get connectionRefused;
+
+  /// No description provided for @viewWidgetCatalog.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Catálogo de Widgets'**
+  String get viewWidgetCatalog;
 }
 
 class _AppLocalizationsDelegate

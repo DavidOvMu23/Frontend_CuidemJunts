@@ -40,13 +40,10 @@ class UsuarioService {
 
   // update maneja la llamada a la API para actualizar un usuario.
   Future<Usuario> update(String dni, Map<String, dynamic> payload) async {
-    // Añadir el DNI al payload
-    final payloadConDni = {'dni': dni, ...payload};
-
     final resp = await _client.patch(
-      Uri.parse('$baseUrl/usuario/dni'),
+      Uri.parse('$baseUrl/usuario/$dni'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payloadConDni),
+      body: jsonEncode(payload),
     );
 
     if (resp.statusCode != 200) {
@@ -60,12 +57,8 @@ class UsuarioService {
 
   // delete maneja la llamada a la API para eliminar un usuario.
   Future<void> delete(String dni) async {
-    final payloadConDni = {'dni': dni};
-
     final resp = await _client.delete(
-      Uri.parse('$baseUrl/usuario/dni'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payloadConDni),
+      Uri.parse('$baseUrl/usuario/$dni'),
     );
 
     if (resp.statusCode != 204 && resp.statusCode != 200) {

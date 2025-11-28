@@ -100,15 +100,19 @@ TextField general_textfield(
 //TEXTFIELD
 //Lo mismo que arriba pero sin icono, pero si lo hacía con icono opcional se quedaba
 //feo por que dejaba un espacio vacío antes de poner el texto y sin el obscure text
-TextField general_textfield_NoICON(
+TextFormField general_textfield_NoICON(
   String texto, {
   double borderRadius = 12.0,
   int maxLines = 1,
   TextEditingController? controller,
+  bool enabled = true,
+  String? Function(String?)? validator,
 }) {
-  return TextField(
+  return TextFormField(
     controller: controller,
     maxLines: maxLines,
+    enabled: enabled,
+    validator: validator,
     decoration: InputDecoration(
       hintText: texto, // Texto gris que explica qué escribir.
       border: OutlineInputBorder(

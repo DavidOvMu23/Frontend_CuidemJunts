@@ -15,8 +15,8 @@ import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_scaffold_body.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_edit_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_detail_dialog.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE USUARIOS --------
 // Controlador principal de la vista de usuarios
@@ -44,9 +44,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = UsersPageFilter.all; // Por defecto mostramos todos
-    _usuarioService = UsuarioService(
-      baseUrl: 'http://cuidemjunts.zapto.org:3000',
-    );
+    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
     _usuariosFuture = _cargarUsuariosConContactos(); // Iniciamos la carga
   }
 
@@ -79,6 +77,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     Usuario usuario,
     DateFormat dateFormatter,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => UserDetailDialog(
@@ -89,14 +88,14 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             await _usuarioService.delete(usuario.dni);
             if (!context.mounted) return;
             Navigator.pop(ctx); // Cerrar diálogo
-            general_snackbar(context, 'Usuario eliminado correctamente', 2);
+            general_snackbar(context, l10n.userDeletedSuccessfully, 2);
             // Recargar lista
             setState(() {
               _usuariosFuture = _cargarUsuariosConContactos();
             });
           } catch (e) {
             if (!context.mounted) return;
-            general_snackbar_error(context, 'Error al eliminar usuario', 3);
+            general_snackbar_error(context, l10n.errorDeletingUser, 3);
           }
         },
         onEdit: () => _editarUsuario(context, usuario),
@@ -107,7 +106,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   void _editarUsuario(BuildContext context, Usuario usuario) async {
     final resultado = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => EditarUserPage(usuario: usuario)),
+      MaterialPageRoute(builder: (context) => CrearUserPage(usuario: usuario)),
     );
 
     // Si se editó correctamente, recarga la lista

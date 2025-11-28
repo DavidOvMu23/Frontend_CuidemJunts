@@ -228,7 +228,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
               const SizedBox(height: 24),
               Center(
                 child: general_filledbutton(
-                  "Ver Catálogo de Widgets",
+                  l10n.viewWidgetCatalog,
                   onPressed: () {
                     Navigator.push(
                       context,

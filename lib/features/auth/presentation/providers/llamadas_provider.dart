@@ -7,7 +7,7 @@ import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 // Este provider crea UNA SOLA INSTANCIA de LlamadasService para toda la app.
 // Sirve para que cualquier widget pueda acceder al servicio de llamadas sin tener que pasar el servicio manualmente por todos los widgets.
 final llamadasServiceProvider = Provider<LlamadasService>((ref) {
-  return LlamadasService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
+  return LlamadasService(baseUrl: 'http://localhost:3000');
 });
 
 // Provider base que trae TODAS las llamadas

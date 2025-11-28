@@ -11,9 +11,11 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 
 class CrearUserPage extends ConsumerStatefulWidget {
-  const CrearUserPage({super.key});
+  final Usuario? usuario;
+  const CrearUserPage({super.key, this.usuario});
 
   @override
   ConsumerState<CrearUserPage> createState() => _CrearUserPageState();
@@ -33,6 +35,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
   DateTime? _fechaNacimiento;
   String _estadoCuenta = 'activo';
   String _nivelDependencia = 'ninguna';
+  bool get _isEditing => widget.usuario != null;
 
   late final UsuarioService _usuarioService;
 
@@ -41,9 +44,33 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
   @override
   void initState() {
     super.initState();
-    _usuarioService = UsuarioService(
-      baseUrl: 'http://cuidemjunts.zapto.org:3000',
-    );
+    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
+
+    if (_isEditing) {
+      final u = widget.usuario!;
+      _dniCtrl.text = u.dni;
+      _nombreCtrl.text = u.nombre;
+      _apellidosCtrl.text = u.apellidos;
+      _informacionCtrl.text = u.informacion;
+      _telefonoCtrl.text = u.telefono;
+      _datosMedicosCtrl.text = u.datosMedicosDolencias ?? '';
+      _medicacionCtrl.text = u.medicacion ?? '';
+      _direccionCtrl.text = u.direccion;
+      _fechaNacimiento = u.f_nac;
+      _estadoCuenta = u.estadoCuenta;
+
+      // Mapear nivel de dependencia
+      final nivel = u.nivelDependencia.trim().toUpperCase();
+      if (nivel == 'G1' || nivel == 'LEVE') {
+        _nivelDependencia = 'leve';
+      } else if (nivel == 'G2' || nivel == 'MODERADA' || nivel == 'MODERADO') {
+        _nivelDependencia = 'moderada';
+      } else if (nivel == 'G3' || nivel == 'SEVERA' || nivel == 'SEVERO') {
+        _nivelDependencia = 'severa';
+      } else {
+        _nivelDependencia = 'ninguna';
+      }
+    }
   }
 
   @override
@@ -63,7 +90,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(now.year - 70),
+      initialDate: _fechaNacimiento ?? DateTime(now.year - 70),
       firstDate: DateTime(1900),
       lastDate: now,
     );
@@ -101,30 +128,38 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
     };
 
     try {
-      await _usuarioService.create(payload);
-      general_snackbar(context, l10n.userCreatedSuccess, 2);
-      Navigator.pop(context);
+      if (_isEditing) {
+        await _usuarioService.update(widget.usuario!.dni, payload);
+        if (!mounted) return;
+        general_snackbar(context, l10n.userUpdatedSuccess, 2);
+        Navigator.pop(context, true);
+      } else {
+        await _usuarioService.create(payload);
+        if (!mounted) return;
+        general_snackbar(context, l10n.userCreatedSuccess, 2);
+        Navigator.pop(context, true);
+      }
     } catch (e) {
-      general_snackbar_error(context, l10n.userCreatedError, 3);
+      if (!mounted) return;
+      general_snackbar_error(
+        context,
+        _isEditing ? l10n.userUpdatedError : l10n.userCreatedError,
+        3,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
-    // Obtenemos el estado de autenticación del provider
     final authState = ref.watch(authProvider);
     String? userName;
     String? userRole;
 
     if (authState.userData != null) {
       try {
-        // Convertimos el JSON a un Map
         final userData =
             jsonDecode(authState.userData!) as Map<String, dynamic>;
-
-        // Intentamos obtener el nombre del usuario
         userName =
             userData['nombre']?.toString() ??
             userData['name']?.toString() ??
@@ -132,7 +167,6 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
             userData['email']?.toString();
         userRole = userData['rol']?.toString();
       } catch (e) {
-        // Si hay error al parsear el JSON, simplemente no mostramos nombre
         userName = null;
       }
     }
@@ -171,10 +205,15 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.createUser,
+              _isEditing ? l10n.edit : l10n.createUser,
               style: textTheme.titleMedium?.copyWith(fontSize: 27),
             ),
-            Text(l10n.createUserDescription, style: textTheme.bodyMedium),
+            Text(
+              _isEditing
+                  ? l10n.editUserDescription
+                  : l10n.createUserDescription,
+              style: textTheme.bodyMedium,
+            ),
             const SizedBox(height: 20),
             Expanded(
               child: Material(
@@ -187,7 +226,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.newUser,
+                          _isEditing ? l10n.edit : l10n.newUser,
                           style: textTheme.headlineLarge?.copyWith(
                             fontWeight: FontWeight.w500,
                             fontSize: 18,
@@ -206,6 +245,13 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                                   l10n.dni,
                                   controller: _dniCtrl,
                                   borderRadius: 12.0,
+                                  enabled: !_isEditing,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 15),
 
@@ -216,12 +262,24 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                                   l10n.name,
                                   controller: _nombreCtrl,
                                   borderRadius: 12.0,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 general_textfield_NoICON(
                                   l10n.lastName,
                                   controller: _apellidosCtrl,
                                   borderRadius: 12.0,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 15),
                                 Text(
@@ -233,6 +291,12 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                                   l10n.telephone,
                                   controller: _telefonoCtrl,
                                   borderRadius: 12.0,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 15),
                                 // Fecha nacimiento
@@ -312,30 +376,48 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                                   controller: _informacionCtrl,
                                   borderRadius: 12.0,
                                   maxLines: 4,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 15),
-
-                                Text(
-                                  l10n.optionalData,
-                                  style: textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 4),
                                 general_textfield_NoICON(
                                   l10n.medicalData,
                                   controller: _datosMedicosCtrl,
                                   borderRadius: 12.0,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 general_textfield_NoICON(
                                   l10n.medication,
                                   controller: _medicacionCtrl,
                                   borderRadius: 12.0,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 general_textfield_NoICON(
                                   l10n.direction,
                                   controller: _direccionCtrl,
                                   borderRadius: 12.0,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return l10n.fillAllFields;
+                                    }
+                                    return null;
+                                  },
                                 ),
 
                                 const SizedBox(height: 18),
@@ -348,7 +430,9 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: general_filledbutton(
-                                        l10n.createUser,
+                                        _isEditing
+                                            ? l10n.edit
+                                            : l10n.createUser,
                                         onPressed: _submit,
                                       ),
                                     ),

@@ -6,7 +6,7 @@ import 'package:frontend_cuidemjunts/features/auth/data/models/notificacion.dart
 // Este provider crea UNA SOLA INSTANCIA de NotificacionesService para toda la app.
 // Sirve para que cualquier widget pueda acceder al servicio de notificaciones sin tener que pasar el servicio manualmente por todos los widgets.
 final notificacionServiceProvider = Provider<NotificacionService>((ref) {
-  return NotificacionService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
+  return NotificacionService(baseUrl: 'http://localhost:3000');
 });
 
 // Provider para obtener todas las notificaciones

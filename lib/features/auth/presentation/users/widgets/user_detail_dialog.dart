@@ -249,6 +249,34 @@ class UserDetailDialog extends StatelessWidget {
                     : l10n.notSpecifiedFeminine,
               ),
 
+              // Información
+              if (usuario.informacion.isNotEmpty)
+                _buildDetailRow(
+                  context,
+                  Icons.info_outline,
+                  l10n.information,
+                  usuario.informacion,
+                ),
+
+              // Datos médicos
+              if (usuario.datosMedicosDolencias != null &&
+                  usuario.datosMedicosDolencias!.isNotEmpty)
+                _buildDetailRow(
+                  context,
+                  Icons.medical_services_outlined,
+                  l10n.medicalData,
+                  usuario.datosMedicosDolencias!,
+                ),
+
+              // Medicación
+              if (usuario.medicacion != null && usuario.medicacion!.isNotEmpty)
+                _buildDetailRow(
+                  context,
+                  Icons.medication_outlined,
+                  l10n.medication,
+                  usuario.medicacion!,
+                ),
+
               const SizedBox(height: 8),
 
               // Nivel de dependencia

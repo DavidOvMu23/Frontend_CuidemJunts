@@ -27,15 +27,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
-    authService = AuthService(baseUrl: 'http://cuidemjunts.zapto.org:3000');
+    authService = AuthService(baseUrl: 'http://localhost:3000');
   }
 
   Future<void> hacerLogin() async {
+    final l10n = AppLocalizations.of(context)!;
     final correo = correoController.text.trim();
     final contrasena = contrasenaController.text.trim();
 
     if (correo.isEmpty || contrasena.isEmpty) {
-      general_snackbar(context, 'Rellena todos los campos', 2);
+      general_snackbar(context, l10n.fillAllFields, 2);
       return;
     }
 
@@ -65,14 +66,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
 
       // Si el error contiene 503, es fallo del servidor
       String message = l10n.loginError;
       if (e.toString().contains('503')) {
-        message = 'Servidor no disponible (503). Inténtalo más tarde.';
+        message = l10n.serverUnavailable;
       } else if (e.toString().contains('Connection refused')) {
-        message = 'No se pudo conectar con el servidor.';
+        message = l10n.connectionRefused;
       }
 
       general_snackbar_error(context, message, 3);
