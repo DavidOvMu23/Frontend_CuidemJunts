@@ -491,6 +491,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get information => 'Información';
 
   @override
+  String get optionalInformation => 'Información Opcional';
+
+  @override
   String get dependencyLevel => 'Nivel de dependencia';
 
   @override

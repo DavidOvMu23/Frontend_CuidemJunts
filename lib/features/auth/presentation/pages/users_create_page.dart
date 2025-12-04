@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -109,7 +110,9 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
       'dni': _dniCtrl.text.trim().toUpperCase(),
       'nombre': _nombreCtrl.text.trim(),
       'apellidos': _apellidosCtrl.text.trim(),
-      'informacion': _informacionCtrl.text.trim(),
+      'informacion': _informacionCtrl.text.trim().isEmpty
+          ? null
+          : _informacionCtrl.text.trim(),
       'estado_cuenta': _estadoCuenta,
       'f_nac': DateFormat('yyyy-MM-dd').format(_fechaNacimiento!),
       'nivel_dependencia': _nivelDependencia,
@@ -141,10 +144,28 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
       }
     } catch (e) {
       if (!mounted) return;
+
+      // Log del error para depuración
+      print('Error al crear/editar usuario: $e');
+
+      String errorMessage = _isEditing
+          ? l10n.userUpdatedError
+          : l10n.userCreatedError;
+      final errorString = e.toString();
+
+      // Verificar errores específicos conocidos
+      if (errorString.contains('Formato de DNI incorrecto')) {
+        errorMessage = l10n.invalidDNI; // "DNI inválido: formato 12345678A"
+      } else if (errorString.contains('El usuario con este DNI ya existe')) {
+        errorMessage = l10n.userErrorDNiExists;
+      } else if (errorString.contains('must be a string')) {
+        errorMessage = 'Error de tipo de datos: verifica los campos de texto';
+      }
+
       general_snackbar_error(
         context,
-        _isEditing ? l10n.userUpdatedError : l10n.userCreatedError,
-        3,
+        errorMessage,
+        4, // Un poco más de tiempo para leer
       );
     }
   }
@@ -367,7 +388,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
 
                                 // Informacion
                                 Text(
-                                  l10n.information,
+                                  l10n.optionalInformation,
                                   style: textTheme.bodyMedium,
                                 ),
                                 const SizedBox(height: 4),
@@ -376,48 +397,24 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
                                   controller: _informacionCtrl,
                                   borderRadius: 12.0,
                                   maxLines: 4,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
                                 ),
-                                const SizedBox(height: 15),
+                                const SizedBox(height: 8),
                                 general_textfield_NoICON(
                                   l10n.medicalData,
                                   controller: _datosMedicosCtrl,
                                   borderRadius: 12.0,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 general_textfield_NoICON(
                                   l10n.medication,
                                   controller: _medicacionCtrl,
                                   borderRadius: 12.0,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 general_textfield_NoICON(
                                   l10n.direction,
                                   controller: _direccionCtrl,
                                   borderRadius: 12.0,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
                                 ),
 
                                 const SizedBox(height: 18),

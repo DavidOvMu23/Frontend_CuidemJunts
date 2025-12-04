@@ -152,6 +152,7 @@
   "birthDate": "Data de naixement",
   "selectBirthDate": "Selecciona la data de naixement",
   "information": "Informació",
+  "optionalInformation": "Informació Opcional",
   "dependencyLevel": "Nivell de dependència",
   "medicalData": "Dades mèdiques / dolències",
   "medication": "Medicació",

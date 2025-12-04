@@ -1000,6 +1000,12 @@ abstract class AppLocalizations {
   /// **'Información'**
   String get information;
 
+  /// No description provided for @optionalInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información Opcional'**
+  String get optionalInformation;
+
   /// No description provided for @dependencyLevel.
   ///
   /// In es, this message translates to:

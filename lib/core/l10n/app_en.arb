@@ -150,6 +150,7 @@
   "birthDate": "Birthdate",
   "selectBirthDate": "Select birthdate",
   "information": "Information",
+  "optionalInformation": "Optional Information",
   "dependencyLevel": "Dependency level",
   "medicalData": "Medical Data / Ailments",
   "medication": "Medication",

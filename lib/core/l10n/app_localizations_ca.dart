@@ -492,6 +492,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get information => 'Informació';
 
   @override
+  String get optionalInformation => 'Informació Opcional';
+
+  @override
   String get dependencyLevel => 'Nivell de dependència';
 
   @override

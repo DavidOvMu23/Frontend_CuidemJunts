@@ -480,6 +480,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get information => 'Information';
 
   @override
+  String get optionalInformation => 'Optional Information';
+
+  @override
   String get dependencyLevel => 'Dependency level';
 
   @override
