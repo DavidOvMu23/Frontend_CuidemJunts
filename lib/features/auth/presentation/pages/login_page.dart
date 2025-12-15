@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/api_service.dart';
@@ -9,9 +8,9 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
-// -------- PANTALLA DE INICIO DE SESIÓN --------
-// Aquí pedimos email + contraseña y dejamos escoger idioma/tema.
-// Ahora usa Riverpod para acceder al estado global sin necesidad de callbacks.
+// -------- PANTALLA DE INICIO DE SESIÓN CON JWT --------
+// Aquí pedimos correo y contraseña para autenticación con JWT.
+// Usa Riverpod para acceder al estado global.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -23,6 +22,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController correoController = TextEditingController();
   final TextEditingController contrasenaController = TextEditingController();
   late AuthService authService;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -40,26 +40,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       // -------- HACER LOGIN EN EL BACKEND --------
-      // Enviamos las credenciales al servidor y esperamos la respuesta.
-      final response = await authService.login(correo, contrasena);
+      // Enviamos correo y contraseña al servidor y esperamos el token JWT.
+      final loginResponse = await authService.login(correo, contrasena);
 
-      // -------- GUARDAR LA SESIÓN CON RIVERPOD --------
-      // Convertimos los datos del usuario a JSON para guardarlos
-      final userDataJson = jsonEncode(response);
-
-      // Guardamos la sesión usando el provider de autenticación
+      // -------- GUARDAR LA SESIÓN CON RIVERPOD Y PREFERENCES --------
+      // Guardamos el token y los datos usando el provider de autenticación.
       await ref
           .read(authProvider.notifier)
-          .login(email: correo, userData: userDataJson);
+          .login(
+            token: loginResponse.token,
+            correo: loginResponse.trabajador.correo,
+            nombre: loginResponse.trabajador.nombre,
+            rol: loginResponse.trabajador.rol,
+          );
 
       // Evitar usar BuildContext si el State fue desmontado durante el await
       if (!mounted) return;
 
       // -------- NAVEGAR A LA PANTALLA PRINCIPAL --------
       // Como el login fue exitoso, llevamos al usuario a su pantalla principal.
-      // Ya no necesitamos pasar callbacks ni servicios, Riverpod se encarga.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeSupervisorPage()),
@@ -67,15 +72,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } catch (e) {
       if (!mounted) return;
 
-      // Si el error contiene 503, es fallo del servidor
+      // Manejo de errores
       String message = l10n.loginError;
       if (e.toString().contains('503')) {
         message = l10n.serverUnavailable;
       } else if (e.toString().contains('Connection refused')) {
         message = l10n.connectionRefused;
+      } else if (e.toString().contains('404') ||
+          e.toString().contains('no encontrado')) {
+        message = 'Correo o contraseña incorrectos';
       }
 
       general_snackbar_error(context, message, 3);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -154,22 +168,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // -------- LOGO --------
-                  // Imagen principal de la app alineada al centro.
                   Image.asset(
                     'assets/images/Logo_CuidemJunts.png',
                     height: 120,
                   ),
                   const SizedBox(height: 16),
+
                   // -------- BIENVENIDA --------
-                  // Texto que se traduce solo usando l10n.
                   Text(
                     l10n.welcome,
                     style: theme.textTheme.headlineLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
+
                   // -------- TARJETA DEL FORMULARIO --------
-                  // Material con borde redondeado que contiene los campos.
                   Material(
                     borderRadius: BorderRadius.circular(30),
                     child: Padding(
@@ -178,42 +191,37 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // -------- CAMPO: EMAIL --------
+                          // -------- CAMPO: CORREO ELECTRÓNICO --------
                           general_textfield(
-                            l10n.email,
+                            'Correo Electrónico',
                             false,
-                            icono: Icons.person,
+                            icono: Icons.email,
                             controller: correoController,
                           ),
                           const SizedBox(height: 16),
+
                           // -------- CAMPO: CONTRASEÑA --------
                           general_textfield(
-                            l10n.password,
+                            'Contraseña',
                             true,
                             icono: Icons.lock,
                             controller: contrasenaController,
                           ),
                           const SizedBox(height: 22),
-                          // -------- BOTÓN DE ENTRAR --------
-                          general_filledbutton(
-                            l10n.loginButton,
-                            onPressed: () {
-                              hacerLogin();
-                            },
-                          ),
-                          const SizedBox(height: 12),
 
-                          // -------- BOTÓN DE CONTRASEÑA OLVIDADA --------
-                          general_textbutton(
-                            l10n.forgotPassword,
-                            onPressed: () {
-                              general_snackbar(
-                                context,
-                                l10n.forgotPasswordSnackbar,
-                                2,
-                              );
-                            },
-                          ),
+                          // -------- BOTÓN DE ENTRAR --------
+                          isLoading
+                              ? const SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: CircularProgressIndicator(),
+                                )
+                              : general_filledbutton(
+                                  l10n.loginButton,
+                                  onPressed: () {
+                                    hacerLogin();
+                                  },
+                                ),
                         ],
                       ),
                     ),
@@ -225,5 +233,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    correoController.dispose();
+    contrasenaController.dispose();
+    super.dispose();
   }
 }

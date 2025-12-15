@@ -174,23 +174,8 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final authState = ref.watch(authProvider);
-    String? userName;
-    String? userRole;
-
-    if (authState.userData != null) {
-      try {
-        final userData =
-            jsonDecode(authState.userData!) as Map<String, dynamic>;
-        userName =
-            userData['nombre']?.toString() ??
-            userData['name']?.toString() ??
-            userData['correo']?.toString() ??
-            userData['email']?.toString();
-        userRole = userData['rol']?.toString();
-      } catch (e) {
-        userName = null;
-      }
-    }
+    final userName = authState.nombre;
+    final userRole = authState.rol;
 
     return Scaffold(
       appBar: appMainAppBar(onNotifications: () {}),

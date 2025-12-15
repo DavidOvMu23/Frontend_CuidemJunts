@@ -1,78 +1,97 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/preferences_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
 
 // ----- Provider de AuthState -----
 
-// NOTA: no usamos el token en el AuthState, ya que Cristian nos dijo que no lo usaramos
-// por que eso sería algo que haríamos con el en el segundo trimestre y que no lo hicesemos por no
-// adelantarnos a sus clases
-
 class AuthState {
   final bool isAuthenticated; // ¿Está el usuario logueado?
-  final bool
-  loading; // Indica si se está realizando alguna operación asíncrona (ej. login, registro)
-  final String? email; // Email del usuario
-  final String? userData; // Datos adicionales del usuario (JSON)
+  final bool loading; // Indica si se está realizando alguna operación asíncrona
+  final String? token; // Token JWT del trabajador
+  final String? correo; // Correo del trabajador autenticado
+  final String? nombre; // Nombre del trabajador
+  final String? rol; // Rol del trabajador (supervisor, teleoperador)
 
   const AuthState({
     this.isAuthenticated = false,
     this.loading = false,
-    this.email,
-    this.userData,
+    this.token,
+    this.correo,
+    this.nombre,
+    this.rol,
   });
 
   // Crea una copia del estado cambiando solo lo que queramos.
-  // Por ejemplo, si solo queremos cambiar loading a true, no tenemos
-  // que volver a escribir todos los demás campos.
   AuthState copyWith({
     bool? isAuthenticated,
     bool? loading,
-    String? email,
-    String? userData,
+    String? token,
+    String? correo,
+    String? nombre,
+    String? rol,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       loading: loading ?? this.loading,
-      email: email ?? this.email,
-      userData: userData ?? this.userData,
+      token: token ?? this.token,
+      correo: correo ?? this.correo,
+      nombre: nombre ?? this.nombre,
+      rol: rol ?? this.rol,
     );
   }
 }
 
 // Este es el método que controla el login y logout.
-// La sesión solo se mantiene en memoria mientras la app está abierta.
-// Cuando se cierra la app, el usuario tendrá que volver a hacer login.
+// Guarda el token JWT en SharedPreferences para mantener la sesión persistente.
 class AuthNotifier extends Notifier<AuthState> {
-  // Se ejecuta automáticamente cuando se crea el provider.
-  // Siempre retorna un estado no autenticado al iniciar la app.
+  late PreferencesService _preferencesService;
+
   @override
   AuthState build() {
-    // No hay sesión guardada, el usuario tendrá que hacer login
+    _preferencesService = ref.watch(preferencesServiceProvider);
+
+    // Sesión NO persistente: al iniciar la app, siempre se requiere login
+    // Limpiar cualquier sesión guardada anterior
+    _preferencesService.clearSession();
+
+    // No hay sesión, usuario debe hacer login
     return const AuthState(isAuthenticated: false, loading: false);
   }
 
-  // Guarda la sesión cuando el usuario hace login correctamente.
-  // Esto se llama desde la pantalla de login después de que el backend
-  // confirme que las credenciales son correctas.
-  Future<void> login({required String email, String? userData}) async {
-    // Ponemos loading en true para mostrar un spinner o algo
+  // Guarda la sesión cuando el trabajador hace login correctamente.
+  Future<void> login({
+    required String token,
+    required String correo,
+    String? nombre,
+    String? rol,
+  }) async {
     state = state.copyWith(loading: true);
 
-    // Actualizamos el estado: ahora el usuario está autenticado
-    // NOTA: Solo guardamos en memoria, no en disco
+    // Guardar token y correo en SharedPreferences
+    await _preferencesService.saveToken(token);
+    await _preferencesService.saveUserDni(
+      correo,
+    ); // Reutilizamos para guardar correo
+
+    // Actualizar estado
     state = AuthState(
       isAuthenticated: true,
       loading: false,
-      email: email,
-      userData: userData,
+      token: token,
+      correo: correo,
+      nombre: nombre,
+      rol: rol,
     );
   }
 
   // Cierra la sesión del usuario.
-  // Después de esto, el usuario volverá a la pantalla de login.
   Future<void> logout() async {
     state = state.copyWith(loading: true);
 
-    // Volvemos al estado inicial: no autenticado
+    // Limpiar el token de SharedPreferences
+    await _preferencesService.clearSession();
+
+    // Volver al estado inicial
     state = const AuthState(isAuthenticated: false, loading: false);
   }
 }
@@ -85,4 +104,19 @@ final authProvider = NotifierProvider<AuthNotifier, AuthState>(
 // Atajo para saber si el usuario está logueado o no.
 final isAuthenticatedProvider = Provider<bool>((ref) {
   return ref.watch(authProvider).isAuthenticated;
+});
+
+// Obtener el token JWT
+final jwtTokenProvider = Provider<String?>((ref) {
+  return ref.watch(authProvider).token;
+});
+
+// Obtener el correo del trabajador autenticado
+final userEmailProvider = Provider<String?>((ref) {
+  return ref.watch(authProvider).correo;
+});
+
+// Obtener el rol del trabajador
+final userRoleProvider = Provider<String?>((ref) {
+  return ref.watch(authProvider).rol;
 });

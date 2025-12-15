@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 // -------- SHARED PREFERENCES --------
 // Este servicio se encarga de GUARDAR y CARGAR las preferencias del usuario
 // en el almacenamiento local del dispositivo (como si fuera un archivo de configuración).
@@ -13,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // ¿Qué hace?
 // - Guarda preferencias como el tema (oscuro/claro) o el idioma preferido.
+// - Guarda el token JWT para mantener la sesión autenticada
 // - Permite acceder a estas preferencias desde cualquier parte de la app.
 
 // NOTA: el chatgpt nos ha ayudado con este archivo por que estube pegandome cabezazos
@@ -20,10 +18,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ya todo tenía sentido, y al final no era tan dificil de entender. Lo que mas me costó hacer
 // era hacer que otra página pudiera acceder a las preferencias y poder modificar ciertos elementos como el tema
 
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class PreferencesService {
   // Estas son las "etiquetas" que usamos para identificar cada preferencia.
   static const String _keyThemeMode = 'themeMode';
   static const String _keyLanguageCode = 'languageCode';
+  static const String _keyJwtToken = 'jwt_token';
+  static const String _keyUserDni = 'user_dni';
 
   // Esta variable guardará la conexión al sistema de almacenamiento local.
   // La marcamos como "late" porque se inicializará después (en init()).
@@ -68,5 +71,32 @@ class PreferencesService {
     // getString() lee el texto guardado con la clave _keyLanguageCode.
     // Si no existe, devuelve null.
     return _prefs.getString(_keyLanguageCode);
+  }
+
+  // -------- JWT TOKEN MANAGEMENT --------
+  // Guarda el token JWT después de hacer login
+  Future<void> saveToken(String token) async {
+    await _prefs.setString(_keyJwtToken, token);
+  }
+
+  // Lee el token JWT guardado
+  String? getToken() {
+    return _prefs.getString(_keyJwtToken);
+  }
+
+  // Guarda el DNI del usuario autenticado
+  Future<void> saveUserDni(String dni) async {
+    await _prefs.setString(_keyUserDni, dni);
+  }
+
+  // Lee el DNI del usuario autenticado
+  String? getUserDni() {
+    return _prefs.getString(_keyUserDni);
+  }
+
+  // Limpia la sesión del usuario (logout)
+  Future<void> clearSession() async {
+    await _prefs.remove(_keyJwtToken);
+    await _prefs.remove(_keyUserDni);
   }
 }

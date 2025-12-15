@@ -47,26 +47,14 @@ class HomeSupervisorPage extends ConsumerWidget {
     // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
     // Obtenemos el estado de autenticación del provider
     final authState = ref.watch(authProvider);
-    String? userName;
-    String? userRole;
+    final userName = authState.nombre;
+    final userRole = authState.rol;
 
-    if (authState.userData != null) {
-      try {
-        // Convertimos el JSON a un Map
-        final userData =
-            jsonDecode(authState.userData!) as Map<String, dynamic>;
-
-        // Intentamos obtener el nombre del usuario
-        userName =
-            userData['nombre']?.toString() ??
-            userData['name']?.toString() ??
-            userData['correo']?.toString() ??
-            userData['email']?.toString();
-        userRole = userData['rol']?.toString();
-      } catch (e) {
-        // Si hay error al parsear el JSON, simplemente no mostramos nombre
-        userName = null;
-      }
+    // Si no hay usuario logueado, mostrar un mensaje
+    if (userName == null) {
+      return const Scaffold(
+        body: Center(child: Text('No hay usuario autenticado')),
+      );
     }
 
     // -------- ESTRUCTURA DE LA PANTALLA --------
