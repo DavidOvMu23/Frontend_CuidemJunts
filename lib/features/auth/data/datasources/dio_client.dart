@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/jwt_interceptor.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/preferences_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
 
 // -------- DIO CLIENT CON JWT INTERCEPTOR --------
