@@ -53,7 +53,7 @@ class CallsFutureList extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
-                  'Error al cargar llamadas',
+                  'Error: ${snapshot.error}',
                   style: textTheme.bodyMedium?.copyWith(
                     color: colorScheme.error,
                     fontWeight: FontWeight.w700,

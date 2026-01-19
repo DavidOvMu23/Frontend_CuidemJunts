@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/usuario_service.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
@@ -11,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 class CrearUserPage extends ConsumerStatefulWidget {
   final Usuario? usuario;
@@ -36,14 +36,11 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
   String _nivelDependencia = 'ninguna';
   bool get _isEditing => widget.usuario != null;
 
-  late final UsuarioService _usuarioService;
-
   AppLocalizations get l10n => AppLocalizations.of(context)!;
 
   @override
   void initState() {
     super.initState();
-    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
 
     if (_isEditing) {
       final u = widget.usuario!;
@@ -129,13 +126,14 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
     };
 
     try {
+      final usuarioService = ref.read(usuarioServiceProvider);
       if (_isEditing) {
-        await _usuarioService.update(widget.usuario!.dni, payload);
+        await usuarioService.update(widget.usuario!.dni, payload);
         if (!mounted) return;
         general_snackbar(context, l10n.userUpdatedSuccess, 2);
         Navigator.pop(context, true);
       } else {
-        await _usuarioService.create(payload);
+        await usuarioService.create(payload);
         if (!mounted) return;
         general_snackbar(context, l10n.userCreatedSuccess, 2);
         Navigator.pop(context, true);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/trabajador_service.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
@@ -9,6 +8,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
 
 // Página para crear un nuevo trabajador (teleoperador, supervisor, etc.)
 class CrearTrabajadorPage extends ConsumerStatefulWidget {
@@ -39,14 +39,10 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
   String? _grupoId;
   final TextEditingController _grupoCtrl = TextEditingController();
 
-  // Servicio de trabajadores el late es para que se inicialice en el initState
-  late final TrabajadorService _trabajadorService;
-
   // Inicializa el servicio de trabajadores
   @override
   void initState() {
     super.initState();
-    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
   }
 
   @override
@@ -133,7 +129,8 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     // Enviamos el payload al backend
     //si todo va bien, mostramos un snackbar de exito y volvemos a la pagina de inicio
     try {
-      await _trabajadorService.create(payload);
+      final trabajadorService = ref.read(trabajadorServiceProvider);
+      await trabajadorService.create(payload);
       general_snackbar(context, l10n.workerCreatedSuccessfully, 2);
       Navigator.pop(context);
     } catch (e) {
