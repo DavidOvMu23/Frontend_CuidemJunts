@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/usuario_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
@@ -16,6 +15,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_scaffold_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_detail_dialog.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE USUARIOS --------
@@ -29,9 +29,6 @@ class UsersPage extends ConsumerStatefulWidget {
 }
 
 class _UsersPageState extends ConsumerState<UsersPage> {
-  // Servicio para peticiones al backend
-  late final UsuarioService _usuarioService;
-
   // Cache del Future para evitar recargas innecesarias al reconstruir el widget
   late Future<List<Usuario>> _usuariosFuture;
 
@@ -44,13 +41,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = UsersPageFilter.all; // Por defecto mostramos todos
-    _usuarioService = UsuarioService(baseUrl: 'http://localhost:3000');
     _usuariosFuture = _cargarUsuariosConContactos(); // Iniciamos la carga
   }
 
   // Obtiene la lista completa de usuarios del servidor
   Future<List<Usuario>> _cargarUsuariosConContactos() async {
-    final usuarios = await _usuarioService.getAll();
+    final usuarioService = ref.read(usuarioServiceProvider);
+    final usuarios = await usuarioService.getAll();
     return usuarios;
   }
 
@@ -85,7 +82,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
         dateFormatter: dateFormatter,
         onDelete: () async {
           try {
-            await _usuarioService.delete(usuario.dni);
+            final usuarioService = ref.read(usuarioServiceProvider);
+            await usuarioService.delete(usuario.dni);
             if (!context.mounted) return;
             Navigator.pop(ctx); // Cerrar diálogo
             general_snackbar(context, l10n.userDeletedSuccessfully, 2);

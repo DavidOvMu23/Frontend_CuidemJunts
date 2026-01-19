@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/notificaciones_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/notificacion.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
+
 // ----- Provider de NotificacionesService -----
 
 // Este provider crea UNA SOLA INSTANCIA de NotificacionesService para toda la app.
 // Sirve para que cualquier widget pueda acceder al servicio de notificaciones sin tener que pasar el servicio manualmente por todos los widgets.
 final notificacionServiceProvider = Provider<NotificacionService>((ref) {
-  return NotificacionService(baseUrl: 'http://localhost:3000');
+  final dio = ref.watch(dioClientProvider);
+  return NotificacionService(dio: dio);
 });
 
 // Provider para obtener todas las notificaciones

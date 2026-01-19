@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/llamadas_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
@@ -14,6 +13,8 @@ import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_servic
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/calls_scaffold_body.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 
 // -------- PANTALLA DE LLAMADAS --------
 // Controlador principal de la vista de llamadas
@@ -26,10 +27,6 @@ class LlamadasPage extends ConsumerStatefulWidget {
 }
 
 class _LlamadasPageState extends ConsumerState<LlamadasPage> {
-  // Servicio para peticiones al backend
-  late final LlamadasService _llamadasService;
-  late final GrupoService _gruposService;
-
   // Cache del Future para evitar recargas innecesarias al reconstruir el widget
   late Future<List<Llamadas>> _llamadasFuture;
 
@@ -44,46 +41,58 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = CallsPageFilter.all; // Por defecto mostramos todos
-    _llamadasService = LlamadasService(baseUrl: 'http://localhost:3000');
-    _gruposService = GrupoService(baseUrl: 'http://localhost:3000');
     _llamadasFuture = _cargarLlamadasConGrupo(); // Iniciamos la carga
   }
 
   // Obtiene la lista completa de llamadas del servidor
   Future<List<Llamadas>> _cargarLlamadasConGrupo() async {
-    final llamadas = await _llamadasService.getAll();
-    final Map<int, String?> cache = {};
+    try {
+      final llamadasService = ref.read(llamadasServiceProvider);
+      final gruposService = ref.read(grupoServiceProvider);
 
-    final enriched = await Future.wait(
-      llamadas.map((llamada) async {
-        // Si el backend ya incluye el nombre del grupo en la comunicación,
-        // no necesitamos hacer una petición adicional.
-        if (llamada.grupoNombre != null && llamada.grupoNombre!.isNotEmpty) {
-          return llamada;
-        }
+      final llamadas = await llamadasService.getAll();
+      final Map<int, String?> cache = {};
 
-        final grupoId = llamada.grupoId;
-        if (grupoId == 0) return llamada;
+      final enriched = await Future.wait(
+        llamadas.map((llamada) async {
+          // Si el backend ya incluye el nombre del grupo en la comunicación,
+          // no necesitamos hacer una petición adicional.
+          if (llamada.grupoNombre != null && llamada.grupoNombre!.isNotEmpty) {
+            return llamada;
+          }
 
-        final nombreGrupo = await _obtenerNombreGrupo(grupoId, cache);
-        if (nombreGrupo == null) return llamada;
-        return llamada.copyWith(grupoNombre: nombreGrupo);
-      }),
-    );
+          final grupoId = llamada.grupoId;
+          if (grupoId == 0) return llamada;
 
-    return enriched;
+          final nombreGrupo = await _obtenerNombreGrupo(
+            grupoId,
+            cache,
+            gruposService,
+          );
+          if (nombreGrupo == null) return llamada;
+          return llamada.copyWith(grupoNombre: nombreGrupo);
+        }),
+      );
+
+      return enriched;
+    } catch (e, stack) {
+      debugPrint('Error cargando llamadas: $e');
+      debugPrint('Stacktrace: $stack');
+      rethrow;
+    }
   }
 
   Future<String?> _obtenerNombreGrupo(
     int grupoId,
     Map<int, String?> cache,
+    GrupoService gruposService,
   ) async {
     if (cache.containsKey(grupoId)) {
       return cache[grupoId];
     }
 
     try {
-      final grupo = await _gruposService.getById(grupoId);
+      final grupo = await gruposService.getById(grupoId);
       cache[grupoId] = grupo.nombre;
       return grupo.nombre;
     } catch (_) {

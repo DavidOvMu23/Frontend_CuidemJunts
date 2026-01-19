@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/trabajador_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
@@ -15,6 +14,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 
 class WorkersPage extends ConsumerStatefulWidget {
   const WorkersPage({super.key});
@@ -36,8 +37,6 @@ enum UserSort {
 }
 
 class _WorkersPageState extends ConsumerState<WorkersPage> {
-  late final TrabajadorService _trabajadorService;
-  late final GrupoService _grupoService;
   late Future<List<Trabajador>> _trabajadoresFuture;
   // Filtro de usuarios seleccionado actualmente.
   late UserFilter filtroSeleccionado;
@@ -50,13 +49,14 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
   void initState() {
     super.initState();
     filtroSeleccionado = UserFilter.all;
-    _trabajadorService = TrabajadorService(baseUrl: 'http://localhost:3000');
-    _grupoService = GrupoService(baseUrl: 'http://localhost:3000');
     _trabajadoresFuture = _cargarTrabajadoresConGrupo();
   }
 
   Future<List<Trabajador>> _cargarTrabajadoresConGrupo() async {
-    final trabajadores = await _trabajadorService.getAll();
+    final trabajadorService = ref.read(trabajadorServiceProvider);
+    final gruposService = ref.read(grupoServiceProvider);
+
+    final trabajadores = await trabajadorService.getAll();
     final Map<int, String?> cache = {};
 
     final enriched = await Future.wait(
@@ -67,7 +67,11 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           return trabajador;
         }
 
-        final nombreGrupo = await _obtenerNombreGrupo(grupoId, cache);
+        final nombreGrupo = await _obtenerNombreGrupo(
+          grupoId,
+          cache,
+          gruposService,
+        );
         if (nombreGrupo == null) {
           return trabajador;
         }
@@ -81,13 +85,14 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
   Future<String?> _obtenerNombreGrupo(
     int grupoId,
     Map<int, String?> cache,
+    GrupoService gruposService,
   ) async {
     if (cache.containsKey(grupoId)) {
       return cache[grupoId];
     }
 
     try {
-      final grupo = await _grupoService.getById(grupoId);
+      final grupo = await gruposService.getById(grupoId);
       cache[grupoId] = grupo.nombre;
       return grupo.nombre;
     } catch (_) {

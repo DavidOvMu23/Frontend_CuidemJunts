@@ -1,25 +1,19 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../models/trabajador.dart';
 
 // -------- TRABAJADOR SERVICE --------
 
 // Este servicio se encarga de manejar las llamadas a la API relacionadas con los trabajadores.
 class TrabajadorService {
-  final String baseUrl;
-  final http.Client _client;
+  final Dio _dio;
 
-  // Constructor que recibe la URL base y un cliente HTTP.
-  TrabajadorService({required this.baseUrl, http.Client? client})
-    : _client = client ?? http.Client();
+  // Constructor que recibe el cliente Dio.
+  TrabajadorService({required Dio dio}) : _dio = dio;
 
-  // getAll maneja la llamada a la API para obtener todas las notificaciones.
+  // getAll maneja la llamada a la API para obtener todos los trabajadores.
   Future<List<Trabajador>> getAll() async {
-    final resp = await _client.get(Uri.parse('$baseUrl/trabajador'));
-    if (resp.statusCode != 200) {
-      throw Exception('Error ${resp.statusCode}: ${resp.body}');
-    }
-    final List<dynamic> raw = jsonDecode(resp.body) as List<dynamic>;
+    final resp = await _dio.get('/trabajador');
+    final List<dynamic> raw = resp.data as List<dynamic>;
     return raw
         .map((e) => Trabajador.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -27,16 +21,7 @@ class TrabajadorService {
 
   // create maneja la llamada a la API para crear un nuevo trabajador.
   Future<Trabajador> create(Map<String, dynamic> payload) async {
-    final resp = await _client.post(
-      Uri.parse('$baseUrl/trabajador'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
-    if (resp.statusCode != 201 && resp.statusCode != 200) {
-      throw Exception('Error ${resp.statusCode}: ${resp.body}');
-    }
-    final Map<String, dynamic> data =
-        jsonDecode(resp.body) as Map<String, dynamic>;
-    return Trabajador.fromJson(data);
+    final resp = await _dio.post('/trabajador', data: payload);
+    return Trabajador.fromJson(resp.data as Map<String, dynamic>);
   }
 }

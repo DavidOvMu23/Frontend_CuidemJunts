@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/llamadas_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 
@@ -7,7 +8,8 @@ import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 // Este provider crea UNA SOLA INSTANCIA de LlamadasService para toda la app.
 // Sirve para que cualquier widget pueda acceder al servicio de llamadas sin tener que pasar el servicio manualmente por todos los widgets.
 final llamadasServiceProvider = Provider<LlamadasService>((ref) {
-  return LlamadasService(baseUrl: 'http://localhost:3000');
+  final dio = ref.watch(dioClientProvider);
+  return LlamadasService(dio: dio);
 });
 
 // Provider base que trae TODAS las llamadas
