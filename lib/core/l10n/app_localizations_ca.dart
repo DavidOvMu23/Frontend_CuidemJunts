@@ -676,4 +676,26 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get viewWidgetCatalog => 'Veure Catàleg de Widgets';
+
+  @override
+  String get searchEmergencyContacts => 'Cercar per nom, telèfon o relació';
+
+  @override
+  String get noEmergencyContactsFound =>
+      'No s\'han trobat contactes d\'emergència';
+
+  @override
+  String get noResultsFound => 'No s\'han trobat resultats';
+
+  @override
+  String get phone => 'Telèfon';
+
+  @override
+  String get relation => 'Relació';
+
+  @override
+  String get refersToUser => 'Referència a usuari';
+
+  @override
+  String get error => 'Error';
 }

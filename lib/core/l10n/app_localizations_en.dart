@@ -664,4 +664,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewWidgetCatalog => 'View Widget Catalog';
+
+  @override
+  String get searchEmergencyContacts => 'Search by name, phone or relationship';
+
+  @override
+  String get noEmergencyContactsFound => 'No emergency contacts found';
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get relation => 'Relationship';
+
+  @override
+  String get refersToUser => 'Refers to user';
+
+  @override
+  String get error => 'Error';
 }

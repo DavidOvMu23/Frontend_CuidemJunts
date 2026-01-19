@@ -8,6 +8,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_super
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
@@ -189,6 +190,10 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
         onTapCalls: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const UsersPage()),
+        ),
+        onTapEmergencyContacts: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const EmergencyContactsPage()),
         ),
         onTapPreferences: () => Navigator.push(
           context,

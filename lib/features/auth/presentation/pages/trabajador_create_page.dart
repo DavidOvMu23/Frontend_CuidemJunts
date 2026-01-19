@@ -6,6 +6,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervis
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
@@ -172,6 +174,14 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
         onTapCalls: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const WorkersPage()),
+        ),
+        onTapUsers: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const UsersPage()),
+        ),
+        onTapEmergencyContacts: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const EmergencyContactsPage()),
         ),
         onTapPreferences: () => Navigator.push(
           context,

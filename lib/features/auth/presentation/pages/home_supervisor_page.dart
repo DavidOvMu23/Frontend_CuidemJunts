@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
@@ -88,6 +89,14 @@ class HomeSupervisorPage extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const UsersPage()),
+          );
+        },
+        onTapEmergencyContacts: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmergencyContactsPage(),
+            ),
           );
         },
         onTapTelemarketers: () {

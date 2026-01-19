@@ -1359,6 +1359,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ver Catálogo de Widgets'**
   String get viewWidgetCatalog;
+
+  /// No description provided for @searchEmergencyContacts.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre, teléfono o relación'**
+  String get searchEmergencyContacts;
+
+  /// No description provided for @noEmergencyContactsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron contactos de emergencia'**
+  String get noEmergencyContactsFound;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron resultados'**
+  String get noResultsFound;
+
+  /// No description provided for @phone.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono'**
+  String get phone;
+
+  /// No description provided for @relation.
+  ///
+  /// In es, this message translates to:
+  /// **'Relación'**
+  String get relation;
+
+  /// No description provided for @refersToUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Referencia a usuario'**
+  String get refersToUser;
+
+  /// No description provided for @error.
+  ///
+  /// In es, this message translates to:
+  /// **'Error'**
+  String get error;
 }
 
 class _AppLocalizationsDelegate

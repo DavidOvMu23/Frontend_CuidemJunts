@@ -198,6 +198,7 @@
   "address": "Adreça",
   "accountStatus": "Estat del compte",
   "emergencyContacts": "Contactes d'emergència",
+  "manageEmergencyContacts": "Gestionar contactes d'emergència",
   "edit": "Editar",
   "sinEspecificar": "Sense especificar",
   "fillAllFields": "Omple tots els camps",
@@ -211,5 +212,12 @@
   "group_label": "Grup",
   "serverUnavailable": "Servidor no disponible (503). Torna-ho a provar més tard.",
   "connectionRefused": "No s'ha pogut connectar amb el servidor.",
-  "viewWidgetCatalog": "Veure Catàleg de Widgets"
+  "viewWidgetCatalog": "Veure Catàleg de Widgets",
+  "searchEmergencyContacts": "Cercar per nom, telèfon o relació",
+  "noEmergencyContactsFound": "No s'han trobat contactes d'emergència",
+  "noResultsFound": "No s'han trobat resultats",
+  "phone": "Telèfon",
+  "relation": "Relació",
+  "refersToUser": "Referència a usuari",
+  "error": "Error"
 }

@@ -196,6 +196,7 @@
   "address": "Address",
   "accountStatus": "Account status",
   "emergencyContacts": "Emergency contacts",
+  "manageEmergencyContacts": "Manage emergency contacts",
   "edit": "Edit",
   "sinEspecificar": "Not specified",
   "fillAllFields": "Fill in all fields",
@@ -209,5 +210,12 @@
   "group_label": "Group",
   "serverUnavailable": "Server unavailable (503). Please try again later.",
   "connectionRefused": "Could not connect to the server.",
-  "viewWidgetCatalog": "View Widget Catalog"
+  "viewWidgetCatalog": "View Widget Catalog",
+  "searchEmergencyContacts": "Search by name, phone or relationship",
+  "noEmergencyContactsFound": "No emergency contacts found",
+  "noResultsFound": "No results found",
+  "phone": "Phone",
+  "relation": "Relationship",
+  "refersToUser": "Refers to user",
+  "error": "Error"
 }

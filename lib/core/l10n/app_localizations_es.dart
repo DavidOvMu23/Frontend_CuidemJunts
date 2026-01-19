@@ -675,4 +675,27 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get viewWidgetCatalog => 'Ver Catálogo de Widgets';
+
+  @override
+  String get searchEmergencyContacts =>
+      'Buscar por nombre, teléfono o relación';
+
+  @override
+  String get noEmergencyContactsFound =>
+      'No se encontraron contactos de emergencia';
+
+  @override
+  String get noResultsFound => 'No se encontraron resultados';
+
+  @override
+  String get phone => 'Teléfono';
+
+  @override
+  String get relation => 'Relación';
+
+  @override
+  String get refersToUser => 'Referencia a usuario';
+
+  @override
+  String get error => 'Error';
 }

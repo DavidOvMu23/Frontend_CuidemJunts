@@ -12,6 +12,7 @@ import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 
@@ -150,6 +151,14 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const UsersPage()),
+          );
+        },
+        onTapEmergencyContacts: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmergencyContactsPage(),
+            ),
           );
         },
         onLogoutConfirmed: () async {

@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
@@ -256,6 +257,14 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const UsersPage()),
+          );
+        },
+        onTapEmergencyContacts: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmergencyContactsPage(),
+            ),
           );
         },
         onTapTelemarketers: () {

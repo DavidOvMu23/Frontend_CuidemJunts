@@ -203,6 +203,7 @@
   "address": "Dirección",
   "accountStatus": "Estado de cuenta",
   "emergencyContacts": "Contactos de emergencia",
+  "manageEmergencyContacts": "Gestionar contactos de emergencia",
   "edit": "Editar",
   "sinEspecificar": "Sin especificar",
   "fillAllFields": "Rellena todos los campos",
@@ -216,5 +217,12 @@
   "group_label": "Grupo",
   "serverUnavailable": "Servidor no disponible (503). Inténtalo más tarde.",
   "connectionRefused": "No se pudo conectar con el servidor.",
-  "viewWidgetCatalog": "Ver Catálogo de Widgets"
+  "viewWidgetCatalog": "Ver Catálogo de Widgets",
+  "searchEmergencyContacts": "Buscar por nombre, teléfono o relación",
+  "noEmergencyContactsFound": "No se encontraron contactos de emergencia",
+  "noResultsFound": "No se encontraron resultados",
+  "phone": "Teléfono",
+  "relation": "Relación",
+  "refersToUser": "Referencia a usuario",
+  "error": "Error"
 }
