@@ -623,6 +623,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergencyContacts => 'Emergency contacts';
 
   @override
+  String get manageEmergencyContacts => 'Manage emergency contacts';
+
+  @override
   String get edit => 'Edit';
 
   @override

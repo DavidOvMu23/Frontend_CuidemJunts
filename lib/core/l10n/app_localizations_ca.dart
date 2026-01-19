@@ -635,6 +635,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get emergencyContacts => 'Contactes d\'emergència';
 
   @override
+  String get manageEmergencyContacts => 'Gestionar contactes d\'emergència';
+
+  @override
   String get edit => 'Editar';
 
   @override

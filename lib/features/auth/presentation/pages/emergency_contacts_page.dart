@@ -208,7 +208,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               l10n.emergencyContacts,
               style: textTheme.titleMedium?.copyWith(fontSize: 27),
             ),
-            Text(l10n.manageEmergencyContacts, style: textTheme.bodyMedium),
+            Text(l10n.searchEmergencyContacts, style: textTheme.bodyMedium),
             const SizedBox(height: 7),
 
             // Contenedor principal con fondo blanco/tarjeta

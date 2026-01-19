@@ -1276,6 +1276,12 @@ abstract class AppLocalizations {
   /// **'Contactos de emergencia'**
   String get emergencyContacts;
 
+  /// No description provided for @manageEmergencyContacts.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar contactos de emergencia'**
+  String get manageEmergencyContacts;
+
   /// No description provided for @edit.
   ///
   /// In es, this message translates to:

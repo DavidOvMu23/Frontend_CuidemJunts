@@ -634,6 +634,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get emergencyContacts => 'Contactos de emergencia';
 
   @override
+  String get manageEmergencyContacts => 'Gestionar contactos de emergencia';
+
+  @override
   String get edit => 'Editar';
 
   @override
