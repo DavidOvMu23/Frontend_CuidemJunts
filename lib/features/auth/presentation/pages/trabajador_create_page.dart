@@ -8,9 +8,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 
 // Página para crear un nuevo trabajador (teleoperador, supervisor, etc.)
 class CrearTrabajadorPage extends ConsumerStatefulWidget {
@@ -155,10 +158,23 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     // Genera el formulario
     return Scaffold(
-      appBar: appMainAppBar(onNotifications: () {}),
+      appBar: appMainAppBar(
+        numeroNotificaciones: notificacionesSinLeerAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (_, __) => 0,
+        ),
+        onNotifications: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsPage()),
+          );
+        },
+      ),
       drawer: appDrawer(
         userName: userName,
         userRole: userRole,
@@ -170,6 +186,10 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
         ),
         onTapCalls: () => Navigator.push(
           context,
+          MaterialPageRoute(builder: (_) => const LlamadasPage()),
+        ),
+        onTapTelemarketers: () => Navigator.push(
+          context,
           MaterialPageRoute(builder: (_) => const WorkersPage()),
         ),
         onTapUsers: () => Navigator.push(
@@ -179,6 +199,10 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
         onTapEmergencyContacts: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const EmergencyContactsPage()),
+        ),
+        onTapNotifications: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const NotificationsPage()),
         ),
         onTapPreferences: () => Navigator.push(
           context,

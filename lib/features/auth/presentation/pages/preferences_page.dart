@@ -9,9 +9,11 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 
 // -------- PÁGINA DE PREFERENCIAS --------
@@ -58,6 +60,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     // Si no hay usuario logueado, mostrar un mensaje
     if (userName == null) {
@@ -68,7 +71,19 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 
     return Scaffold(
       // -------- APPBAR CON EL BOTÓN DE NOTIS --------
-      appBar: appMainAppBar(onNotifications: () {}),
+      appBar: appMainAppBar(
+        numeroNotificaciones: notificacionesSinLeerAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (_, __) => 0,
+        ),
+        onNotifications: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
+        },
+      ),
 
       // -------- MENÚ LATERAL --------
       drawer: appDrawer(
@@ -109,7 +124,10 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
           );
         },
         onTapNotifications: () {
-          //TODO: Navegar a la página de notificaciones
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
         },
         onLogoutConfirmed: () async {
           await ref.read(authProvider.notifier).logout();

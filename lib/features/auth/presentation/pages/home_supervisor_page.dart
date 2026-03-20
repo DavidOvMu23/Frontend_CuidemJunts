@@ -10,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervis
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
@@ -68,7 +69,10 @@ class HomeSupervisorPage extends ConsumerWidget {
           error: (_, __) => 0,
         ),
         onNotifications: () {
-          showNotificacionesDialog(context, ref, l10n);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
         },
       ),
 
@@ -109,6 +113,12 @@ class HomeSupervisorPage extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PreferencesPage()),
+          );
+        },
+        onTapNotifications: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
         onLogoutConfirmed: () async {
@@ -236,93 +246,6 @@ class HomeSupervisorPage extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // -------- DIÁLOGO DE NOTIFICACIONES --------
-  // Función que muestra una ventana flotante con todas las notificaciones
-  void showNotificacionesDialog(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) {
-    final notificacionesAsync = ref.watch(notificacionesProvider);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.notifications),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: notificacionesAsync.when(
-            data: (notificaciones) {
-              if (notificaciones.isEmpty) {
-                return Text(l10n.noNotifications);
-              }
-
-              // Separar notificaciones por estado
-              final sinLeer = notificaciones.where((n) => n.esSinLeer).toList();
-              final leidas = notificaciones.where((n) => n.esLeida).toList();
-
-              return ListView(
-                shrinkWrap: true,
-                children: [
-                  // Sección de NO LEÍDAS
-                  if (sinLeer.isNotEmpty) ...[
-                    Text(
-                      l10n.unread,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ...sinLeer.map(
-                      (notif) => ListTile(
-                        leading: const Icon(
-                          Icons.mark_email_unread,
-                          color: Colors.blue,
-                        ),
-                        title: Text(notif.contenido),
-                      ),
-                    ),
-                    const Divider(),
-                  ],
-
-                  // Sección de LEÍDAS
-                  if (leidas.isNotEmpty) ...[
-                    Text(
-                      l10n.read,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ...leidas.map(
-                      (notif) => ListTile(
-                        leading: const Icon(Icons.drafts, color: Colors.grey),
-                        title: Text(
-                          notif.contenido,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => Text(l10n.errorNotificationsLoading),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.close),
-          ),
-        ],
       ),
     );
   }

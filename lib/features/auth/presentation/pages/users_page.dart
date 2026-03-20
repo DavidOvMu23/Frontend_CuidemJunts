@@ -10,12 +10,14 @@ import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_create_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_scaffold_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_detail_dialog.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE USUARIOS --------
@@ -194,13 +196,22 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     //
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       appBar: appMainAppBar(
+        numeroNotificaciones: notificacionesSinLeerAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (_, __) => 0,
+        ),
         onNotifications: () {
-          // TODO: Acción al pulsar el icono de notificaciones.
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
         },
       ),
 
@@ -240,6 +251,12 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PreferencesPage()),
+          );
+        },
+        onTapNotifications: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
         onLogoutConfirmed: () async {

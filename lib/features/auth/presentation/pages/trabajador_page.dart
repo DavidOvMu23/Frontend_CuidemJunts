@@ -12,10 +12,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervis
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 
 class WorkersPage extends ConsumerStatefulWidget {
   const WorkersPage({super.key});
@@ -101,6 +103,48 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     }
   }
 
+  List<Trabajador> _aplicarFiltros(List<Trabajador> trabajadores) {
+    final query = textoFiltro.trim().toLowerCase();
+
+    final filtrados = trabajadores.where((trabajador) {
+      final nombreCompleto =
+          '${trabajador.nombre} ${trabajador.apellidos}'.toLowerCase();
+      final coincideTexto =
+          query.isEmpty ||
+          nombreCompleto.contains(query) ||
+          trabajador.correo.toLowerCase().contains(query) ||
+          trabajador.rol.toLowerCase().contains(query);
+
+      final coincideFiltro = switch (filtroSeleccionado) {
+        UserFilter.all => true,
+        UserFilter.active => true,
+        UserFilter.inactive => true,
+        UserFilter.g1 => (trabajador.grupoId ?? 0) == 1,
+        UserFilter.g2 => (trabajador.grupoId ?? 0) == 2,
+        UserFilter.g3 => (trabajador.grupoId ?? 0) == 3,
+      };
+
+      return coincideTexto && coincideFiltro;
+    }).toList();
+
+    filtrados.sort((a, b) {
+      switch (ordenSeleccionado) {
+        case UserSort.none:
+          return a.nombre.compareTo(b.nombre);
+        case UserSort.nameZA:
+          return b.nombre.compareTo(a.nombre);
+        case UserSort.dependencyHighLow:
+          return (b.grupoId ?? 0).compareTo(a.grupoId ?? 0);
+        case UserSort.dependencyLowHigh:
+          return (a.grupoId ?? 0).compareTo(b.grupoId ?? 0);
+        case UserSort.accountStatusOrder:
+          return a.rol.toLowerCase().compareTo(b.rol.toLowerCase());
+      }
+    });
+
+    return filtrados;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Obtenemos tipografías y paleta del tema actual para mantener
@@ -116,13 +160,22 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       // AppBar: barra superior con título centrado e iconos de acción a la derecha.
       appBar: appMainAppBar(
+        numeroNotificaciones: notificacionesSinLeerAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (_, __) => 0,
+        ),
         onNotifications: () {
-          // TODO: Acción al pulsar el icono de notificaciones.
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
         },
       ),
 
@@ -145,7 +198,12 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
             MaterialPageRoute(builder: (context) => const LlamadasPage()),
           );
         },
-        onTapNotifications: () {},
+        onTapNotifications: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
+        },
         onTapPreferences: () {
           Navigator.push(
             context,
@@ -319,14 +377,17 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                 }
 
                                 final trabajadores = snapshot.data ?? [];
+                                final trabajadoresFiltrados = _aplicarFiltros(
+                                  trabajadores,
+                                );
                                 final showingAll =
                                     textoFiltro.isEmpty &&
                                     filtroSeleccionado == UserFilter.all;
                                 final totalText = showingAll
                                     ? '${l10n.totalWorkers}: ${trabajadores.length}'
-                                    : '${l10n.workersFound}: ${trabajadores.length}';
+                                    : '${l10n.workersFound}: ${trabajadoresFiltrados.length}';
 
-                                if (trabajadores.isEmpty) {
+                                if (trabajadoresFiltrados.isEmpty) {
                                   return Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
@@ -481,11 +542,12 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                       shrinkWrap: true,
                                       physics:
                                           const NeverScrollableScrollPhysics(),
-                                      itemCount: trabajadores.length,
+                                      itemCount: trabajadoresFiltrados.length,
                                       separatorBuilder: (_, __) =>
                                           const SizedBox(height: 8),
                                       itemBuilder: (context, index) {
-                                        final trabajador = trabajadores[index];
+                                        final trabajador =
+                                            trabajadoresFiltrados[index];
                                         final esTeleoperador =
                                             trabajador.rol.toLowerCase() ==
                                             'teleoperador';

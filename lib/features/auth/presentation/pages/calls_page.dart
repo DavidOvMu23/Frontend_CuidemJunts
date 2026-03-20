@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preference
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
@@ -15,6 +16,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/calls_scaffold_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE LLAMADAS --------
 // Controlador principal de la vista de llamadas
@@ -130,7 +133,60 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
 
   // Muestra el detalle de una llamada
   void _mostrarDetalleLlamada(BuildContext context, Llamadas llamada) {
-    // TODO: Implementar diálogo de detalle de llamada
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(llamada.resumen.isEmpty ? l10n.calls : llamada.resumen),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow(l10n.date, '${llamada.fecha.day}/${llamada.fecha.month}/${llamada.fecha.year}'),
+            _buildInfoRow(l10n.duration, llamada.duracion),
+            _buildInfoRow(
+              l10n.group_label,
+              llamada.grupoNombre?.isNotEmpty == true
+                  ? llamada.grupoNombre!
+                  : l10n.noGroupAssigned,
+            ),
+            _buildInfoRow(
+              l10n.comments,
+              llamada.observaciones.isEmpty ? '-' : llamada.observaciones,
+            ),
+            _buildInfoRow(
+              l10n.accountStatus,
+              llamada.estado.isEmpty ? l10n.noStatus : llamada.estado,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.close),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
   }
 
   // Filtra y ordena la lista de llamadas según el estado actual
@@ -233,6 +289,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     // Si no hay usuario logueado, mostrar un mensaje
     if (userName == null) {
@@ -245,8 +302,16 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       appBar: appMainAppBar(
+        numeroNotificaciones: notificacionesSinLeerAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (_, __) => 0,
+        ),
         onNotifications: () {
-          // TODO: Acción al pulsar el icono de notificaciones.
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          );
         },
       ),
 
@@ -286,6 +351,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PreferencesPage()),
+          );
+        },
+        onTapNotifications: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
         onLogoutConfirmed: () async {
