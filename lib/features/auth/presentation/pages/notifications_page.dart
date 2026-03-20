@@ -138,6 +138,16 @@ class NotificationsPage extends ConsumerWidget {
                               notifications: sinLeer,
                               icon: Icons.mark_email_unread_outlined,
                               color: colorScheme.primary,
+                              onTapNotification: (notif) {
+                                _showNotificationDetail(context, l10n, notif);
+                              },
+                              onMarkAsRead: (notif) async {
+                                await ref
+                                    .read(notificacionServiceProvider)
+                                    .markAsRead(notif.id);
+                                ref.invalidate(notificacionesProvider);
+                                general_snackbar(context, l10n.read, 1);
+                              },
                             ),
                             _NotificationSection(
                               title: l10n.read,
@@ -146,17 +156,24 @@ class NotificationsPage extends ConsumerWidget {
                               color: colorScheme.onSurface.withValues(
                                 alpha: 0.7,
                               ),
+                              onTapNotification: (notif) {
+                                _showNotificationDetail(context, l10n, notif);
+                              },
                             ),
                             _NotificationSection(
                               title: l10n.all,
                               notifications: otras,
                               icon: Icons.notifications_none,
                               color: colorScheme.onSurface,
+                              onTapNotification: (notif) {
+                                _showNotificationDetail(context, l10n, notif);
+                              },
                             ),
                           ],
                         );
                       },
-                      loading: () => const Center(child: CircularProgressIndicator()),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
                       error: (_, __) => Center(
                         child: Text(
                           l10n.errorNotificationsLoading,
@@ -175,6 +192,40 @@ class NotificationsPage extends ConsumerWidget {
       ),
     );
   }
+
+  void _showNotificationDetail(
+    BuildContext context,
+    AppLocalizations l10n,
+    Notificacion notif,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${l10n.notifications} #${notif.id}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              notif.contenido,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '${l10n.accountStatus}: ${notif.estado}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.close),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _NotificationSection extends StatelessWidget {
@@ -182,12 +233,16 @@ class _NotificationSection extends StatelessWidget {
   final List<Notificacion> notifications;
   final IconData icon;
   final Color color;
+  final void Function(Notificacion) onTapNotification;
+  final Future<void> Function(Notificacion)? onMarkAsRead;
 
   const _NotificationSection({
     required this.title,
     required this.notifications,
     required this.icon,
     required this.color,
+    required this.onTapNotification,
+    this.onMarkAsRead,
   });
 
   @override
@@ -218,6 +273,14 @@ class _NotificationSection extends StatelessWidget {
               child: ListTile(
                 leading: Icon(icon, color: color),
                 title: Text(notif.contenido),
+                subtitle: Text('ID: ${notif.id} · ${notif.estado}'),
+                onTap: () => onTapNotification(notif),
+                trailing: notif.esSinLeer && onMarkAsRead != null
+                    ? IconButton(
+                        icon: const Icon(Icons.mark_email_read_outlined),
+                        onPressed: () => onMarkAsRead!(notif),
+                      )
+                    : null,
               ),
             ),
           ),

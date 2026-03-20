@@ -1,25 +1,20 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import '../models/usuario.dart';
 
 // -------- CONTACTO EMERGENCIA SERVICE --------
 
 // Este servicio se encarga de manejar las llamadas a la API relacionadas con los contactos de emergencia.
 class ContactoEmergenciaService {
-  final String baseUrl;
-  final http.Client _client;
+  final Dio _dio;
 
-  // Constructor que recibe la URL base y un cliente HTTP.
-  ContactoEmergenciaService({required this.baseUrl, http.Client? client})
-    : _client = client ?? http.Client();
+  ContactoEmergenciaService({required Dio dio}) : _dio = dio;
 
   // getAll maneja la llamada a la API para obtener todos los contactos de emergencia.
   Future<List<ContactoEmergencia>> getAll() async {
-    final resp = await _client.get(Uri.parse('$baseUrl/contacto_emergencia'));
-    if (resp.statusCode != 200) {
-      throw Exception('Error ${resp.statusCode}: ${resp.body}');
-    }
-    final List<dynamic> raw = jsonDecode(resp.body) as List<dynamic>;
+    final resp = await _dio.get('/contacto_emergencia');
+    final List<dynamic> raw = resp.data as List<dynamic>;
     return raw
         .map((e) => ContactoEmergencia.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -27,16 +22,8 @@ class ContactoEmergenciaService {
 
   // create maneja la llamada a la API para crear un nuevo contacto de emergencia.
   Future<ContactoEmergencia> create(Map<String, dynamic> payload) async {
-    final resp = await _client.post(
-      Uri.parse('$baseUrl/contacto_emergencia'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
-    if (resp.statusCode != 201 && resp.statusCode != 200) {
-      throw Exception('Error ${resp.statusCode}: ${resp.body}');
-    }
-    final Map<String, dynamic> data =
-        jsonDecode(resp.body) as Map<String, dynamic>;
+    final resp = await _dio.post('/contacto_emergencia', data: payload);
+    final Map<String, dynamic> data = resp.data as Map<String, dynamic>;
     return ContactoEmergencia.fromJson(data);
   }
 
@@ -45,29 +32,20 @@ class ContactoEmergenciaService {
     int id,
     Map<String, dynamic> payload,
   ) async {
-    final resp = await _client.patch(
-      Uri.parse('$baseUrl/contacto_emergencia/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
-
-    if (resp.statusCode != 200) {
-      throw Exception('Error ${resp.statusCode}: ${resp.body}');
-    }
-
-    final Map<String, dynamic> data =
-        jsonDecode(resp.body) as Map<String, dynamic>;
+    final resp = await _dio.patch('/contacto_emergencia/$id', data: payload);
+    final Map<String, dynamic> data = resp.data as Map<String, dynamic>;
     return ContactoEmergencia.fromJson(data);
   }
 
   // delete maneja la llamada a la API para eliminar un contacto de emergencia.
   Future<void> delete(int id) async {
-    final resp = await _client.delete(
-      Uri.parse('$baseUrl/contacto_emergencia/$id'),
-    );
-
-    if (resp.statusCode != 204 && resp.statusCode != 200) {
-      throw Exception('Error ${resp.statusCode}: ${resp.body}');
-    }
+    await _dio.delete('/contacto_emergencia/$id');
   }
 }
+
+final contactoEmergenciaServiceProvider = Provider<ContactoEmergenciaService>((
+  ref,
+) {
+  final dio = ref.watch(dioClientProvider);
+  return ContactoEmergenciaService(dio: dio);
+});

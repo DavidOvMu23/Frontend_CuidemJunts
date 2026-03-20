@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
-import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
 class WorkersPage extends ConsumerStatefulWidget {
   const WorkersPage({super.key});
@@ -26,31 +25,19 @@ class WorkersPage extends ConsumerStatefulWidget {
   ConsumerState<WorkersPage> createState() => _WorkersPageState();
 }
 
-// Filtros disponibles de la busqueda de usuarios.
-enum UserFilter { all, active, inactive, g1, g2, g3 }
+enum WorkerFilter { all, supervisors, teleoperators, withGroup, withoutGroup }
 
-// Modos de ordenación disponibles para la lista de usuarios.
-enum UserSort {
-  none,
-  nameZA,
-  dependencyHighLow,
-  dependencyLowHigh,
-  accountStatusOrder,
-}
+enum WorkerSort { nameAZ, nameZA, roleAZ, groupAZ, groupZA }
 
 class _WorkersPageState extends ConsumerState<WorkersPage> {
   late Future<List<Trabajador>> _trabajadoresFuture;
-  // Filtro de usuarios seleccionado actualmente.
-  late UserFilter filtroSeleccionado;
-  late String textoFiltro = '';
-
-  /// Orden actualmente seleccionado para la lista.
-  UserSort ordenSeleccionado = UserSort.none;
+  WorkerFilter filtroSeleccionado = WorkerFilter.all;
+  WorkerSort ordenSeleccionado = WorkerSort.nameAZ;
+  String textoFiltro = '';
 
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = UserFilter.all;
     _trabajadoresFuture = _cargarTrabajadoresConGrupo();
   }
 
@@ -107,64 +94,182 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     final query = textoFiltro.trim().toLowerCase();
 
     final filtrados = trabajadores.where((trabajador) {
-      final nombreCompleto =
-          '${trabajador.nombre} ${trabajador.apellidos}'.toLowerCase();
+      final nombreCompleto = '${trabajador.nombre} ${trabajador.apellidos}'
+          .toLowerCase();
+      final grupoNombre = (trabajador.grupoNombre ?? '').toLowerCase();
+      final rol = trabajador.rol.toLowerCase();
+
       final coincideTexto =
           query.isEmpty ||
           nombreCompleto.contains(query) ||
           trabajador.correo.toLowerCase().contains(query) ||
-          trabajador.rol.toLowerCase().contains(query);
+          rol.contains(query) ||
+          grupoNombre.contains(query);
 
+      final tieneGrupo = (trabajador.grupoNombre ?? '').trim().isNotEmpty;
       final coincideFiltro = switch (filtroSeleccionado) {
-        UserFilter.all => true,
-        UserFilter.active => true,
-        UserFilter.inactive => true,
-        UserFilter.g1 => (trabajador.grupoId ?? 0) == 1,
-        UserFilter.g2 => (trabajador.grupoId ?? 0) == 2,
-        UserFilter.g3 => (trabajador.grupoId ?? 0) == 3,
+        WorkerFilter.all => true,
+        WorkerFilter.supervisors => rol == 'supervisor',
+        WorkerFilter.teleoperators => rol == 'teleoperador',
+        WorkerFilter.withGroup => tieneGrupo,
+        WorkerFilter.withoutGroup => !tieneGrupo,
       };
 
       return coincideTexto && coincideFiltro;
     }).toList();
 
     filtrados.sort((a, b) {
+      final grupoA = (a.grupoNombre ?? '').toLowerCase();
+      final grupoB = (b.grupoNombre ?? '').toLowerCase();
       switch (ordenSeleccionado) {
-        case UserSort.none:
-          return a.nombre.compareTo(b.nombre);
-        case UserSort.nameZA:
-          return b.nombre.compareTo(a.nombre);
-        case UserSort.dependencyHighLow:
-          return (b.grupoId ?? 0).compareTo(a.grupoId ?? 0);
-        case UserSort.dependencyLowHigh:
-          return (a.grupoId ?? 0).compareTo(b.grupoId ?? 0);
-        case UserSort.accountStatusOrder:
+        case WorkerSort.nameAZ:
+          return a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase());
+        case WorkerSort.nameZA:
+          return b.nombre.toLowerCase().compareTo(a.nombre.toLowerCase());
+        case WorkerSort.roleAZ:
           return a.rol.toLowerCase().compareTo(b.rol.toLowerCase());
+        case WorkerSort.groupAZ:
+          return grupoA.compareTo(grupoB);
+        case WorkerSort.groupZA:
+          return grupoB.compareTo(grupoA);
       }
     });
 
     return filtrados;
   }
 
+  void _onSortChanged(WorkerSort sort) {
+    setState(() {
+      ordenSeleccionado = sort;
+    });
+  }
+
+  void _showSortBottomSheet(BuildContext context, AppLocalizations l10n) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.sortType,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 12),
+            general_listtile(
+              context: context,
+              icon: Icons.sort_by_alpha,
+              texto: l10n.sortNameAZ,
+              onTap: () {
+                _onSortChanged(WorkerSort.nameAZ);
+                Navigator.pop(ctx);
+              },
+            ),
+            general_listtile(
+              context: context,
+              icon: Icons.sort_by_alpha,
+              texto: l10n.sortNameZA,
+              onTap: () {
+                _onSortChanged(WorkerSort.nameZA);
+                Navigator.pop(ctx);
+              },
+            ),
+            general_listtile(
+              context: context,
+              icon: Icons.badge,
+              texto: l10n.sortedStatusAccount,
+              onTap: () {
+                _onSortChanged(WorkerSort.roleAZ);
+                Navigator.pop(ctx);
+              },
+            ),
+            general_listtile(
+              context: context,
+              icon: Icons.group_work,
+              texto: l10n.sortDependencyLowHigh,
+              onTap: () {
+                _onSortChanged(WorkerSort.groupAZ);
+                Navigator.pop(ctx);
+              },
+            ),
+            general_listtile(
+              context: context,
+              icon: Icons.group_work,
+              texto: l10n.sortDependencyHighLow,
+              onTap: () {
+                _onSortChanged(WorkerSort.groupZA);
+                Navigator.pop(ctx);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showWorkerDetail(BuildContext context, Trabajador trabajador) {
+    final l10n = AppLocalizations.of(context)!;
+    final grupo = (trabajador.grupoNombre ?? '').trim();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${trabajador.nombre} ${trabajador.apellidos}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow(l10n.email_label, trabajador.correo),
+            _buildInfoRow(l10n.role_label, trabajador.rol),
+            _buildInfoRow(
+              l10n.group_label,
+              grupo.isEmpty ? l10n.noGroupAssigned : grupo,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.close),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Obtenemos tipografías y paleta del tema actual para mantener
-    // estilos consistentes en toda la app.
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-
-    // Textos traducidos (según el idioma seleccionado en la app).
     final l10n = AppLocalizations.of(context)!;
 
-    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
-    // Obtenemos el estado de autenticación del provider
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     return Scaffold(
-      // -------- BARRA SUPERIOR --------
-      // AppBar: barra superior con título centrado e iconos de acción a la derecha.
       appBar: appMainAppBar(
         numeroNotificaciones: notificacionesSinLeerAsync.when(
           data: (count) => count,
@@ -178,9 +283,6 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           );
         },
       ),
-
-      // -------- MENÚ LATERAL (DRAWER) --------
-      // Drawer: menú que se abre desde el lateral con opciones de navegación.
       drawer: appDrawer(
         userName: userName,
         userRole: userRole,
@@ -224,6 +326,9 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
             ),
           );
         },
+        onTapTelemarketers: () {
+          Navigator.pop(context);
+        },
         onLogoutConfirmed: () async {
           await ref.read(authProvider.notifier).logout();
           if (!context.mounted) return;
@@ -233,330 +338,171 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           );
         },
       ),
-
-      // -------- CONTENIDO PRINCIPAL --------
-
-      // Usamos un Stack para poder colocar el botón flotante encima del contenido scrolleable.
-      body: Stack(
-        children: [
-          //El posicined fill hace que el SingleChildScrollView ocupe todo el espacio disponible
-          Positioned.fill(
-            child: SingleChildScrollView(
-              // SingleChildScrollView permite que toda la columna sea scrolleable
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-
-              // ConstrainedBox sirve para que la columna ocupe todo el ancho disponible
-              child: ConstrainedBox(
-                // Hacemos que la columna ocupe todo el ancho disponible.
-
-                // Esto es necesario para que los elementos dentro de la columna
-                // (como las "tarjetas" de Material) ocupen todo el ancho posible.
-                constraints: const BoxConstraints(minWidth: double.infinity),
-
-                // Columna principal con todo el contenido de la página.
-                child: Column(
-                  // Alineamos todo a la izquierda.
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  // Elementos de la columna
-                  children: [
-                    // Título principal
-                    Text(
-                      l10n.telemarketers,
-                      style: textTheme.titleMedium?.copyWith(fontSize: 27),
-                    ),
-                    // Subtítulo
-                    Text(l10n.manageWorkers, style: textTheme.bodyMedium),
-                    const SizedBox(height: 20),
-
-                    // Tarjeta principal con filtros y lista de usuarios
-                    Material(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-
-                        //Columna en la que van los filtros y la lista de usuarios
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.telemarketers,
+              style: textTheme.titleMedium?.copyWith(fontSize: 27),
+            ),
+            Text(l10n.manageWorkers, style: textTheme.bodyMedium),
+            const SizedBox(height: 7),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Material(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.searchWorkers,
+                          style: textTheme.headlineLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        general_busqueda_textfield(
+                          l10n.searchWorkers,
+                          icono: Icons.search,
+                          onChanged: (value) {
+                            setState(() {
+                              textoFiltro = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
                           children: [
-                            // Título de la sección de búsqueda
-                            Text(
-                              l10n.searchWorkers,
-                              textAlign: TextAlign.left,
-                              style: textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18,
-                              ),
+                            Icon(
+                              filtroSeleccionado != WorkerFilter.all
+                                  ? Icons.filter_alt
+                                  : Icons.filter_alt_off,
+                              color: colorScheme.primary,
                             ),
-                            const SizedBox(height: 20),
-
-                            // TextField de búsqueda
-                            general_busqueda_textfield(
-                              l10n.searchWorkers,
-                              icono: Icons.search,
-                              onChanged: (value) {
-                                setState(() {
-                                  textoFiltro = value;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 20),
-
-                            //Row del filtro de búsqueda
-                            Row(
-                              children: [
-                                // Ícono que indica si hay filtro activo o no
-                                Icon(
-                                  // Si el filtro seleccionado no es "Todos", mostramos el icono de filtro activo
-                                  filtroSeleccionado != UserFilter.all
-                                      ? Icons.filter_alt
-                                      : Icons.filter_alt_off,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(width: 16),
-
-                                //Expanded para que el DropdownButtonFormField ocupe todo el espacio restante
-                                Expanded(
-                                  //Dropdown para seleccionar el filtro de búsqueda
-                                  child: DropdownButtonFormField<UserFilter>(
-                                    initialValue: filtroSeleccionado,
-                                    icon: const Icon(Icons.arrow_drop_down),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: DropdownButtonFormField<WorkerFilter>(
+                                initialValue: filtroSeleccionado,
+                                icon: const Icon(Icons.arrow_drop_down),
+                                borderRadius: BorderRadius.circular(12),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                    ),
-
-                                    //Elementos del dropdown
-                                    items: [
-                                      DropdownMenuItem<UserFilter>(
-                                        //seleccionamos el filtro "Todos"
-                                        value: UserFilter.all,
-                                        child: Text(l10n.searchAllWorkers),
-                                      ),
-                                    ],
-                                    // Al cambiar el valor seleccionado, actualizamos el estado
-                                    onChanged: (UserFilter? newValue) {
-                                      setState(() {
-                                        filtroSeleccionado =
-                                            newValue ?? UserFilter.all;
-                                      });
-                                    },
+                                    borderSide: BorderSide.none,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Divider(
-                              color: colorScheme.primary.withValues(alpha: 0.3),
-                            ),
-
-                            const SizedBox(height: 10),
-                            FutureBuilder<List<Trabajador>>(
-                              future: _trabajadoresFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 32),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  );
-                                }
-                                if (snapshot.hasError) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(16.0),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: WorkerFilter.all,
+                                    child: Text(l10n.searchAllWorkers),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: WorkerFilter.supervisors,
+                                    child: Text(l10n.supervisor),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: WorkerFilter.teleoperators,
+                                    child: Text(l10n.telemarketers),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: WorkerFilter.withGroup,
                                     child: Text(
-                                      l10n.errorLoadingWorkers,
-                                      style: textTheme.bodyMedium,
+                                      '${l10n.group_label}: ${l10n.active}',
                                     ),
-                                  );
-                                }
-
-                                final trabajadores = snapshot.data ?? [];
-                                final trabajadoresFiltrados = _aplicarFiltros(
-                                  trabajadores,
+                                  ),
+                                  DropdownMenuItem(
+                                    value: WorkerFilter.withoutGroup,
+                                    child: Text(l10n.noGroupAssigned),
+                                  ),
+                                ],
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    filtroSeleccionado =
+                                        newValue ?? WorkerFilter.all;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Divider(
+                          height: 8,
+                          color: colorScheme.primary.withValues(alpha: 0.3),
+                        ),
+                        Expanded(
+                          child: FutureBuilder<List<Trabajador>>(
+                            future: _trabajadoresFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
                                 );
-                                final showingAll =
-                                    textoFiltro.isEmpty &&
-                                    filtroSeleccionado == UserFilter.all;
-                                final totalText = showingAll
-                                    ? '${l10n.totalWorkers}: ${trabajadores.length}'
-                                    : '${l10n.workersFound}: ${trabajadoresFiltrados.length}';
+                              }
 
-                                if (trabajadoresFiltrados.isEmpty) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(
-                                      l10n.noWorkersFound,
-                                      style: textTheme.bodyMedium,
-                                    ),
-                                  );
-                                }
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                    l10n.errorLoadingWorkers,
+                                    style: textTheme.bodyMedium,
+                                  ),
+                                );
+                              }
 
-                                return Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            totalText,
-                                            style: textTheme.bodyMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16,
-                                                ),
+                              final trabajadores = snapshot.data ?? [];
+                              final trabajadoresFiltrados = _aplicarFiltros(
+                                trabajadores,
+                              );
+
+                              if (trabajadoresFiltrados.isEmpty) {
+                                return Center(
+                                  child: Text(
+                                    l10n.noResultsFound,
+                                    style: textTheme.bodyMedium,
+                                  ),
+                                );
+                              }
+
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          '${l10n.workersFound}: ${trabajadoresFiltrados.length}',
+                                          style: textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        general_iconbutton(
-                                          ordenSeleccionado == UserSort.none
-                                              ? Icons.filter_list_off
-                                              : Icons.filter_list,
-                                          onPressed: () {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) => Padding(
-                                                padding: const EdgeInsets.all(
-                                                  16.0,
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      l10n.sortType,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 12),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon:
-                                                          Icons.filter_list_off,
-                                                      texto: l10n.noSortedUsers,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort.none;
-                                                        });
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.noSortedUsers,
-                                                          2,
-                                                        );
-                                                        Navigator.pop(context);
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.sort_by_alpha,
-                                                      texto: l10n.sortNameZA,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort.nameZA;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedZASnackbar,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.bar_chart,
-                                                      texto: l10n
-                                                          .sortDependencyHighLow,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .dependencyHighLow;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedDependencyLevelHighLow,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.bar_chart,
-                                                      texto: l10n
-                                                          .sortDependencyLowHigh,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .dependencyLowHigh;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedDependencyLevelLowHigh,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                    general_listtile(
-                                                      context: context,
-                                                      icon: Icons.check,
-                                                      texto: l10n
-                                                          .sortedStatusAccount,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          ordenSeleccionado =
-                                                              UserSort
-                                                                  .accountStatusOrder;
-                                                        });
-                                                        Navigator.pop(context);
-                                                        general_snackbar(
-                                                          context,
-                                                          l10n.sortedStatusAccount,
-                                                          2,
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    ListView.separated(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
+                                      ),
+                                      general_iconbutton(
+                                        Icons.filter_list,
+                                        onPressed: () =>
+                                            _showSortBottomSheet(context, l10n),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Expanded(
+                                    child: ListView.separated(
+                                      padding: EdgeInsets.zero,
                                       itemCount: trabajadoresFiltrados.length,
                                       separatorBuilder: (_, __) =>
                                           const SizedBox(height: 8),
                                       itemBuilder: (context, index) {
                                         final trabajador =
                                             trabajadoresFiltrados[index];
-                                        final esTeleoperador =
-                                            trabajador.rol.toLowerCase() ==
-                                            'teleoperador';
-                                        final grupoNombreLimpio =
+                                        final grupo =
                                             (trabajador.grupoNombre ?? '')
                                                 .trim();
-                                        final grupoTexto = esTeleoperador
-                                            ? ' · ${l10n.group_label}: ${grupoNombreLimpio.isEmpty ? l10n.noGroupAssigned : grupoNombreLimpio}'
-                                            : '';
+
                                         return ListTile(
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
@@ -571,54 +517,48 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                             style: textTheme.titleMedium,
                                           ),
                                           subtitle: Text(
-                                            '${l10n.email_label}: ${trabajador.correo} · ${l10n.role_label}: ${trabajador.rol}$grupoTexto',
+                                            '${l10n.email_label}: ${trabajador.correo} · ${l10n.role_label}: ${trabajador.rol} · ${l10n.group_label}: ${grupo.isEmpty ? l10n.noGroupAssigned : grupo}',
                                             style: textTheme.bodyMedium,
                                           ),
                                           trailing: const Icon(
                                             Icons.chevron_right,
                                           ),
-                                          onTap: () {
-                                            // TODO: navegar al detalle del trabajador
-                                          },
+                                          onTap: () => _showWorkerDetail(
+                                            context,
+                                            trabajador,
+                                          ),
                                         );
                                       },
                                     ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-
-          // Botón flotante
-          Positioned(
-            right: 24,
-            bottom: 32,
-            child: SafeArea(
-              child: general_floatingbutton(
-                Icons.add,
-                onPressed: () {
-                  // Al pulsar el botón flotante abrimos la pantalla para crear
-                  // un nuevo trabajador siguiendo el mismo patrón que para
-                  // la creación de usuarios.
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CrearTrabajadorPage(),
-                    ),
-                  );
-                },
-              ),
+          ],
+        ),
+      ),
+      floatingActionButton: general_floatingbutton(
+        Icons.add,
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CrearTrabajadorPage(),
             ),
-          ),
-        ],
+          );
+
+          setState(() {
+            _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+          });
+        },
       ),
     );
   }

@@ -16,4 +16,10 @@ class NotificacionService {
         .map((e) => Notificacion.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  // Marca una notificación como leída.
+  Future<Notificacion> markAsRead(int id) async {
+    final resp = await _dio.patch('/notificacion/$id/mark-read');
+    return Notificacion.fromJson(resp.data as Map<String, dynamic>);
+  }
 }

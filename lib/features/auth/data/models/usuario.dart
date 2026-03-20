@@ -9,6 +9,7 @@ class ContactoEmergencia {
   final String direccion;
   final String relacion;
   final String? dniUsuarioRef;
+  final String? pacienteNombre;
 
   const ContactoEmergencia({
     required this.id,
@@ -18,6 +19,7 @@ class ContactoEmergencia {
     required this.telefono,
     required this.relacion,
     this.dniUsuarioRef,
+    this.pacienteNombre,
   });
 
   // Constructor que recibe un json y lo convierte en un objeto ContactoEmergencia.
@@ -34,6 +36,13 @@ class ContactoEmergencia {
           json['dniUsuarioRef'] as String? ??
           (json['usuarioReferenciado'] is Map<String, dynamic>
               ? (json['usuarioReferenciado']['dni'] as String?)
+              : null),
+      pacienteNombre:
+          json['pacienteNombre'] as String? ??
+          (json['usuarioReferenciado'] is Map<String, dynamic>
+              ? '${json['usuarioReferenciado']['nombre'] ?? ''} ${json['usuarioReferenciado']['apellidos'] ?? ''}'
+                    .trim()
+                    .replaceAll(RegExp(r'^\s+|\s+$'), '')
               : null),
     );
   }
