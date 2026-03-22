@@ -257,11 +257,11 @@ class _CallFormPageState extends State<CallFormPage> {
                                                 ],
                                               ),
                                             )
-                                          : ListView.separated(
+                                            : ListView.separated(
                                               shrinkWrap: true,
-                                              padding: EdgeInsets.zero,
+                                              padding: const EdgeInsets.symmetric(vertical: 6),
                                               itemCount: _usuariosBusqueda.length,
-                                              separatorBuilder: (_, __) => Divider(height: 1),
+                                              separatorBuilder: (_, __) => const Divider(height: 1),
                                               itemBuilder: (context, i) {
                                                 final u = _usuariosBusqueda[i];
                                                 return ListTile(

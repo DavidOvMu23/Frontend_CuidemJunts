@@ -132,7 +132,7 @@ class CallsFutureList extends StatelessWidget {
               // 5. Lista de llamadas
               Expanded(
                 child: ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   itemCount: llamadasFiltradas.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {

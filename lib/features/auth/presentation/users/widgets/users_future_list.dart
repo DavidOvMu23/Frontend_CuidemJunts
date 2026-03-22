@@ -138,6 +138,7 @@ class UsersFutureList extends StatelessWidget {
               // 5. Lista de usuarios
               Expanded(
                 child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   itemCount: usuariosFiltrados.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {

@@ -15,6 +15,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_scaffold_body.dart';
 
 class EmergencyContactsPage extends ConsumerStatefulWidget {
   const EmergencyContactsPage({super.key});
@@ -55,8 +56,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     final query = textoFiltro.trim().toLowerCase();
 
     final filtrados = contactos.where((contacto) {
-      final nombreCompleto = '${contacto.nombre} ${contacto.apellidos}'
-          .toLowerCase();
+      final nombreCompleto = '${contacto.nombre} ${contacto.apellidos}'.toLowerCase();
       final paciente = _pacienteTexto(contacto).toLowerCase();
       return query.isEmpty ||
           nombreCompleto.contains(query) ||
@@ -78,52 +78,96 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
       return nombre;
     }
 
-    return (contacto.dniUsuarioRef ?? '').trim().isEmpty
-        ? '-'
-        : contacto.dniUsuarioRef!;
+    return (contacto.dniUsuarioRef ?? '').trim().isEmpty ? '-' : contacto.dniUsuarioRef!;
   }
 
-  Future<void> _mostrarDetalleContacto(
-    BuildContext context,
-    ContactoEmergencia contacto,
-    bool isSupervisor,
-  ) async {
+  Future<void> _mostrarDetalleContacto(BuildContext context, ContactoEmergencia contacto, bool isSupervisor) async {
     final l10n = AppLocalizations.of(context)!;
 
     await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('${contacto.nombre} ${contacto.apellidos}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           children: [
-            _buildInfoRow(l10n.phone, contacto.telefono),
-            _buildInfoRow(l10n.relation, contacto.relacion),
-            _buildInfoRow(l10n.refersToUser, _pacienteTexto(contacto)),
+            Expanded(
+              child: Text(
+                '${contacto.nombre} ${contacto.apellidos}',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            if (isSupervisor)
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _abrirFormularioContacto(contacto: contacto);
+                },
+                icon: const Icon(Icons.edit, size: 20),
+                tooltip: l10n.edit,
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                style: IconButton.styleFrom(
+                  foregroundColor: Theme.of(ctx).colorScheme.primary,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
           ],
         ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 6),
+              // Teléfono
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.phone_outlined),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text('${l10n.phone}: ${contacto.telefono}')),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Relación
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.people_outline),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text('${l10n.relation}: ${contacto.relacion}')),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Referencia a usuario
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.badge_outlined),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text('${l10n.refersToUser}: ${_pacienteTexto(contacto)}')),
+                ],
+              ),
+            ],
+          ),
+        ),
         actions: [
-          if (isSupervisor)
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                _abrirFormularioContacto(contacto: contacto);
-              },
-              child: Text(l10n.edit),
-            ),
-          if (isSupervisor)
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                _confirmarEliminar(contacto);
-              },
-              child: Text(l10n.delete),
-            ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(l10n.close),
           ),
+          if (isSupervisor)
+            general_deletebutton(
+              ctx,
+              l10n.delete,
+              onPressed: () {
+                Navigator.pop(ctx);
+                _confirmarEliminar(contacto);
+              },
+            ),
         ],
       ),
     );
@@ -154,8 +198,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     await showConfirmDialog(
       context,
       title: l10n.delete,
-      content:
-          '${l10n.deleteUserContent}\n\n${contacto.nombre} ${contacto.apellidos}',
+      content: '${l10n.deleteUserContent}\n\n${contacto.nombre} ${contacto.apellidos}',
       confirmText: l10n.accept,
       cancelText: l10n.cancel,
       onConfirm: () async {
@@ -178,14 +221,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
 
     final nombreCtrl = TextEditingController(text: contacto?.nombre ?? '');
-    final apellidosCtrl = TextEditingController(
-      text: contacto?.apellidos ?? '',
-    );
+    final apellidosCtrl = TextEditingController(text: contacto?.apellidos ?? '');
     final telefonoCtrl = TextEditingController(text: contacto?.telefono ?? '');
     final relacionCtrl = TextEditingController(text: contacto?.relacion ?? '');
-    String? selectedDni = (contacto?.dniUsuarioRef ?? '').trim().isEmpty
-        ? null
-        : contacto!.dniUsuarioRef;
+    String? selectedDni = (contacto?.dniUsuarioRef ?? '').trim().isEmpty ? null : contacto!.dniUsuarioRef;
 
     await showDialog(
       context: context,
@@ -199,20 +238,11 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                 children: [
                   general_textfield_NoICON(l10n.name, controller: nombreCtrl),
                   const SizedBox(height: 10),
-                  general_textfield_NoICON(
-                    l10n.lastName,
-                    controller: apellidosCtrl,
-                  ),
+                  general_textfield_NoICON(l10n.lastName, controller: apellidosCtrl),
                   const SizedBox(height: 10),
-                  general_textfield_NoICON(
-                    l10n.phone,
-                    controller: telefonoCtrl,
-                  ),
+                  general_textfield_NoICON(l10n.phone, controller: telefonoCtrl),
                   const SizedBox(height: 10),
-                  general_textfield_NoICON(
-                    l10n.relation,
-                    controller: relacionCtrl,
-                  ),
+                  general_textfield_NoICON(l10n.relation, controller: relacionCtrl),
                   const SizedBox(height: 10),
                   FutureBuilder<List<Usuario>>(
                     future: usuariosFuture,
@@ -222,22 +252,16 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                       }
 
                       if (snapshot.hasError) {
-                        return Text(
-                          '${l10n.error}: ${snapshot.error}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        );
+                        return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
                       }
 
                       final usuarios = snapshot.data ?? [];
-                      if (selectedDni != null &&
-                          !usuarios.any((u) => u.dni == selectedDni)) {
+                      if (selectedDni != null && !usuarios.any((u) => u.dni == selectedDni)) {
                         selectedDni = null;
                       }
 
                       return DropdownButtonFormField<String?>(
-                        initialValue: selectedDni,
+                        value: selectedDni,
                         borderRadius: BorderRadius.circular(12),
                         decoration: InputDecoration(
                           labelText: l10n.refersToUser,
@@ -247,24 +271,11 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                           ),
                         ),
                         items: [
-                          const DropdownMenuItem<String?>(
-                            value: null,
-                            child: Text('Sin paciente asignado'),
-                          ),
-                          ...usuarios.map(
-                            (u) => DropdownMenuItem<String?>(
-                              value: u.dni,
-                              child: Text(
-                                '${u.nombre} ${u.apellidos} (${u.dni})',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
+                          const DropdownMenuItem<String?>(value: null, child: Text('Sin paciente asignado')),
+                          ...usuarios.map((u) => DropdownMenuItem<String?>(value: u.dni, child: Text('${u.nombre} ${u.apellidos} (${u.dni})', overflow: TextOverflow.ellipsis))),
                         ],
                         onChanged: (value) {
-                          setLocalState(() {
-                            selectedDni = value;
-                          });
+                          setLocalState(() { selectedDni = value; });
                         },
                       );
                     },
@@ -273,10 +284,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(l10n.cancel),
-              ),
+              TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
               FilledButton(
                 onPressed: () async {
                   final nombre = nombreCtrl.text.trim();
@@ -284,44 +292,20 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                   final telefono = telefonoCtrl.text.trim();
                   final relacion = relacionCtrl.text.trim();
 
-                  if (nombre.isEmpty ||
-                      apellidos.isEmpty ||
-                      telefono.isEmpty ||
-                      relacion.isEmpty) {
+                  if (nombre.isEmpty || apellidos.isEmpty || telefono.isEmpty || relacion.isEmpty) {
                     general_snackbar_error(context, l10n.fillAllFields, 2);
                     return;
                   }
 
-                  final payload = <String, dynamic>{
-                    'nombre': nombre,
-                    'apellidos': apellidos,
-                    'telefono': telefono,
-                    'relacion': relacion,
-                  };
-
-                  if (selectedDni != null) {
-                    payload['dniUsuarioRef'] = selectedDni;
-                  } else if (isEdit) {
-                    payload['dniUsuarioRef'] = '';
-                  }
+                  final payload = <String, dynamic>{'nombre': nombre, 'apellidos': apellidos, 'telefono': telefono, 'relacion': relacion};
+                  if (selectedDni != null) payload['dniUsuarioRef'] = selectedDni; else if (isEdit) payload['dniUsuarioRef'] = '';
 
                   try {
-                    if (isEdit) {
-                      await _contactoService.update(contacto.id, payload);
-                    } else {
-                      await _contactoService.create(payload);
-                    }
-
+                    if (isEdit) await _contactoService.update(contacto!.id, payload); else await _contactoService.create(payload);
                     if (!mounted) return;
                     Navigator.pop(ctx);
                     _recargarContactos();
-                    general_snackbar(
-                      context,
-                      isEdit
-                          ? l10n.userUpdatedSuccess
-                          : l10n.userCreatedSuccess,
-                      2,
-                    );
+                    general_snackbar(context, isEdit ? l10n.userUpdatedSuccess : l10n.userCreatedSuccess, 2);
                   } catch (e) {
                     if (!mounted) return;
                     general_snackbar_error(context, '${l10n.error}: $e', 3);
@@ -361,10 +345,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
           error: (_, __) => 0,
         ),
         onNotifications: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NotificationsPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsPage()));
         },
       ),
       drawer: appDrawer(
@@ -373,40 +354,22 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         context: context,
         selected: DrawerItem.emergencyContacts,
         onTapHome: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeSupervisorPage()),
-          );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeSupervisorPage()));
         },
         onTapCalls: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LlamadasPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const LlamadasPage()));
         },
         onTapUsers: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const UsersPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const UsersPage()));
         },
         onTapTelemarketers: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const WorkersPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const WorkersPage()));
         },
         onTapPreferences: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PreferencesPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PreferencesPage()));
         },
         onTapNotifications: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NotificationsPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsPage()));
         },
         onTapEmergencyContacts: () {
           Navigator.pop(context);
@@ -414,191 +377,18 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         onLogoutConfirmed: () async {
           await ref.read(authProvider.notifier).logout();
           if (!context.mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
         },
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.emergencyContacts,
-              style: textTheme.titleMedium?.copyWith(fontSize: 27),
-            ),
-            Text(l10n.searchEmergencyContacts, style: textTheme.bodyMedium),
-            const SizedBox(height: 7),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Material(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.searchEmergencyContacts,
-                          style: textTheme.headlineLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        general_busqueda_textfield(
-                          l10n.searchEmergencyContacts,
-                          icono: Icons.search,
-                          onChanged: _onSearchChanged,
-                        ),
-                        const SizedBox(height: 8),
-                        Divider(
-                          height: 8,
-                          color: colorScheme.primary.withValues(alpha: 0.3),
-                        ),
-                        Expanded(
-                          child: FutureBuilder<List<ContactoEmergencia>>(
-                            future: _contactosFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              if (snapshot.hasError) {
-                                return Center(
-                                  child: Text(
-                                    '${l10n.error}: ${snapshot.error}',
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.error,
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              final contactos = snapshot.data ?? [];
-                              final contactosFiltrados = _aplicarFiltros(
-                                contactos,
-                              );
-
-                              if (contactosFiltrados.isEmpty) {
-                                return Center(
-                                  child: Text(
-                                    l10n.noResultsFound,
-                                    style: textTheme.bodyMedium,
-                                  ),
-                                );
-                              }
-
-                              return Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          '${l10n.noResultsFound}: ${contactosFiltrados.length}',
-                                          style: textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Expanded(
-                                    child: ListView.builder(
-                                      padding: EdgeInsets.zero,
-                                      itemCount: contactosFiltrados.length,
-                                      itemBuilder: (context, index) {
-                                        final contacto =
-                                            contactosFiltrados[index];
-                                        return Card(
-                                          margin: const EdgeInsets.only(
-                                            bottom: 10,
-                                          ),
-                                          child: ListTile(
-                                            leading: CircleAvatar(
-                                              backgroundColor:
-                                                  colorScheme.primaryContainer,
-                                              child: Icon(
-                                                Icons.contact_emergency,
-                                                color: colorScheme
-                                                    .onPrimaryContainer,
-                                              ),
-                                            ),
-                                            title: Text(
-                                              '${contacto.nombre} ${contacto.apellidos}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            subtitle: Text(
-                                              '${l10n.relation}: ${contacto.relacion} · ${l10n.refersToUser}: ${_pacienteTexto(contacto)}',
-                                            ),
-                                            trailing: isSupervisor
-                                                ? PopupMenuButton<String>(
-                                                    onSelected: (value) {
-                                                      if (value == 'edit') {
-                                                        _abrirFormularioContacto(
-                                                          contacto: contacto,
-                                                        );
-                                                      }
-                                                      if (value == 'delete') {
-                                                        _confirmarEliminar(
-                                                          contacto,
-                                                        );
-                                                      }
-                                                    },
-                                                    itemBuilder: (context) => [
-                                                      PopupMenuItem(
-                                                        value: 'edit',
-                                                        child: Text(l10n.edit),
-                                                      ),
-                                                      PopupMenuItem(
-                                                        value: 'delete',
-                                                        child: Text(
-                                                          l10n.delete,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                : null,
-                                            onTap: () =>
-                                                _mostrarDetalleContacto(
-                                                  context,
-                                                  contacto,
-                                                  isSupervisor,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      body: EmergencyContactsScaffoldBody(
+        contactosFuture: _contactosFuture,
+        textoFiltro: textoFiltro,
+        aplicarFiltros: _aplicarFiltros,
+        onSearchChanged: _onSearchChanged,
+        onContactoTap: (context, contacto, isSupervisor) => _mostrarDetalleContacto(context, contacto, isSupervisor),
+        onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
       ),
-      floatingActionButton: isSupervisor
-          ? general_floatingbutton(
-              Icons.add,
-              onPressed: () => _abrirFormularioContacto(),
-            )
-          : null,
+      floatingActionButton: isSupervisor ? general_floatingbutton(Icons.add, onPressed: () => _abrirFormularioContacto()) : null,
     );
   }
 }

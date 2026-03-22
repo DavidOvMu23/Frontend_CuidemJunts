@@ -27,6 +27,15 @@ class ContactoEmergenciaService {
     return ContactoEmergencia.fromJson(data);
   }
 
+  // Obtener contactos de emergencia de un usuario por DNI
+  Future<List<ContactoEmergencia>> getByUsuario(String dni) async {
+    final resp = await _dio.get('/contacto_emergencia/usuario/$dni');
+    final List<dynamic> raw = resp.data as List<dynamic>;
+    return raw
+        .map((e) => ContactoEmergencia.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   // update maneja la llamada a la API para actualizar un contacto de emergencia.
   Future<ContactoEmergencia> update(
     int id,

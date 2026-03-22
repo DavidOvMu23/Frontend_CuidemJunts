@@ -10,6 +10,7 @@ class UserDetailDialog extends StatelessWidget {
   final DateFormat dateFormatter;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final List<ContactoEmergencia>? contactosCanonicos;
 
   const UserDetailDialog({
     super.key,
@@ -17,6 +18,7 @@ class UserDetailDialog extends StatelessWidget {
     required this.dateFormatter,
     required this.onDelete,
     required this.onEdit,
+    this.contactosCanonicos,
   });
 
   String _dependenciaTexto(BuildContext context) {
@@ -167,6 +169,7 @@ class UserDetailDialog extends StatelessWidget {
     final fechaNacimiento = dateFormatter.format(usuario.f_nac);
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
+    final contactos = contactosCanonicos ?? usuario.contactosEmergencia;
 
     return AlertDialog(
       title: Row(
@@ -307,7 +310,7 @@ class UserDetailDialog extends StatelessWidget {
               ),
 
               // Contactos de emergencia
-              if (usuario.contactosEmergencia.isNotEmpty) ...[
+              if (contactos.isNotEmpty) ...[
                 const SizedBox(height: 24),
                 Text(
                   l10n.emergencyContacts,
@@ -317,7 +320,7 @@ class UserDetailDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ...usuario.contactosEmergencia.map(
+                ...contactos.map(
                   (contacto) => Card(
                     elevation: 0,
                     color: Theme.of(context).colorScheme.surfaceContainerHighest

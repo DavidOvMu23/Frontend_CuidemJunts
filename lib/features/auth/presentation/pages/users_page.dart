@@ -18,6 +18,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/us
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_detail_dialog.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_emergencia_service.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE USUARIOS --------
@@ -71,17 +72,27 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   }
 
   // Muestra el detalle de un usuario
-  void _mostrarDetalleUsuario(
+  Future<void> _mostrarDetalleUsuario(
     BuildContext context,
     Usuario usuario,
     DateFormat dateFormatter,
-  ) {
+  ) async {
     final l10n = AppLocalizations.of(context)!;
+    // Intentamos obtener la lista canónica de contactos para este usuario.
+    List<ContactoEmergencia> contactosCanonicos = [];
+    try {
+      final contactoService = ref.read(contactoEmergenciaServiceProvider);
+      contactosCanonicos = await contactoService.getByUsuario(usuario.dni);
+    } catch (e) {
+      // Si falla, continuamos mostrando los contactos embebidos.
+    }
+
     showDialog(
       context: context,
       builder: (ctx) => UserDetailDialog(
         usuario: usuario,
         dateFormatter: dateFormatter,
+        contactosCanonicos: contactosCanonicos,
         onDelete: () async {
           try {
             final usuarioService = ref.read(usuarioServiceProvider);

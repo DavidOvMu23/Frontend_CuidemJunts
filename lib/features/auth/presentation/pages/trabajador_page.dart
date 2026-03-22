@@ -500,7 +500,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                   const SizedBox(height: 8),
                                   Expanded(
                                     child: ListView.separated(
-                                      padding: EdgeInsets.zero,
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
                                       itemCount: trabajadoresFiltrados.length,
                                       separatorBuilder: (_, __) =>
                                           const SizedBox(height: 8),
