@@ -13,4 +13,11 @@ class GrupoService {
     final resp = await _dio.get('/grupo/$id');
     return Grupo.fromJson(resp.data as Map<String, dynamic>);
   }
+
+  // findAll obtiene todos los grupos activos
+  Future<List<Grupo>> findAll() async {
+    final resp = await _dio.get('/grupo');
+    final data = resp.data as List<dynamic>;
+    return data.map((json) => Grupo.fromJson(json as Map<String, dynamic>)).toList();
+  }
 }

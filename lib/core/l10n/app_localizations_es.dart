@@ -308,6 +308,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get totalUsers => 'Total de usuarios';
 
   @override
+  String get editCall => 'Editar llamada';
+
+  @override
+  String get createCall => 'Crear llamada';
+
+  @override
+  String get user => 'Usuario';
+
+  @override
+  String get selectUser => 'Selecciona un usuario';
+
+  @override
+  String get selectedUser => 'Usuario seleccionado';
+
+  @override
+  String get time => 'Hora';
+
+  @override
+  String get requiredField => 'Campo requerido';
+
+  @override
+  String get summary => 'Resumen';
+
+  @override
+  String get callStatus => 'Estado de la llamada';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get create => 'Crear';
+
+  @override
   String get totalWorkers => 'Total de trabajadores';
 
   @override

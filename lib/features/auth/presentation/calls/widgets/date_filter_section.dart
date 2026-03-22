@@ -7,6 +7,7 @@ class DateFilterSection extends StatelessWidget {
   final DateTime? fechaHasta;
   final ValueChanged<DateTime?> onFechaDesdeChanged;
   final ValueChanged<DateTime?> onFechaHastaChanged;
+  final VoidCallback? onClearDates;
 
   const DateFilterSection({
     super.key,
@@ -14,6 +15,7 @@ class DateFilterSection extends StatelessWidget {
     this.fechaHasta,
     required this.onFechaDesdeChanged,
     required this.onFechaHastaChanged,
+    this.onClearDates,
   });
 
   Future<void> _selectDate(
@@ -55,6 +57,27 @@ class DateFilterSection extends StatelessWidget {
             ),
           ],
         ),
+        // Botón para quitar filtro de fecha (debajo del título, alineado a la derecha)
+        if ((fechaDesde != null || fechaHasta != null) && onClearDates != null) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: onClearDates,
+                icon: Icon(Icons.clear, color: colorScheme.error),
+                label: Text(
+                  'Quitar filtro',
+                  style: textTheme.bodySmall?.copyWith(color: colorScheme.error),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: colorScheme.error,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  minimumSize: Size(0, 32),
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 12),
         Row(
           children: [

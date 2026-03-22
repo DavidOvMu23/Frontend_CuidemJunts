@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
+import 'package:flutter/services.dart';
 
 // -------- WIDGETS GENERALES DE LA APP --------
 // estos widgets serán los que se usarán en toda la app
@@ -100,6 +101,7 @@ TextField general_textfield(
 //TEXTFIELD
 //Lo mismo que arriba pero sin icono, pero si lo hacía con icono opcional se quedaba
 //feo por que dejaba un espacio vacío antes de poner el texto y sin el obscure text
+
 TextFormField general_textfield_NoICON(
   String texto, {
   double borderRadius = 12.0,
@@ -107,12 +109,16 @@ TextFormField general_textfield_NoICON(
   TextEditingController? controller,
   bool enabled = true,
   String? Function(String?)? validator,
+  List<TextInputFormatter>? inputFormatters,
+  TextInputType? keyboardType,
 }) {
   return TextFormField(
     controller: controller,
     maxLines: maxLines,
     enabled: enabled,
     validator: validator,
+    inputFormatters: inputFormatters,
+    keyboardType: keyboardType,
     decoration: InputDecoration(
       hintText: texto, // Texto gris que explica qué escribir.
       border: OutlineInputBorder(

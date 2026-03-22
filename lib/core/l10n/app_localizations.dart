@@ -688,6 +688,72 @@ abstract class AppLocalizations {
   /// **'Total de usuarios'**
   String get totalUsers;
 
+  /// No description provided for @editCall.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar llamada'**
+  String get editCall;
+
+  /// No description provided for @createCall.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear llamada'**
+  String get createCall;
+
+  /// No description provided for @user.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario'**
+  String get user;
+
+  /// No description provided for @selectUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un usuario'**
+  String get selectUser;
+
+  /// No description provided for @selectedUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario seleccionado'**
+  String get selectedUser;
+
+  /// No description provided for @time.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora'**
+  String get time;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo requerido'**
+  String get requiredField;
+
+  /// No description provided for @summary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get summary;
+
+  /// No description provided for @callStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado de la llamada'**
+  String get callStatus;
+
+  /// No description provided for @save.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar'**
+  String get save;
+
+  /// No description provided for @create.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear'**
+  String get create;
+
   /// No description provided for @totalWorkers.
   ///
   /// In es, this message translates to:

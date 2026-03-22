@@ -304,6 +304,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalUsers => 'Total users';
 
   @override
+  String get editCall => 'Edit call';
+
+  @override
+  String get createCall => 'Create call';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get selectUser => 'Select a user';
+
+  @override
+  String get selectedUser => 'Selected user';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get requiredField => 'Required field';
+
+  @override
+  String get summary => 'Summary';
+
+  @override
+  String get callStatus => 'Call status';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get create => 'Create';
+
+  @override
   String get totalWorkers => 'Total workers';
 
   @override

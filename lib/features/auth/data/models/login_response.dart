@@ -29,6 +29,7 @@ class TrabajadorLogin {
   final String rol;
   final String? dni;
   final String? nia;
+  final int? grupoId;
 
   const TrabajadorLogin({
     required this.id,
@@ -38,6 +39,7 @@ class TrabajadorLogin {
     required this.rol,
     this.dni,
     this.nia,
+    this.grupoId,
   });
 
   factory TrabajadorLogin.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class TrabajadorLogin {
       rol: json['rol'] as String? ?? '',
       dni: json['dni'] as String?,
       nia: json['nia'] as String?,
+      grupoId: json['grupoId'] as int?,
     );
   }
 
@@ -61,6 +64,7 @@ class TrabajadorLogin {
       'rol': rol,
       if (dni != null) 'dni': dni,
       if (nia != null) 'nia': nia,
+      if (grupoId != null) 'grupoId': grupoId,
     };
   }
 }

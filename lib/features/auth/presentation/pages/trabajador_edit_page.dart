@@ -2,56 +2,48 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
-import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-// Página para crear un nuevo trabajador (teleoperador, supervisor, etc.)
-class CrearTrabajadorPage extends ConsumerStatefulWidget {
-  const CrearTrabajadorPage({super.key});
+class EditarTrabajadorPage extends ConsumerStatefulWidget {
+  final Trabajador trabajador;
+  const EditarTrabajadorPage({super.key, required this.trabajador});
 
   @override
-  ConsumerState<CrearTrabajadorPage> createState() =>
-      _CrearTrabajadorPageState();
+  ConsumerState<EditarTrabajadorPage> createState() => _EditarTrabajadorPageState();
 }
 
-// Controlador de la página de creación de trabajadores
-class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
+class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
   final _formKey = GlobalKey<FormState>();
-
-  // Controladores de los campos del formulario.
-  final TextEditingController _nombreCtrl = TextEditingController();
-  final TextEditingController _apellidosCtrl = TextEditingController();
-  final TextEditingController _correoCtrl = TextEditingController();
-  final TextEditingController _telefonoCtrl = TextEditingController();
-  final TextEditingController _contrasenaCtrl = TextEditingController();
-  final TextEditingController _niaCtrl = TextEditingController();
-  final TextEditingController _dniCtrl = TextEditingController();
-
-  // Rol por defecto: teleoperador.
+  late TextEditingController _nombreCtrl;
+  late TextEditingController _apellidosCtrl;
+  late TextEditingController _correoCtrl;
+  late TextEditingController _telefonoCtrl;
+  late TextEditingController _contrasenaCtrl;
+  late TextEditingController _niaCtrl;
+  late TextEditingController _dniCtrl;
   String _rol = 'teleoperador';
-
-  // Grupo opcional (id). Solo para teleoperadores
   int? _grupoId;
   List<Grupo> _grupos = <Grupo>[];
   bool _cargandoGrupos = false;
 
-  // Inicializa el servicio de trabajadores
   @override
   void initState() {
     super.initState();
+    final t = widget.trabajador;
+    _nombreCtrl = TextEditingController(text: t.nombre);
+    _apellidosCtrl = TextEditingController(text: t.apellidos);
+    _correoCtrl = TextEditingController(text: t.correo);
+    _telefonoCtrl = TextEditingController();
+    _contrasenaCtrl = TextEditingController();
+    _niaCtrl = TextEditingController();
+    _dniCtrl = TextEditingController();
+    _rol = t.rol;
+    _grupoId = t.grupoId;
     _fetchGrupos();
   }
 
@@ -63,9 +55,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
       setState(() {
         _grupos = grupos.where((g) => g.activo).toList();
       });
-    } catch (e) {
-      // Manejar error si es necesario
-    } finally {
+    } catch (_) {} finally {
       setState(() => _cargandoGrupos = false);
     }
   }
@@ -82,160 +72,51 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     super.dispose();
   }
 
-  // Envía el payload al backend para crear el trabajador
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context)!;
-
-    // El grupo solo es obligatorio para teleoperadores
     if (_rol == 'teleoperador' && _grupoId == null) {
       general_snackbar_error(context, l10n.noGroupAssigned, 3);
       return;
     }
-
-    // Validaciones específicas según el rol (coinciden con las reglas del backend)
-    // Contraseña mínima
-
-    // Obtenemos el valor del campo contraseña
-    final contrasena = _contrasenaCtrl.text.trim();
-
-    // Si la contraseña es menor a 6 caracteres, mostramos un snackbar de error
-    if (contrasena.length < 6) {
-      general_snackbar_error(context, l10n.passwordLengthError, 3);
-      return;
-    }
-
-    // Si es teleoperador, validamos el NIA
-    if (_rol == 'teleoperador') {
-      final nia = _niaCtrl.text.trim();
-      if (!RegExp(r'^[0-9]{8}$').hasMatch(nia)) {
-        general_snackbar_error(context, l10n.invalidNIA, 3);
-        return;
-      }
-    }
-
-    // si es supervisor, validamos el DNI
-    if (_rol == 'supervisor') {
-      final dni = _dniCtrl.text.trim().toUpperCase();
-      if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(dni)) {
-        general_snackbar_error(context, l10n.invalidDNI, 3);
-        return;
-      }
-    }
-    // Creamos el payload con los datos del formulario
     final payload = <String, dynamic>{
       'nombre': _nombreCtrl.text.trim(),
       'apellidos': _apellidosCtrl.text.trim(),
       'correo': _correoCtrl.text.trim(),
-      'contrasena': contrasena,
       'rol': _rol,
       'grupoId': _grupoId,
     };
-
-    // Remove keys with null values to avoid sending nulls to backend
-    payload.removeWhere((key, value) => value == null);
-
-    // Añadimos campos según tipo
-    // Si es teleoperador, añadimos el NIA
+    if (_contrasenaCtrl.text.trim().isNotEmpty) {
+      payload['contrasena'] = _contrasenaCtrl.text.trim();
+    }
     if (_rol == 'teleoperador') {
       payload['nia'] = _niaCtrl.text.trim();
     }
-    // Si es supervisor, añadimos el DNI
     if (_rol == 'supervisor') {
       payload['dni'] = _dniCtrl.text.trim().toUpperCase();
     }
-
-    print('Creating trabajador payload: $payload'); // Solo debe contener grupoId, nunca grupo_id
-    try {
-      print('Creating trabajador payload JSON: ${jsonEncode(payload)}');
-    } catch (_) {}
-
-    // Enviamos el payload al backend
-    //si todo va bien, mostramos un snackbar de exito y volvemos a la pagina de inicio
+    // Remove null values to avoid sending null keys
+    payload.removeWhere((key, value) => value == null);
     try {
       final trabajadorService = ref.read(trabajadorServiceProvider);
-      await trabajadorService.create(payload);
-      general_snackbar(context, l10n.workerCreatedSuccessfully, 2);
-      Navigator.pop(context);
+      try {
+        print('Updating trabajador payload: $payload');
+        print('Updating trabajador payload JSON: ${jsonEncode(payload)}');
+      } catch (_) {}
+      await trabajadorService.update(widget.trabajador.id, payload);
+      general_snackbar(context, l10n.workerCreatedSuccessfully, 2); // Cambia a workerUpdatedSuccessfully si existe
+      Navigator.pop(context, true);
     } catch (e) {
-      general_snackbar_error(
-        context,
-        l10n.errorCreatingWorker(e.toString()),
-        3,
-      );
+      general_snackbar_error(context, l10n.errorCreatingWorker(e.toString()), 3); // Cambia a errorUpdatingWorker si existe
     }
   }
 
-  // Genera el formulario
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context)!;
-
-    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
-    // Obtenemos el estado de autenticación del provider
-    final authState = ref.watch(authProvider);
-    final userName = authState.nombre;
-    final userRole = authState.rol;
-    final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
-
-    // Genera el formulario
     return Scaffold(
-      appBar: appMainAppBar(
-        numeroNotificaciones: notificacionesSinLeerAsync.when(
-          data: (count) => count,
-          loading: () => 0,
-          error: (_, __) => 0,
-        ),
-        onNotifications: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NotificationsPage()),
-          );
-        },
-      ),
-      drawer: appDrawer(
-        userName: userName,
-        userRole: userRole,
-        context: context,
-        selected: DrawerItem.telemarketers,
-        onTapHome: () => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeSupervisorPage()),
-        ),
-        onTapCalls: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const LlamadasPage()),
-        ),
-        onTapTelemarketers: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const WorkersPage()),
-        ),
-        onTapUsers: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const UsersPage()),
-        ),
-        onTapEmergencyContacts: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const EmergencyContactsPage()),
-        ),
-        onTapNotifications: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const NotificationsPage()),
-        ),
-        onTapPreferences: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PreferencesPage()),
-        ),
-        onLogoutConfirmed: () async {
-          await ref.read(authProvider.notifier).logout();
-          if (!context.mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
-          );
-        },
-      ),
+      appBar: AppBar(title: Text(l10n.edit)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Material(
@@ -247,45 +128,20 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.newWorker,
-                    style: textTheme.titleMedium?.copyWith(fontSize: 22),
-                  ),
+                  Text(l10n.edit, style: textTheme.titleMedium?.copyWith(fontSize: 22)),
                   const SizedBox(height: 12),
-
-                  // Nombre
                   Text(l10n.name, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   general_textfield(l10n.name, false, controller: _nombreCtrl),
                   const SizedBox(height: 12),
-
-                  // Apellidos
                   Text(l10n.lastName, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
-                  general_textfield(
-                    l10n.lastName,
-                    false,
-                    controller: _apellidosCtrl,
-                  ),
+                  general_textfield(l10n.lastName, false, controller: _apellidosCtrl),
                   const SizedBox(height: 12),
-
-                  // Correo
                   Text(l10n.email, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   general_textfield(l10n.email, false, controller: _correoCtrl),
                   const SizedBox(height: 12),
-
-                  // Teléfono
-                  Text(l10n.telephone, style: textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  general_textfield(
-                    l10n.telephone,
-                    false,
-                    controller: _telefonoCtrl,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Contraseña temporal/definitiva
                   Text(l10n.password, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -299,16 +155,8 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                       ),
                       filled: true,
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().length < 6) {
-                        return l10n.passwordLengthError;
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 12),
-
-                  // Rol
                   Text(l10n.role, style: textTheme.bodyMedium),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
@@ -338,8 +186,6 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Campos dependientes del rol
                   if (_rol == 'teleoperador') ...[
                     const SizedBox(height: 18),
                     Text(l10n.nia8digits, style: textTheme.bodyMedium),
@@ -355,15 +201,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                         ),
                         filled: true,
                       ),
-                      validator: (v) {
-                        final s = v?.trim() ?? '';
-                        if (!RegExp(r'^[0-9]{8}$').hasMatch(s)) {
-                          return l10n.invalidNIA;
-                        }
-                        return null;
-                      },
                     ),
-                    // Grupo (obligatorio)
                     const SizedBox(height: 12),
                     Text(l10n.group_label, style: textTheme.bodyMedium),
                     const SizedBox(height: 6),
@@ -407,22 +245,14 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                         ),
                         filled: true,
                       ),
-                      validator: (v) {
-                        final s = (v ?? '').trim().toUpperCase();
-                        if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(s)) {
-                          return l10n.invalidDNI;
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 12),
                   ],
-
                   Row(
                     children: [
                       Expanded(
                         child: general_filledbutton(
-                          l10n.createWorkerBtn,
+                          l10n.save,
                           onPressed: _submit,
                         ),
                       ),

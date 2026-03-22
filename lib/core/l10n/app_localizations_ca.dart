@@ -308,6 +308,39 @@ class AppLocalizationsCa extends AppLocalizations {
   String get totalUsers => 'Total d\'usuaris';
 
   @override
+  String get editCall => 'Editar trucada';
+
+  @override
+  String get createCall => 'Crear trucada';
+
+  @override
+  String get user => 'Usuari';
+
+  @override
+  String get selectUser => 'Selecciona un usuari';
+
+  @override
+  String get selectedUser => 'Usuari seleccionat';
+
+  @override
+  String get time => 'Hora';
+
+  @override
+  String get requiredField => 'Camp obligatori';
+
+  @override
+  String get summary => 'Resum';
+
+  @override
+  String get callStatus => 'Estat de la trucada';
+
+  @override
+  String get save => 'Desar';
+
+  @override
+  String get create => 'Crear';
+
+  @override
   String get totalWorkers => 'Total de treballadors';
 
   @override

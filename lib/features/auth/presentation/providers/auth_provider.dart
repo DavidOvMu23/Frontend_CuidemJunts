@@ -11,6 +11,8 @@ class AuthState {
   final String? correo; // Correo del trabajador autenticado
   final String? nombre; // Nombre del trabajador
   final String? rol; // Rol del trabajador (supervisor, teleoperador)
+  final String? nia;
+  final int? grupoId;
 
   const AuthState({
     this.isAuthenticated = false,
@@ -19,6 +21,8 @@ class AuthState {
     this.correo,
     this.nombre,
     this.rol,
+    this.nia,
+    this.grupoId,
   });
 
   // Crea una copia del estado cambiando solo lo que queramos.
@@ -29,6 +33,8 @@ class AuthState {
     String? correo,
     String? nombre,
     String? rol,
+    String? nia,
+    int? grupoId,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
@@ -37,6 +43,8 @@ class AuthState {
       correo: correo ?? this.correo,
       nombre: nombre ?? this.nombre,
       rol: rol ?? this.rol,
+      nia: nia ?? this.nia,
+      grupoId: grupoId ?? this.grupoId,
     );
   }
 }
@@ -64,6 +72,8 @@ class AuthNotifier extends Notifier<AuthState> {
     required String correo,
     String? nombre,
     String? rol,
+    String? nia,
+    int? grupoId,
   }) async {
     state = state.copyWith(loading: true);
 
@@ -81,6 +91,8 @@ class AuthNotifier extends Notifier<AuthState> {
       correo: correo,
       nombre: nombre,
       rol: rol,
+      nia: nia,
+      grupoId: grupoId,
     );
   }
 

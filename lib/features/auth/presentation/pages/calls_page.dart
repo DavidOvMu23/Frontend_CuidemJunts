@@ -18,6 +18,11 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamad
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_detail_dialog.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/call_create_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 // -------- PANTALLA DE LLAMADAS --------
 // Controlador principal de la vista de llamadas
@@ -28,6 +33,8 @@ class LlamadasPage extends ConsumerStatefulWidget {
   @override
   ConsumerState<LlamadasPage> createState() => _LlamadasPageState();
 }
+
+
 
 class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   // Cache del Future para evitar recargas innecesarias al reconstruir el widget
@@ -132,40 +139,110 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   }
 
   // Muestra el detalle de una llamada
-  void _mostrarDetalleLlamada(BuildContext context, Llamadas llamada) {
-    final l10n = AppLocalizations.of(context)!;
+  Future<void> _mostrarDetalleLlamada(BuildContext context, Llamadas llamada) async {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(llamada.resumen.isEmpty ? l10n.calls : llamada.resumen),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoRow(l10n.date, '${llamada.fecha.day}/${llamada.fecha.month}/${llamada.fecha.year}'),
-            _buildInfoRow(l10n.duration, llamada.duracion),
-            _buildInfoRow(
-              l10n.group_label,
-              llamada.grupoNombre?.isNotEmpty == true
-                  ? llamada.grupoNombre!
-                  : l10n.noGroupAssigned,
+      builder: (ctx) => CallDetailDialog(
+        llamada: llamada,
+        onEdit: () async {
+          Navigator.pop(ctx);
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CallFormPage(
+                llamadaInicial: llamada,
+                isEdit: true,
+                buscarUsuarios: _buscarUsuarios,
+                onSubmit: (data) async {
+                  // Obtener correo y estado de autenticación
+                  final authState = ref.read(authProvider);
+                  final correo = authState.correo;
+                  if (correo == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No se pudo obtener el usuario logueado.')),
+                    );
+                    return;
+                  }
+
+                  final bool isTele = (authState.rol ?? '').toLowerCase() == 'teleoperador';
+                  int? grupoIdToUse;
+                  if (isTele) {
+                    grupoIdToUse = authState.grupoId;
+                    if (grupoIdToUse == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No tienes grupo asignado.')),
+                      );
+                      return;
+                    }
+                  } else {
+                    final trabajadorService = ref.read(trabajadorServiceProvider);
+                    final trabajadores = await trabajadorService.getAll();
+                    final trabajador = trabajadores.firstWhere(
+                      (t) => t.correo == correo,
+                      orElse: () => throw Exception('Trabajador no encontrado'),
+                    );
+                    if (trabajador.grupoId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No tienes grupo asignado.')),
+                      );
+                      return;
+                    }
+                    grupoIdToUse = trabajador.grupoId;
+                  }
+                  // Preparar el payload para editar la llamada
+                  final llamadasService = ref.read(llamadasServiceProvider);
+                  final payload = {
+                    'usuarioId': data.usuarioId,
+                    'resumen': data.resumen,
+                    'duracion': data.duracion,
+                    'estado': data.estado,
+                    'observaciones': data.observaciones,
+                    'fecha': data.fecha.toIso8601String(),
+                    'hora': data.hora,
+                    'grupoId': grupoIdToUse,
+                  };
+                  try {
+                    print('Usuario que crea/edita llamada: correo=${authState.correo}, rol=${authState.rol}, grupoId=$grupoIdToUse');
+                    print('Payload comunicacion: $payload');
+                    await llamadasService.update(llamada.id, payload);
+                    Navigator.pop(context, true);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al guardar la llamada: $e')),
+                    );
+                  }
+                },
+              ),
             ),
-            _buildInfoRow(
-              l10n.comments,
-              llamada.observaciones.isEmpty ? '-' : llamada.observaciones,
-            ),
-            _buildInfoRow(
-              l10n.accountStatus,
-              llamada.estado.isEmpty ? l10n.noStatus : llamada.estado,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.close),
-          ),
-        ],
+          );
+          if (result == true) {
+            setState(() {
+              _llamadasFuture = _cargarLlamadasConGrupo();
+            });
+          }
+        },
+        onDelete: () {
+          // Implementar borrado de llamada
+          () async {
+            final llamadasService = ref.read(llamadasServiceProvider);
+            try {
+              await llamadasService.delete(llamada.id);
+              if (!context.mounted) return;
+              Navigator.pop(context, true);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Llamada eliminada correctamente')),
+              );
+              setState(() {
+                _llamadasFuture = _cargarLlamadasConGrupo();
+              });
+            } catch (e) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error al eliminar la llamada: $e')),
+              );
+            }
+          }();
+        },
       ),
     );
   }
@@ -183,6 +260,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
+                            // debug prints removed (were inserted erroneously)
           Expanded(child: Text(value)),
         ],
       ),
@@ -272,11 +350,19 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   // Helper para convertir duración en segundos
   int _parseDuration(String duracion) {
     try {
-      final parts = duracion.split(':');
-      if (parts.length == 2) {
-        final minutes = int.tryParse(parts[0]) ?? 0;
-        final seconds = int.tryParse(parts[1]) ?? 0;
-        return minutes * 60 + seconds;
+      final clean = duracion.trim().toLowerCase().replaceAll('min', '').replaceAll(' ', '');
+      if (clean.isEmpty) return 0;
+      if (clean.contains(':')) {
+        final parts = clean.split(':');
+        if (parts.length == 2) {
+          final minutes = int.tryParse(parts[0]) ?? 0;
+          final seconds = int.tryParse(parts[1]) ?? 0;
+          return minutes * 60 + seconds;
+        }
+      } else {
+        // Si solo es un número, interpretarlo como minutos
+        final minutes = int.tryParse(clean) ?? 0;
+        return minutes * 60;
       }
     } catch (_) {}
     return 0;
@@ -288,6 +374,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     // Obtenemos el estado de autenticación del provider
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
+                        // debug print removed (was inserted erroneously)
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
@@ -389,10 +476,101 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       // -------- BOTÓN FLOTANTE --------
       floatingActionButton: general_floatingbutton(
         Icons.add,
-        onPressed: () {
-          // TODO: IMPLEMENTAR AÑADIR LLAMADA
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CallFormPage(
+                isEdit: false,
+                buscarUsuarios: _buscarUsuarios,
+                onSubmit: (data) async {
+                  // Obtener correo del usuario logueado
+                  final authState = ref.read(authProvider);
+                  final correo = authState.correo;
+                  if (correo == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No se pudo obtener el usuario logueado.')),
+                    );
+                    return;
+                  }
+                  // Obtener el trabajador actual por correo o usar authState si es teleoperador
+                  final bool isTele = (authState.rol ?? '').toLowerCase() == 'teleoperador';
+                  int? grupoIdToUse;
+                  if (isTele) {
+                    grupoIdToUse = authState.grupoId;
+                    if (grupoIdToUse == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No tienes grupo asignado.')),
+                      );
+                      return;
+                    }
+                  } else {
+                    // Supervisor: buscamos al trabajador por correo
+                    final trabajadorService = ref.read(trabajadorServiceProvider);
+                    final trabajadores = await trabajadorService.getAll();
+                    final trabajador = trabajadores.firstWhere(
+                      (t) => t.correo == correo,
+                      orElse: () => throw Exception('Trabajador no encontrado'),
+                    );
+                    if (trabajador.grupoId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No tienes grupo asignado.')),
+                      );
+                      return;
+                    }
+                    grupoIdToUse = trabajador.grupoId;
+                  }
+
+                  // Preparar el payload para crear la llamada
+                  final llamadasService = ref.read(llamadasServiceProvider);
+                  final payload = {
+                    'usuarioId': data.usuarioId,
+                    'resumen': data.resumen,
+                    'duracion': data.duracion,
+                    'estado': data.estado,
+                    'observaciones': data.observaciones,
+                    'fecha': data.fecha.toIso8601String(),
+                    'hora': data.hora,
+                    'grupoId': grupoIdToUse,
+                  };
+                  try {
+                    print('Usuario creando llamada: correo=${authState.correo}, rol=${authState.rol}, grupoId=$grupoIdToUse');
+                    print('Payload comunicacion: $payload');
+                    await llamadasService.create(payload);
+                    Navigator.pop(context, true);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al guardar la llamada: $e')),
+                    );
+                  }
+                },
+              ),
+            ),
+          );
+          if (result == true) {
+            setState(() {
+              _llamadasFuture = _cargarLlamadasConGrupo();
+            });
+          }
         },
       ),
     );
+  }
+
+  Future<List<UsuarioBusqueda>> _buscarUsuarios(String query) async {
+    final usuarioService = ref.read(usuarioServiceProvider);
+    final usuarios = await usuarioService.getAll();
+    final lower = query.trim().toLowerCase();
+    return usuarios
+        .where((u) =>
+            u.nombre.toLowerCase().contains(lower) ||
+            u.apellidos.toLowerCase().contains(lower) ||
+            u.telefono.toLowerCase().contains(lower) ||
+            u.dni.toLowerCase().contains(lower))
+        .map((u) => UsuarioBusqueda(
+              id: u.dni,
+              nombreCompleto: '${u.nombre} ${u.apellidos}'.trim(),
+            ))
+        .toList();
   }
 }

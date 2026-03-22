@@ -11,6 +11,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_edit_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
@@ -38,7 +39,14 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
   @override
   void initState() {
     super.initState();
-    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+    // Only load workers if current user is supervisor to avoid 403 from backend
+    final authState = ref.read(authProvider);
+    final isSupervisor = (authState.rol ?? '').toString().toLowerCase() == 'supervisor';
+    if (isSupervisor) {
+      _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+    } else {
+      _trabajadoresFuture = Future.value(<Trabajador>[]);
+    }
   }
 
   Future<List<Trabajador>> _cargarTrabajadoresConGrupo() async {
@@ -523,10 +531,19 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                           trailing: const Icon(
                                             Icons.chevron_right,
                                           ),
-                                          onTap: () => _showWorkerDetail(
-                                            context,
-                                            trabajador,
-                                          ),
+                                          onTap: () async {
+                                            final actualizado = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => EditarTrabajadorPage(trabajador: trabajador),
+                                              ),
+                                            );
+                                            if (actualizado == true) {
+                                              setState(() {
+                                                _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+                                              });
+                                            }
+                                          },
                                         );
                                       },
                                     ),
@@ -545,21 +562,23 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           ],
         ),
       ),
-      floatingActionButton: general_floatingbutton(
-        Icons.add,
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CrearTrabajadorPage(),
-            ),
-          );
+      floatingActionButton: (userRole?.toLowerCase() == 'supervisor')
+          ? general_floatingbutton(
+              Icons.add,
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CrearTrabajadorPage(),
+                  ),
+                );
 
-          setState(() {
-            _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-          });
-        },
-      ),
+                setState(() {
+                  _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+                });
+              },
+            )
+          : null,
     );
   }
 }

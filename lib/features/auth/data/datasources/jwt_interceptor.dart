@@ -18,10 +18,25 @@ class JwtInterceptor extends Interceptor {
     // Obtener el token guardado
     final token = preferencesService.getToken();
 
+    // Depuración: imprimir información útil para el desarrollo (Chrome console)
+    try {
+      print('--> HTTP ${options.method} ${options.uri}');
+      print('    Token presente: ${token != null}');
+      print('    Authorization header antes: ${options.headers["Authorization"]}');
+      print('    Body: ${options.data}');
+    } catch (e) {
+      // No bloquear la petición por fallos de logging
+    }
+
     // Si existe un token, agregarlo al header Authorization
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
+
+    try {
+      print('    Authorization header después: ${options.headers["Authorization"]}');
+      print('<-- end HTTP ${options.method} ${options.uri}');
+    } catch (e) {}
 
     super.onRequest(options, handler);
   }
@@ -33,6 +48,12 @@ class JwtInterceptor extends Interceptor {
       // Aquí podríamos limpiar la sesión y redirigir al login
       // Por ahora solo dejamos que se propague el error
     }
+
+    // Depuración de errores HTTP
+    try {
+      print('DIO ERROR ${err.type} ${err.response?.statusCode} ${err.requestOptions.uri}');
+      print('Response data: ${err.response?.data}');
+    } catch (e) {}
 
     super.onError(err, handler);
   }

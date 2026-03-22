@@ -68,7 +68,6 @@ class CallsScaffoldBody extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 14),
               child: Material(
                 borderRadius: BorderRadius.circular(30),
-                clipBehavior: Clip.hardEdge,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -89,19 +88,24 @@ class CallsScaffoldBody extends StatelessWidget {
                         onSearchChanged: onSearchChanged,
                         onFilterChanged: onFilterChanged,
                       ),
-                      const SizedBox(height: 12),
-
+                      const SizedBox(height: 8),
                       // 2. Sección de filtro por fecha
                       DateFilterSection(
                         fechaDesde: fechaDesde,
                         fechaHasta: fechaHasta,
                         onFechaDesdeChanged: onFechaDesdeChanged,
                         onFechaHastaChanged: onFechaHastaChanged,
+                        onClearDates: (fechaDesde != null || fechaHasta != null)
+                            ? () {
+                                onFechaDesdeChanged(null);
+                                onFechaHastaChanged(null);
+                              }
+                            : null,
                       ),
                       const SizedBox(height: 8),
                       Divider(
                         height: 8,
-                        color: colorScheme.primary.withValues(alpha: 0.3),
+                        color: colorScheme.primary.withAlpha(77),
                       ),
 
                       // 3. Lista de llamadas (ocupa el resto del espacio)
