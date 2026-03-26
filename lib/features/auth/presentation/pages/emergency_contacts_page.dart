@@ -11,9 +11,11 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notificati
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contact_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_scaffold_body.dart';
 
@@ -21,8 +23,7 @@ class EmergencyContactsPage extends ConsumerStatefulWidget {
   const EmergencyContactsPage({super.key});
 
   @override
-  ConsumerState<EmergencyContactsPage> createState() =>
-      _EmergencyContactsPageState();
+  ConsumerState<EmergencyContactsPage> createState() => _EmergencyContactsPageState();
 }
 
 class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
@@ -57,11 +58,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
 
     final filtrados = contactos.where((contacto) {
       final nombreCompleto = '${contacto.nombre} ${contacto.apellidos}'.toLowerCase();
-      final paciente = _pacienteTexto(contacto).toLowerCase();
-      return query.isEmpty ||
+      final paciente = (contacto.pacienteNombre ?? '').toLowerCase();
+        return query.isEmpty ||
           nombreCompleto.contains(query) ||
           contacto.telefono.contains(query) ||
-          contacto.relacion.toLowerCase().contains(query) ||
           paciente.contains(query);
     }).toList();
 
@@ -81,8 +81,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     return (contacto.dniUsuarioRef ?? '').trim().isEmpty ? '-' : contacto.dniUsuarioRef!;
   }
 
-  Future<void> _mostrarDetalleContacto(BuildContext context, ContactoEmergencia contacto, bool isSupervisor) async {
+  Future<void> _mostrarDetalleContacto(BuildContext context, ContactoEmergencia contacto, bool isSupervisor, Map<String, String> usuariosMap) async {
     final l10n = AppLocalizations.of(context)!;
+
+    final asociados = contacto.usuariosDnis.map((d) => usuariosMap[d] ?? d).toList();
 
     await showDialog(
       context: context,
@@ -98,21 +100,37 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                 ),
               ),
             ),
-            if (isSupervisor)
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _abrirFormularioContacto(contacto: contacto);
-                },
-                icon: const Icon(Icons.edit, size: 20),
-                tooltip: l10n.edit,
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                style: IconButton.styleFrom(
-                  foregroundColor: Theme.of(ctx).colorScheme.primary,
-                  padding: EdgeInsets.zero,
-                ),
-              ),
+              if (isSupervisor)
+                (contacto.dniUsuarioRef == null || contacto.dniUsuarioRef!.trim().isEmpty)
+                  ? IconButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        // Esperar un microtask antes de abrir otro diálogo para evitar
+                        // conflictos en el árbol de widgets (evita la assertion sobre ancestor).
+                        Future.microtask(() => _abrirFormularioContacto(contacto: contacto));
+                      },
+                      icon: const Icon(Icons.edit, size: 20),
+                      tooltip: l10n.edit,
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      style: IconButton.styleFrom(
+                        foregroundColor: Theme.of(ctx).colorScheme.primary,
+                        padding: EdgeInsets.zero,
+                      ),
+                    )
+                  : IconButton(
+                      onPressed: () {
+                        general_snackbar(context, 'Edita este contacto desde el perfil del usuario asociado', 3);
+                      },
+                      icon: const Icon(Icons.edit, size: 20),
+                      tooltip: 'No editable desde aquí',
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      style: IconButton.styleFrom(
+                        foregroundColor: Theme.of(ctx).colorScheme.onSurface.withOpacity(0.4),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
           ],
         ),
         content: SizedBox(
@@ -122,7 +140,6 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 6),
-              // Teléfono
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -131,24 +148,13 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                   Expanded(child: Text('${l10n.phone}: ${contacto.telefono}')),
                 ],
               ),
-              const SizedBox(height: 12),
-              // Relación
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.people_outline),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text('${l10n.relation}: ${contacto.relacion}')),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Referencia a usuario
+                    const SizedBox(height: 12),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.badge_outlined),
                   const SizedBox(width: 12),
-                  Expanded(child: Text('${l10n.refersToUser}: ${_pacienteTexto(contacto)}')),
+                  Expanded(child: Text('Usuarios: ${asociados.isEmpty ? '-' : asociados.join(', ')}')),
                 ],
               ),
             ],
@@ -209,120 +215,61 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
           general_snackbar(context, l10n.userDeletedSuccessfully, 2);
         } catch (e) {
           if (!mounted) return;
-          general_snackbar_error(context, '${l10n.error}: $e', 3);
+          // Intentar manejar caso en que backend devuelve 400 porque el contacto
+          // está asociado a usuarios. En ese caso ofrecemos desvincular y borrar.
+          String mensaje = '$e';
+          if (e is DioException) {
+            final resp = e.response;
+            if (resp != null && resp.statusCode == 400) {
+              mensaje = resp.data?.toString() ?? e.message ?? e.toString();
+              final lower = mensaje.toLowerCase();
+              if (lower.contains('asociado') || lower.contains('asociadas')) {
+                // Ofrecer desvincular asociaciones many-to-many y borrar
+                await showConfirmDialog(
+                  context,
+                  title: l10n.delete,
+                  content: 'Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?',
+                  confirmText: l10n.accept,
+                  cancelText: l10n.cancel,
+                  onConfirm: () async {
+                    try {
+                      // Desvincular associations mediante PATCH { usuariosDnis: [] }
+                      await _contactoService.update(contacto.id, {'usuariosDnis': []});
+                      await _contactoService.delete(contacto.id);
+                      if (!mounted) return;
+                      _recargarContactos();
+                      general_snackbar(context, l10n.userDeletedSuccessfully, 2);
+                    } catch (e2) {
+                      if (!mounted) return;
+                      general_snackbar_error(context, '${l10n.error}: $e2', 4);
+                    }
+                  },
+                );
+                return;
+              }
+              if (lower.contains('vinculad') || lower.contains('referenc')) {
+                // Indicar que debe desvincularse desde el perfil del usuario
+                general_snackbar_error(context, 'Este contacto está referenciado desde el perfil de un usuario. Elimina la referencia desde el perfil del cliente.', 5);
+                return;
+              }
+            }
+            // si no era 400 con mensaje esperable, usar el mensaje bruto
+            mensaje = resp?.data?.toString() ?? e.message ?? e.toString();
+          }
+          general_snackbar_error(context, '${l10n.error}: $mensaje', 3);
         }
       },
     );
   }
 
   Future<void> _abrirFormularioContacto({ContactoEmergencia? contacto}) async {
-    final l10n = AppLocalizations.of(context)!;
-    final isEdit = contacto != null;
-    final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
-
-    final nombreCtrl = TextEditingController(text: contacto?.nombre ?? '');
-    final apellidosCtrl = TextEditingController(text: contacto?.apellidos ?? '');
-    final telefonoCtrl = TextEditingController(text: contacto?.telefono ?? '');
-    final relacionCtrl = TextEditingController(text: contacto?.relacion ?? '');
-    String? selectedDni = (contacto?.dniUsuarioRef ?? '').trim().isEmpty ? null : contacto!.dniUsuarioRef;
-
-    await showDialog(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setLocalState) => AlertDialog(
-            title: Text(isEdit ? l10n.edit : l10n.add),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  general_textfield_NoICON(l10n.name, controller: nombreCtrl),
-                  const SizedBox(height: 10),
-                  general_textfield_NoICON(l10n.lastName, controller: apellidosCtrl),
-                  const SizedBox(height: 10),
-                  general_textfield_NoICON(l10n.phone, controller: telefonoCtrl),
-                  const SizedBox(height: 10),
-                  general_textfield_NoICON(l10n.relation, controller: relacionCtrl),
-                  const SizedBox(height: 10),
-                  FutureBuilder<List<Usuario>>(
-                    future: usuariosFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
-                      }
-
-                      final usuarios = snapshot.data ?? [];
-                      if (selectedDni != null && !usuarios.any((u) => u.dni == selectedDni)) {
-                        selectedDni = null;
-                      }
-
-                      return DropdownButtonFormField<String?>(
-                        value: selectedDni,
-                        borderRadius: BorderRadius.circular(12),
-                        decoration: InputDecoration(
-                          labelText: l10n.refersToUser,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        items: [
-                          const DropdownMenuItem<String?>(value: null, child: Text('Sin paciente asignado')),
-                          ...usuarios.map((u) => DropdownMenuItem<String?>(value: u.dni, child: Text('${u.nombre} ${u.apellidos} (${u.dni})', overflow: TextOverflow.ellipsis))),
-                        ],
-                        onChanged: (value) {
-                          setLocalState(() { selectedDni = value; });
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
-              FilledButton(
-                onPressed: () async {
-                  final nombre = nombreCtrl.text.trim();
-                  final apellidos = apellidosCtrl.text.trim();
-                  final telefono = telefonoCtrl.text.trim();
-                  final relacion = relacionCtrl.text.trim();
-
-                  if (nombre.isEmpty || apellidos.isEmpty || telefono.isEmpty || relacion.isEmpty) {
-                    general_snackbar_error(context, l10n.fillAllFields, 2);
-                    return;
-                  }
-
-                  final payload = <String, dynamic>{'nombre': nombre, 'apellidos': apellidos, 'telefono': telefono, 'relacion': relacion};
-                  if (selectedDni != null) payload['dniUsuarioRef'] = selectedDni; else if (isEdit) payload['dniUsuarioRef'] = '';
-
-                  try {
-                    if (isEdit) await _contactoService.update(contacto!.id, payload); else await _contactoService.create(payload);
-                    if (!mounted) return;
-                    Navigator.pop(ctx);
-                    _recargarContactos();
-                    general_snackbar(context, isEdit ? l10n.userUpdatedSuccess : l10n.userCreatedSuccess, 2);
-                  } catch (e) {
-                    if (!mounted) return;
-                    general_snackbar_error(context, '${l10n.error}: $e', 3);
-                  }
-                },
-                child: Text(l10n.accept),
-              ),
-            ],
-          ),
-        );
-      },
+    // Navegar a la página de crear/editar contactos en vez de abrir un diálogo.
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EmergencyContactCreatePage(contacto: contacto)),
     );
 
-    nombreCtrl.dispose();
-    apellidosCtrl.dispose();
-    telefonoCtrl.dispose();
-    relacionCtrl.dispose();
+    if (resultado == true) _recargarContactos();
   }
 
   @override
@@ -385,7 +332,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         textoFiltro: textoFiltro,
         aplicarFiltros: _aplicarFiltros,
         onSearchChanged: _onSearchChanged,
-        onContactoTap: (context, contacto, isSupervisor) => _mostrarDetalleContacto(context, contacto, isSupervisor),
+        onContactoTap: (context, contacto, isSupervisor, usuariosMap) => _mostrarDetalleContacto(context, contacto, isSupervisor, usuariosMap),
         onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
       ),
       floatingActionButton: isSupervisor ? general_floatingbutton(Icons.add, onPressed: () => _abrirFormularioContacto()) : null,

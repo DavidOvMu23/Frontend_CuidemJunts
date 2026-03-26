@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 // Cuerpo principal de la pantalla de contactos de emergencia,
 // diseñado para replicar el estilo y estructura de UsersScaffoldBody.
-class EmergencyContactsScaffoldBody extends StatelessWidget {
+class EmergencyContactsScaffoldBody extends ConsumerWidget {
   final Future<List<ContactoEmergencia>> contactosFuture;
   final String textoFiltro;
   final List<ContactoEmergencia> Function(List<ContactoEmergencia>) aplicarFiltros;
   final ValueChanged<String> onSearchChanged;
-  final void Function(BuildContext, ContactoEmergencia, bool) onContactoTap;
+  final void Function(BuildContext, ContactoEmergencia, bool, Map<String, String>) onContactoTap;
   final void Function(ContactoEmergencia) onContactoEdit;
 
   const EmergencyContactsScaffoldBody({
@@ -24,10 +26,12 @@ class EmergencyContactsScaffoldBody extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+
+    final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -69,8 +73,8 @@ class EmergencyContactsScaffoldBody extends StatelessWidget {
                         color: colorScheme.primary.withValues(alpha: 0.3),
                       ),
                       Expanded(
-                        child: FutureBuilder<List<ContactoEmergencia>>(
-                          future: contactosFuture,
+                        child: FutureBuilder<List<dynamic>>(
+                          future: Future.wait([contactosFuture, usuariosFuture]),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -90,8 +94,12 @@ class EmergencyContactsScaffoldBody extends StatelessWidget {
                               );
                             }
 
-                            final contactos = snapshot.data ?? [];
+                            final results = snapshot.data ?? [];
+                            final contactos = (results.isNotEmpty && results[0] is List<ContactoEmergencia>) ? results[0] as List<ContactoEmergencia> : <ContactoEmergencia>[];
+                            final usuarios = (results.length > 1 && results[1] is List<Usuario>) ? results[1] as List<Usuario> : <Usuario>[];
                             final contactosFiltrados = aplicarFiltros(contactos);
+
+                            final Map<String, String> usuariosMap = { for (final u in usuarios) u.dni : '${u.nombre} ${u.apellidos}' };
 
                             if (contactosFiltrados.isEmpty) {
                               return Center(
@@ -124,12 +132,13 @@ class EmergencyContactsScaffoldBody extends StatelessWidget {
                                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                                     itemBuilder: (context, index) {
                                       final contacto = contactosFiltrados[index];
+                                      final asociados = contacto.usuariosDnis.map((d) => usuariosMap[d] ?? d).toList();
                                       return Material(
                                         color: Theme.of(context).cardColor,
                                         borderRadius: BorderRadius.circular(16),
                                         child: InkWell(
                                           borderRadius: BorderRadius.circular(16),
-                                          onTap: () => onContactoTap(context, contacto, true),
+                                          onTap: () => onContactoTap(context, contacto, true, usuariosMap),
                                           child: Stack(
                                             children: [
                                               Padding(
@@ -153,13 +162,13 @@ class EmergencyContactsScaffoldBody extends StatelessWidget {
                                                       ],
                                                     ),
                                                     const SizedBox(height: 6),
-                                                    // Mostramos solo la referencia al usuario, no la relación
+                                                    // Mostrar referencia a usuario(s) usando los asociados
                                                     Row(
                                                       crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         const Icon(Icons.badge_outlined, size: 18),
                                                         const SizedBox(width: 6),
-                                                        Expanded(child: Text('${l10n.refersToUser}: ${contacto.pacienteNombre ?? contacto.dniUsuarioRef ?? '-'}', style: textTheme.bodyMedium)),
+                                                        Expanded(child: Text('Usuarios: ${asociados.isEmpty ? '-' : asociados.join(', ')}', style: textTheme.bodyMedium)),
                                                       ],
                                                     ),
                                                   ],

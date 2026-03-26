@@ -350,7 +350,7 @@ class UserDetailDialog extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  '${contacto.relacion} • ${contacto.telefono}',
+                                  '${contacto.telefono}',
                                   style: textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(
                                       context,

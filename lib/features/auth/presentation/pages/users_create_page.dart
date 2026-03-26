@@ -16,6 +16,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_p
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_emergencia_service.dart';
 
 class CrearUserPage extends ConsumerStatefulWidget {
   final Usuario? usuario;
@@ -138,7 +139,14 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
         general_snackbar(context, l10n.userUpdatedSuccess, 2);
         Navigator.pop(context, true);
       } else {
-        await usuarioService.create(payload);
+        final created = await usuarioService.create(payload);
+        // Solicitar contactos canónicos del nuevo usuario para forzar sincronización
+        try {
+          final contactoService = ref.read(contactoEmergenciaServiceProvider);
+          await contactoService.getByUsuario(payload['dni'] as String);
+        } catch (_) {
+          // Ignorar errores de sincronización en la UI; backend ya crea el contacto.
+        }
         if (!mounted) return;
         general_snackbar(context, l10n.userCreatedSuccess, 2);
         Navigator.pop(context, true);

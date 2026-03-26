@@ -7,18 +7,18 @@ class ContactoEmergencia {
   final String apellidos;
   final String telefono;
   final String direccion;
-  final String relacion;
   final String? dniUsuarioRef;
+  final List<String> usuariosDnis;
   final String? pacienteNombre;
 
-  const ContactoEmergencia({
+  ContactoEmergencia({
     required this.id,
     required this.nombre,
     required this.apellidos,
     required this.direccion,
     required this.telefono,
-    required this.relacion,
     this.dniUsuarioRef,
+    this.usuariosDnis = const [],
     this.pacienteNombre,
   });
 
@@ -30,13 +30,16 @@ class ContactoEmergencia {
       apellidos: json['apellidos'] as String? ?? '',
       telefono: json['telefono'] as String? ?? '',
       direccion: json['direccion'] as String? ?? '',
-      relacion: json['relacion'] as String? ?? '',
       dniUsuarioRef:
           json['dni_usuario_ref'] as String? ??
           json['dniUsuarioRef'] as String? ??
           (json['usuarioReferenciado'] is Map<String, dynamic>
               ? (json['usuarioReferenciado']['dni'] as String?)
               : null),
+      usuariosDnis: (json['usuariosDnis'] as List<dynamic>?)
+          ?.whereType<String>()
+          .toList(growable: false) ??
+        const [],
       pacienteNombre:
           json['pacienteNombre'] as String? ??
           (json['usuarioReferenciado'] is Map<String, dynamic>
@@ -127,13 +130,13 @@ class Usuario {
       apellidos: json['apellidos'] as String,
       f_nac: parsedFecha,
       telefono: json['telefono'] as String,
-      direccion: (json['direccion'] ?? json['address'] ?? '') as String,
+        direccion: (json['direccion'] ?? json['address'] ?? '') as String,
       estadoCuenta: json['estado_cuenta'] as String,
       nivelDependencia: json['nivel_dependencia'] as String? ?? '',
       informacion: json['informacion'] as String? ?? '',
       datosMedicosDolencias: json['datos_medicos_dolencias'] as String?,
       medicacion: json['medicacion'] as String?,
-      contactosEmergencia:
+          contactosEmergencia:
           contactosRaw
               ?.whereType<Map<String, dynamic>>()
               .map(ContactoEmergencia.fromJson)
