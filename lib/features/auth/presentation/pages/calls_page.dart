@@ -17,10 +17,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/ca
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
-import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_detail_dialog.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/call_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
@@ -28,7 +26,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuari
 // Controlador principal de la vista de llamadas
 // Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos
 class LlamadasPage extends ConsumerStatefulWidget {
-  const LlamadasPage({super.key});
+  final bool embedded;
+
+  const LlamadasPage({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   ConsumerState<LlamadasPage> createState() => _LlamadasPageState();
@@ -385,7 +388,112 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       );
     }
 
-    //
+    final pageBody = CallsScaffoldBody(
+      llamadasFuture: _llamadasFuture,
+      filtroSeleccionado: filtroSeleccionado,
+      ordenSeleccionado: ordenSeleccionado,
+      textoFiltro: textoFiltro,
+      fechaDesde: fechaDesde,
+      fechaHasta: fechaHasta,
+      aplicarFiltros: _aplicarFiltros,
+      onSearchChanged: _onSearchChanged,
+      onFilterChanged: _onFilterChanged,
+      onSortChanged: _onSortChanged,
+      onFechaDesdeChanged: _onFechaDesdeChanged,
+      onFechaHastaChanged: _onFechaHastaChanged,
+      onLlamadaTap: _mostrarDetalleLlamada,
+    );
+
+    final fab = general_floatingbutton(
+      Icons.add,
+      onPressed: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CallFormPage(
+              isEdit: false,
+              buscarUsuarios: _buscarUsuarios,
+              onSubmit: (data) async {
+                // Obtener correo del usuario logueado
+                final authState = ref.read(authProvider);
+                final correo = authState.correo;
+                if (correo == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No se pudo obtener el usuario logueado.')),
+                  );
+                  return;
+                }
+                // Obtener el trabajador actual por correo o usar authState si es teleoperador
+                final bool isTele = (authState.rol ?? '').toLowerCase() == 'teleoperador';
+                int? grupoIdToUse;
+                if (isTele) {
+                  grupoIdToUse = authState.grupoId;
+                  if (grupoIdToUse == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No tienes grupo asignado.')),
+                    );
+                    return;
+                  }
+                } else {
+                  // Supervisor: buscamos al trabajador por correo
+                  final trabajadorService = ref.read(trabajadorServiceProvider);
+                  final trabajadores = await trabajadorService.getAll();
+                  final trabajador = trabajadores.firstWhere(
+                    (t) => t.correo == correo,
+                    orElse: () => throw Exception('Trabajador no encontrado'),
+                  );
+                  if (trabajador.grupoId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No tienes grupo asignado.')),
+                    );
+                    return;
+                  }
+                  grupoIdToUse = trabajador.grupoId;
+                }
+
+                // Preparar el payload para crear la llamada
+                final llamadasService = ref.read(llamadasServiceProvider);
+                final payload = {
+                  'usuarioId': data.usuarioId,
+                  'resumen': data.resumen,
+                  'duracion': data.duracion,
+                  'estado': data.estado,
+                  'observaciones': data.observaciones,
+                  'fecha': data.fecha.toIso8601String(),
+                  'hora': data.hora,
+                  'grupoId': grupoIdToUse,
+                };
+                try {
+                  print('Usuario creando llamada: correo=${authState.correo}, rol=${authState.rol}, grupoId=$grupoIdToUse');
+                  print('Payload comunicacion: $payload');
+                  await llamadasService.create(payload);
+                  Navigator.pop(context, true);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al guardar la llamada: $e')),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+        if (result == true) {
+          setState(() {
+            _llamadasFuture = _cargarLlamadasConGrupo();
+          });
+        }
+      },
+    );
+
+    if (widget.embedded) {
+      return Stack(
+        children: [
+          pageBody,
+          Positioned(right: 18, bottom: 18, child: fab),
+        ],
+      );
+    }
+
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       appBar: appMainAppBar(
@@ -457,103 +565,10 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
-      body: CallsScaffoldBody(
-        llamadasFuture: _llamadasFuture,
-        filtroSeleccionado: filtroSeleccionado,
-        ordenSeleccionado: ordenSeleccionado,
-        textoFiltro: textoFiltro,
-        fechaDesde: fechaDesde,
-        fechaHasta: fechaHasta,
-        aplicarFiltros: _aplicarFiltros,
-        onSearchChanged: _onSearchChanged,
-        onFilterChanged: _onFilterChanged,
-        onSortChanged: _onSortChanged,
-        onFechaDesdeChanged: _onFechaDesdeChanged,
-        onFechaHastaChanged: _onFechaHastaChanged,
-        onLlamadaTap: _mostrarDetalleLlamada,
-      ),
+      body: pageBody,
 
       // -------- BOTÓN FLOTANTE --------
-      floatingActionButton: general_floatingbutton(
-        Icons.add,
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CallFormPage(
-                isEdit: false,
-                buscarUsuarios: _buscarUsuarios,
-                onSubmit: (data) async {
-                  // Obtener correo del usuario logueado
-                  final authState = ref.read(authProvider);
-                  final correo = authState.correo;
-                  if (correo == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No se pudo obtener el usuario logueado.')),
-                    );
-                    return;
-                  }
-                  // Obtener el trabajador actual por correo o usar authState si es teleoperador
-                  final bool isTele = (authState.rol ?? '').toLowerCase() == 'teleoperador';
-                  int? grupoIdToUse;
-                  if (isTele) {
-                    grupoIdToUse = authState.grupoId;
-                    if (grupoIdToUse == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No tienes grupo asignado.')),
-                      );
-                      return;
-                    }
-                  } else {
-                    // Supervisor: buscamos al trabajador por correo
-                    final trabajadorService = ref.read(trabajadorServiceProvider);
-                    final trabajadores = await trabajadorService.getAll();
-                    final trabajador = trabajadores.firstWhere(
-                      (t) => t.correo == correo,
-                      orElse: () => throw Exception('Trabajador no encontrado'),
-                    );
-                    if (trabajador.grupoId == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No tienes grupo asignado.')),
-                      );
-                      return;
-                    }
-                    grupoIdToUse = trabajador.grupoId;
-                  }
-
-                  // Preparar el payload para crear la llamada
-                  final llamadasService = ref.read(llamadasServiceProvider);
-                  final payload = {
-                    'usuarioId': data.usuarioId,
-                    'resumen': data.resumen,
-                    'duracion': data.duracion,
-                    'estado': data.estado,
-                    'observaciones': data.observaciones,
-                    'fecha': data.fecha.toIso8601String(),
-                    'hora': data.hora,
-                    'grupoId': grupoIdToUse,
-                  };
-                  try {
-                    print('Usuario creando llamada: correo=${authState.correo}, rol=${authState.rol}, grupoId=$grupoIdToUse');
-                    print('Payload comunicacion: $payload');
-                    await llamadasService.create(payload);
-                    Navigator.pop(context, true);
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error al guardar la llamada: $e')),
-                    );
-                  }
-                },
-              ),
-            ),
-          );
-          if (result == true) {
-            setState(() {
-              _llamadasFuture = _cargarLlamadasConGrupo();
-            });
-          }
-        },
-      ),
+      floatingActionButton: fab,
     );
   }
 

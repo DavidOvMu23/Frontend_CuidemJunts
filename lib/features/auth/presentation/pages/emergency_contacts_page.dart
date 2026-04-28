@@ -14,13 +14,17 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contact_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_scaffold_body.dart';
 
 class EmergencyContactsPage extends ConsumerStatefulWidget {
-  const EmergencyContactsPage({super.key});
+  final bool embedded;
+
+  const EmergencyContactsPage({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   ConsumerState<EmergencyContactsPage> createState() => _EmergencyContactsPageState();
@@ -69,18 +73,6 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     return filtrados;
   }
 
-  String _pacienteTexto(ContactoEmergencia contacto) {
-    final nombre = (contacto.pacienteNombre ?? '').trim();
-    if (nombre.isNotEmpty) {
-      if ((contacto.dniUsuarioRef ?? '').trim().isNotEmpty) {
-        return '$nombre (${contacto.dniUsuarioRef})';
-      }
-      return nombre;
-    }
-
-    return (contacto.dniUsuarioRef ?? '').trim().isEmpty ? '-' : contacto.dniUsuarioRef!;
-  }
-
   Future<void> _mostrarDetalleContacto(BuildContext context, ContactoEmergencia contacto, bool isSupervisor, Map<String, String> usuariosMap) async {
     final l10n = AppLocalizations.of(context)!;
 
@@ -127,7 +119,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
                       style: IconButton.styleFrom(
-                        foregroundColor: Theme.of(ctx).colorScheme.onSurface.withOpacity(0.4),
+                        foregroundColor: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.4),
                         padding: EdgeInsets.zero,
                       ),
                     ),
@@ -174,25 +166,6 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                 _confirmarEliminar(contacto);
               },
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -279,10 +252,36 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     final userRole = authState.rol;
     final isSupervisor = userRole?.toLowerCase() == 'supervisor';
 
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+
+    final pageBody = EmergencyContactsScaffoldBody(
+      contactosFuture: _contactosFuture,
+      textoFiltro: textoFiltro,
+      aplicarFiltros: _aplicarFiltros,
+      onSearchChanged: _onSearchChanged,
+      onContactoTap: (context, contacto, isSupervisor, usuariosMap) => _mostrarDetalleContacto(context, contacto, isSupervisor, usuariosMap),
+      onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
+    );
+
+    final fab = isSupervisor
+        ? general_floatingbutton(
+            Icons.add,
+            onPressed: () => _abrirFormularioContacto(),
+          )
+        : null;
+
+    if (widget.embedded) {
+      if (fab == null) {
+        return pageBody;
+      }
+
+      return Stack(
+        children: [
+          pageBody,
+          Positioned(right: 18, bottom: 18, child: fab),
+        ],
+      );
+    }
 
     return Scaffold(
       appBar: appMainAppBar(
@@ -327,15 +326,8 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
         },
       ),
-      body: EmergencyContactsScaffoldBody(
-        contactosFuture: _contactosFuture,
-        textoFiltro: textoFiltro,
-        aplicarFiltros: _aplicarFiltros,
-        onSearchChanged: _onSearchChanged,
-        onContactoTap: (context, contacto, isSupervisor, usuariosMap) => _mostrarDetalleContacto(context, contacto, isSupervisor, usuariosMap),
-        onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
-      ),
-      floatingActionButton: isSupervisor ? general_floatingbutton(Icons.add, onPressed: () => _abrirFormularioContacto()) : null,
+      body: pageBody,
+      floatingActionButton: fab,
     );
   }
 }

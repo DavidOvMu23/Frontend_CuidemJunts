@@ -43,7 +43,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get preferences => 'Preferencias';
 
   @override
-  String get mainPage => 'Página principal';
+  String get mainPage => 'Dashboard';
 
   @override
   String get appPreferences => 'Preferencias de la app';
@@ -58,7 +58,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get theme => 'Tema';
 
   @override
-  String get supervisonPanel => 'Panel de Supervisión';
+  String get supervisonPanel => 'Dashboard';
 
   @override
   String get programedCalls => 'Llamadas programadas hoy';

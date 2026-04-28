@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
@@ -20,7 +21,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabaj
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
 class WorkersPage extends ConsumerStatefulWidget {
-  const WorkersPage({super.key});
+  final bool embedded;
+
+  const WorkersPage({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   ConsumerState<WorkersPage> createState() => _WorkersPageState();
@@ -277,6 +283,255 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
+    final fab = (userRole?.toLowerCase() == 'supervisor')
+        ? general_floatingbutton(
+            Icons.add,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CrearTrabajadorPage(),
+                ),
+              );
+
+              setState(() {
+                _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+              });
+            },
+          )
+        : null;
+
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
+
+    final bodyContent = Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Material(
+                borderRadius: BorderRadius.circular(30),
+                child: Padding(
+                  padding: EdgeInsets.all(isDesktop ? 22 : 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.searchWorkers,
+                        style: textTheme.headlineLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      general_busqueda_textfield(
+                        l10n.searchWorkers,
+                        icono: Icons.search,
+                        onChanged: (value) {
+                          setState(() {
+                            textoFiltro = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(
+                            filtroSeleccionado != WorkerFilter.all
+                                ? Icons.filter_alt
+                                : Icons.filter_alt_off,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: DropdownButtonFormField<WorkerFilter>(
+                              initialValue: filtroSeleccionado,
+                              icon: const Icon(Icons.arrow_drop_down),
+                              borderRadius: BorderRadius.circular(12),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              items: [
+                                DropdownMenuItem(
+                                  value: WorkerFilter.all,
+                                  child: Text(l10n.searchAllWorkers),
+                                ),
+                                DropdownMenuItem(
+                                  value: WorkerFilter.supervisors,
+                                  child: Text(l10n.supervisor),
+                                ),
+                                DropdownMenuItem(
+                                  value: WorkerFilter.teleoperators,
+                                  child: Text(l10n.telemarketers),
+                                ),
+                                DropdownMenuItem(
+                                  value: WorkerFilter.withGroup,
+                                  child: Text(
+                                    '${l10n.group_label}: ${l10n.active}',
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: WorkerFilter.withoutGroup,
+                                  child: Text(l10n.noGroupAssigned),
+                                ),
+                              ],
+                              onChanged: (newValue) {
+                                setState(() {
+                                  filtroSeleccionado =
+                                      newValue ?? WorkerFilter.all;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Divider(
+                        height: 8,
+                        color: colorScheme.primary.withValues(alpha: 0.3),
+                      ),
+                      Expanded(
+                        child: FutureBuilder<List<Trabajador>>(
+                          future: _trabajadoresFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const AppSkeletonList(count: 4);
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  l10n.errorLoadingWorkers,
+                                  style: textTheme.bodyMedium,
+                                ),
+                              );
+                            }
+
+                            final trabajadores = snapshot.data ?? [];
+                            final trabajadoresFiltrados = _aplicarFiltros(
+                              trabajadores,
+                            );
+
+                            if (trabajadoresFiltrados.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  l10n.noResultsFound,
+                                  style: textTheme.bodyMedium,
+                                ),
+                              );
+                            }
+
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${l10n.workersFound}: ${trabajadoresFiltrados.length}',
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    general_iconbutton(
+                                      Icons.filter_list,
+                                      onPressed: () =>
+                                          _showSortBottomSheet(context, l10n),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: ListView.separated(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                    itemCount: trabajadoresFiltrados.length,
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(height: 8),
+                                    itemBuilder: (context, index) {
+                                      final trabajador =
+                                          trabajadoresFiltrados[index];
+                                      final grupo =
+                                          (trabajador.grupoNombre ?? '').trim();
+
+                                      return ListTile(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        tileColor: Theme.of(context).cardColor,
+                                        title: Text(
+                                          '${trabajador.nombre} ${trabajador.apellidos}',
+                                          style: textTheme.titleMedium,
+                                        ),
+                                        subtitle: Text(
+                                          '${l10n.email_label}: ${trabajador.correo} · ${l10n.role_label}: ${trabajador.rol} · ${l10n.group_label}: ${grupo.isEmpty ? l10n.noGroupAssigned : grupo}',
+                                          style: textTheme.bodyMedium,
+                                        ),
+                                        trailing: const Icon(
+                                          Icons.chevron_right,
+                                        ),
+                                        onTap: () async {
+                                          final actualizado =
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      EditarTrabajadorPage(
+                                                        trabajador: trabajador,
+                                                      ),
+                                                ),
+                                              );
+                                          if (actualizado == true) {
+                                            setState(() {
+                                              _trabajadoresFuture =
+                                                  _cargarTrabajadoresConGrupo();
+                                            });
+                                          }
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (widget.embedded) {
+      if (fab == null) {
+        return bodyContent;
+      }
+
+      return Stack(
+        children: [
+          bodyContent,
+          Positioned(right: 18, bottom: 18, child: fab),
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: appMainAppBar(
         numeroNotificaciones: notificacionesSinLeerAsync.when(
@@ -346,239 +601,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           );
         },
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.telemarketers,
-              style: textTheme.titleMedium?.copyWith(fontSize: 27),
-            ),
-            Text(l10n.manageWorkers, style: textTheme.bodyMedium),
-            const SizedBox(height: 7),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Material(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.searchWorkers,
-                          style: textTheme.headlineLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        general_busqueda_textfield(
-                          l10n.searchWorkers,
-                          icono: Icons.search,
-                          onChanged: (value) {
-                            setState(() {
-                              textoFiltro = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(
-                              filtroSeleccionado != WorkerFilter.all
-                                  ? Icons.filter_alt
-                                  : Icons.filter_alt_off,
-                              color: colorScheme.primary,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: DropdownButtonFormField<WorkerFilter>(
-                                initialValue: filtroSeleccionado,
-                                icon: const Icon(Icons.arrow_drop_down),
-                                borderRadius: BorderRadius.circular(12),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-                                items: [
-                                  DropdownMenuItem(
-                                    value: WorkerFilter.all,
-                                    child: Text(l10n.searchAllWorkers),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: WorkerFilter.supervisors,
-                                    child: Text(l10n.supervisor),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: WorkerFilter.teleoperators,
-                                    child: Text(l10n.telemarketers),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: WorkerFilter.withGroup,
-                                    child: Text(
-                                      '${l10n.group_label}: ${l10n.active}',
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: WorkerFilter.withoutGroup,
-                                    child: Text(l10n.noGroupAssigned),
-                                  ),
-                                ],
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    filtroSeleccionado =
-                                        newValue ?? WorkerFilter.all;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Divider(
-                          height: 8,
-                          color: colorScheme.primary.withValues(alpha: 0.3),
-                        ),
-                        Expanded(
-                          child: FutureBuilder<List<Trabajador>>(
-                            future: _trabajadoresFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              if (snapshot.hasError) {
-                                return Center(
-                                  child: Text(
-                                    l10n.errorLoadingWorkers,
-                                    style: textTheme.bodyMedium,
-                                  ),
-                                );
-                              }
-
-                              final trabajadores = snapshot.data ?? [];
-                              final trabajadoresFiltrados = _aplicarFiltros(
-                                trabajadores,
-                              );
-
-                              if (trabajadoresFiltrados.isEmpty) {
-                                return Center(
-                                  child: Text(
-                                    l10n.noResultsFound,
-                                    style: textTheme.bodyMedium,
-                                  ),
-                                );
-                              }
-
-                              return Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          '${l10n.workersFound}: ${trabajadoresFiltrados.length}',
-                                          style: textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      general_iconbutton(
-                                        Icons.filter_list,
-                                        onPressed: () =>
-                                            _showSortBottomSheet(context, l10n),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Expanded(
-                                    child: ListView.separated(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      itemCount: trabajadoresFiltrados.length,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(height: 8),
-                                      itemBuilder: (context, index) {
-                                        final trabajador =
-                                            trabajadoresFiltrados[index];
-                                        final grupo =
-                                            (trabajador.grupoNombre ?? '')
-                                                .trim();
-
-                                        return ListTile(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          tileColor: Theme.of(
-                                            context,
-                                          ).cardColor,
-                                          title: Text(
-                                            '${trabajador.nombre} ${trabajador.apellidos}',
-                                            style: textTheme.titleMedium,
-                                          ),
-                                          subtitle: Text(
-                                            '${l10n.email_label}: ${trabajador.correo} · ${l10n.role_label}: ${trabajador.rol} · ${l10n.group_label}: ${grupo.isEmpty ? l10n.noGroupAssigned : grupo}',
-                                            style: textTheme.bodyMedium,
-                                          ),
-                                          trailing: const Icon(
-                                            Icons.chevron_right,
-                                          ),
-                                          onTap: () async {
-                                            final actualizado = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => EditarTrabajadorPage(trabajador: trabajador),
-                                              ),
-                                            );
-                                            if (actualizado == true) {
-                                              setState(() {
-                                                _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-                                              });
-                                            }
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: (userRole?.toLowerCase() == 'supervisor')
-          ? general_floatingbutton(
-              Icons.add,
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CrearTrabajadorPage(),
-                  ),
-                );
-
-                setState(() {
-                  _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-                });
-              },
-            )
-          : null,
+      body: bodyContent,
+      floatingActionButton: fab,
     );
   }
 }

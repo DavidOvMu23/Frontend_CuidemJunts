@@ -25,7 +25,12 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 // Controlador principal de la vista de usuarios
 // Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos
 class UsersPage extends ConsumerStatefulWidget {
-  const UsersPage({super.key});
+  final bool embedded;
+
+  const UsersPage({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   ConsumerState<UsersPage> createState() => _UsersPageState();
@@ -209,7 +214,43 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
-    //
+    final pageBody = UsersScaffoldBody(
+      usuariosFuture: _usuariosFuture,
+      filtroSeleccionado: filtroSeleccionado,
+      ordenSeleccionado: ordenSeleccionado,
+      textoFiltro: textoFiltro,
+      aplicarFiltros: _aplicarFiltros,
+      onSearchChanged: _onSearchChanged,
+      onFilterChanged: _onFilterChanged,
+      onSortChanged: _onSortChanged,
+      onUsuarioTap: _mostrarDetalleUsuario,
+      onUsuarioEdit: _editarUsuario,
+    );
+
+    final fab = general_floatingbutton(
+      Icons.add,
+      onPressed: () async {
+        final resultado = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CrearUserPage()),
+        );
+        if (resultado == true) {
+          setState(() {
+            _usuariosFuture = _cargarUsuariosConContactos();
+          });
+        }
+      },
+    );
+
+    if (widget.embedded) {
+      return Stack(
+        children: [
+          pageBody,
+          Positioned(right: 18, bottom: 18, child: fab),
+        ],
+      );
+    }
+
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       appBar: appMainAppBar(
@@ -281,34 +322,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ),
 
       // -------- CONTENIDO PRINCIPAL --------
-      body: UsersScaffoldBody(
-        usuariosFuture: _usuariosFuture,
-        filtroSeleccionado: filtroSeleccionado,
-        ordenSeleccionado: ordenSeleccionado,
-        textoFiltro: textoFiltro,
-        aplicarFiltros: _aplicarFiltros,
-        onSearchChanged: _onSearchChanged,
-        onFilterChanged: _onFilterChanged,
-        onSortChanged: _onSortChanged,
-        onUsuarioTap: _mostrarDetalleUsuario,
-        onUsuarioEdit: _editarUsuario,
-      ),
+      body: pageBody,
 
       // -------- BOTÓN FLOTANTE --------
-      floatingActionButton: general_floatingbutton(
-        Icons.add,
-        onPressed: () async {
-          final resultado = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CrearUserPage()),
-          );
-          if (resultado == true) {
-            setState(() {
-              _usuariosFuture = _cargarUsuariosConContactos();
-            });
-          }
-        },
-      ),
+      floatingActionButton: fab,
     );
   }
 }

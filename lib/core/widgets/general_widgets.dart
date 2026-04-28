@@ -45,7 +45,27 @@ Widget general_badge(
 // FILLED BUTTON
 // Botón grande para acciones principales
 Widget general_filledbutton(String texto, {required VoidCallback onPressed}) {
-  return FilledButton(onPressed: onPressed, child: Text(texto));
+  return FilledButton(
+    onPressed: onPressed,
+    style: ButtonStyle(
+      animationDuration: const Duration(milliseconds: 140),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.black.withValues(alpha: 0.16);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return Colors.white.withValues(alpha: 0.10);
+        }
+        return null;
+      }),
+      elevation: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) return 0;
+        if (states.contains(WidgetState.hovered)) return 3;
+        return 1;
+      }),
+    ),
+    child: Text(texto),
+  );
 }
 
 // TEXT BUTTON

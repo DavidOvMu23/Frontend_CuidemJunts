@@ -8,18 +8,88 @@ class SearchAndFilterSection extends StatelessWidget {
   final UsersPageFilter filtroSeleccionado;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<UsersPageFilter> onFilterChanged;
+  final bool isDesktop;
 
   const SearchAndFilterSection({
     super.key,
     required this.filtroSeleccionado,
     required this.onSearchChanged,
     required this.onFilterChanged,
+    this.isDesktop = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+
+    final filterSelector = Row(
+      children: [
+        Icon(
+          filtroSeleccionado != UsersPageFilter.all
+              ? Icons.filter_alt
+              : Icons.filter_alt_off,
+          color: colorScheme.primary,
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: DropdownButtonFormField<UsersPageFilter>(
+            initialValue: filtroSeleccionado,
+            icon: const Icon(Icons.arrow_drop_down),
+            borderRadius: BorderRadius.circular(12),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            items: [
+              DropdownMenuItem(
+                value: UsersPageFilter.all,
+                child: Text(l10n.searchAllUsers),
+              ),
+              DropdownMenuItem(
+                value: UsersPageFilter.ningunaDep,
+                child: Text(l10n.searchNoDependency),
+              ),
+              DropdownMenuItem(
+                value: UsersPageFilter.leve,
+                child: Text(l10n.searchModerateDependency),
+              ),
+              DropdownMenuItem(
+                value: UsersPageFilter.medio,
+                child: Text(l10n.searchSevereDependency),
+              ),
+              DropdownMenuItem(
+                value: UsersPageFilter.severo,
+                child: Text(l10n.searchHighDependency),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) onFilterChanged(value);
+            },
+          ),
+        ),
+      ],
+    );
+
+    if (isDesktop) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: general_busqueda_textfield(
+              l10n.searchUser,
+              icono: Icons.search,
+              onChanged: onSearchChanged,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(flex: 2, child: filterSelector),
+        ],
+      );
+    }
 
     return Column(
       children: [
@@ -32,55 +102,7 @@ class SearchAndFilterSection extends StatelessWidget {
         const SizedBox(height: 12),
 
         // Dropdown para filtrar por nivel de dependencia
-        Row(
-          children: [
-            Icon(
-              filtroSeleccionado != UsersPageFilter.all
-                  ? Icons.filter_alt
-                  : Icons.filter_alt_off,
-              color: colorScheme.primary,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: DropdownButtonFormField<UsersPageFilter>(
-                initialValue: filtroSeleccionado,
-                icon: const Icon(Icons.arrow_drop_down),
-                borderRadius: BorderRadius.circular(12),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: UsersPageFilter.all,
-                    child: Text(l10n.searchAllUsers),
-                  ),
-                  DropdownMenuItem(
-                    value: UsersPageFilter.ningunaDep,
-                    child: Text(l10n.searchNoDependency),
-                  ),
-                  DropdownMenuItem(
-                    value: UsersPageFilter.leve,
-                    child: Text(l10n.searchModerateDependency),
-                  ),
-                  DropdownMenuItem(
-                    value: UsersPageFilter.medio,
-                    child: Text(l10n.searchSevereDependency),
-                  ),
-                  DropdownMenuItem(
-                    value: UsersPageFilter.severo,
-                    child: Text(l10n.searchHighDependency),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) onFilterChanged(value);
-                },
-              ),
-            ),
-          ],
-        ),
+        filterSelector,
       ],
     );
   }

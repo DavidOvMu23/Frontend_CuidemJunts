@@ -156,12 +156,16 @@ class _CallFormPageState extends State<CallFormPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.isEdit ? l10n.editCall : l10n.createCall),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

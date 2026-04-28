@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 // Cuerpo principal de la pantalla de contactos de emergencia,
@@ -30,20 +31,18 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.emergencyContacts,
-            style: textTheme.titleMedium?.copyWith(fontSize: 27),
-          ),
-          Text(l10n.manageEmergencyContacts, style: textTheme.bodyMedium),
-          const SizedBox(height: 7),
+          const SizedBox(height: 16),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
@@ -54,14 +53,6 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        l10n.searchEmergencyContacts,
-                        style: textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
                       general_busqueda_textfield(
                         l10n.searchEmergencyContacts,
                         icono: Icons.search,
@@ -78,9 +69,7 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
+                              return const AppSkeletonList(count: 4);
                             }
 
                             if (snapshot.hasError) {

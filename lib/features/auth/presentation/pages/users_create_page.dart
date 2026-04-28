@@ -186,6 +186,9 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
     final userName = authState.nombre;
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     return Scaffold(
       appBar: appMainAppBar(
@@ -240,7 +243,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
         },
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

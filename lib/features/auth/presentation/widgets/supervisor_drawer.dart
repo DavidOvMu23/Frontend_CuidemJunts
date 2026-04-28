@@ -181,10 +181,6 @@ Drawer appDrawer({
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                subtitle: Text(
-                  userRole ?? 'Sin rol',
-                  style: textTheme.bodyMedium,
-                ),
               ),
               const SizedBox(height: 8),
               general_listtile_logout(

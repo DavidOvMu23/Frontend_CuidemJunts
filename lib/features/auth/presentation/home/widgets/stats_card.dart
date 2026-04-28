@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 
 // Tarjeta de estadística que muestra un contador con icono
 class StatsCard extends StatelessWidget {
@@ -42,7 +43,7 @@ class StatsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   isLoading
-                      ? const CircularProgressIndicator()
+                      ? const AppSkeletonBox(width: 92, height: 38)
                       : Text(value, style: textTheme.displayMedium),
                 ],
               ),

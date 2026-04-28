@@ -19,7 +19,12 @@ import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 // -------- PÁGINA DE PREFERENCIAS --------
 // Configuración de idioma y tema sin salir de la app.
 class PreferencesPage extends ConsumerStatefulWidget {
-  const PreferencesPage({super.key});
+  final bool embedded;
+
+  const PreferencesPage({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   ConsumerState<PreferencesPage> createState() => _PreferencesPageState();
@@ -67,6 +72,127 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
       return const Scaffold(
         body: Center(child: Text('No hay usuario autenticado')),
       );
+    }
+
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
+
+    final bodyContent = Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            Material(
+              borderRadius: BorderRadius.circular(30),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // -------- ZONA DE IDIOMA --------
+                    // ListTile + Dropdown para cambiar el idioma de toda la app.
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.lenguagePreferences,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                          DropdownButton<AppLanguage>(
+                            value: _languageFromLocale(
+                              Localizations.localeOf(context),
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            onChanged: (AppLanguage? newValue) {
+                              if (newValue == null) return;
+                              final locale = _localeFromLanguage(newValue);
+                              ref
+                                  .read(localeProvider.notifier)
+                                  .setLocale(locale);
+                            },
+                            items: [
+                              DropdownMenuItem<AppLanguage>(
+                                value: AppLanguage.es,
+                                child: Text(l10n.languageSpanish),
+                              ),
+                              DropdownMenuItem<AppLanguage>(
+                                value: AppLanguage.ca,
+                                child: Text(l10n.languageCatalan),
+                              ),
+                              DropdownMenuItem<AppLanguage>(
+                                value: AppLanguage.en,
+                                child: Text(l10n.languageEnglish),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // -------- ZONA DE TEMA --------
+                    // SwitchListTile para activar/desactivar modo oscuro.
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.theme,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Icons.dark_mode_rounded
+                                : Icons.light_mode_rounded,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                      value: Theme.of(context).brightness == Brightness.dark,
+                      onChanged: (value) =>
+                          ref.read(themeProvider.notifier).setTheme(value),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: general_filledbutton(
+                l10n.viewWidgetCatalog,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CatalogPage(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (widget.embedded) {
+      return bodyContent;
     }
 
     return Scaffold(
@@ -140,123 +266,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
       ),
 
       // -------- CUERPO  --------
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.preferences,
-                style: textTheme.titleMedium?.copyWith(fontSize: 27),
-              ),
-
-              const SizedBox(height: 10),
-              Material(
-                borderRadius: BorderRadius.circular(30),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // -------- ZONA DE IDIOMA --------
-                      // ListTile + Dropdown para cambiar el idioma de toda la app.
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l10n.lenguagePreferences,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                            ),
-                            DropdownButton<AppLanguage>(
-                              value: _languageFromLocale(
-                                Localizations.localeOf(context),
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              onChanged: (AppLanguage? newValue) {
-                                if (newValue == null) return;
-                                final locale = _localeFromLanguage(newValue);
-                                ref
-                                    .read(localeProvider.notifier)
-                                    .setLocale(locale);
-                              },
-                              items: [
-                                DropdownMenuItem<AppLanguage>(
-                                  value: AppLanguage.es,
-                                  child: Text(l10n.languageSpanish),
-                                ),
-                                DropdownMenuItem<AppLanguage>(
-                                  value: AppLanguage.ca,
-                                  child: Text(l10n.languageCatalan),
-                                ),
-                                DropdownMenuItem<AppLanguage>(
-                                  value: AppLanguage.en,
-                                  child: Text(l10n.languageEnglish),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // -------- ZONA DE TEMA --------
-                      // SwitchListTile para activar/desactivar modo oscuro.
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.theme,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? Icons.dark_mode_rounded
-                                  : Icons.light_mode_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ],
-                        ),
-                        value: Theme.of(context).brightness == Brightness.dark,
-                        onChanged: (value) =>
-                            ref.read(themeProvider.notifier).setTheme(value),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: general_filledbutton(
-                  l10n.viewWidgetCatalog,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CatalogPage(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: bodyContent,
     );
   }
 }

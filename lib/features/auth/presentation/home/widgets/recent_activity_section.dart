@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/call_card.dart';
 
@@ -34,7 +35,7 @@ class RecentActivitySection extends StatelessWidget {
 
             // Divisor
             const SizedBox(height: 2),
-            Divider(color: colorScheme.primary.withOpacity(0.25)),
+            Divider(color: colorScheme.primary.withValues(alpha: 0.25)),
 
             // Contenido: actividad, loading o error
             callsAsync.when(
@@ -50,13 +51,13 @@ class RecentActivitySection extends StatelessWidget {
                           Icon(
                             Icons.electric_bolt,
                             size: 48,
-                            color: colorScheme.primary.withOpacity(0.25),
+                            color: colorScheme.primary.withValues(alpha: 0.25),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             l10n.nothingActivityRecent,
                             style: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.6),
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -104,10 +105,14 @@ class RecentActivitySection extends StatelessWidget {
                   ),
                 );
               },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
+              loading: () => const Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Column(
+                  children: [
+                    AppSkeletonCard(height: 118),
+                    SizedBox(height: 10),
+                    AppSkeletonCard(height: 118),
+                  ],
                 ),
               ),
               error: (_, __) => Padding(

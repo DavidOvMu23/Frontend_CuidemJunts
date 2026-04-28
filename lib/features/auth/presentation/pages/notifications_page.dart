@@ -15,7 +15,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notifi
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
 class NotificationsPage extends ConsumerWidget {
-  const NotificationsPage({super.key});
+  final bool embedded;
+
+  const NotificationsPage({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,6 +34,108 @@ class NotificationsPage extends ConsumerWidget {
 
     final notificacionesAsync = ref.watch(notificacionesProvider);
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
+
+    final bodyContent = Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Material(
+                borderRadius: BorderRadius.circular(30),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: notificacionesAsync.when(
+                    data: (notificaciones) {
+                      if (notificaciones.isEmpty) {
+                        return Center(
+                          child: Text(
+                            l10n.noNotifications,
+                            style: textTheme.bodyMedium,
+                          ),
+                        );
+                      }
+
+                      final sinLeer = notificaciones
+                          .where((n) => n.esSinLeer)
+                          .toList();
+                      final leidas = notificaciones
+                          .where((n) => n.esLeida)
+                          .toList();
+                      final otras = notificaciones
+                          .where((n) => !n.esSinLeer && !n.esLeida)
+                          .toList();
+
+                      return ListView(
+                        children: [
+                          _NotificationSection(
+                            title: l10n.unread,
+                            notifications: sinLeer,
+                            icon: Icons.mark_email_unread_outlined,
+                            color: colorScheme.primary,
+                            onTapNotification: (notif) {
+                              _showNotificationDetail(context, l10n, notif);
+                            },
+                            onMarkAsRead: (notif) async {
+                              await ref
+                                  .read(notificacionServiceProvider)
+                                  .markAsRead(notif.id);
+                              ref.invalidate(notificacionesProvider);
+                              general_snackbar(context, l10n.read, 1);
+                            },
+                          ),
+                          _NotificationSection(
+                            title: l10n.read,
+                            notifications: leidas,
+                            icon: Icons.drafts_outlined,
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
+                            onTapNotification: (notif) {
+                              _showNotificationDetail(context, l10n, notif);
+                            },
+                          ),
+                          _NotificationSection(
+                            title: l10n.all,
+                            notifications: otras,
+                            icon: Icons.notifications_none,
+                            color: colorScheme.onSurface,
+                            onTapNotification: (notif) {
+                              _showNotificationDetail(context, l10n, notif);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (_, __) => Center(
+                      child: Text(
+                        l10n.errorNotificationsLoading,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (embedded) {
+      return bodyContent;
+    }
 
     return Scaffold(
       appBar: appMainAppBar(
@@ -92,104 +199,7 @@ class NotificationsPage extends ConsumerWidget {
           );
         },
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.notifications,
-              style: textTheme.titleMedium?.copyWith(fontSize: 27),
-            ),
-            Text(l10n.notificationsPressed, style: textTheme.bodyMedium),
-            const SizedBox(height: 7),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Material(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: notificacionesAsync.when(
-                      data: (notificaciones) {
-                        if (notificaciones.isEmpty) {
-                          return Center(
-                            child: Text(
-                              l10n.noNotifications,
-                              style: textTheme.bodyMedium,
-                            ),
-                          );
-                        }
-
-                        final sinLeer = notificaciones
-                            .where((n) => n.esSinLeer)
-                            .toList();
-                        final leidas = notificaciones
-                            .where((n) => n.esLeida)
-                            .toList();
-                        final otras = notificaciones
-                            .where((n) => !n.esSinLeer && !n.esLeida)
-                            .toList();
-
-                        return ListView(
-                          children: [
-                            _NotificationSection(
-                              title: l10n.unread,
-                              notifications: sinLeer,
-                              icon: Icons.mark_email_unread_outlined,
-                              color: colorScheme.primary,
-                              onTapNotification: (notif) {
-                                _showNotificationDetail(context, l10n, notif);
-                              },
-                              onMarkAsRead: (notif) async {
-                                await ref
-                                    .read(notificacionServiceProvider)
-                                    .markAsRead(notif.id);
-                                ref.invalidate(notificacionesProvider);
-                                general_snackbar(context, l10n.read, 1);
-                              },
-                            ),
-                            _NotificationSection(
-                              title: l10n.read,
-                              notifications: leidas,
-                              icon: Icons.drafts_outlined,
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
-                              onTapNotification: (notif) {
-                                _showNotificationDetail(context, l10n, notif);
-                              },
-                            ),
-                            _NotificationSection(
-                              title: l10n.all,
-                              notifications: otras,
-                              icon: Icons.notifications_none,
-                              color: colorScheme.onSurface,
-                              onTapNotification: (notif) {
-                                _showNotificationDetail(context, l10n, notif);
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (_, __) => Center(
-                        child: Text(
-                          l10n.errorNotificationsLoading,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.error,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: bodyContent,
     );
   }
 

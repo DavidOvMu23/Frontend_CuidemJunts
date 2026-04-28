@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
@@ -40,51 +39,38 @@ class UsersScaffoldBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final dateFormatter = DateFormat('dd/MM/yyyy');
-    final l10n = AppLocalizations.of(context)!;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título de la sección
-          Text(
-            l10n.users,
-            style: textTheme.titleMedium?.copyWith(fontSize: 27),
-          ),
-          Text(l10n.manageUsers, style: textTheme.bodyMedium),
-          const SizedBox(height: 7),
+          const SizedBox(height: 16),
 
-          // Contenedor principal con fondo blanco/tarjeta
+          // Contenedor principal con fondo de tarjeta
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: Material(
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(isDesktop ? 22 : 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        l10n.searchUsers,
-                        style: textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-
                       // 1. Sección de búsqueda y filtros
                       SearchAndFilterSection(
                         filtroSeleccionado: filtroSeleccionado,
                         onSearchChanged: onSearchChanged,
                         onFilterChanged: onFilterChanged,
+                        isDesktop: isDesktop,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Divider(
                         height: 8,
                         color: colorScheme.primary.withValues(alpha: 0.3),

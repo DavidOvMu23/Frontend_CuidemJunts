@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // Tarjeta que muestra la información resumida de un usuario.
-class UserCard extends StatelessWidget {
+class UserCard extends StatefulWidget {
   final Usuario usuario;
   final TextTheme textTheme;
   final ColorScheme colorScheme;
@@ -21,10 +21,17 @@ class UserCard extends StatelessWidget {
     required this.onTap,
   });
 
+  @override
+  State<UserCard> createState() => _UserCardState();
+}
+
+class _UserCardState extends State<UserCard> {
+  bool _hovered = false;
+
   // Traduce el código de dependencia (G1, G2...)
   String _dependenciaTexto(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final raw = usuario.nivelDependencia.trim();
+    final raw = widget.usuario.nivelDependencia.trim();
     if (raw.isEmpty) return l10n.sinEspecificar;
     final upper = raw.toUpperCase();
     switch (upper) {
@@ -49,7 +56,7 @@ class UserCard extends StatelessWidget {
 
   // Asigna un color de fondo según la severidad de la dependencia
   Color _dependenciaBg(BuildContext context) {
-    final raw = usuario.nivelDependencia.trim().toUpperCase();
+    final raw = widget.usuario.nivelDependencia.trim().toUpperCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     switch (raw) {
       case 'G1':
@@ -67,13 +74,13 @@ class UserCard extends StatelessWidget {
       case 'SIN DEPENDENCIA':
         return Theme.of(context).colorScheme.surfaceContainerHighest;
       default:
-        return colorScheme.surface;
+        return widget.colorScheme.surface;
     }
   }
 
   // Asigna el color del texto para asegurar contraste con el fondo
   Color _dependenciaText(BuildContext context) {
-    final raw = usuario.nivelDependencia.trim().toUpperCase();
+    final raw = widget.usuario.nivelDependencia.trim().toUpperCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     switch (raw) {
       case 'G1':
@@ -95,109 +102,126 @@ class UserCard extends StatelessWidget {
       case 'SIN DEPENDENCIA':
         return Theme.of(context).colorScheme.onSurface;
       default:
-        return colorScheme.onSurface;
+        return widget.colorScheme.onSurface;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final fechaNacimiento = dateFormatter.format(usuario.f_nac);
-    final direccion = usuario.direccion.trim();
+    final fechaNacimiento = widget.dateFormatter.format(widget.usuario.f_nac);
+    final direccion = widget.usuario.direccion.trim();
 
     // Calculamos los colores antes de pintar
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
 
-    return Material(
-      color: Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 170),
+      curve: Curves.easeOutCubic,
+      transform: Matrix4.translationValues(0.0, _hovered ? -2.0 : 0.0, 0.0),
+      child: Material(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 40, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Nombre del usuario
-                  Text(
-                    '${usuario.nombre} ${usuario.apellidos}',
-                    style: textTheme.headlineLarge?.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  // Datos personales
-                  Row(
-                    children: [
-                      const Icon(Icons.cake, size: 18),
-                      const SizedBox(width: 6),
-                      Text(fechaNacimiento, style: textTheme.bodyMedium),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.phone, size: 18),
-                      const SizedBox(width: 6),
-                      Text(usuario.telefono, style: textTheme.bodyMedium),
-                    ],
-                  ),
-
-                  // Dirección (solo si existe)
-                  if (direccion.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.location_on, size: 18),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(direccion, style: textTheme.bodyMedium),
-                        ),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-
-                  // Badge de dependencia
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: depBg,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _dependenciaTexto(context),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: depText,
+        elevation: _hovered ? 3 : 0,
+        shadowColor: widget.colorScheme.primary.withValues(alpha: 0.22),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: widget.onTap,
+          onHover: (value) {
+            if (_hovered == value) return;
+            setState(() => _hovered = value);
+          },
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 40, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Nombre del usuario
+                    Text(
+                      '${widget.usuario.nombre} ${widget.usuario.apellidos}',
+                      style: widget.textTheme.headlineLarge?.copyWith(
+                        fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            // Flecha (Centrada verticalmente a la derecha)
-            Positioned(
-              right: 12,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    const SizedBox(height: 6),
+
+                    // Datos personales
+                    Row(
+                      children: [
+                        const Icon(Icons.cake, size: 18),
+                        const SizedBox(width: 6),
+                        Text(fechaNacimiento, style: widget.textTheme.bodyMedium),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.phone, size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          widget.usuario.telefono,
+                          style: widget.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+
+                    // Dirección (solo si existe)
+                    if (direccion.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.location_on, size: 18),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              direccion,
+                              style: widget.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+
+                    // Badge de dependencia
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: depBg,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _dependenciaTexto(context),
+                        style: widget.textTheme.bodySmall?.copyWith(
+                          color: depText,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              // Flecha (Centrada verticalmente a la derecha)
+              Positioned(
+                right: 12,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: Icon(
+                    Icons.chevron_right,
+                    color: widget.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @mainPage.
   ///
   /// In es, this message translates to:
-  /// **'Página principal'**
+  /// **'Dashboard'**
   String get mainPage;
 
   /// No description provided for @appPreferences.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @supervisonPanel.
   ///
   /// In es, this message translates to:
-  /// **'Panel de Supervisión'**
+  /// **'Dashboard'**
   String get supervisonPanel;
 
   /// No description provided for @programedCalls.

@@ -51,7 +51,6 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context)!;
     final contactoService = ref.read(contactoEmergenciaServiceProvider);
-
     final nombre = _nombreCtrl.text.trim();
     final apellidos = _apellidosCtrl.text.trim();
     final telefono = _telefonoCtrl.text.trim();
@@ -60,18 +59,11 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
       return;
     }
 
-    // Validar DNIs seleccionados (si hay) antes de enviarlos
-      final dniValidator = RegExp(r'^[0-9]{8}[A-Z]$');
-      final dniRegexCorrect = RegExp(r'^[0-9]{8}[A-Z]$');
-      final dniRegexFinal = RegExp(r'^[0-9]{8}[A-Z]$');
-      final dniPattern = RegExp(r'^[0-9]{8}[A-Z]$');
-      final dniCorrect = RegExp(r'^[0-9]{8}[A-Z]$');
-    // Normalize and validate DNIs: uppercase and 8 digits + letter
+    // Normalizar y validar DNIs seleccionados
     final normalizedDnis = <String>[];
-      final dniCheck = RegExp(r'^[0-9]{8}[A-Z]$');
     for (final d in _selectedDnis) {
       final up = d.trim().toUpperCase();
-        if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(up)) {
+      if (!RegExp(r'^[0-9]{8}[A-Z]\$').hasMatch(up)) {
         general_snackbar_error(context, 'DNI inválido: $d', 3);
         return;
       }
@@ -119,13 +111,15 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
-
     final isEdit = widget.contacto != null;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 1100;
+    final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     return Scaffold(
       appBar: AppBar(title: Text(isEdit ? l10n.edit : l10n.add)),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
