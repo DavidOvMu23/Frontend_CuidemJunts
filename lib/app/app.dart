@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/notification_overlay_widget.dart';
 
 // ----- Widget principal de la aplicación (MaterialApp) -----
 
@@ -61,7 +62,9 @@ class App extends ConsumerWidget {
       // Ya que si luego otro usuario coge el mismo dispositivo va a poder
       // Tener acceso a información sensible de los usuarios, por lo tanto a
       // nosotros no nos interesa hacer la persistencia del usuario
-      home: const LoginPage(),
+      home: Stack(
+        children: [const LoginPage(), const NotificationOverlayWidget()],
+      ),
     );
   }
 }

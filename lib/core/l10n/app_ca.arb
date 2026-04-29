@@ -230,5 +230,8 @@
   "phone": "Telèfon",
   "relation": "Relació",
   "refersToUser": "Referència a usuari",
-  "error": "Error"
+  "error": "Error",
+  "reload": "Recarregar",
+  "search": "Cercar",
+  "archived": "Arxivat"
 }

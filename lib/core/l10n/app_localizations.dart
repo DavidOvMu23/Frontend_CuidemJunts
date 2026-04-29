@@ -1473,6 +1473,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error'**
   String get error;
+
+  /// No description provided for @reload.
+  ///
+  /// In es, this message translates to:
+  /// **'Recargar'**
+  String get reload;
+
+  /// No description provided for @search.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar'**
+  String get search;
+
+  /// No description provided for @archived.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivado'**
+  String get archived;
 }
 
 class _AppLocalizationsDelegate

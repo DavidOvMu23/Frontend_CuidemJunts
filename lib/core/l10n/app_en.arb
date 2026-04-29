@@ -228,5 +228,8 @@
   "phone": "Phone",
   "relation": "Relationship",
   "refersToUser": "Refers to user",
-  "error": "Error"
+  "error": "Error",
+  "reload": "Reload",
+  "search": "Search",
+  "archived": "Archived"
 }

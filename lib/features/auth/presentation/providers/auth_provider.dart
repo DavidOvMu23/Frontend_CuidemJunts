@@ -7,6 +7,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/prefer
 class AuthState {
   final bool isAuthenticated; // ¿Está el usuario logueado?
   final bool loading; // Indica si se está realizando alguna operación asíncrona
+  final int? id; // ID del trabajador
   final String? token; // Token JWT del trabajador
   final String? correo; // Correo del trabajador autenticado
   final String? nombre; // Nombre del trabajador
@@ -17,6 +18,7 @@ class AuthState {
   const AuthState({
     this.isAuthenticated = false,
     this.loading = false,
+    this.id,
     this.token,
     this.correo,
     this.nombre,
@@ -29,6 +31,7 @@ class AuthState {
   AuthState copyWith({
     bool? isAuthenticated,
     bool? loading,
+    int? id,
     String? token,
     String? correo,
     String? nombre,
@@ -39,6 +42,7 @@ class AuthState {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       loading: loading ?? this.loading,
+      id: id ?? this.id,
       token: token ?? this.token,
       correo: correo ?? this.correo,
       nombre: nombre ?? this.nombre,
@@ -69,6 +73,7 @@ class AuthNotifier extends Notifier<AuthState> {
   // Guarda la sesión cuando el trabajador hace login correctamente.
   Future<void> login({
     required String token,
+    required int id,
     required String correo,
     String? nombre,
     String? rol,
@@ -87,6 +92,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = AuthState(
       isAuthenticated: true,
       loading: false,
+      id: id,
       token: token,
       correo: correo,
       nombre: nombre,

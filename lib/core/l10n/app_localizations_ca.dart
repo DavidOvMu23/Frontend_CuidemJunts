@@ -734,4 +734,13 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get error => 'Error';
+
+  @override
+  String get reload => 'Recarregar';
+
+  @override
+  String get search => 'Cercar';
+
+  @override
+  String get archived => 'Arxivat';
 }

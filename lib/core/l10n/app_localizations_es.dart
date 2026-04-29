@@ -734,4 +734,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get error => 'Error';
+
+  @override
+  String get reload => 'Recargar';
+
+  @override
+  String get search => 'Buscar';
+
+  @override
+  String get archived => 'Archivado';
 }

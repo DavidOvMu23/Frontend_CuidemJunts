@@ -235,5 +235,8 @@
   "phone": "Teléfono",
   "relation": "Relación",
   "refersToUser": "Referencia a usuario",
-  "error": "Error"
+  "error": "Error",
+  "reload": "Recargar",
+  "search": "Buscar",
+  "archived": "Archivado"
 }

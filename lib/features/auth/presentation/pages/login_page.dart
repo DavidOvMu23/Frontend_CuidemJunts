@@ -49,14 +49,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final loginResponse = await authService.login(correo, contrasena);
 
       // Guardar sesión con provider
-      await ref.read(authProvider.notifier).login(
-        token: loginResponse.token,
-        correo: loginResponse.trabajador.correo,
-        nombre: loginResponse.trabajador.nombre,
-        rol: loginResponse.trabajador.rol,
-        nia: loginResponse.trabajador.nia,
-        grupoId: loginResponse.trabajador.grupoId,
-      );
+      await ref
+          .read(authProvider.notifier)
+          .login(
+            token: loginResponse.token,
+            id: loginResponse.trabajador.id,
+            correo: loginResponse.trabajador.correo,
+            nombre: loginResponse.trabajador.nombre,
+            rol: loginResponse.trabajador.rol,
+            nia: loginResponse.trabajador.nia,
+            grupoId: loginResponse.trabajador.grupoId,
+          );
 
       if (!mounted) return;
 
@@ -218,7 +221,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             // Card centrada en pantalla
                             Center(
                               child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 480),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 480,
+                                ),
                                 child: Material(
                                   borderRadius: BorderRadius.circular(24),
                                   elevation: 6,
@@ -226,7 +231,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     padding: const EdgeInsets.all(28.0),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
                                       children: [
                                         general_textfield(
                                           'Correo Electrónico',
@@ -246,7 +252,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                             ? const SizedBox(
                                                 width: 48,
                                                 height: 48,
-                                                child: CircularProgressIndicator(),
+                                                child:
+                                                    CircularProgressIndicator(),
                                               )
                                             : general_filledbutton(
                                                 l10n.loginButton,

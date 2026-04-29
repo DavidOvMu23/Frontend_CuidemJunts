@@ -21,7 +21,7 @@ PreferredSizeWidget appMainAppBar({
     actions: [
       general_badge(
         numeroNotificaciones,
-        Icons.notifications,
+        Icons.notifications_active,
         onPressed: onNotifications,
       ), // USA EL PARÁMETRO
     ],
@@ -38,7 +38,11 @@ Widget general_badge(
   return Badge(
     label: Text(numeroNotificaciones.toString()),
     alignment: Alignment.topLeft,
-    child: IconButton(icon: Icon(icono), onPressed: onPressed),
+    child: IconButton(
+      icon: Icon(icono),
+      onPressed: onPressed,
+      tooltip: 'Notificaciones',
+    ),
   );
 }
 

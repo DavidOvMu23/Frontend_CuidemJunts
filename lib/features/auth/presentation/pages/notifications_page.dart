@@ -14,16 +14,21 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_p
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
-class NotificationsPage extends ConsumerWidget {
+class NotificationsPage extends ConsumerStatefulWidget {
   final bool embedded;
 
-  const NotificationsPage({
-    super.key,
-    this.embedded = false,
-  });
+  const NotificationsPage({super.key, this.embedded = false});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+  String _selectedEstado = 'todos';
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
@@ -39,101 +44,141 @@ class NotificationsPage extends ConsumerWidget {
     final isDesktop = width >= 1100;
     final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
-    final bodyContent = Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Material(
-                borderRadius: BorderRadius.circular(30),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: notificacionesAsync.when(
-                    data: (notificaciones) {
-                      if (notificaciones.isEmpty) {
-                        return Center(
-                          child: Text(
-                            l10n.noNotifications,
-                            style: textTheme.bodyMedium,
-                          ),
-                        );
-                      }
-
-                      final sinLeer = notificaciones
-                          .where((n) => n.esSinLeer)
-                          .toList();
-                      final leidas = notificaciones
-                          .where((n) => n.esLeida)
-                          .toList();
-                      final otras = notificaciones
-                          .where((n) => !n.esSinLeer && !n.esLeida)
-                          .toList();
-
-                      return ListView(
-                        children: [
-                          _NotificationSection(
-                            title: l10n.unread,
-                            notifications: sinLeer,
-                            icon: Icons.mark_email_unread_outlined,
-                            color: colorScheme.primary,
-                            onTapNotification: (notif) {
-                              _showNotificationDetail(context, l10n, notif);
-                            },
-                            onMarkAsRead: (notif) async {
-                              await ref
-                                  .read(notificacionServiceProvider)
-                                  .markAsRead(notif.id);
-                              ref.invalidate(notificacionesProvider);
-                              general_snackbar(context, l10n.read, 1);
-                            },
-                          ),
-                          _NotificationSection(
-                            title: l10n.read,
-                            notifications: leidas,
-                            icon: Icons.drafts_outlined,
-                            color: colorScheme.onSurface.withValues(
-                              alpha: 0.7,
-                            ),
-                            onTapNotification: (notif) {
-                              _showNotificationDetail(context, l10n, notif);
-                            },
-                          ),
-                          _NotificationSection(
-                            title: l10n.all,
-                            notifications: otras,
-                            icon: Icons.notifications_none,
-                            color: colorScheme.onSurface,
-                            onTapNotification: (notif) {
-                              _showNotificationDetail(context, l10n, notif);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (_, __) => Center(
-                      child: Text(
-                        l10n.errorNotificationsLoading,
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.error,
-                        ),
-                      ),
-                    ),
-                  ),
+    final bodyContent = Column(
+      children: [
+        // Header con búsqueda y filtros
+        Container(
+          color: colorScheme.surface,
+          padding: EdgeInsets.all(horizontalPadding),
+          child: Column(
+            children: [
+              // Búsqueda
+              SearchBar(
+                hintText: l10n.search,
+                onChanged: (value) {
+                  setState(() => _searchQuery = value);
+                },
+                backgroundColor: const WidgetStatePropertyAll(
+                  Colors.transparent,
                 ),
+                side: WidgetStatePropertyAll(
+                  BorderSide(color: colorScheme.outline),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Filtros
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    FilterChip(
+                      label: Text(l10n.all),
+                      selected: _selectedEstado == 'todos',
+                      onSelected: (selected) {
+                        setState(() => _selectedEstado = 'todos');
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text(l10n.unread),
+                      selected: _selectedEstado == 'sin_leer',
+                      onSelected: (selected) {
+                        setState(() => _selectedEstado = 'sin_leer');
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text(l10n.read),
+                      selected: _selectedEstado == 'leida',
+                      onSelected: (selected) {
+                        setState(() => _selectedEstado = 'leida');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Lista de notificaciones
+        Expanded(
+          child: notificacionesAsync.when(
+            data: (notificaciones) {
+              // Filtrar notificaciones
+              var filtered = notificaciones.where((n) {
+                final estadoMatch =
+                    _selectedEstado == 'todos' || n.estado == _selectedEstado;
+                final searchMatch =
+                    _searchQuery.isEmpty ||
+                    n.contenido.toLowerCase().contains(
+                      _searchQuery.toLowerCase(),
+                    );
+                return estadoMatch && searchMatch;
+              }).toList();
+
+              if (filtered.isEmpty) {
+                return Center(
+                  child: Text(
+                    l10n.noNotifications,
+                    style: textTheme.bodyMedium,
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.all(horizontalPadding),
+                itemCount: filtered.length,
+                itemBuilder: (ctx, index) {
+                  final notif = filtered[index];
+                  return _NotificationTimelineCard(
+                    notif: notif,
+                    colorScheme: colorScheme,
+                    textTheme: textTheme,
+                    l10n: l10n,
+                    onMarkAsRead: () async {
+                      await ref
+                          .read(notificacionServiceProvider)
+                          .markAsRead(notif.id);
+                      ref.invalidate(notificacionesProvider);
+                      if (context.mounted) {
+                        general_snackbar(context, l10n.read, 1);
+                      }
+                    },
+                    onArchive: () async {
+                      await ref
+                          .read(notificacionServiceProvider)
+                          .archive(notif.id);
+                      ref.invalidate(notificacionesProvider);
+                      if (context.mounted) {
+                        general_snackbar(context, l10n.archived, 1);
+                      }
+                    },
+                    onDelete: () async {
+                      await ref
+                          .read(notificacionServiceProvider)
+                          .delete(notif.id);
+                      ref.invalidate(notificacionesProvider);
+                      if (context.mounted) {
+                        general_snackbar(context, l10n.delete, 1);
+                      }
+                    },
+                  );
+                },
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, st) => Center(
+              child: Text(
+                l10n.errorNotificationsLoading,
+                style: textTheme.bodyMedium?.copyWith(color: colorScheme.error),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
 
-    if (embedded) {
+    if (widget.embedded) {
       return bodyContent;
     }
 
@@ -202,99 +247,125 @@ class NotificationsPage extends ConsumerWidget {
       body: bodyContent,
     );
   }
-
-  void _showNotificationDetail(
-    BuildContext context,
-    AppLocalizations l10n,
-    Notificacion notif,
-  ) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('${l10n.notifications} #${notif.id}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              notif.contenido,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              '${l10n.accountStatus}: ${notif.estado}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.close),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class _NotificationSection extends StatelessWidget {
-  final String title;
-  final List<Notificacion> notifications;
-  final IconData icon;
-  final Color color;
-  final void Function(Notificacion) onTapNotification;
-  final Future<void> Function(Notificacion)? onMarkAsRead;
+class _NotificationTimelineCard extends StatelessWidget {
+  final Notificacion notif;
+  final ColorScheme colorScheme;
+  final TextTheme textTheme;
+  final AppLocalizations l10n;
+  final VoidCallback onMarkAsRead;
+  final VoidCallback onArchive;
+  final VoidCallback onDelete;
 
-  const _NotificationSection({
-    required this.title,
-    required this.notifications,
-    required this.icon,
-    required this.color,
-    required this.onTapNotification,
-    this.onMarkAsRead,
+  const _NotificationTimelineCard({
+    required this.notif,
+    required this.colorScheme,
+    required this.textTheme,
+    required this.l10n,
+    required this.onMarkAsRead,
+    required this.onArchive,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final tipoIcono = notif.tipoIcono;
+    final tipoLegible = notif.tipoLegible;
 
-    if (notifications.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: notif.esSinLeer ? 2 : 0,
+      color: notif.esSinLeer
+          ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+          : colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Text(tipoIcono, style: const TextStyle(fontSize: 24)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tipoLegible,
+                        style: textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        notif.estado,
+                        style: textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Estado badge
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.2),
+                    border: Border.all(color: colorScheme.primary),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    notif.estado,
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          ...notifications.map(
-            (notif) => Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              elevation: 0,
-              child: ListTile(
-                leading: Icon(icon, color: color),
-                title: Text(notif.contenido),
-                subtitle: Text('ID: ${notif.id} · ${notif.estado}'),
-                onTap: () => onTapNotification(notif),
-                trailing: notif.esSinLeer && onMarkAsRead != null
-                    ? IconButton(
-                        icon: const Icon(Icons.mark_email_read_outlined),
-                        onPressed: () => onMarkAsRead!(notif),
-                      )
-                    : null,
+            const SizedBox(height: 12),
+            // Contenido
+            Text(notif.contenido, style: textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            // Timestamp
+            Text(
+              'ID: ${notif.id} · ${notif.createdAt.toString().split('.')[0]}',
+              style: textTheme.labelSmall?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            // Acciones
+            Row(
+              children: [
+                if (notif.esSinLeer)
+                  TextButton.icon(
+                    icon: const Icon(Icons.mark_email_read),
+                    label: Text(l10n.read),
+                    onPressed: onMarkAsRead,
+                  ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  icon: const Icon(Icons.archive_outlined),
+                  label: Text(l10n.archived),
+                  onPressed: onArchive,
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  icon: const Icon(Icons.delete_outline),
+                  label: Text(l10n.delete),
+                  onPressed: onDelete,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
