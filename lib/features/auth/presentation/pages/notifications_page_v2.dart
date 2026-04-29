@@ -620,7 +620,7 @@ class _NotificationCard extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Text(notif.tipoIcono, style: const TextStyle(fontSize: 28)),
+            Icon(notif.tipoIcono, size: 28, color: colorScheme.primary),
             const SizedBox(width: 8),
             Expanded(child: Text(notif.tipoLegible)),
           ],

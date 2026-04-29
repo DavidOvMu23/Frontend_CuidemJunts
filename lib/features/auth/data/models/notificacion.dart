@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 // -------- NOTIFICACION MODEL --------
 
 class Notificacion {
@@ -24,7 +26,7 @@ class Notificacion {
       id: json['id_not'] as int,
       contenido: json['contenido'] as String,
       estado: json['estado'] as String,
-      tipo: json['tipo'] as String? ?? 'otro',
+      tipo: json['tipo'] as String? ?? '',
       metadata: json['metadata'] as Map<String, dynamic>?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
@@ -50,23 +52,21 @@ class Notificacion {
       'supervisor_asignado': 'Supervisor Asignado',
       'mensaje': 'Mensaje',
       'alerta': 'Alerta',
-      'otro': 'Otro',
     };
-    return tipoMap[tipo] ?? 'Notificación';
+    return tipoMap[tipo] ?? '';
   }
 
-  // Getter para ícono del tipo
-  String get tipoIcono {
+  // Getter para icono del tipo
+  IconData get tipoIcono {
     const tipoIconMap = {
-      'usuario_nuevo': '👤',
-      'llamada_pending': '📞',
-      'contacto_asignado': '📌',
-      'supervisor_asignado': '👨‍💼',
-      'mensaje': '💬',
-      'alerta': '⚠️',
-      'otro': '🔔',
+      'usuario_nuevo': Icons.person_add_alt_1_outlined,
+      'llamada_pending': Icons.call_outlined,
+      'contacto_asignado': Icons.push_pin_outlined,
+      'supervisor_asignado': Icons.badge_outlined,
+      'mensaje': Icons.chat_bubble_outline,
+      'alerta': Icons.warning_amber_outlined,
     };
-    return tipoIconMap[tipo] ?? '🔔';
+    return tipoIconMap[tipo] ?? Icons.notifications_none_outlined;
   }
 
   // Getter para color del estado (puedes usarlo en UI)
