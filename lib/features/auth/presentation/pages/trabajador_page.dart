@@ -42,6 +42,10 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
   WorkerSort ordenSeleccionado = WorkerSort.nameAZ;
   String textoFiltro = '';
 
+  // Formulario inline
+  bool _esCreacion = false;
+  Trabajador? _trabajadorEnEdicion;
+
   @override
   void initState() {
     super.initState();
@@ -226,11 +230,38 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
   void _showWorkerDetail(BuildContext context, Trabajador trabajador) {
     final l10n = AppLocalizations.of(context)!;
     final grupo = (trabajador.grupoNombre ?? '').trim();
+    final textTheme = Theme.of(context).textTheme;
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('${trabajador.nombre} ${trabajador.apellidos}'),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${trabajador.nombre} ${trabajador.apellidos}',
+                style: textTheme.headlineLarge?.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                setState(() {
+                  _trabajadorEnEdicion = trabajador;
+                  _esCreacion = false;
+                });
+              },
+              icon: const Icon(Icons.edit, size: 20),
+              tooltip: l10n.edit,
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              style: IconButton.styleFrom(
+                foregroundColor: Theme.of(ctx).colorScheme.primary,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,16 +317,10 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     final fab = (userRole?.toLowerCase() == 'supervisor')
         ? general_floatingbutton(
             Icons.add,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CrearTrabajadorPage(),
-                ),
-              );
-
+            onPressed: () {
               setState(() {
-                _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+                _esCreacion = true;
+                _trabajadorEnEdicion = null;
               });
             },
           )
@@ -482,24 +507,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                         trailing: const Icon(
                                           Icons.chevron_right,
                                         ),
-                                        onTap: () async {
-                                          final actualizado =
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EditarTrabajadorPage(
-                                                        trabajador: trabajador,
-                                                      ),
-                                                ),
-                                              );
-                                          if (actualizado == true) {
-                                            setState(() {
-                                              _trabajadoresFuture =
-                                                  _cargarTrabajadoresConGrupo();
-                                            });
-                                          }
-                                        },
+                                        onTap: () => _showWorkerDetail(context, trabajador),
                                       );
                                     },
                                   ),
@@ -519,15 +527,41 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
       ),
     );
 
-    if (widget.embedded) {
-      if (fab == null) {
-        return bodyContent;
-      }
+    final showForm = _esCreacion || _trabajadorEnEdicion != null;
 
+    final pageBody = showForm
+        ? (_esCreacion
+            ? CrearTrabajadorPage(
+                onCancel: () => setState(() {
+                  _esCreacion = false;
+                }),
+                onSaved: () {
+                  setState(() {
+                    _esCreacion = false;
+                    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+                  });
+                },
+              )
+            : EditarTrabajadorPage(
+                trabajador: _trabajadorEnEdicion!,
+                onCancel: () => setState(() {
+                  _trabajadorEnEdicion = null;
+                }),
+                onSaved: () {
+                  setState(() {
+                    _trabajadorEnEdicion = null;
+                    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+                  });
+                },
+              ))
+        : bodyContent;
+
+    if (widget.embedded) {
       return Stack(
         children: [
-          bodyContent,
-          Positioned(right: 18, bottom: 18, child: fab),
+          Positioned.fill(child: pageBody),
+          if (!showForm && fab != null)
+            Positioned(right: 18, bottom: 18, child: fab),
         ],
       );
     }
@@ -601,8 +635,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           );
         },
       ),
-      body: bodyContent,
-      floatingActionButton: fab,
+      body: pageBody,
+      floatingActionButton: showForm ? null : fab,
     );
   }
 }

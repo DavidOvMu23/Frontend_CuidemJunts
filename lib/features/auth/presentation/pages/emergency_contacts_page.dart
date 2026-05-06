@@ -36,6 +36,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
 
   String textoFiltro = '';
 
+  // Formulario inline
+  bool _esCreacion = false;
+  ContactoEmergencia? _contactoEnEdicion;
+
   @override
   void initState() {
     super.initState();
@@ -97,9 +101,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                   ? IconButton(
                       onPressed: () {
                         Navigator.pop(ctx);
-                        // Esperar un microtask antes de abrir otro diálogo para evitar
-                        // conflictos en el árbol de widgets (evita la assertion sobre ancestor).
-                        Future.microtask(() => _abrirFormularioContacto(contacto: contacto));
+                        _abrirFormularioContacto(contacto: contacto);
                       },
                       icon: const Icon(Icons.edit, size: 20),
                       tooltip: l10n.edit,
@@ -126,7 +128,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
           ],
         ),
         content: SizedBox(
-          width: double.maxFinite,
+          width: 500,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,14 +237,11 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     );
   }
 
-  Future<void> _abrirFormularioContacto({ContactoEmergencia? contacto}) async {
-    // Navegar a la página de crear/editar contactos en vez de abrir un diálogo.
-    final resultado = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EmergencyContactCreatePage(contacto: contacto)),
-    );
-
-    if (resultado == true) _recargarContactos();
+  void _abrirFormularioContacto({ContactoEmergencia? contacto}) {
+    setState(() {
+      _contactoEnEdicion = contacto;
+      _esCreacion = contacto == null;
+    });
   }
 
   @override
@@ -254,7 +253,9 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
 
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
-    final pageBody = EmergencyContactsScaffoldBody(
+    final showForm = _esCreacion || _contactoEnEdicion != null;
+
+    final listBody = EmergencyContactsScaffoldBody(
       contactosFuture: _contactosFuture,
       textoFiltro: textoFiltro,
       aplicarFiltros: _aplicarFiltros,
@@ -262,6 +263,23 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
       onContactoTap: (context, contacto, isSupervisor, usuariosMap) => _mostrarDetalleContacto(context, contacto, isSupervisor, usuariosMap),
       onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
     );
+
+    final pageBody = showForm
+        ? EmergencyContactCreatePage(
+            contacto: _contactoEnEdicion,
+            onCancel: () => setState(() {
+              _esCreacion = false;
+              _contactoEnEdicion = null;
+            }),
+            onSaved: () {
+              setState(() {
+                _esCreacion = false;
+                _contactoEnEdicion = null;
+                _contactosFuture = _cargarContactos();
+              });
+            },
+          )
+        : listBody;
 
     final fab = isSupervisor
         ? general_floatingbutton(
@@ -271,14 +289,11 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         : null;
 
     if (widget.embedded) {
-      if (fab == null) {
-        return pageBody;
-      }
-
       return Stack(
         children: [
-          pageBody,
-          Positioned(right: 18, bottom: 18, child: fab),
+          Positioned.fill(child: pageBody),
+          if (!showForm && fab != null)
+            Positioned(right: 18, bottom: 18, child: fab),
         ],
       );
     }
@@ -327,7 +342,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         },
       ),
       body: pageBody,
-      floatingActionButton: fab,
+      floatingActionButton: showForm ? null : fab,
     );
   }
 }

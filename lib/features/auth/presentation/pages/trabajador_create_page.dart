@@ -21,7 +21,9 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_
 
 // Página para crear un nuevo trabajador (teleoperador, supervisor, etc.)
 class CrearTrabajadorPage extends ConsumerStatefulWidget {
-  const CrearTrabajadorPage({super.key});
+  final VoidCallback? onCancel;
+  final VoidCallback? onSaved;
+  const CrearTrabajadorPage({super.key, this.onCancel, this.onSaved});
 
   @override
   ConsumerState<CrearTrabajadorPage> createState() =>
@@ -157,7 +159,11 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
       final trabajadorService = ref.read(trabajadorServiceProvider);
       await trabajadorService.create(payload);
       general_snackbar(context, l10n.workerCreatedSuccessfully, 2);
-      Navigator.pop(context);
+      if (widget.onSaved != null) {
+        widget.onSaved!();
+      } else {
+        Navigator.pop(context);
+      }
     } catch (e) {
       general_snackbar_error(
         context,
@@ -181,6 +187,230 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
     // Genera el formulario
+    final formBody = ResponsiveFormBody(
+      title: l10n.newWorker,
+      form: Form(
+        key: _formKey,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+            final gap = isWide ? 16.0 : 15.0;
+
+            Widget label(String text) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(text, style: textTheme.bodyMedium),
+                );
+
+            Widget fieldGroup(String labelText, Widget field) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [label(labelText), field],
+                );
+
+            Widget fieldRow(Widget left, Widget right) {
+              if (!isWide) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [left, SizedBox(height: gap), right],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: left),
+                  SizedBox(width: gap),
+                  Expanded(child: right),
+                ],
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Row 1: Nombre | Apellidos
+                  fieldRow(
+                    fieldGroup(l10n.name, general_textfield(l10n.name, false, controller: _nombreCtrl)),
+                    fieldGroup(l10n.lastName, general_textfield(l10n.lastName, false, controller: _apellidosCtrl)),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 2: Correo (full width)
+                  fieldGroup(l10n.email, general_textfield(l10n.email, false, controller: _correoCtrl)),
+                  SizedBox(height: gap),
+
+                  // Row 3: Teléfono | Contraseña
+                  fieldRow(
+                    fieldGroup(l10n.telephone, general_textfield(l10n.telephone, false, controller: _telefonoCtrl)),
+                    fieldGroup(
+                      l10n.password,
+                      TextFormField(
+                        controller: _contrasenaCtrl,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: l10n.password,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                        ),
+                        validator: (v) {
+                          if (v == null || v.trim().length < 6) {
+                            return l10n.passwordLengthError;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 4: Rol (full width)
+                  fieldGroup(
+                    l10n.role,
+                    DropdownButtonFormField<String>(
+                      value: _rol,
+                      items: [
+                        DropdownMenuItem(value: 'teleoperador', child: Text(l10n.teleoperator)),
+                        DropdownMenuItem(value: 'supervisor', child: Text(l10n.supervisor)),
+                      ],
+                      onChanged: (v) {
+                        setState(() {
+                          _rol = v ?? 'teleoperador';
+                          if (_rol != 'teleoperador') _grupoId = null;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 5: Role-dependent fields
+                  if (_rol == 'teleoperador')
+                    fieldRow(
+                      fieldGroup(
+                        l10n.nia8digits,
+                        TextFormField(
+                          controller: _niaCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: l10n.nia,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                          ),
+                          validator: (v) {
+                            final s = v?.trim() ?? '';
+                            if (!RegExp(r'^[0-9]{8}$').hasMatch(s)) {
+                              return l10n.invalidNIA;
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      fieldGroup(
+                        l10n.group_label,
+                        _cargandoGrupos
+                            ? const Center(child: CircularProgressIndicator())
+                            : DropdownButtonFormField<int>(
+                                value: _grupoId,
+                                items: _grupos
+                                    .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
+                                          value: g.id,
+                                          child: Text(g.nombre),
+                                        ))
+                                    .toList(),
+                                onChanged: (v) => setState(() => _grupoId = v),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                ),
+                                validator: (v) {
+                                  if (_rol == 'teleoperador' && v == null) {
+                                    return l10n.noGroupAssigned;
+                                  }
+                                  return null;
+                                },
+                              ),
+                      ),
+                    )
+                  else if (_rol == 'supervisor')
+                    fieldGroup(
+                      l10n.dniLabel,
+                      TextFormField(
+                        controller: _dniCtrl,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: InputDecoration(
+                          hintText: l10n.dni,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                        ),
+                        validator: (v) {
+                          final s = (v ?? '').trim().toUpperCase();
+                          if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(s)) {
+                            return l10n.invalidDNI;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: TextButton(
+                          onPressed: () {
+                            if (widget.onCancel != null) {
+                              widget.onCancel!();
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            l10n.cancel,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 140,
+                        child: FilledButton(
+                          onPressed: _submit,
+                          child: Text(l10n.createWorkerBtn),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    if (widget.onCancel != null) {
+      return formBody;
+    }
+
     return Scaffold(
       appBar: appMainAppBar(
         numeroNotificaciones: notificacionesSinLeerAsync.when(
@@ -237,198 +467,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
           );
         },
       ),
-      body: ResponsiveFormBody(
-        title: l10n.newWorker,
-        form: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.newWorker,
-                style: textTheme.titleMedium?.copyWith(fontSize: 22),
-              ),
-              const SizedBox(height: 12),
-
-              // Nombre
-              Text(l10n.name, style: textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              general_textfield(l10n.name, false, controller: _nombreCtrl),
-              const SizedBox(height: 12),
-
-              // Apellidos
-              Text(l10n.lastName, style: textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              general_textfield(
-                l10n.lastName,
-                false,
-                controller: _apellidosCtrl,
-              ),
-              const SizedBox(height: 12),
-
-              // Correo
-              Text(l10n.email, style: textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              general_textfield(l10n.email, false, controller: _correoCtrl),
-              const SizedBox(height: 12),
-
-              // Teléfono
-              Text(l10n.telephone, style: textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              general_textfield(
-                l10n.telephone,
-                false,
-                controller: _telefonoCtrl,
-              ),
-              const SizedBox(height: 12),
-
-              // Contraseña temporal/definitiva
-              Text(l10n.password, style: textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _contrasenaCtrl,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: l10n.password,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().length < 6) {
-                    return l10n.passwordLengthError;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-
-              // Rol
-              Text(l10n.role, style: textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                value: _rol,
-                items: [
-                  DropdownMenuItem(
-                    value: 'teleoperador',
-                    child: Text(l10n.teleoperator),
-                  ),
-                  DropdownMenuItem(
-                    value: 'supervisor',
-                    child: Text(l10n.supervisor),
-                  ),
-                ],
-                onChanged: (v) {
-                  setState(() {
-                    _rol = v ?? 'teleoperador';
-                    if (_rol != 'teleoperador') _grupoId = null;
-                  });
-                },
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Campos dependientes del rol
-              if (_rol == 'teleoperador') ...[
-                const SizedBox(height: 18),
-                Text(l10n.nia8digits, style: textTheme.bodyMedium),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _niaCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: l10n.nia,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                  ),
-                  validator: (v) {
-                    final s = v?.trim() ?? '';
-                    if (!RegExp(r'^[0-9]{8}$').hasMatch(s)) {
-                      return l10n.invalidNIA;
-                    }
-                    return null;
-                  },
-                ),
-                // Grupo (obligatorio)
-                const SizedBox(height: 12),
-                Text(l10n.group_label, style: textTheme.bodyMedium),
-                const SizedBox(height: 6),
-                _cargandoGrupos
-                    ? Center(child: CircularProgressIndicator())
-                    : DropdownButtonFormField<int>(
-                        value: _grupoId,
-                        items: _grupos
-                            .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
-                                  value: g.id,
-                                  child: Text(g.nombre),
-                                ))
-                            .toList(),
-                        onChanged: (v) => setState(() => _grupoId = v),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                        ),
-                        validator: (v) {
-                          if (_rol == 'teleoperador' && v == null) {
-                            return l10n.noGroupAssigned;
-                          }
-                          return null;
-                        },
-                      ),
-                const SizedBox(height: 12),
-              ] else if (_rol == 'supervisor') ...[
-                Text(l10n.dniLabel, style: textTheme.bodyMedium),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _dniCtrl,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: InputDecoration(
-                    hintText: l10n.dni,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                  ),
-                  validator: (v) {
-                    final s = (v ?? '').trim().toUpperCase();
-                    if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(s)) {
-                      return l10n.invalidDNI;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              Row(
-                children: [
-                  Expanded(
-                    child: general_filledbutton(
-                      l10n.createWorkerBtn,
-                      onPressed: _submit,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: formBody,
     );
   }
 }

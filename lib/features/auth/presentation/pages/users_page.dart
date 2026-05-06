@@ -45,6 +45,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   String textoFiltro = '';
   UsersPageSort ordenSeleccionado = UsersPageSort.noneAZ;
 
+  // Formulario inline
+  bool _esCreacion = false;
+  Usuario? _usuarioEnEdicion;
+
   @override
   void initState() {
     super.initState();
@@ -119,18 +123,11 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     );
   }
 
-  void _editarUsuario(BuildContext context, Usuario usuario) async {
-    final resultado = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CrearUserPage(usuario: usuario)),
-    );
-
-    // Si se editó correctamente, recarga la lista
-    if (resultado == true) {
-      setState(() {
-        _usuariosFuture = _cargarUsuariosConContactos();
-      });
-    }
+  void _editarUsuario(BuildContext context, Usuario usuario) {
+    setState(() {
+      _usuarioEnEdicion = usuario;
+      _esCreacion = false;
+    });
   }
 
   // Filtra y ordena la lista de usuarios según el estado actual
@@ -214,7 +211,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
-    final pageBody = UsersScaffoldBody(
+    final showForm = _esCreacion || _usuarioEnEdicion != null;
+
+    final listBody = UsersScaffoldBody(
       usuariosFuture: _usuariosFuture,
       filtroSeleccionado: filtroSeleccionado,
       ordenSeleccionado: ordenSeleccionado,
@@ -227,26 +226,38 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       onUsuarioEdit: _editarUsuario,
     );
 
+    final pageBody = showForm
+        ? CrearUserPage(
+            usuario: _usuarioEnEdicion,
+            onCancel: () => setState(() {
+              _esCreacion = false;
+              _usuarioEnEdicion = null;
+            }),
+            onSaved: () {
+              setState(() {
+                _esCreacion = false;
+                _usuarioEnEdicion = null;
+                _usuariosFuture = _cargarUsuariosConContactos();
+              });
+            },
+          )
+        : listBody;
+
     final fab = general_floatingbutton(
       Icons.add,
-      onPressed: () async {
-        final resultado = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CrearUserPage()),
-        );
-        if (resultado == true) {
-          setState(() {
-            _usuariosFuture = _cargarUsuariosConContactos();
-          });
-        }
+      onPressed: () {
+        setState(() {
+          _esCreacion = true;
+          _usuarioEnEdicion = null;
+        });
       },
     );
 
     if (widget.embedded) {
       return Stack(
         children: [
-          pageBody,
-          Positioned(right: 18, bottom: 18, child: fab),
+          Positioned.fill(child: pageBody),
+          if (!showForm) Positioned(right: 18, bottom: 18, child: fab),
         ],
       );
     }
@@ -325,7 +336,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       body: pageBody,
 
       // -------- BOTÓN FLOTANTE --------
-      floatingActionButton: fab,
+      floatingActionButton: showForm ? null : fab,
     );
   }
 }

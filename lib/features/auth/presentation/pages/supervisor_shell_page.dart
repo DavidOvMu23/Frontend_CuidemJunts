@@ -466,23 +466,27 @@ class _ShellSidebar extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        color: colorScheme.surface.withOpacity(0.82),
-        border: Border.all(color: colorScheme.secondary.withOpacity(0.20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.22),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(26),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(26),
+            color: colorScheme.surface,
+            border: Border.all(color: colorScheme.secondary.withOpacity(0.20)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.22),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
+          child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(compact ? 8 : 14, 14, compact ? 8 : 14, 8),
+            padding: EdgeInsets.fromLTRB(compact ? 4 : 10, 10, compact ? 4 : 10, 6),
             child: Row(
               children: [
                 Image.asset(
@@ -527,7 +531,7 @@ class _ShellSidebar extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
+              padding: const EdgeInsets.fromLTRB(4, 6, 4, 4),
               itemCount: entries.length,
               itemBuilder: (context, index) {
                 final entry = entries[index];
@@ -546,7 +550,7 @@ class _ShellSidebar extends StatelessWidget {
             color: colorScheme.primary.withOpacity(0.14),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(compact ? 8 : 12, 10, compact ? 8 : 12, 10),
+            padding: EdgeInsets.fromLTRB(compact ? 4 : 8, 6, compact ? 4 : 8, 6),
             child: compact
                 ? Column(
                     children: [
@@ -605,6 +609,8 @@ class _ShellSidebar extends StatelessWidget {
           ),
         ],
       ),
+          ),
+        ),
     );
   }
 }

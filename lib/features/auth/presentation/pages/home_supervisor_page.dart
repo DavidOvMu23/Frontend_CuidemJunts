@@ -173,16 +173,15 @@ class HomeSupervisorPage extends ConsumerWidget {
 
     Widget buildDesktopBody() {
       return Padding(
-        padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 12),
+        padding: EdgeInsets.fromLTRB(horizontalPadding, 24, horizontalPadding, 24),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final availableHeight = constraints.maxHeight;
-            final lowerSectionHeight = (availableHeight - 16 - 20 - 120 - 12).clamp(320.0, availableHeight);
+            final lowerSectionHeight = (availableHeight - 20 - 120 - 12).clamp(320.0, availableHeight);
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
                 buildStatsRow(true),
                 const SizedBox(height: 20),
                 SizedBox(

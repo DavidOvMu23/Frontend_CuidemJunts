@@ -9,6 +9,7 @@ class CallFormPage extends StatefulWidget {
   final Llamadas? llamadaInicial;
   final Future<List<UsuarioBusqueda>> Function(String query) buscarUsuarios;
   final Future<void> Function(CallFormData data) onSubmit;
+  final VoidCallback? onCancel;
   final bool isEdit;
 
   const CallFormPage({
@@ -16,6 +17,7 @@ class CallFormPage extends StatefulWidget {
     this.llamadaInicial,
     required this.buscarUsuarios,
     required this.onSubmit,
+    this.onCancel,
     this.isEdit = false,
   });
 
@@ -157,15 +159,11 @@ class _CallFormPageState extends State<CallFormPage> {
     final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isEdit ? l10n.editCall : l10n.createCall),
-      ),
-      body: ResponsiveFormBody(
-        title: widget.isEdit ? l10n.editCall : l10n.createCall,
-        form: Form(
-          key: _formKey,
-          child: LayoutBuilder(
+    final formBody = ResponsiveFormBody(
+      title: widget.isEdit ? l10n.editCall : l10n.createCall,
+      form: Form(
+        key: _formKey,
+        child: LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth >= 900;
               final gap = isWide ? 16.0 : 15.0;
@@ -307,46 +305,206 @@ class _CallFormPageState extends State<CallFormPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.isEdit ? l10n.editCall : l10n.createCall,
-                      style: textTheme.headlineLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 12),
-                    label(l10n.user),
-                    userSearch,
-                    SizedBox(height: gap),
-                    fieldRow(
+                    if (isWide)
+                      // Desktop: Usuario y Fecha en una fila
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                label(l10n.user),
+                                userSearch,
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: gap),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                label(l10n.date),
+                                SizedBox(
+                                  height: 56,
+                                  child: FilledButton(
+                                    onPressed: () async {
+                                      final picked = await showDatePicker(
+                                        context: context,
+                                        initialDate: _fecha ?? DateTime.now(),
+                                        firstDate: DateTime(2020),
+                                        lastDate: DateTime(2035),
+                                      );
+                                      if (picked != null) setState(() => _fecha = picked);
+                                    },
+                                    child: Text(
+                                      _fecha != null
+                                          ? '${_fecha!.day.toString().padLeft(2, '0')}/${_fecha!.month.toString().padLeft(2, '0')}/${_fecha!.year}'
+                                          : l10n.selectDate,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      // Mobile: Usuario y Fecha en columna
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          label(l10n.user),
+                          userSearch,
+                          SizedBox(height: gap),
                           label(l10n.date),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: () async {
-                                    final picked = await showDatePicker(
-                                      context: context,
-                                      initialDate: _fecha ?? DateTime.now(),
-                                      firstDate: DateTime(2020),
-                                      lastDate: DateTime(2035),
-                                    );
-                                    if (picked != null) setState(() => _fecha = picked);
-                                  },
-                                  child: Text(
-                                    _fecha != null
-                                        ? '${_fecha!.day.toString().padLeft(2, '0')}/${_fecha!.month.toString().padLeft(2, '0')}/${_fecha!.year}'
-                                        : l10n.selectDate,
-                                  ),
-                                ),
+                          SizedBox(
+                            height: 56,
+                            child: FilledButton(
+                              onPressed: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _fecha ?? DateTime.now(),
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2035),
+                                );
+                                if (picked != null) setState(() => _fecha = picked);
+                              },
+                              child: Text(
+                                _fecha != null
+                                    ? '${_fecha!.day.toString().padLeft(2, '0')}/${_fecha!.month.toString().padLeft(2, '0')}/${_fecha!.year}'
+                                    : l10n.selectDate,
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
+                    SizedBox(height: gap),
+                    if (isWide)
+                      // Desktop: Estado, Hora, Duración en una fila
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                label(l10n.callStatus),
+                                DropdownButtonFormField<String>(
+                                  value: _estado,
+                                  hint: Text(l10n.callStatus),
+                                  items: _estados
+                                      .map((e) => DropdownMenuItem(
+                                            value: e,
+                                            child: Text(_estadoLegible(e, l10n)),
+                                          ))
+                                      .toList(),
+                                  onChanged: (v) => setState(() => _estado = v),
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    filled: true,
+                                  ),
+                                  validator: (v) => v == null ? l10n.requiredField : null,
+                                ),
+                                if (_estado == null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                                    child: Text(
+                                      l10n.callStatus,
+                                      style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: gap),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                label(l10n.time),
+                                general_textfield_NoICON(
+                                  l10n.time,
+                                  controller: _horaController,
+                                  borderRadius: 12.0,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return l10n.requiredField;
+                                    final regex = RegExp(r'^([01]?\d|2[0-3]):[0-5]\d$');
+                                    if (!regex.hasMatch(v)) return 'Formato HH:MM';
+                                    return null;
+                                  },
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
+                                    LengthLimitingTextInputFormatter(5),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: gap),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                label(l10n.duration),
+                                general_textfield_NoICON(
+                                  l10n.duration,
+                                  controller: _duracionController,
+                                  borderRadius: 12.0,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return l10n.requiredField;
+                                    if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return 'Solo números';
+                                    return null;
+                                  },
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(3),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      // Mobile: Estado, Hora, Duración en columna
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          label(l10n.callStatus),
+                          DropdownButtonFormField<String>(
+                            value: _estado,
+                            hint: Text(l10n.callStatus),
+                            items: _estados
+                                .map((e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(_estadoLegible(e, l10n)),
+                                    ))
+                                .toList(),
+                            onChanged: (v) => setState(() => _estado = v),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                            ),
+                            validator: (v) => v == null ? l10n.requiredField : null,
+                          ),
+                          if (_estado == null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                              child: Text(
+                                l10n.callStatus,
+                                style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                              ),
+                            ),
+                          SizedBox(height: gap),
                           label(l10n.time),
                           general_textfield_NoICON(
                             l10n.time,
@@ -363,26 +521,7 @@ class _CallFormPageState extends State<CallFormPage> {
                               LengthLimitingTextInputFormatter(5),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: gap),
-                    fieldRow(
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          label(l10n.summary),
-                          general_textfield_NoICON(
-                            l10n.summary,
-                            controller: _resumenController,
-                            borderRadius: 12.0,
-                            validator: (v) => v == null || v.isEmpty ? l10n.requiredField : null,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                          SizedBox(height: gap),
                           label(l10n.duration),
                           general_textfield_NoICON(
                             l10n.duration,
@@ -401,53 +540,50 @@ class _CallFormPageState extends State<CallFormPage> {
                           ),
                         ],
                       ),
-                    ),
                     SizedBox(height: gap),
-                    label(l10n.callStatus),
-                    DropdownButtonFormField<String>(
-                      value: _estado,
-                      hint: Text(l10n.callStatus),
-                      items: _estados
-                          .map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(_estadoLegible(e, l10n)),
-                              ))
-                          .toList(),
-                      onChanged: (v) => setState(() => _estado = v),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                      ),
-                      validator: (v) => v == null ? l10n.requiredField : null,
-                    ),
-                    if (_estado == null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                        child: Text(
-                          l10n.callStatus,
-                          style: const TextStyle(color: Colors.redAccent, fontSize: 13),
-                        ),
-                      ),
-                    SizedBox(height: gap),
-                    label(l10n.comments),
-                    general_textfield_NoICON(
-                      l10n.comments,
-                      controller: _observacionesController,
-                      borderRadius: 12.0,
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(l10n.cancel),
+                        label(l10n.summary),
+                        general_textfield_NoICON(
+                          l10n.summary,
+                          controller: _resumenController,
+                          borderRadius: 12.0,
+                          validator: (v) => v == null || v.isEmpty ? l10n.requiredField : null,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
+                        SizedBox(height: gap),
+                        label(l10n.comments),
+                        general_textfield_NoICON(
+                          l10n.comments,
+                          controller: _observacionesController,
+                          borderRadius: 12.0,
+                          maxLines: 3,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: TextButton(
+                            onPressed: () {
+                              if (widget.onCancel != null) {
+                                widget.onCancel!();
+                              } else {
+                                Navigator.pop(context);
+                              }
+                            },
+                            child: Text(
+                              l10n.cancel,
+                              style: const TextStyle(color: Colors.redAccent),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        SizedBox(
+                          width: 140,
                           child: FilledButton(
                             onPressed: _onSubmit,
                             child: Text(widget.isEdit ? l10n.save : l10n.create),
@@ -461,7 +597,19 @@ class _CallFormPageState extends State<CallFormPage> {
             },
           ),
         ),
+    );
+
+    // Si tiene callback onCancel, está siendo usado como incrustado (sin Scaffold)
+    if (widget.onCancel != null) {
+      return formBody;
+    }
+
+    // Si no, mostrar con Scaffold (para uso como ruta completa)
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.isEdit ? l10n.editCall : l10n.createCall),
       ),
+      body: formBody,
     );
   }
 }

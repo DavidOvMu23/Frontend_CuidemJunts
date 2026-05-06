@@ -201,7 +201,7 @@ class UserDetailDialog extends StatelessWidget {
         ],
       ),
       content: SizedBox(
-        width: double.maxFinite,
+        width: 500,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,

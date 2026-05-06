@@ -7,7 +7,6 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervis
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
@@ -21,7 +20,9 @@ import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_eme
 
 class CrearUserPage extends ConsumerStatefulWidget {
   final Usuario? usuario;
-  const CrearUserPage({super.key, this.usuario});
+  final VoidCallback? onCancel;
+  final VoidCallback? onSaved;
+  const CrearUserPage({super.key, this.usuario, this.onCancel, this.onSaved});
 
   @override
   ConsumerState<CrearUserPage> createState() => _CrearUserPageState();
@@ -138,9 +139,13 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
         await usuarioService.update(widget.usuario!.dni, payload);
         if (!mounted) return;
         general_snackbar(context, l10n.userUpdatedSuccess, 2);
-        Navigator.pop(context, true);
+        if (widget.onSaved != null) {
+          widget.onSaved!();
+        } else {
+          Navigator.pop(context, true);
+        }
       } else {
-        final created = await usuarioService.create(payload);
+        await usuarioService.create(payload);
         // Solicitar contactos canónicos del nuevo usuario para forzar sincronización
         try {
           final contactoService = ref.read(contactoEmergenciaServiceProvider);
@@ -150,7 +155,11 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
         }
         if (!mounted) return;
         general_snackbar(context, l10n.userCreatedSuccess, 2);
-        Navigator.pop(context, true);
+        if (widget.onSaved != null) {
+          widget.onSaved!();
+        } else {
+          Navigator.pop(context, true);
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -187,9 +196,239 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
     final userName = authState.nombre;
     final userRole = authState.rol;
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1100;
-    final horizontalPadding = isDesktop ? 20.0 : 12.0;
+    final formBody = ResponsiveFormBody(
+      title: _isEditing ? l10n.edit : l10n.createUser,
+      subtitle: _isEditing ? l10n.editUserDescription : l10n.createUserDescription,
+      form: Form(
+        key: _formKey,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+            final gap = isWide ? 16.0 : 15.0;
+
+            Widget label(String text) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(text, style: textTheme.bodyMedium),
+                );
+
+            Widget fieldGroup(String labelText, Widget field) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [label(labelText), field],
+                );
+
+            Widget fieldRow(Widget left, Widget right) {
+              if (!isWide) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [left, SizedBox(height: gap), right],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: left),
+                  SizedBox(width: gap),
+                  Expanded(child: right),
+                ],
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Row 1: DNI (full width)
+                  fieldGroup(
+                    l10n.dni,
+                    general_textfield_NoICON(
+                      l10n.dni,
+                      controller: _dniCtrl,
+                      borderRadius: 12.0,
+                      enabled: !_isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return l10n.fillAllFields;
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 2: Nombre | Apellidos
+                  fieldRow(
+                    fieldGroup(
+                      l10n.name,
+                      general_textfield_NoICON(
+                        l10n.name,
+                        controller: _nombreCtrl,
+                        borderRadius: 12.0,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    fieldGroup(
+                      l10n.lastName,
+                      general_textfield_NoICON(
+                        l10n.lastName,
+                        controller: _apellidosCtrl,
+                        borderRadius: 12.0,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 3: Teléfono | Fecha Nacimiento
+                  fieldRow(
+                    fieldGroup(
+                      l10n.telephone,
+                      general_textfield_NoICON(
+                        l10n.telephone,
+                        controller: _telefonoCtrl,
+                        borderRadius: 12.0,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    fieldGroup(
+                      l10n.birthDate,
+                      SizedBox(
+                        height: 56,
+                        child: FilledButton(
+                          onPressed: _pickFechaNacimiento,
+                          child: Text(
+                            _fechaNacimiento == null
+                                ? l10n.selectBirthDate
+                                : DateFormat('dd/MM/yyyy').format(_fechaNacimiento!),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 4: Nivel Dependencia (full width)
+                  fieldGroup(
+                    l10n.dependencyLevel,
+                    DropdownButtonFormField<String>(
+                      value: _nivelDependencia,
+                      borderRadius: BorderRadius.circular(12),
+                      items: [
+                        DropdownMenuItem(value: 'ninguna', child: Text(l10n.searchNoDependency)),
+                        DropdownMenuItem(value: 'leve', child: Text(l10n.searchModerateDependency)),
+                        DropdownMenuItem(value: 'moderada', child: Text(l10n.searchSevereDependency)),
+                        DropdownMenuItem(value: 'severa', child: Text(l10n.searchHighDependency)),
+                      ],
+                      onChanged: (v) => setState(() => _nivelDependencia = v ?? 'ninguna'),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 5: Información (full width, multiline)
+                  fieldGroup(
+                    l10n.optionalInformation,
+                    general_textfield_NoICON(
+                      l10n.information,
+                      controller: _informacionCtrl,
+                      borderRadius: 12.0,
+                      maxLines: 4,
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 6: Datos Médicos | Medicación
+                  fieldRow(
+                    fieldGroup(
+                      l10n.medicalData,
+                      general_textfield_NoICON(
+                        l10n.medicalData,
+                        controller: _datosMedicosCtrl,
+                        borderRadius: 12.0,
+                      ),
+                    ),
+                    fieldGroup(
+                      l10n.medication,
+                      general_textfield_NoICON(
+                        l10n.medication,
+                        controller: _medicacionCtrl,
+                        borderRadius: 12.0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: gap),
+
+                  // Row 7: Dirección (full width)
+                  fieldGroup(
+                    l10n.direction,
+                    general_textfield_NoICON(
+                      l10n.direction,
+                      controller: _direccionCtrl,
+                      borderRadius: 12.0,
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: TextButton(
+                          onPressed: () {
+                            if (widget.onCancel != null) {
+                              widget.onCancel!();
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            l10n.cancel,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 140,
+                        child: FilledButton(
+                          onPressed: _submit,
+                          child: Text(_isEditing ? l10n.edit : l10n.createUser),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    if (widget.onCancel != null) {
+      return formBody;
+    }
 
     return Scaffold(
       appBar: appMainAppBar(
@@ -243,211 +482,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
           );
         },
       ),
-      body: ResponsiveFormBody(
-        title: _isEditing ? l10n.edit : l10n.createUser,
-        subtitle: _isEditing ? l10n.editUserDescription : l10n.createUserDescription,
-        form: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _isEditing ? l10n.edit : l10n.newUser,
-                style: textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // DNI
-                      Text(l10n.dni, style: textTheme.bodyMedium),
-                      const SizedBox(height: 4),
-                      general_textfield_NoICON(
-                        l10n.dni,
-                        controller: _dniCtrl,
-                        borderRadius: 12.0,
-                        enabled: !_isEditing,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.fillAllFields;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Nombre y apellidos
-                      Text(l10n.name, style: textTheme.bodyMedium),
-                      const SizedBox(height: 4),
-                      general_textfield_NoICON(
-                        l10n.name,
-                        controller: _nombreCtrl,
-                        borderRadius: 12.0,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.fillAllFields;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      general_textfield_NoICON(
-                        l10n.lastName,
-                        controller: _apellidosCtrl,
-                        borderRadius: 12.0,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.fillAllFields;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        l10n.telephone,
-                        style: textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      general_textfield_NoICON(
-                        l10n.telephone,
-                        controller: _telefonoCtrl,
-                        borderRadius: 12.0,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.fillAllFields;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-                      // Fecha nacimiento
-                      Text(
-                        l10n.birthDate,
-                        style: textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: _pickFechaNacimiento,
-                              child: Text(
-                                _fechaNacimiento == null
-                                    ? l10n.selectBirthDate
-                                    : DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(_fechaNacimiento!),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Nivel dependencia
-                      Text(
-                        l10n.dependencyLevel,
-                        style: textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      DropdownButtonFormField<String>(
-                        value: _nivelDependencia,
-                        borderRadius: BorderRadius.circular(12),
-                        items: [
-                          DropdownMenuItem(
-                            value: 'ninguna',
-                            child: Text(l10n.searchNoDependency),
-                          ),
-                          DropdownMenuItem(
-                            value: 'leve',
-                            child: Text(
-                              l10n.searchModerateDependency,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'moderada',
-                            child: Text(l10n.searchSevereDependency),
-                          ),
-                          DropdownMenuItem(
-                            value: 'severa',
-                            child: Text(l10n.searchHighDependency),
-                          ),
-                        ],
-                        onChanged: (v) => setState(
-                          () => _nivelDependencia = v ?? 'ninguna',
-                        ),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Informacion
-                      Text(
-                        l10n.optionalInformation,
-                        style: textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      general_textfield_NoICON(
-                        l10n.information,
-                        controller: _informacionCtrl,
-                        borderRadius: 12.0,
-                        maxLines: 4,
-                      ),
-                      const SizedBox(height: 8),
-                      general_textfield_NoICON(
-                        l10n.medicalData,
-                        controller: _datosMedicosCtrl,
-                        borderRadius: 12.0,
-                      ),
-                      const SizedBox(height: 8),
-                      general_textfield_NoICON(
-                        l10n.medication,
-                        controller: _medicacionCtrl,
-                        borderRadius: 12.0,
-                      ),
-                      const SizedBox(height: 8),
-                      general_textfield_NoICON(
-                        l10n.direction,
-                        controller: _direccionCtrl,
-                        borderRadius: 12.0,
-                      ),
-
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          general_textbutton(
-                            l10n.cancel,
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: general_filledbutton(
-                              _isEditing
-                                  ? l10n.edit
-                                  : l10n.createUser,
-                              onPressed: _submit,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: formBody,
     );
   }
 }
