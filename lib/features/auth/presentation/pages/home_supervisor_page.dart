@@ -62,130 +62,158 @@ class HomeSupervisorPage extends ConsumerWidget {
     final isDesktop = width >= 1100;
     final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
-    final mainContent = Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    Widget buildStatsRow(bool desktopMode) {
+      if (desktopMode) {
+        return Row(
           children: [
-            // Contenido scrolleable
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    // -------- TARJETAS DE ESTADÍSTICAS --------
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isDesktop = constraints.maxWidth >= 1080;
-                        if (isDesktop) {
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: scheduledCallsAsync.when(
-                                  data: (count) => StatsCard(
-                                    title: l10n.programedCalls,
-                                    value: count.toString(),
-                                    icon: Icons.today,
-                                  ),
-                                  loading: () => StatsCard(
-                                    title: l10n.programedCalls,
-                                    value: '-',
-                                    icon: Icons.today,
-                                    isLoading: true,
-                                  ),
-                                  error: (_, __) => StatsCard(
-                                    title: l10n.programedCalls,
-                                    value: '-',
-                                    icon: Icons.today,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: completedCallsAsync.when(
-                                  data: (count) => StatsCard(
-                                    title: l10n.completedCalls,
-                                    value: count.toString(),
-                                    icon: Icons.phone,
-                                  ),
-                                  loading: () => StatsCard(
-                                    title: l10n.completedCalls,
-                                    value: '-',
-                                    icon: Icons.phone,
-                                    isLoading: true,
-                                  ),
-                                  error: (_, __) => StatsCard(
-                                    title: l10n.completedCalls,
-                                    value: '-',
-                                    icon: Icons.phone,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        } else {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              scheduledCallsAsync.when(
-                                data: (count) => StatsCard(
-                                  title: l10n.programedCalls,
-                                  value: count.toString(),
-                                  icon: Icons.today,
-                                ),
-                                loading: () => StatsCard(
-                                  title: l10n.programedCalls,
-                                  value: '-',
-                                  icon: Icons.today,
-                                  isLoading: true,
-                                ),
-                                error: (_, __) => StatsCard(
-                                  title: l10n.programedCalls,
-                                  value: '-',
-                                  icon: Icons.today,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              completedCallsAsync.when(
-                                data: (count) => StatsCard(
-                                  title: l10n.completedCalls,
-                                  value: count.toString(),
-                                  icon: Icons.phone,
-                                ),
-                                loading: () => StatsCard(
-                                  title: l10n.completedCalls,
-                                  value: '-',
-                                  icon: Icons.phone,
-                                  isLoading: true,
-                                ),
-                                error: (_, __) => StatsCard(
-                                  title: l10n.completedCalls,
-                                  value: '-',
-                                  icon: Icons.phone,
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-                    // -------- LLAMADAS DE HOY --------
-                    TodayCallsSection(callsAsync: callsTodayAsync),
-
-                    const SizedBox(height: 20),
-                    // -------- ACTIVIDAD RECIENTE --------
-                    RecentActivitySection(callsAsync: recentCallsAsync),
-                  ],
+              child: scheduledCallsAsync.when(
+                data: (count) => StatsCard(
+                  title: l10n.programedCalls,
+                  value: count.toString(),
+                  icon: Icons.today,
+                ),
+                loading: () => StatsCard(
+                  title: l10n.programedCalls,
+                  value: '-',
+                  icon: Icons.today,
+                  isLoading: true,
+                ),
+                error: (_, __) => StatsCard(
+                  title: l10n.programedCalls,
+                  value: '-',
+                  icon: Icons.today,
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: completedCallsAsync.when(
+                data: (count) => StatsCard(
+                  title: l10n.completedCalls,
+                  value: count.toString(),
+                  icon: Icons.phone,
+                ),
+                loading: () => StatsCard(
+                  title: l10n.completedCalls,
+                  value: '-',
+                  icon: Icons.phone,
+                  isLoading: true,
+                ),
+                error: (_, __) => StatsCard(
+                  title: l10n.completedCalls,
+                  value: '-',
+                  icon: Icons.phone,
                 ),
               ),
             ),
           ],
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          scheduledCallsAsync.when(
+            data: (count) => StatsCard(
+              title: l10n.programedCalls,
+              value: count.toString(),
+              icon: Icons.today,
+            ),
+            loading: () => StatsCard(
+              title: l10n.programedCalls,
+              value: '-',
+              icon: Icons.today,
+              isLoading: true,
+            ),
+            error: (_, __) => StatsCard(
+              title: l10n.programedCalls,
+              value: '-',
+              icon: Icons.today,
+            ),
+          ),
+          const SizedBox(height: 20),
+          completedCallsAsync.when(
+            data: (count) => StatsCard(
+              title: l10n.completedCalls,
+              value: count.toString(),
+              icon: Icons.phone,
+            ),
+            loading: () => StatsCard(
+              title: l10n.completedCalls,
+              value: '-',
+              icon: Icons.phone,
+              isLoading: true,
+            ),
+            error: (_, __) => StatsCard(
+              title: l10n.completedCalls,
+              value: '-',
+              icon: Icons.phone,
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget buildMobileBody() {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildStatsRow(false),
+            const SizedBox(height: 20),
+            TodayCallsSection(callsAsync: callsTodayAsync),
+            const SizedBox(height: 20),
+            RecentActivitySection(callsAsync: recentCallsAsync),
+          ],
         ),
       );
+    }
+
+    Widget buildDesktopBody() {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 12),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final availableHeight = constraints.maxHeight;
+            final lowerSectionHeight = (availableHeight - 16 - 20 - 120 - 12).clamp(320.0, availableHeight);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                buildStatsRow(true),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: lowerSectionHeight,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: TodayCallsSection(
+                          callsAsync: callsTodayAsync,
+                          expandContent: true,
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: RecentActivitySection(
+                          callsAsync: recentCallsAsync,
+                          expandContent: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+
+    final mainContent = isDesktop ? buildDesktopBody() : buildMobileBody();
 
     // -------- ESTRUCTURA DE LA PANTALLA --------
     if (embedded) {

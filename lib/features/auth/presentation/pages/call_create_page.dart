@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
 import 'package:flutter/services.dart';
 
 class CallFormPage extends StatefulWidget {
@@ -48,21 +49,7 @@ class CallFormData {
 }
 
 class _CallFormPageState extends State<CallFormPage> {
-      // ...existing code...
-      String _estadoLegible(String estado, AppLocalizations l10n) {
-        switch (estado) {
-          case 'completada':
-            return l10n.completed;
-          case 'pendiente':
-            return l10n.pending;
-          case 'no_contesto':
-            return l10n.noAnswer;
-          default:
-            return estado;
-        }
-      }
-    // ...existing code...
-    final TextEditingController _usuarioBusquedaController = TextEditingController();
+  final TextEditingController _usuarioBusquedaController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _resumenController;
   late TextEditingController _duracionController;
@@ -152,154 +139,187 @@ class _CallFormPageState extends State<CallFormPage> {
     }
   }
 
+  String _estadoLegible(String estado, AppLocalizations l10n) {
+    switch (estado) {
+      case 'completada':
+        return l10n.completed;
+      case 'pendiente':
+        return l10n.pending;
+      case 'no_contesto':
+        return l10n.noAnswer;
+      default:
+        return estado;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1100;
-    final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.isEdit ? l10n.editCall : l10n.createCall),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.isEdit ? l10n.editCall : l10n.createCall,
-              style: textTheme.titleMedium?.copyWith(fontSize: 27),
-            ),
-            Text(
-              widget.isEdit ? l10n.editUserDescription : l10n.createUserDescription,
-              style: textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Material(
-                borderRadius: BorderRadius.circular(30),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Usuario
-                          Text(l10n.user, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextFormField(
-                                controller: _usuarioBusquedaController,
-                                decoration: InputDecoration(
-                                  hintText: l10n.searchUser,
-                                  prefixIcon: const Icon(Icons.search),
-                                  suffixIcon: _buscandoUsuario
-                                      ? const Padding(
-                                          padding: EdgeInsets.all(10.0),
-                                          child: SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(strokeWidth: 2),
-                                          ),
-                                        )
-                                      : (_usuarioBusquedaController.text.isNotEmpty
-                                          ? IconButton(
-                                              icon: const Icon(Icons.clear),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _usuarioBusquedaController.clear();
-                                                  _usuariosBusqueda = [];
-                                                  _usuarioSeleccionado = null;
-                                                });
-                                              },
-                                            )
-                                          : null),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12.0),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  filled: true,
-                                ),
-                                onChanged: (value) {
-                                  if (value.length > 2) {
-                                    _buscarUsuario(value);
-                                  } else {
-                                    setState(() => _usuariosBusqueda = []);
-                                  }
-                                },
-                                validator: (_) => _usuarioSeleccionado == null ? l10n.selectUser : null,
+      body: ResponsiveFormBody(
+        title: widget.isEdit ? l10n.editCall : l10n.createCall,
+        form: Form(
+          key: _formKey,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 900;
+              final gap = isWide ? 16.0 : 15.0;
+
+              Widget label(String text) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(text, style: textTheme.bodyMedium),
+                  );
+
+              Widget fieldRow(Widget left, Widget right) {
+                if (!isWide) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      left,
+                      SizedBox(height: gap),
+                      right,
+                    ],
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: left),
+                    SizedBox(width: gap),
+                    Expanded(child: right),
+                  ],
+                );
+              }
+
+              final userSearch = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _usuarioBusquedaController,
+                    decoration: InputDecoration(
+                      hintText: l10n.searchUser,
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _buscandoUsuario
+                          ? const Padding(
+                              padding: EdgeInsets.all(10.0),
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               ),
-                              const SizedBox(height: 6),
-                              if (_usuarioBusquedaController.text.isNotEmpty && _usuarioSeleccionado == null)
-                                Container(
-                                  constraints: const BoxConstraints(maxHeight: 200),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).cardColor,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                                  ),
-                                  child: _buscandoUsuario
-                                      ? const Center(child: Padding(
-                                          padding: EdgeInsets.all(16.0),
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        ))
-                                      : (_usuariosBusqueda.isEmpty
-                                          ? Padding(
-                                              padding: const EdgeInsets.all(16.0),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.info_outline, color: Colors.grey),
-                                                  SizedBox(width: 8),
-                                                  Text('No hay resultados', style: TextStyle(color: Colors.grey)),
-                                                ],
-                                              ),
-                                            )
-                                            : ListView.separated(
-                                              shrinkWrap: true,
-                                              padding: const EdgeInsets.symmetric(vertical: 6),
-                                              itemCount: _usuariosBusqueda.length,
-                                              separatorBuilder: (_, __) => const Divider(height: 1),
-                                              itemBuilder: (context, i) {
-                                                final u = _usuariosBusqueda[i];
-                                                return ListTile(
-                                                  title: Text(u.nombreCompleto),
-                                                  onTap: () {
-                                                    setState(() {
-                                                      _usuarioSeleccionado = u;
-                                                      _usuariosBusqueda = [];
-                                                      _usuarioBusquedaController.text = u.nombreCompleto;
-                                                    });
-                                                  },
-                                                  selected: _usuarioSeleccionado?.id == u.id,
-                                                  leading: Icon(Icons.person_outline),
-                                                );
-                                              },
-                                            )),
-                                ),
-                              if (_usuarioSeleccionado != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                            )
+                          : (_usuarioBusquedaController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      _usuarioBusquedaController.clear();
+                                      _usuariosBusqueda = [];
+                                      _usuarioSeleccionado = null;
+                                    });
+                                  },
+                                )
+                              : null),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                    ),
+                    onChanged: (value) {
+                      if (value.length > 2) {
+                        _buscarUsuario(value);
+                      } else {
+                        setState(() => _usuariosBusqueda = []);
+                      }
+                    },
+                    validator: (_) => _usuarioSeleccionado == null ? l10n.selectUser : null,
+                  ),
+                  const SizedBox(height: 6),
+                  if (_usuarioBusquedaController.text.isNotEmpty && _usuarioSeleccionado == null)
+                    Container(
+                      constraints: const BoxConstraints(maxHeight: 220),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                      ),
+                      child: _buscandoUsuario
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : _usuariosBusqueda.isEmpty
+                              ? const Padding(
+                                  padding: EdgeInsets.all(16.0),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.check_circle, color: Colors.green, size: 18),
-                                      const SizedBox(width: 6),
-                                      Flexible(child: Text('${l10n.selectedUser}: ${_usuarioSeleccionado!.nombreCompleto}')),
+                                      Icon(Icons.info_outline, color: Colors.grey),
+                                      SizedBox(width: 8),
+                                      Text('No hay resultados', style: TextStyle(color: Colors.grey)),
                                     ],
                                   ),
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  itemCount: _usuariosBusqueda.length,
+                                  separatorBuilder: (_, __) => const Divider(height: 1),
+                                  itemBuilder: (context, i) {
+                                    final u = _usuariosBusqueda[i];
+                                    return ListTile(
+                                      title: Text(u.nombreCompleto),
+                                      onTap: () {
+                                        setState(() {
+                                          _usuarioSeleccionado = u;
+                                          _usuariosBusqueda = [];
+                                          _usuarioBusquedaController.text = u.nombreCompleto;
+                                        });
+                                      },
+                                      selected: _usuarioSeleccionado?.id == u.id,
+                                      leading: const Icon(Icons.person_outline),
+                                    );
+                                  },
                                 ),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          // Fecha
-                          Text(l10n.date, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
+                    ),
+                  if (_usuarioSeleccionado != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                          const SizedBox(width: 6),
+                          Flexible(child: Text('${l10n.selectedUser}: ${_usuarioSeleccionado!.nombreCompleto}')),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.isEdit ? l10n.editCall : l10n.createCall,
+                      style: textTheme.headlineLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 12),
+                    label(l10n.user),
+                    userSearch,
+                    SizedBox(height: gap),
+                    fieldRow(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l10n.date),
                           Row(
                             children: [
                               Expanded(
@@ -322,10 +342,12 @@ class _CallFormPageState extends State<CallFormPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 15),
-                          // Hora
-                          Text(l10n.time, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l10n.time),
                           general_textfield_NoICON(
                             l10n.time,
                             controller: _horaController,
@@ -336,34 +358,39 @@ class _CallFormPageState extends State<CallFormPage> {
                               if (!regex.hasMatch(v)) return 'Formato HH:MM';
                               return null;
                             },
-                            // Solo permitir números y dos puntos
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
                               LengthLimitingTextInputFormatter(5),
                             ],
                           ),
-                          const SizedBox(height: 15),
-                          // Resumen
-                          Text(l10n.summary, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: gap),
+                    fieldRow(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l10n.summary),
                           general_textfield_NoICON(
                             l10n.summary,
                             controller: _resumenController,
                             borderRadius: 12.0,
                             validator: (v) => v == null || v.isEmpty ? l10n.requiredField : null,
                           ),
-                          const SizedBox(height: 15),
-                          // Duración
-                          Text(l10n.duration, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l10n.duration),
                           general_textfield_NoICON(
                             l10n.duration,
                             controller: _duracionController,
                             borderRadius: 12.0,
-                              validator: (v) {
-                                if (v == null || v.isEmpty) return l10n.requiredField;
-                                // Aceptar solo números (1-3 dígitos)
-                                if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return 'Solo números';
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return l10n.requiredField;
+                              if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return 'Solo números';
                               return null;
                             },
                             keyboardType: TextInputType.number,
@@ -372,71 +399,67 @@ class _CallFormPageState extends State<CallFormPage> {
                               LengthLimitingTextInputFormatter(3),
                             ],
                           ),
-                          const SizedBox(height: 15),
-                          // Estado de la llamada
-                          Text(l10n.callStatus, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
-                          DropdownButtonFormField<String>(
-                            value: _estado,
-                            hint: Text(l10n.callStatus),
-                            items: _estados
-                                .map((e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(_estadoLegible(e, l10n)),
-                                    ))
-                                .toList(),
-                            onChanged: (v) => setState(() => _estado = v),
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                            ),
-                            validator: (v) => v == null ? l10n.requiredField : null,
-                          ),
-                          if (_estado == null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                              child: Text(
-                                l10n.callStatus,
-                                style: TextStyle(color: Colors.redAccent, fontSize: 13),
-                              ),
-                            ),
-                          const SizedBox(height: 15),
-                          // Observaciones
-                          Text(l10n.comments, style: textTheme.bodyMedium),
-                          const SizedBox(height: 4),
-                          general_textfield_NoICON(
-                            l10n.comments,
-                            controller: _observacionesController,
-                            borderRadius: 12.0,
-                            maxLines: 3,
-                          ),
-                          const SizedBox(height: 18),
-                          Row(
-                            children: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(l10n.cancel),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: _onSubmit,
-                                  child: Text(widget.isEdit ? l10n.save : l10n.create),
-                                ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
-                  ),
+                    SizedBox(height: gap),
+                    label(l10n.callStatus),
+                    DropdownButtonFormField<String>(
+                      value: _estado,
+                      hint: Text(l10n.callStatus),
+                      items: _estados
+                          .map((e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(_estadoLegible(e, l10n)),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() => _estado = v),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                      ),
+                      validator: (v) => v == null ? l10n.requiredField : null,
+                    ),
+                    if (_estado == null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                        child: Text(
+                          l10n.callStatus,
+                          style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                        ),
+                      ),
+                    SizedBox(height: gap),
+                    label(l10n.comments),
+                    general_textfield_NoICON(
+                      l10n.comments,
+                      controller: _observacionesController,
+                      borderRadius: 12.0,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(l10n.cancel),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _onSubmit,
+                            child: Text(widget.isEdit ? l10n.save : l10n.create),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );

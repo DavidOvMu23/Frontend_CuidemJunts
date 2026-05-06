@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
@@ -242,232 +243,209 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
           );
         },
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isEditing ? l10n.edit : l10n.createUser,
-              style: textTheme.titleMedium?.copyWith(fontSize: 27),
-            ),
-            Text(
-              _isEditing
-                  ? l10n.editUserDescription
-                  : l10n.createUserDescription,
-              style: textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Material(
-                borderRadius: BorderRadius.circular(30),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _isEditing ? l10n.edit : l10n.newUser,
-                          style: textTheme.headlineLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // DNI
-                                Text(l10n.dni, style: textTheme.bodyMedium),
-                                const SizedBox(height: 4),
-                                general_textfield_NoICON(
-                                  l10n.dni,
-                                  controller: _dniCtrl,
-                                  borderRadius: 12.0,
-                                  enabled: !_isEditing,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 15),
+      body: ResponsiveFormBody(
+        title: _isEditing ? l10n.edit : l10n.createUser,
+        subtitle: _isEditing ? l10n.editUserDescription : l10n.createUserDescription,
+        form: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditing ? l10n.edit : l10n.newUser,
+                style: textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // DNI
+                      Text(l10n.dni, style: textTheme.bodyMedium),
+                      const SizedBox(height: 4),
+                      general_textfield_NoICON(
+                        l10n.dni,
+                        controller: _dniCtrl,
+                        borderRadius: 12.0,
+                        enabled: !_isEditing,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
 
-                                // Nombre y apellidos
-                                Text(l10n.name, style: textTheme.bodyMedium),
-                                const SizedBox(height: 4),
-                                general_textfield_NoICON(
-                                  l10n.name,
-                                  controller: _nombreCtrl,
-                                  borderRadius: 12.0,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 8),
-                                general_textfield_NoICON(
-                                  l10n.lastName,
-                                  controller: _apellidosCtrl,
-                                  borderRadius: 12.0,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 15),
-                                Text(
-                                  l10n.telephone,
-                                  style: textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                general_textfield_NoICON(
-                                  l10n.telephone,
-                                  controller: _telefonoCtrl,
-                                  borderRadius: 12.0,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.fillAllFields;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 15),
-                                // Fecha nacimiento
-                                Text(
-                                  l10n.birthDate,
-                                  style: textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: FilledButton(
-                                        onPressed: _pickFechaNacimiento,
-                                        child: Text(
-                                          _fechaNacimiento == null
-                                              ? l10n.selectBirthDate
-                                              : DateFormat(
-                                                  'dd/MM/yyyy',
-                                                ).format(_fechaNacimiento!),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-
-                                // Nivel dependencia
-                                Text(
-                                  l10n.dependencyLevel,
-                                  style: textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                DropdownButtonFormField<String>(
-                                  value: _nivelDependencia,
-                                  borderRadius: BorderRadius.circular(12),
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: 'ninguna',
-                                      child: Text(l10n.searchNoDependency),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'leve',
-                                      child: Text(
-                                        l10n.searchModerateDependency,
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'moderada',
-                                      child: Text(l10n.searchSevereDependency),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'severa',
-                                      child: Text(l10n.searchHighDependency),
-                                    ),
-                                  ],
-                                  onChanged: (v) => setState(
-                                    () => _nivelDependencia = v ?? 'ninguna',
-                                  ),
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    filled: true,
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-
-                                // Informacion
-                                Text(
-                                  l10n.optionalInformation,
-                                  style: textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                general_textfield_NoICON(
-                                  l10n.information,
-                                  controller: _informacionCtrl,
-                                  borderRadius: 12.0,
-                                  maxLines: 4,
-                                ),
-                                const SizedBox(height: 8),
-                                general_textfield_NoICON(
-                                  l10n.medicalData,
-                                  controller: _datosMedicosCtrl,
-                                  borderRadius: 12.0,
-                                ),
-                                const SizedBox(height: 8),
-                                general_textfield_NoICON(
-                                  l10n.medication,
-                                  controller: _medicacionCtrl,
-                                  borderRadius: 12.0,
-                                ),
-                                const SizedBox(height: 8),
-                                general_textfield_NoICON(
-                                  l10n.direction,
-                                  controller: _direccionCtrl,
-                                  borderRadius: 12.0,
-                                ),
-
-                                const SizedBox(height: 18),
-                                Row(
-                                  children: [
-                                    general_textbutton(
-                                      l10n.cancel,
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: general_filledbutton(
-                                        _isEditing
-                                            ? l10n.edit
-                                            : l10n.createUser,
-                                        onPressed: _submit,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                      // Nombre y apellidos
+                      Text(l10n.name, style: textTheme.bodyMedium),
+                      const SizedBox(height: 4),
+                      general_textfield_NoICON(
+                        l10n.name,
+                        controller: _nombreCtrl,
+                        borderRadius: 12.0,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      general_textfield_NoICON(
+                        l10n.lastName,
+                        controller: _apellidosCtrl,
+                        borderRadius: 12.0,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        l10n.telephone,
+                        style: textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      general_textfield_NoICON(
+                        l10n.telephone,
+                        controller: _telefonoCtrl,
+                        borderRadius: 12.0,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.fillAllFields;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      // Fecha nacimiento
+                      Text(
+                        l10n.birthDate,
+                        style: textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: _pickFechaNacimiento,
+                              child: Text(
+                                _fechaNacimiento == null
+                                    ? l10n.selectBirthDate
+                                    : DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(_fechaNacimiento!),
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Nivel dependencia
+                      Text(
+                        l10n.dependencyLevel,
+                        style: textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      DropdownButtonFormField<String>(
+                        value: _nivelDependencia,
+                        borderRadius: BorderRadius.circular(12),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'ninguna',
+                            child: Text(l10n.searchNoDependency),
+                          ),
+                          DropdownMenuItem(
+                            value: 'leve',
+                            child: Text(
+                              l10n.searchModerateDependency,
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'moderada',
+                            child: Text(l10n.searchSevereDependency),
+                          ),
+                          DropdownMenuItem(
+                            value: 'severa',
+                            child: Text(l10n.searchHighDependency),
+                          ),
+                        ],
+                        onChanged: (v) => setState(
+                          () => _nivelDependencia = v ?? 'ninguna',
                         ),
-                      ],
-                    ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Informacion
+                      Text(
+                        l10n.optionalInformation,
+                        style: textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      general_textfield_NoICON(
+                        l10n.information,
+                        controller: _informacionCtrl,
+                        borderRadius: 12.0,
+                        maxLines: 4,
+                      ),
+                      const SizedBox(height: 8),
+                      general_textfield_NoICON(
+                        l10n.medicalData,
+                        controller: _datosMedicosCtrl,
+                        borderRadius: 12.0,
+                      ),
+                      const SizedBox(height: 8),
+                      general_textfield_NoICON(
+                        l10n.medication,
+                        controller: _medicacionCtrl,
+                        borderRadius: 12.0,
+                      ),
+                      const SizedBox(height: 8),
+                      general_textfield_NoICON(
+                        l10n.direction,
+                        controller: _direccionCtrl,
+                        borderRadius: 12.0,
+                      ),
+
+                      const SizedBox(height: 18),
+                      Row(
+                        children: [
+                          general_textbutton(
+                            l10n.cancel,
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: general_filledbutton(
+                              _isEditing
+                                  ? l10n.edit
+                                  : l10n.createUser,
+                              onPressed: _submit,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

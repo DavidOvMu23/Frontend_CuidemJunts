@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
@@ -117,150 +118,144 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.edit)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Material(
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.edit, style: textTheme.titleMedium?.copyWith(fontSize: 22)),
-                  const SizedBox(height: 12),
-                  Text(l10n.name, style: textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  general_textfield(l10n.name, false, controller: _nombreCtrl),
-                  const SizedBox(height: 12),
-                  Text(l10n.lastName, style: textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  general_textfield(l10n.lastName, false, controller: _apellidosCtrl),
-                  const SizedBox(height: 12),
-                  Text(l10n.email, style: textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  general_textfield(l10n.email, false, controller: _correoCtrl),
-                  const SizedBox(height: 12),
-                  Text(l10n.password, style: textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _contrasenaCtrl,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: l10n.password,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                    ),
+      body: ResponsiveFormBody(
+        title: l10n.edit,
+        form: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.edit, style: textTheme.titleMedium?.copyWith(fontSize: 22)),
+              const SizedBox(height: 12),
+              Text(l10n.name, style: textTheme.bodyMedium),
+              const SizedBox(height: 6),
+              general_textfield(l10n.name, false, controller: _nombreCtrl),
+              const SizedBox(height: 12),
+              Text(l10n.lastName, style: textTheme.bodyMedium),
+              const SizedBox(height: 6),
+              general_textfield(l10n.lastName, false, controller: _apellidosCtrl),
+              const SizedBox(height: 12),
+              Text(l10n.email, style: textTheme.bodyMedium),
+              const SizedBox(height: 6),
+              general_textfield(l10n.email, false, controller: _correoCtrl),
+              const SizedBox(height: 12),
+              Text(l10n.password, style: textTheme.bodyMedium),
+              const SizedBox(height: 6),
+              TextFormField(
+                controller: _contrasenaCtrl,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: l10n.password,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
-                  const SizedBox(height: 12),
-                  Text(l10n.role, style: textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: _rol,
-                    items: [
-                      DropdownMenuItem(
-                        value: 'teleoperador',
-                        child: Text(l10n.teleoperator),
-                      ),
-                      DropdownMenuItem(
-                        value: 'supervisor',
-                        child: Text(l10n.supervisor),
-                      ),
-                    ],
-                    onChanged: (v) {
-                      setState(() {
-                        _rol = v ?? 'teleoperador';
-                        if (_rol != 'teleoperador') _grupoId = null;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                    ),
+                  filled: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(l10n.role, style: textTheme.bodyMedium),
+              const SizedBox(height: 6),
+              DropdownButtonFormField<String>(
+                value: _rol,
+                items: [
+                  DropdownMenuItem(
+                    value: 'teleoperador',
+                    child: Text(l10n.teleoperator),
                   ),
-                  const SizedBox(height: 12),
-                  if (_rol == 'teleoperador') ...[
-                    const SizedBox(height: 18),
-                    Text(l10n.nia8digits, style: textTheme.bodyMedium),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: _niaCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: l10n.nia,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                      ),
+                  DropdownMenuItem(
+                    value: 'supervisor',
+                    child: Text(l10n.supervisor),
+                  ),
+                ],
+                onChanged: (v) {
+                  setState(() {
+                    _rol = v ?? 'teleoperador';
+                    if (_rol != 'teleoperador') _grupoId = null;
+                  });
+                },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_rol == 'teleoperador') ...[
+                const SizedBox(height: 18),
+                Text(l10n.nia8digits, style: textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _niaCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: l10n.nia,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    const SizedBox(height: 12),
-                    Text(l10n.group_label, style: textTheme.bodyMedium),
-                    const SizedBox(height: 6),
-                    _cargandoGrupos
-                        ? Center(child: CircularProgressIndicator())
-                        : DropdownButtonFormField<int>(
-                            value: _grupoId,
-                            items: _grupos
-                                .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
-                                      value: g.id,
-                                      child: Text(g.nombre),
-                                    ))
-                                .toList(),
-                            onChanged: (v) => setState(() => _grupoId = v),
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                            ),
-                            validator: (v) {
-                              if (_rol == 'teleoperador' && v == null) {
-                                return l10n.noGroupAssigned;
-                              }
-                              return null;
-                            },
+                    filled: true,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(l10n.group_label, style: textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                _cargandoGrupos
+                    ? Center(child: CircularProgressIndicator())
+                    : DropdownButtonFormField<int>(
+                        value: _grupoId,
+                        items: _grupos
+                            .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
+                                  value: g.id,
+                                  child: Text(g.nombre),
+                                ))
+                            .toList(),
+                        onChanged: (v) => setState(() => _grupoId = v),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
                           ),
-                    const SizedBox(height: 12),
-                  ] else if (_rol == 'supervisor') ...[
-                    Text(l10n.dniLabel, style: textTheme.bodyMedium),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: _dniCtrl,
-                      textCapitalization: TextCapitalization.characters,
-                      decoration: InputDecoration(
-                        hintText: l10n.dni,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                          filled: true,
                         ),
-                        filled: true,
+                        validator: (v) {
+                          if (_rol == 'teleoperador' && v == null) {
+                            return l10n.noGroupAssigned;
+                          }
+                          return null;
+                        },
                       ),
+                const SizedBox(height: 12),
+              ] else if (_rol == 'supervisor') ...[
+                Text(l10n.dniLabel, style: textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _dniCtrl,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: l10n.dni,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    const SizedBox(height: 12),
-                  ],
-                  Row(
-                    children: [
-                      Expanded(
-                        child: general_filledbutton(
-                          l10n.save,
-                          onPressed: _submit,
-                        ),
-                      ),
-                    ],
+                    filled: true,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: general_filledbutton(
+                      l10n.save,
+                      onPressed: _submit,
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),

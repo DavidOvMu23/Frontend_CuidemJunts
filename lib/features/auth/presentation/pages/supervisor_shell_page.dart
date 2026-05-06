@@ -277,13 +277,16 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
                                 borderRadius: BorderRadius.circular(
                                   isDesktop ? 30 : 24,
                                 ),
-                                color: AppPalette.cardDark,
+                                color: Theme.of(context).cardColor,
                                 border: Border.all(
-                                  color: AppPalette.accentDark.withValues(alpha: 0.24),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondary
+                                      .withOpacity(0.24),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.18),
+                                    color: Colors.black.withOpacity(0.18),
                                     blurRadius: 20,
                                     offset: const Offset(0, 14),
                                   ),
@@ -318,7 +321,7 @@ class _ShellBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppPalette.backgroundDark,
+        color: Theme.of(context).colorScheme.background,
       ),
       child: const SizedBox.expand(),
     );
@@ -363,9 +366,9 @@ class _ShellTopBar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: AppPalette.surfaceDark.withValues(alpha: 0.82),
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.82),
             border: Border.all(
-              color: AppPalette.accentDark.withValues(alpha: 0.20),
+              color: Theme.of(context).colorScheme.secondary.withOpacity(0.20),
             ),
           ),
           child: Row(
@@ -411,18 +414,18 @@ class _ShellTopBar extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppPalette.primaryDark.withValues(alpha: 0.18),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.18),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Tooltip(
                   message: userName,
                   child: CircleAvatar(
                     radius: 16,
-                    backgroundColor: AppPalette.primaryDark,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     child: Text(
                       initials.isEmpty ? '?' : initials,
                       style: textTheme.labelSmall?.copyWith(
-                        color: AppPalette.textOnPrimaryDark,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -466,11 +469,11 @@ class _ShellSidebar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
-        color: AppPalette.surfaceDark.withValues(alpha: 0.82),
-        border: Border.all(color: AppPalette.accentDark.withValues(alpha: 0.20)),
+        color: colorScheme.surface.withOpacity(0.82),
+        border: Border.all(color: colorScheme.secondary.withOpacity(0.20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.22),
+            color: Colors.black.withOpacity(0.22),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -520,7 +523,7 @@ class _ShellSidebar extends StatelessWidget {
           ),
           Divider(
             height: 1,
-            color: AppPalette.accentDark.withValues(alpha: 0.30),
+            color: colorScheme.secondary.withOpacity(0.30),
           ),
           Expanded(
             child: ListView.builder(
@@ -540,7 +543,7 @@ class _ShellSidebar extends StatelessWidget {
           ),
           Divider(
             height: 1,
-            color: colorScheme.primary.withValues(alpha: 0.14),
+            color: colorScheme.primary.withOpacity(0.14),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(compact ? 8 : 12, 10, compact ? 8 : 12, 10),
@@ -551,7 +554,7 @@ class _ShellSidebar extends StatelessWidget {
                         message: '$userName ($userRole)',
                         child: CircleAvatar(
                           radius: 18,
-                          backgroundColor: AppPalette.primaryDark,
+                          backgroundColor: colorScheme.primary,
                           child: const Icon(Icons.person_outline),
                         ),
                       ),
@@ -567,7 +570,7 @@ class _ShellSidebar extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundColor: AppPalette.primaryDark,
+                        backgroundColor: colorScheme.primary,
                         child: const Icon(Icons.person_outline),
                       ),
                       const SizedBox(width: 10),
@@ -632,15 +635,17 @@ class _SidebarNavItemState extends State<_SidebarNavItem> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     final bgColor = widget.selected
-        ? AppPalette.primaryDark.withValues(alpha: 0.22)
-        : _hovered
-            ? AppPalette.primaryDark.withValues(alpha: 0.12)
+      ? colorScheme.primary.withOpacity(0.22)
+      : _hovered
+        ? colorScheme.primary.withOpacity(0.12)
         : Colors.transparent;
 
     final fgColor = widget.selected
-        ? AppPalette.textOnPrimaryDark
-        : AppPalette.textOnSurfaceDark.withValues(alpha: 0.84);
+      ? colorScheme.onPrimary
+      : colorScheme.onSurface.withOpacity(0.84);
 
     final item = AnimatedScale(
       duration: const Duration(milliseconds: 160),
@@ -656,9 +661,9 @@ class _SidebarNavItemState extends State<_SidebarNavItem> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
+            border: Border.all(
             color: widget.selected
-                ? AppPalette.primaryDark.withValues(alpha: 0.30)
+                ? colorScheme.primary.withOpacity(0.30)
                 : Colors.transparent,
           ),
         ),

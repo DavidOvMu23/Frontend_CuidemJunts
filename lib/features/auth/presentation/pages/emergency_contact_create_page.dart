@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_emergencia_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
@@ -118,123 +119,101 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
 
     return Scaffold(
       appBar: AppBar(title: Text(isEdit ? l10n.edit : l10n.add)),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              isEdit ? l10n.edit : l10n.add,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 27),
-            ),
-            Text(
-              isEdit ? l10n.editUserDescription : l10n.createUserDescription,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Material(
-                borderRadius: BorderRadius.circular(30),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Buscador y lista de usuarios
-                          Text(l10n.searchUsers, style: Theme.of(context).textTheme.bodyMedium),
-                          const SizedBox(height: 6),
-                          TextField(
-                            decoration: InputDecoration(
-                              hintText: l10n.searchUsers,
-                              prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                            ),
-                            onChanged: (v) => setState(() => _search = v),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            constraints: const BoxConstraints(maxHeight: 220),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: FutureBuilder<List<Usuario>>(
-                              future: usuariosFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                                if (snapshot.hasError) return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
-
-                                final usuarios = snapshot.data ?? [];
-                                final filtered = usuarios.where((u) {
-                                  final full = '${u.nombre} ${u.apellidos} (${u.dni})'.toLowerCase();
-                                  return _search.isEmpty || full.contains(_search.toLowerCase());
-                                }).toList();
-
-                                if (filtered.isEmpty) return Center(child: Text(l10n.noResultsFound));
-
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: filtered.length,
-                                  itemBuilder: (context, index) {
-                                    final u = filtered[index];
-                                    final selected = _selectedDnis.contains(u.dni);
-                                    return CheckboxListTile(
-                                      value: selected,
-                                      title: Text('${u.nombre} ${u.apellidos} (${u.dni})'),
-                                      controlAffinity: ListTileControlAffinity.leading,
-                                      onChanged: (checked) => setState(() {
-                                        if (checked == true)
-                                          _selectedDnis.add(u.dni);
-                                        else
-                                          _selectedDnis.remove(u.dni);
-                                      }),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(children: [Text('${l10n.selectedUser}: ${_selectedDnis.length}'), const Spacer()]),
-                          const SizedBox(height: 12),
-                          // Campos del contacto
-                          Text(l10n.name, style: Theme.of(context).textTheme.bodyMedium),
-                          const SizedBox(height: 6),
-                          general_textfield_NoICON(l10n.name, controller: _nombreCtrl, borderRadius: 12.0),
-                          const SizedBox(height: 10),
-                          Text(l10n.lastName, style: Theme.of(context).textTheme.bodyMedium),
-                          const SizedBox(height: 6),
-                          general_textfield_NoICON(l10n.lastName, controller: _apellidosCtrl, borderRadius: 12.0),
-                          const SizedBox(height: 10),
-                          Text(l10n.phone, style: Theme.of(context).textTheme.bodyMedium),
-                          const SizedBox(height: 6),
-                          general_textfield_NoICON(l10n.phone, controller: _telefonoCtrl, borderRadius: 12.0),
-                          const SizedBox(height: 18),
-                          Row(
-                            children: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: FilledButton(onPressed: _submit, child: Text(isEdit ? l10n.save : l10n.create)),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+      body: ResponsiveFormBody(
+        title: isEdit ? l10n.edit : l10n.add,
+        form: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Buscador y lista de usuarios
+                Text(l10n.searchUsers, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: l10n.searchUsers,
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: BorderSide.none,
                     ),
+                    filled: true,
+                  ),
+                  onChanged: (v) => setState(() => _search = v),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 220),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: FutureBuilder<List<Usuario>>(
+                    future: usuariosFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+                      if (snapshot.hasError) return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
+
+                      final usuarios = snapshot.data ?? [];
+                      final filtered = usuarios.where((u) {
+                        final full = '${u.nombre} ${u.apellidos} (${u.dni})'.toLowerCase();
+                        return _search.isEmpty || full.contains(_search.toLowerCase());
+                      }).toList();
+
+                      if (filtered.isEmpty) return Center(child: Text(l10n.noResultsFound));
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final u = filtered[index];
+                          final selected = _selectedDnis.contains(u.dni);
+                          return CheckboxListTile(
+                            value: selected,
+                            title: Text('${u.nombre} ${u.apellidos} (${u.dni})'),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            onChanged: (checked) => setState(() {
+                              if (checked == true)
+                                _selectedDnis.add(u.dni);
+                              else
+                                _selectedDnis.remove(u.dni);
+                            }),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                Row(children: [Text('${l10n.selectedUser}: ${_selectedDnis.length}'), const Spacer()]),
+                const SizedBox(height: 12),
+                // Campos del contacto
+                Text(l10n.name, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                general_textfield_NoICON(l10n.name, controller: _nombreCtrl, borderRadius: 12.0),
+                const SizedBox(height: 10),
+                Text(l10n.lastName, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                general_textfield_NoICON(l10n.lastName, controller: _apellidosCtrl, borderRadius: 12.0),
+                const SizedBox(height: 10),
+                Text(l10n.phone, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                general_textfield_NoICON(l10n.phone, controller: _telefonoCtrl, borderRadius: 12.0),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(onPressed: _submit, child: Text(isEdit ? l10n.save : l10n.create)),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
