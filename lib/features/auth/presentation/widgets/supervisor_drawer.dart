@@ -57,7 +57,7 @@ Drawer appDrawer({
                       child: Column(
                         children: [
                           Text(
-                            'CuidemJunts',
+                            'Cuidem-nos en xarxa',
                             style: textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: 22,

@@ -21,7 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageEnglish => 'English';
 
   @override
-  String get welcome => 'Welcome to CuidemJunts';
+  String get welcome => 'Welcome to Cuidem-nos en xarxa';
 
   @override
   String get email => 'Email';
@@ -592,7 +592,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionSubtitle => 'Section subtitle';
 
   @override
-  String get cuidemJunts => 'CuidemJunts';
+  String get cuidemJunts => 'Cuidem-nos en xarxa';
 
   @override
   String get errorLoadingActivity => 'Error loading activity';
@@ -730,4 +730,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archived => 'Archived';
+
+  @override
+  String get noSummary => 'No summary';
+
+  @override
+  String get noGroup => 'No group';
+
+  @override
+  String get deleteCall => 'Delete call';
+
+  @override
+  String get deleteCallConfirm => 'Are you sure you want to delete this call?';
+
+  @override
+  String get callDeletedSuccessfully => 'Call deleted successfully';
+
+  @override
+  String errorDeletingCall(String error) {
+    return 'Error deleting call: $error';
+  }
+
+  @override
+  String get callCreatedSuccessfully => 'Call created successfully';
+
+  @override
+  String get callUpdatedSuccessfully => 'Call updated successfully';
+
+  @override
+  String errorSavingCall(String error) {
+    return 'Error saving call: $error';
+  }
+
+  @override
+  String get noAuthenticatedUser => 'No authenticated user';
+
+  @override
+  String get noResults => 'No results';
+
+  @override
+  String get editContactFromProfile =>
+      'Edit this contact from the associated user\'s profile';
+
+  @override
+  String get notEditableHere => 'Not editable here';
+
+  @override
+  String get contactAssociatedUnlinkConfirm =>
+      'This contact is associated with one or more users. Do you want to unlink it from all users and delete it?';
+
+  @override
+  String get contactReferencedError =>
+      'This contact is referenced from a user\'s profile. Remove the reference from the client\'s profile.';
+
+  @override
+  String get expandMenu => 'Expand menu';
+
+  @override
+  String get compactMenu => 'Compact menu';
+
+  @override
+  String invalidDniValue(String dni) {
+    return 'Invalid DNI: $dni';
+  }
+
+  @override
+  String get controlAndMonitoring => 'Control and monitoring';
+
+  @override
+  String get formatHHMM => 'Format HH:MM';
+
+  @override
+  String get onlyNumbers => 'Numbers only';
+
+  @override
+  String get noCallsFound => 'No calls found';
+
+  @override
+  String get errorDataType => 'Data type error: check the text fields';
+
+  @override
+  String get results => 'Results';
+
+  @override
+  String get systemUser => 'System user';
+
+  @override
+  String get externalContact => 'External contact';
+
+  @override
+  String get allEmergencyContacts => 'All contacts';
 }

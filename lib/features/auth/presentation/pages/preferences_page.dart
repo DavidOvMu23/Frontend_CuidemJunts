@@ -69,8 +69,8 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 
     // Si no hay usuario logueado, mostrar un mensaje
     if (userName == null) {
-      return const Scaffold(
-        body: Center(child: Text('No hay usuario autenticado')),
+      return Scaffold(
+        body: Center(child: Text(l10n.noAuthenticatedUser)),
       );
     }
 
@@ -209,6 +209,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
             MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
+        context: context,
       ),
 
       // -------- MENÚ LATERAL --------

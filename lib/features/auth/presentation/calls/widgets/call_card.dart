@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 
 // Tarjeta individual de una llamada
@@ -65,20 +66,19 @@ class _CallCardState extends State<CallCard> {
     return duration;
   }
 
-  String get _estadoTexto {
+  String _estadoTexto(AppLocalizations l10n) {
     final estado = widget.llamada.estado.toLowerCase();
     if (estado.contains('completada')) {
-      return 'Completada';
+      return l10n.callCompleted;
     } else if (estado.contains('pendiente')) {
-      return 'Pendiente';
+      return l10n.callPending;
     } else if (estado.contains('no contestada') ||
         estado.contains('no contestó') ||
         estado.contains('no_contesto')) {
-      return 'No contestó';
+      return l10n.callNoAnswer;
     }
     if (widget.llamada.estado.isEmpty) return '';
 
-    // Reemplazamos guiones bajos por espacios y capitalizamos
     final limpio = widget.llamada.estado.replaceAll('_', ' ');
     return limpio[0].toUpperCase() + limpio.substring(1);
   }
@@ -117,6 +117,7 @@ class _CallCardState extends State<CallCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dateText = _formatDate(widget.llamada.fecha);
     final durationText = _formatDuration(widget.llamada.duracion);
 
@@ -147,7 +148,7 @@ class _CallCardState extends State<CallCard> {
                     Text(
                       widget.llamada.resumen.isNotEmpty
                           ? widget.llamada.resumen
-                          : 'Sin resumen',
+                          : l10n.noSummary,
                       style: widget.textTheme.headlineLarge?.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -160,16 +161,15 @@ class _CallCardState extends State<CallCard> {
                     // Grupo / Usuario
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.person_outline,
                           size: 18,
-                          color: widget.colorScheme.primary,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             widget.llamada.grupoNombre?.isEmpty ?? true
-                                ? 'Sin grupo asignado'
+                                ? l10n.noGroupAssigned
                                 : 'Tel. ${widget.llamada.grupoNombre}',
                             style: widget.textTheme.bodyMedium,
                             maxLines: 1,
@@ -183,10 +183,9 @@ class _CallCardState extends State<CallCard> {
                     // Fecha y Duración
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.access_time,
                           size: 18,
-                          color: widget.colorScheme.primary,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -222,7 +221,7 @@ class _CallCardState extends State<CallCard> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        _estadoTexto,
+                        _estadoTexto(l10n),
                         style: widget.textTheme.bodySmall?.copyWith(
                           color: _getStatusTextColor(context),
                           fontWeight: FontWeight.w700,

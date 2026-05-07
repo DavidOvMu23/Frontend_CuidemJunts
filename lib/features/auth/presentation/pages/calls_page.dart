@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
@@ -157,6 +158,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
         },
         onDelete: () {
           // Implementar borrado de llamada
+          final l10n = AppLocalizations.of(context)!;
           () async {
             final llamadasService = ref.read(llamadasServiceProvider);
             try {
@@ -164,7 +166,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
               if (!context.mounted) return;
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Llamada eliminada correctamente')),
+                SnackBar(content: Text(l10n.callDeletedSuccessfully)),
               );
               setState(() {
                 _llamadasFuture = _cargarLlamadasConGrupo();
@@ -172,7 +174,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             } catch (e) {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error al eliminar la llamada: $e')),
+                SnackBar(content: Text(l10n.errorDeletingCall(e.toString()))),
               );
             }
           }();
@@ -182,11 +184,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   }
 
   Future<void> _guardarLlamada(CallFormData data) async {
+    final l10n = AppLocalizations.of(context)!;
     final authState = ref.read(authProvider);
     final correo = authState.correo;
     if (correo == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo obtener el usuario logueado.')),
+        SnackBar(content: Text(l10n.noAuthenticatedUser)),
       );
       return;
     }
@@ -197,7 +200,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       grupoIdToUse = authState.grupoId;
       if (grupoIdToUse == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No tienes grupo asignado.')),
+          SnackBar(content: Text(l10n.noGroupAssigned)),
         );
         return;
       }
@@ -210,7 +213,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       );
       if (trabajador.grupoId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No tienes grupo asignado.')),
+          SnackBar(content: Text(l10n.noGroupAssigned)),
         );
         return;
       }
@@ -242,11 +245,11 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
         _llamadasFuture = _cargarLlamadasConGrupo();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(wasCreating ? 'Llamada creada correctamente' : 'Llamada actualizada correctamente')),
+        SnackBar(content: Text(wasCreating ? l10n.callCreatedSuccessfully : l10n.callUpdatedSuccessfully)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar la llamada: $e')),
+        SnackBar(content: Text(l10n.errorSavingCall(e.toString()))),
       );
     }
   }
@@ -374,6 +377,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
     // Obtenemos el estado de autenticación del provider
     final authState = ref.watch(authProvider);
@@ -384,8 +388,8 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
 
     // Si no hay usuario logueado, mostrar un mensaje
     if (userName == null) {
-      return const Scaffold(
-        body: Center(child: Text('No hay usuario autenticado')),
+      return Scaffold(
+        body: Center(child: Text(l10n.noAuthenticatedUser)),
       );
     }
 
@@ -452,6 +456,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
+        context: context,
       ),
 
       // -------- MENÚ LATERAL --------

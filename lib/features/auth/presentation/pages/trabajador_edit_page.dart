@@ -113,7 +113,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      general_snackbar_error(context, l10n.errorCreatingWorker(e.toString()), 3); // Cambia a errorUpdatingWorker si existe
+      general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
     }
   }
 

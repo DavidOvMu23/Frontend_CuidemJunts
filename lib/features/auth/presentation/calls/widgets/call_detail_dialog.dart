@@ -20,8 +20,8 @@ class CallDetailDialog extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar llamada'),
-        content: const Text('¿Seguro que quieres eliminar esta llamada?'),
+        title: Text(l10n.deleteCall),
+        content: Text(l10n.deleteCallConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -133,7 +133,7 @@ class CallDetailDialog extends StatelessWidget {
                 _buildDetailRow(
                   context,
                   Icons.person_outline,
-                  'Usuario',
+                  l10n.user,
                   llamada.usuarioApellidos != null && llamada.usuarioApellidos!.isNotEmpty
                       ? '${llamada.usuarioNombre} ${llamada.usuarioApellidos}'
                       : llamada.usuarioNombre!,

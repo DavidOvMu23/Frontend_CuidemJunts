@@ -78,7 +78,7 @@ class UsersFutureList extends StatelessWidget {
         if (usuarios.isEmpty) {
           return Center(
             child: Text(
-              'No se encontraron usuarios',
+              l10n.noUsersFounds,
               style: textTheme.bodyMedium,
             ),
           );

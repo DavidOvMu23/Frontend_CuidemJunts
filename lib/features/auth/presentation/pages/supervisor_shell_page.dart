@@ -172,8 +172,8 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
     final userRole = authState.rol;
 
     if (userName == null) {
-      return const Scaffold(
-        body: Center(child: Text('No hay usuario autenticado')),
+      return Scaffold(
+        body: Center(child: Text(l10n.noAuthenticatedUser)),
       );
     }
 
@@ -463,6 +463,7 @@ class _ShellSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -500,13 +501,13 @@ class _ShellSidebar extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'CuidemJunts',
+                          'Cuidem-nos en xarxa',
                           style: textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         Text(
-                          'Control y seguimiento',
+                          l10n.controlAndMonitoring,
                           style: textTheme.bodySmall,
                         ),
                       ],
@@ -514,7 +515,7 @@ class _ShellSidebar extends StatelessWidget {
                   ),
                 if (onCompactToggle != null)
                   IconButton(
-                    tooltip: compact ? 'Expandir menú' : 'Compactar menú',
+                    tooltip: compact ? l10n.expandMenu : l10n.compactMenu,
                     onPressed: onCompactToggle,
                     icon: Icon(
                       compact
@@ -564,7 +565,7 @@ class _ShellSidebar extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       IconButton(
-                        tooltip: 'Cerrar sesión',
+                        tooltip: l10n.logOut,
                         onPressed: onLogoutTap,
                         icon: const Icon(Icons.logout_rounded),
                       ),
@@ -600,7 +601,7 @@ class _ShellSidebar extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        tooltip: 'Cerrar sesión',
+                        tooltip: l10n.logOut,
                         onPressed: onLogoutTap,
                         icon: const Icon(Icons.logout_rounded),
                       ),

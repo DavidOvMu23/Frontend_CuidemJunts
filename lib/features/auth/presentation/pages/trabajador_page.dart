@@ -5,6 +5,7 @@ import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/workers/widgets/worker_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
@@ -340,6 +341,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: Material(
+                color: colorScheme.surface,
+                surfaceTintColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: EdgeInsets.all(isDesktop ? 22 : 16),
@@ -354,66 +357,72 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      general_busqueda_textfield(
-                        l10n.searchWorkers,
-                        icono: Icons.search,
-                        onChanged: (value) {
-                          setState(() {
-                            textoFiltro = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            filtroSeleccionado != WorkerFilter.all
-                                ? Icons.filter_alt
-                                : Icons.filter_alt_off,
-                            color: colorScheme.primary,
+                          Expanded(
+                            flex: 3,
+                            child: general_busqueda_textfield(
+                              l10n.searchWorkers,
+                              icono: Icons.search,
+                              onChanged: (value) {
+                                setState(() => textoFiltro = value);
+                              },
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: DropdownButtonFormField<WorkerFilter>(
-                              initialValue: filtroSeleccionado,
-                              icon: const Icon(Icons.arrow_drop_down),
-                              borderRadius: BorderRadius.circular(12),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  filtroSeleccionado != WorkerFilter.all
+                                      ? Icons.filter_alt
+                                      : Icons.filter_alt_off,
+                                  color: colorScheme.primary,
                                 ),
-                              ),
-                              items: [
-                                DropdownMenuItem(
-                                  value: WorkerFilter.all,
-                                  child: Text(l10n.searchAllWorkers),
-                                ),
-                                DropdownMenuItem(
-                                  value: WorkerFilter.supervisors,
-                                  child: Text(l10n.supervisor),
-                                ),
-                                DropdownMenuItem(
-                                  value: WorkerFilter.teleoperators,
-                                  child: Text(l10n.telemarketers),
-                                ),
-                                DropdownMenuItem(
-                                  value: WorkerFilter.withGroup,
-                                  child: Text(
-                                    '${l10n.group_label}: ${l10n.active}',
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: DropdownButtonFormField<WorkerFilter>(
+                                    initialValue: filtroSeleccionado,
+                                    icon: const Icon(Icons.arrow_drop_down),
+                                    borderRadius: BorderRadius.circular(12),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                    ),
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: WorkerFilter.all,
+                                        child: Text(l10n.searchAllWorkers),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: WorkerFilter.supervisors,
+                                        child: Text(l10n.supervisor),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: WorkerFilter.teleoperators,
+                                        child: Text(l10n.telemarketers),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: WorkerFilter.withGroup,
+                                        child: Text('${l10n.group_label}: ${l10n.active}'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: WorkerFilter.withoutGroup,
+                                        child: Text(l10n.noGroupAssigned),
+                                      ),
+                                    ],
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        filtroSeleccionado = newValue ?? WorkerFilter.all;
+                                      });
+                                    },
                                   ),
                                 ),
-                                DropdownMenuItem(
-                                  value: WorkerFilter.withoutGroup,
-                                  child: Text(l10n.noGroupAssigned),
-                                ),
                               ],
-                              onChanged: (newValue) {
-                                setState(() {
-                                  filtroSeleccionado =
-                                      newValue ?? WorkerFilter.all;
-                                });
-                              },
                             ),
                           ),
                         ],
@@ -486,27 +495,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                     itemBuilder: (context, index) {
                                       final trabajador =
                                           trabajadoresFiltrados[index];
-                                      final grupo =
-                                          (trabajador.grupoNombre ?? '').trim();
-
-                                      return ListTile(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        tileColor: Theme.of(context).cardColor,
-                                        title: Text(
-                                          '${trabajador.nombre} ${trabajador.apellidos}',
-                                          style: textTheme.titleMedium,
-                                        ),
-                                        subtitle: Text(
-                                          '${l10n.email_label}: ${trabajador.correo} · ${l10n.role_label}: ${trabajador.rol} · ${l10n.group_label}: ${grupo.isEmpty ? l10n.noGroupAssigned : grupo}',
-                                          style: textTheme.bodyMedium,
-                                        ),
-                                        trailing: const Icon(
-                                          Icons.chevron_right,
-                                        ),
+                                      return WorkerCard(
+                                        trabajador: trabajador,
                                         onTap: () => _showWorkerDetail(context, trabajador),
                                       );
                                     },
@@ -579,6 +569,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
             MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
+        context: context,
       ),
       drawer: appDrawer(
         userName: userName,

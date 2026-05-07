@@ -4,7 +4,7 @@
   "languageSpanish": "Español",
   "languageCatalan": "Catalán",
   "languageEnglish": "Inglés",
-  "welcome": "Bienvenido a CuidemJunts",
+  "welcome": "Bienvenido a Cuidem-nos en xarxa",
   "email": "Correo electrónico",
   "password": "Contraseña",
   "loginButton": "Iniciar sesión",
@@ -187,7 +187,7 @@
   "notificationsPressed": "Notificaciones pulsadas",
   "mainTitle": "Título principal",
   "sectionSubtitle": "Subtítulo de sección",
-  "cuidemJunts": "CuidemJunts",
+  "cuidemJunts": "Cuidem-nos en xarxa",
   "errorLoadingActivity": "Error al cargar la actividad",
   "nia": "NIA",
   "groupId": "Grupo id",
@@ -238,5 +238,47 @@
   "error": "Error",
   "reload": "Recargar",
   "search": "Buscar",
-  "archived": "Archivado"
+  "archived": "Archivado",
+  "noSummary": "Sin resumen",
+  "noGroup": "Sin grupo",
+  "deleteCall": "Eliminar llamada",
+  "deleteCallConfirm": "¿Seguro que quieres eliminar esta llamada?",
+  "callDeletedSuccessfully": "Llamada eliminada correctamente",
+  "errorDeletingCall": "Error al eliminar la llamada: {error}",
+  "@errorDeletingCall": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "callCreatedSuccessfully": "Llamada creada correctamente",
+  "callUpdatedSuccessfully": "Llamada actualizada correctamente",
+  "errorSavingCall": "Error al guardar la llamada: {error}",
+  "@errorSavingCall": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noAuthenticatedUser": "No hay usuario autenticado",
+  "noResults": "No hay resultados",
+  "editContactFromProfile": "Edita este contacto desde el perfil del usuario asociado",
+  "notEditableHere": "No editable desde aquí",
+  "contactAssociatedUnlinkConfirm": "Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?",
+  "contactReferencedError": "Este contacto está referenciado desde el perfil de un usuario. Elimina la referencia desde el perfil del cliente.",
+  "expandMenu": "Expandir menú",
+  "compactMenu": "Compactar menú",
+  "invalidDniValue": "DNI inválido: {dni}",
+  "@invalidDniValue": {
+    "placeholders": {
+      "dni": { "type": "String" }
+    }
+  },
+  "controlAndMonitoring": "Control y seguimiento",
+  "formatHHMM": "Formato HH:MM",
+  "onlyNumbers": "Solo números",
+  "noCallsFound": "No se encontraron llamadas",
+  "errorDataType": "Error de tipo de datos: verifica los campos de texto",
+  "results": "Resultados",
+  "systemUser": "Usuario del sistema",
+  "externalContact": "Contacto externo",
+  "allEmergencyContacts": "Todos los contactos"
 }

@@ -55,7 +55,7 @@ class CallCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  grupoNombre ?? 'Sin grupo',
+                  grupoNombre ?? l10n.noGroup,
                   style: textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurface.withOpacity(0.7),
                   ),

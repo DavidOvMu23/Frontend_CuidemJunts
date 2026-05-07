@@ -1,8 +1,28 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 
 // -------- WIDGETS GENERALES DE LA APP --------
+
+/// Extrae el mensaje de error legible de una excepción, con soporte para
+/// DioException y los errores JSON de NestJS ({ message: [...] }).
+String extractErrorMessage(dynamic e) {
+  if (e is DioException) {
+    try {
+      final data = e.response?.data;
+      if (data is Map && data['message'] != null) {
+        final msg = data['message'];
+        if (msg is List) return msg.join(', ');
+        return msg.toString();
+      }
+      if (data != null) return data.toString();
+    } catch (_) {}
+    return e.message ?? e.toString();
+  }
+  return e.toString();
+}
 // estos widgets serán los que se usarán en toda la app
 // los tenemos aquí guardados y no en presentations/widgets por que nuestro
 // proyecto usa la arquitectura "clean architecture" y se supone que los widgets globales
@@ -13,17 +33,19 @@ import 'package:flutter/services.dart';
 // Título centrado con botón de notificaciones
 PreferredSizeWidget appMainAppBar({
   required VoidCallback onNotifications,
-  int numeroNotificaciones = 0, // NUEVO PARÁMETRO
+  int numeroNotificaciones = 0,
+  BuildContext? context,
 }) {
   return AppBar(
-    title: const Text("CuidemJunts", style: TextStyle(fontSize: 19)),
+    title: const Text("Cuidem-nos en xarxa", style: TextStyle(fontSize: 19)),
     centerTitle: true,
     actions: [
       general_badge(
         numeroNotificaciones,
         Icons.notifications_active,
         onPressed: onNotifications,
-      ), // USA EL PARÁMETRO
+        context: context,
+      ),
     ],
   );
 }
@@ -34,14 +56,18 @@ Widget general_badge(
   int numeroNotificaciones,
   IconData icono, {
   required VoidCallback onPressed,
+  BuildContext? context,
 }) {
+  final tooltip = context != null
+      ? AppLocalizations.of(context)?.notifications ?? 'Notificaciones'
+      : 'Notificaciones';
   return Badge(
     label: Text(numeroNotificaciones.toString()),
     alignment: Alignment.topLeft,
     child: IconButton(
       icon: Icon(icono),
       onPressed: onPressed,
-      tooltip: 'Notificaciones',
+      tooltip: tooltip,
     ),
   );
 }

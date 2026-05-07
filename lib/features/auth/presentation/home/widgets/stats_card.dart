@@ -22,6 +22,8 @@ class StatsCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
+      color: colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
       borderRadius: BorderRadius.circular(30),
       child: Padding(
         padding: const EdgeInsets.all(16.0),

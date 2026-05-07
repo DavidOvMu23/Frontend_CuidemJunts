@@ -4,7 +4,7 @@
   "languageSpanish": "Castellà",
   "languageCatalan": "Català",
   "languageEnglish": "Anglès",
-  "welcome": "Benvinguts a CuidemJunts",
+  "welcome": "Benvinguts a Cuidem-nos en xarxa",
   "email": "Correu electrònic",
   "password": "Contrasenya",
   "loginButton": "Inicia sessió",
@@ -189,7 +189,7 @@
   "notificationsPressed": "Notificacions premudes",
   "mainTitle": "Títol principal",
   "sectionSubtitle": "Subtítol de secció",
-  "cuidemJunts": "CuidemJunts",
+  "cuidemJunts": "Cuidem-nos en xarxa",
   "errorLoadingActivity": "Error en carregar l'activitat",
   "nia": "NIA",
   "groupId": "ID de grup",
@@ -233,5 +233,47 @@
   "error": "Error",
   "reload": "Recarregar",
   "search": "Cercar",
-  "archived": "Arxivat"
+  "archived": "Arxivat",
+  "noSummary": "Sense resum",
+  "noGroup": "Sense grup",
+  "deleteCall": "Eliminar trucada",
+  "deleteCallConfirm": "Esteu segurs que voleu eliminar aquesta trucada?",
+  "callDeletedSuccessfully": "Trucada eliminada correctament",
+  "errorDeletingCall": "Error en eliminar la trucada: {error}",
+  "@errorDeletingCall": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "callCreatedSuccessfully": "Trucada creada correctament",
+  "callUpdatedSuccessfully": "Trucada actualitzada correctament",
+  "errorSavingCall": "Error en desar la trucada: {error}",
+  "@errorSavingCall": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noAuthenticatedUser": "No hi ha usuari autenticat",
+  "noResults": "No hi ha resultats",
+  "editContactFromProfile": "Edita aquest contacte des del perfil de l'usuari associat",
+  "notEditableHere": "No editable des d'aquí",
+  "contactAssociatedUnlinkConfirm": "Aquest contacte està associat a un o diversos usuaris. Voleu desvincular-lo de tots els usuaris i eliminar-lo?",
+  "contactReferencedError": "Aquest contacte és referenciat des del perfil d'un usuari. Elimina la referència des del perfil del client.",
+  "expandMenu": "Expandir menú",
+  "compactMenu": "Compactar menú",
+  "invalidDniValue": "DNI invàlid: {dni}",
+  "@invalidDniValue": {
+    "placeholders": {
+      "dni": { "type": "String" }
+    }
+  },
+  "controlAndMonitoring": "Control i seguiment",
+  "formatHHMM": "Format HH:MM",
+  "onlyNumbers": "Només números",
+  "noCallsFound": "No s'han trobat trucades",
+  "errorDataType": "Error de tipus de dades: verifiqueu els camps de text",
+  "results": "Resultats",
+  "systemUser": "Usuari del sistema",
+  "externalContact": "Contacte extern",
+  "allEmergencyContacts": "Tots els contactes"
 }

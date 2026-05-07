@@ -127,7 +127,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcome.
   ///
   /// In es, this message translates to:
-  /// **'Bienvenido a CuidemJunts'**
+  /// **'Bienvenido a Cuidem-nos en xarxa'**
   String get welcome;
 
   /// No description provided for @email.
@@ -1225,7 +1225,7 @@ abstract class AppLocalizations {
   /// No description provided for @cuidemJunts.
   ///
   /// In es, this message translates to:
-  /// **'CuidemJunts'**
+  /// **'Cuidem-nos en xarxa'**
   String get cuidemJunts;
 
   /// No description provided for @errorLoadingActivity.
@@ -1491,6 +1491,168 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Archivado'**
   String get archived;
+
+  /// No description provided for @noSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin resumen'**
+  String get noSummary;
+
+  /// No description provided for @noGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin grupo'**
+  String get noGroup;
+
+  /// No description provided for @deleteCall.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar llamada'**
+  String get deleteCall;
+
+  /// No description provided for @deleteCallConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Seguro que quieres eliminar esta llamada?'**
+  String get deleteCallConfirm;
+
+  /// No description provided for @callDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamada eliminada correctamente'**
+  String get callDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingCall.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar la llamada: {error}'**
+  String errorDeletingCall(String error);
+
+  /// No description provided for @callCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamada creada correctamente'**
+  String get callCreatedSuccessfully;
+
+  /// No description provided for @callUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamada actualizada correctamente'**
+  String get callUpdatedSuccessfully;
+
+  /// No description provided for @errorSavingCall.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar la llamada: {error}'**
+  String errorSavingCall(String error);
+
+  /// No description provided for @noAuthenticatedUser.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay usuario autenticado'**
+  String get noAuthenticatedUser;
+
+  /// No description provided for @noResults.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay resultados'**
+  String get noResults;
+
+  /// No description provided for @editContactFromProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Edita este contacto desde el perfil del usuario asociado'**
+  String get editContactFromProfile;
+
+  /// No description provided for @notEditableHere.
+  ///
+  /// In es, this message translates to:
+  /// **'No editable desde aquí'**
+  String get notEditableHere;
+
+  /// No description provided for @contactAssociatedUnlinkConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?'**
+  String get contactAssociatedUnlinkConfirm;
+
+  /// No description provided for @contactReferencedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Este contacto está referenciado desde el perfil de un usuario. Elimina la referencia desde el perfil del cliente.'**
+  String get contactReferencedError;
+
+  /// No description provided for @expandMenu.
+  ///
+  /// In es, this message translates to:
+  /// **'Expandir menú'**
+  String get expandMenu;
+
+  /// No description provided for @compactMenu.
+  ///
+  /// In es, this message translates to:
+  /// **'Compactar menú'**
+  String get compactMenu;
+
+  /// No description provided for @invalidDniValue.
+  ///
+  /// In es, this message translates to:
+  /// **'DNI inválido: {dni}'**
+  String invalidDniValue(String dni);
+
+  /// No description provided for @controlAndMonitoring.
+  ///
+  /// In es, this message translates to:
+  /// **'Control y seguimiento'**
+  String get controlAndMonitoring;
+
+  /// No description provided for @formatHHMM.
+  ///
+  /// In es, this message translates to:
+  /// **'Formato HH:MM'**
+  String get formatHHMM;
+
+  /// No description provided for @onlyNumbers.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo números'**
+  String get onlyNumbers;
+
+  /// No description provided for @noCallsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron llamadas'**
+  String get noCallsFound;
+
+  /// No description provided for @errorDataType.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de tipo de datos: verifica los campos de texto'**
+  String get errorDataType;
+
+  /// No description provided for @results.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultados'**
+  String get results;
+
+  /// No description provided for @systemUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario del sistema'**
+  String get systemUser;
+
+  /// No description provided for @externalContact.
+  ///
+  /// In es, this message translates to:
+  /// **'Contacto externo'**
+  String get externalContact;
+
+  /// No description provided for @allEmergencyContacts.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los contactos'**
+  String get allEmergencyContacts;
 }
 
 class _AppLocalizationsDelegate

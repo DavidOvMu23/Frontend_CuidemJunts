@@ -71,7 +71,7 @@ class CallsFutureList extends StatelessWidget {
         if (llamadas.isEmpty) {
           return Center(
             child: Text(
-              'No se encontraron llamadas',
+              l10n.noCallsFound,
               style: textTheme.bodyMedium,
             ),
           );
@@ -125,7 +125,7 @@ class CallsFutureList extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'No se encontraron llamadas',
+                  l10n.noCallsFound,
                   style: textTheme.bodyMedium,
                 ),
               )

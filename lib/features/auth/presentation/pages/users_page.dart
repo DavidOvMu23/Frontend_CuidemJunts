@@ -115,7 +115,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             });
           } catch (e) {
             if (!context.mounted) return;
-            general_snackbar_error(context, l10n.errorDeletingUser, 3);
+            general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
           }
         },
         onEdit: () => _editarUsuario(context, usuario),
@@ -276,6 +276,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             MaterialPageRoute(builder: (context) => const NotificationsPage()),
           );
         },
+        context: context,
       ),
 
       // -------- MENÚ LATERAL --------

@@ -21,7 +21,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get languageEnglish => 'Inglés';
 
   @override
-  String get welcome => 'Bienvenido a CuidemJunts';
+  String get welcome => 'Bienvenido a Cuidem-nos en xarxa';
 
   @override
   String get email => 'Correo electrónico';
@@ -603,7 +603,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sectionSubtitle => 'Subtítulo de sección';
 
   @override
-  String get cuidemJunts => 'CuidemJunts';
+  String get cuidemJunts => 'Cuidem-nos en xarxa';
 
   @override
   String get errorLoadingActivity => 'Error al cargar la actividad';
@@ -743,4 +743,95 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get archived => 'Archivado';
+
+  @override
+  String get noSummary => 'Sin resumen';
+
+  @override
+  String get noGroup => 'Sin grupo';
+
+  @override
+  String get deleteCall => 'Eliminar llamada';
+
+  @override
+  String get deleteCallConfirm => '¿Seguro que quieres eliminar esta llamada?';
+
+  @override
+  String get callDeletedSuccessfully => 'Llamada eliminada correctamente';
+
+  @override
+  String errorDeletingCall(String error) {
+    return 'Error al eliminar la llamada: $error';
+  }
+
+  @override
+  String get callCreatedSuccessfully => 'Llamada creada correctamente';
+
+  @override
+  String get callUpdatedSuccessfully => 'Llamada actualizada correctamente';
+
+  @override
+  String errorSavingCall(String error) {
+    return 'Error al guardar la llamada: $error';
+  }
+
+  @override
+  String get noAuthenticatedUser => 'No hay usuario autenticado';
+
+  @override
+  String get noResults => 'No hay resultados';
+
+  @override
+  String get editContactFromProfile =>
+      'Edita este contacto desde el perfil del usuario asociado';
+
+  @override
+  String get notEditableHere => 'No editable desde aquí';
+
+  @override
+  String get contactAssociatedUnlinkConfirm =>
+      'Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?';
+
+  @override
+  String get contactReferencedError =>
+      'Este contacto está referenciado desde el perfil de un usuario. Elimina la referencia desde el perfil del cliente.';
+
+  @override
+  String get expandMenu => 'Expandir menú';
+
+  @override
+  String get compactMenu => 'Compactar menú';
+
+  @override
+  String invalidDniValue(String dni) {
+    return 'DNI inválido: $dni';
+  }
+
+  @override
+  String get controlAndMonitoring => 'Control y seguimiento';
+
+  @override
+  String get formatHHMM => 'Formato HH:MM';
+
+  @override
+  String get onlyNumbers => 'Solo números';
+
+  @override
+  String get noCallsFound => 'No se encontraron llamadas';
+
+  @override
+  String get errorDataType =>
+      'Error de tipo de datos: verifica los campos de texto';
+
+  @override
+  String get results => 'Resultados';
+
+  @override
+  String get systemUser => 'Usuario del sistema';
+
+  @override
+  String get externalContact => 'Contacto externo';
+
+  @override
+  String get allEmergencyContacts => 'Todos los contactos';
 }

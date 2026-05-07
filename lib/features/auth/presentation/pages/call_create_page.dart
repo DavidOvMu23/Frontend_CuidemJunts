@@ -135,9 +135,8 @@ class _CallFormPageState extends State<CallFormPage> {
     try {
       await widget.onSubmit(data);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (!mounted) return;
+      general_snackbar_error(context, '${AppLocalizations.of(context)!.error}: ${extractErrorMessage(e)}', 5);
     }
   }
 
@@ -255,13 +254,13 @@ class _CallFormPageState extends State<CallFormPage> {
                               ),
                             )
                           : _usuariosBusqueda.isEmpty
-                              ? const Padding(
-                                  padding: EdgeInsets.all(16.0),
+                              ? Padding(
+                                  padding: const EdgeInsets.all(16.0),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.info_outline, color: Colors.grey),
-                                      SizedBox(width: 8),
-                                      Text('No hay resultados', style: TextStyle(color: Colors.grey)),
+                                      const Icon(Icons.info_outline, color: Colors.grey),
+                                      const SizedBox(width: 8),
+                                      Text(l10n.noResults, style: const TextStyle(color: Colors.grey)),
                                     ],
                                   ),
                                 )
@@ -434,7 +433,7 @@ class _CallFormPageState extends State<CallFormPage> {
                                   validator: (v) {
                                     if (v == null || v.isEmpty) return l10n.requiredField;
                                     final regex = RegExp(r'^([01]?\d|2[0-3]):[0-5]\d$');
-                                    if (!regex.hasMatch(v)) return 'Formato HH:MM';
+                                    if (!regex.hasMatch(v)) return l10n.formatHHMM;
                                     return null;
                                   },
                                   inputFormatters: [
@@ -457,7 +456,7 @@ class _CallFormPageState extends State<CallFormPage> {
                                   borderRadius: 12.0,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) return l10n.requiredField;
-                                    if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return 'Solo números';
+                                    if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return l10n.onlyNumbers;
                                     return null;
                                   },
                                   keyboardType: TextInputType.number,
@@ -513,7 +512,7 @@ class _CallFormPageState extends State<CallFormPage> {
                             validator: (v) {
                               if (v == null || v.isEmpty) return l10n.requiredField;
                               final regex = RegExp(r'^([01]?\d|2[0-3]):[0-5]\d$');
-                              if (!regex.hasMatch(v)) return 'Formato HH:MM';
+                              if (!regex.hasMatch(v)) return l10n.formatHHMM;
                               return null;
                             },
                             inputFormatters: [
@@ -529,7 +528,7 @@ class _CallFormPageState extends State<CallFormPage> {
                             borderRadius: 12.0,
                             validator: (v) {
                               if (v == null || v.isEmpty) return l10n.requiredField;
-                              if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return 'Solo números';
+                              if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return l10n.onlyNumbers;
                               return null;
                             },
                             keyboardType: TextInputType.number,

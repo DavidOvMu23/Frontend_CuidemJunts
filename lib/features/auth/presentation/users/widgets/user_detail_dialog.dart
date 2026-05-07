@@ -352,11 +352,46 @@ class UserDetailDialog extends StatelessWidget {
                                 Text(
                                   '${contacto.telefono}',
                                   style: textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
+                                const SizedBox(height: 6),
+                                Builder(builder: (context) {
+                                  final isUsuario = (contacto.dniUsuarioRef ?? '').isNotEmpty;
+                                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: isUsuario
+                                          ? (isDark ? AppPalette.successDark : AppPalette.successLight)
+                                          : (isDark ? AppPalette.warningDark : AppPalette.warningLight),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          isUsuario ? Icons.verified_user_outlined : Icons.person_outline,
+                                          size: 12,
+                                          color: isUsuario
+                                              ? (isDark ? AppPalette.successFontDark : AppPalette.successFontLight)
+                                              : (isDark ? AppPalette.warningFontDark : AppPalette.warningFontLight),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          isUsuario ? l10n.systemUser : l10n.externalContact,
+                                          style: textTheme.bodySmall?.copyWith(
+                                            fontSize: 11,
+                                            color: isUsuario
+                                                ? (isDark ? AppPalette.successFontDark : AppPalette.successFontLight)
+                                                : (isDark ? AppPalette.warningFontDark : AppPalette.warningFontLight),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),

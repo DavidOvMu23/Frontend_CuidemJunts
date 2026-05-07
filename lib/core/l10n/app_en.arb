@@ -4,7 +4,7 @@
   "languageSpanish": "Spanish",
   "languageCatalan": "Catalan",
   "languageEnglish": "English",
-  "welcome": "Welcome to CuidemJunts",
+  "welcome": "Welcome to Cuidem-nos en xarxa",
   "email": "Email",
   "password": "Password",
   "loginButton": "Log in",
@@ -187,7 +187,7 @@
   "notificationsPressed": "Notifications pressed",
   "mainTitle": "Main title",
   "sectionSubtitle": "Section subtitle",
-  "cuidemJunts": "CuidemJunts",
+  "cuidemJunts": "Cuidem-nos en xarxa",
   "errorLoadingActivity": "Error loading activity",
   "nia": "NIA",
   "groupId": "Group id",
@@ -231,5 +231,47 @@
   "error": "Error",
   "reload": "Reload",
   "search": "Search",
-  "archived": "Archived"
+  "archived": "Archived",
+  "noSummary": "No summary",
+  "noGroup": "No group",
+  "deleteCall": "Delete call",
+  "deleteCallConfirm": "Are you sure you want to delete this call?",
+  "callDeletedSuccessfully": "Call deleted successfully",
+  "errorDeletingCall": "Error deleting call: {error}",
+  "@errorDeletingCall": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "callCreatedSuccessfully": "Call created successfully",
+  "callUpdatedSuccessfully": "Call updated successfully",
+  "errorSavingCall": "Error saving call: {error}",
+  "@errorSavingCall": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noAuthenticatedUser": "No authenticated user",
+  "noResults": "No results",
+  "editContactFromProfile": "Edit this contact from the associated user's profile",
+  "notEditableHere": "Not editable here",
+  "contactAssociatedUnlinkConfirm": "This contact is associated with one or more users. Do you want to unlink it from all users and delete it?",
+  "contactReferencedError": "This contact is referenced from a user's profile. Remove the reference from the client's profile.",
+  "expandMenu": "Expand menu",
+  "compactMenu": "Compact menu",
+  "invalidDniValue": "Invalid DNI: {dni}",
+  "@invalidDniValue": {
+    "placeholders": {
+      "dni": { "type": "String" }
+    }
+  },
+  "controlAndMonitoring": "Control and monitoring",
+  "formatHHMM": "Format HH:MM",
+  "onlyNumbers": "Numbers only",
+  "noCallsFound": "No calls found",
+  "errorDataType": "Data type error: check the text fields",
+  "results": "Results",
+  "systemUser": "System user",
+  "externalContact": "External contact",
+  "allEmergencyContacts": "All contacts"
 }

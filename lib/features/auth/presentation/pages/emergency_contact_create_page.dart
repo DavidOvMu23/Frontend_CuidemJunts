@@ -24,6 +24,9 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
   final TextEditingController _nombreCtrl = TextEditingController();
   final TextEditingController _apellidosCtrl = TextEditingController();
   final TextEditingController _telefonoCtrl = TextEditingController();
+
+  bool get _isUsuarioSistema =>
+      (widget.contacto?.dniUsuarioRef ?? '').isNotEmpty;
   
 
   String _search = '';
@@ -54,31 +57,37 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context)!;
     final contactoService = ref.read(contactoEmergenciaServiceProvider);
-    final nombre = _nombreCtrl.text.trim();
-    final apellidos = _apellidosCtrl.text.trim();
-    final telefono = _telefonoCtrl.text.trim();
-    if (nombre.isEmpty || apellidos.isEmpty || telefono.isEmpty) {
-      general_snackbar_error(context, l10n.fillAllFields, 2);
-      return;
+
+    // Para usuarios del sistema solo actualizamos las relaciones
+    if (!_isUsuarioSistema) {
+      final nombre = _nombreCtrl.text.trim();
+      final apellidos = _apellidosCtrl.text.trim();
+      final telefono = _telefonoCtrl.text.trim();
+      if (nombre.isEmpty || apellidos.isEmpty || telefono.isEmpty) {
+        general_snackbar_error(context, l10n.fillAllFields, 2);
+        return;
+      }
     }
 
     // Normalizar y validar DNIs seleccionados
     final normalizedDnis = <String>[];
     for (final d in _selectedDnis) {
       final up = d.trim().toUpperCase();
-      if (!RegExp(r'^[0-9]{8}[A-Z]\$').hasMatch(up)) {
-        general_snackbar_error(context, 'DNI inválido: $d', 3);
+      if (!RegExp(r'^[0-9]{8}[A-Z]$').hasMatch(up)) {
+        general_snackbar_error(context, l10n.invalidDniValue(d.trim().toUpperCase()), 3);
         return;
       }
       normalizedDnis.add(up);
     }
 
-    final payload = {
-      'nombre': nombre,
-      'apellidos': apellidos,
-      'telefono': telefono,
-      'usuariosDnis': normalizedDnis,
-    };
+    final payload = _isUsuarioSistema
+        ? {'usuariosDnis': normalizedDnis}
+        : {
+            'nombre': _nombreCtrl.text.trim(),
+            'apellidos': _apellidosCtrl.text.trim(),
+            'telefono': _telefonoCtrl.text.trim(),
+            'usuariosDnis': normalizedDnis,
+          };
 
     try {
       if (widget.contacto != null) {
@@ -192,8 +201,10 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
                               if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
                               if (snapshot.hasError) return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
 
+                              final selfDni = (widget.contacto?.dniUsuarioRef ?? '').trim().toUpperCase();
                               final usuarios = snapshot.data ?? [];
                               final filtered = usuarios.where((u) {
+                                if (selfDni.isNotEmpty && u.dni.toUpperCase() == selfDni) return false;
                                 final full = '${u.nombre} ${u.apellidos} (${u.dni})'.toLowerCase();
                                 return _search.isEmpty || full.contains(_search.toLowerCase());
                               }).toList();
@@ -231,15 +242,44 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
                   Row(children: [Text('${l10n.selectedUser}: ${_selectedDnis.length}'), const Spacer()]),
                   SizedBox(height: gap),
 
+                  // Aviso cuando el contacto es un usuario del sistema
+                  if (_isUsuarioSistema) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.systemUser,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: gap),
+                  ],
+
                   // Row 3: Nombre | Apellidos
                   fieldRow(
-                    fieldGroup(l10n.name, general_textfield_NoICON(l10n.name, controller: _nombreCtrl, borderRadius: 12.0)),
-                    fieldGroup(l10n.lastName, general_textfield_NoICON(l10n.lastName, controller: _apellidosCtrl, borderRadius: 12.0)),
+                    fieldGroup(l10n.name, general_textfield_NoICON(l10n.name, controller: _nombreCtrl, borderRadius: 12.0, enabled: !_isUsuarioSistema)),
+                    fieldGroup(l10n.lastName, general_textfield_NoICON(l10n.lastName, controller: _apellidosCtrl, borderRadius: 12.0, enabled: !_isUsuarioSistema)),
                   ),
                   SizedBox(height: gap),
 
                   // Row 4: Teléfono (full width)
-                  fieldGroup(l10n.phone, general_textfield_NoICON(l10n.phone, controller: _telefonoCtrl, borderRadius: 12.0)),
+                  fieldGroup(l10n.phone, general_textfield_NoICON(l10n.phone, controller: _telefonoCtrl, borderRadius: 12.0, enabled: !_isUsuarioSistema)),
 
                   const SizedBox(height: 24),
                   Row(

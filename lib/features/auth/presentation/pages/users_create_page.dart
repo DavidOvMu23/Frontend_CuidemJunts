@@ -163,29 +163,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
       }
     } catch (e) {
       if (!mounted) return;
-
-      // Log del error para depuración
-      print('Error al crear/editar usuario: $e');
-
-      String errorMessage = _isEditing
-          ? l10n.userUpdatedError
-          : l10n.userCreatedError;
-      final errorString = e.toString();
-
-      // Verificar errores específicos conocidos
-      if (errorString.contains('Formato de DNI incorrecto')) {
-        errorMessage = l10n.invalidDNI; // "DNI inválido: formato 12345678A"
-      } else if (errorString.contains('El usuario con este DNI ya existe')) {
-        errorMessage = l10n.userErrorDNiExists;
-      } else if (errorString.contains('must be a string')) {
-        errorMessage = 'Error de tipo de datos: verifica los campos de texto';
-      }
-
-      general_snackbar_error(
-        context,
-        errorMessage,
-        4, // Un poco más de tiempo para leer
-      );
+      general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
     }
   }
 
@@ -443,6 +421,7 @@ class _CrearUserPageState extends ConsumerState<CrearUserPage> {
             MaterialPageRoute(builder: (_) => const NotificationsPage()),
           );
         },
+        context: context,
       ),
       drawer: appDrawer(
         userName: userName,

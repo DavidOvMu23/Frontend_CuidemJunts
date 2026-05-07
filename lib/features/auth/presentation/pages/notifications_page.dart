@@ -168,7 +168,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                     Text(
                                       notificaciones.isEmpty
                                           ? l10n.noNotifications
-                                          : 'No se encontraron notificaciones',
+                                          : l10n.noResultsFound,
                                       style: textTheme.bodyMedium?.copyWith(
                                         color: colorScheme.onSurface.withValues(alpha: 0.45),
                                       ),
@@ -248,6 +248,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         onNotifications: () {
           general_snackbar(context, l10n.notificationsPressed, 1);
         },
+        context: context,
       ),
       drawer: appDrawer(
         userName: userName,

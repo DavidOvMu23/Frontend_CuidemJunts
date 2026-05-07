@@ -145,7 +145,7 @@ class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
                             Text(
                               notificaciones.isEmpty
                                   ? l10n.noNotifications
-                                  : 'No se encontraron notificaciones',
+                                  : l10n.noResultsFound,
                               style: textTheme.bodyMedium,
                             ),
                           ],
@@ -241,6 +241,7 @@ class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
           error: (_, __) => 0,
         ),
         onNotifications: () {},
+        context: context,
       ),
       drawer: appDrawer(
         userName: userName,
@@ -477,10 +478,7 @@ class _NotificationCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Ícono del tipo
-                    Text(
-                      notificacion.tipoIcono,
-                      style: const TextStyle(fontSize: 24),
-                    ),
+                    Icon(notificacion.tipoIcono, size: 24),
                     const SizedBox(width: 12),
                     // Contenido
                     Expanded(
@@ -547,7 +545,7 @@ class _NotificationCard extends ConsumerWidget {
                                 onRefresh();
                               } catch (e) {
                                 if (context.mounted) {
-                                  general_snackbar(context, 'Error', 2);
+                                  general_snackbar_error(context, extractErrorMessage(e), 4);
                                 }
                               }
                             },
@@ -567,7 +565,7 @@ class _NotificationCard extends ConsumerWidget {
                                 onRefresh();
                               } catch (e) {
                                 if (context.mounted) {
-                                  general_snackbar(context, 'Error', 2);
+                                  general_snackbar_error(context, extractErrorMessage(e), 4);
                                 }
                               }
                             },
@@ -586,7 +584,7 @@ class _NotificationCard extends ConsumerWidget {
                               onRefresh();
                             } catch (e) {
                               if (context.mounted) {
-                                general_snackbar(context, 'Error', 2);
+                                general_snackbar_error(context, extractErrorMessage(e), 4);
                               }
                             }
                           },

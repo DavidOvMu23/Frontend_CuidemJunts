@@ -21,7 +21,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get languageEnglish => 'Anglès';
 
   @override
-  String get welcome => 'Benvinguts a CuidemJunts';
+  String get welcome => 'Benvinguts a Cuidem-nos en xarxa';
 
   @override
   String get email => 'Correu electrònic';
@@ -604,7 +604,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get sectionSubtitle => 'Subtítol de secció';
 
   @override
-  String get cuidemJunts => 'CuidemJunts';
+  String get cuidemJunts => 'Cuidem-nos en xarxa';
 
   @override
   String get errorLoadingActivity => 'Error en carregar l\'activitat';
@@ -743,4 +743,96 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get archived => 'Arxivat';
+
+  @override
+  String get noSummary => 'Sense resum';
+
+  @override
+  String get noGroup => 'Sense grup';
+
+  @override
+  String get deleteCall => 'Eliminar trucada';
+
+  @override
+  String get deleteCallConfirm =>
+      'Esteu segurs que voleu eliminar aquesta trucada?';
+
+  @override
+  String get callDeletedSuccessfully => 'Trucada eliminada correctament';
+
+  @override
+  String errorDeletingCall(String error) {
+    return 'Error en eliminar la trucada: $error';
+  }
+
+  @override
+  String get callCreatedSuccessfully => 'Trucada creada correctament';
+
+  @override
+  String get callUpdatedSuccessfully => 'Trucada actualitzada correctament';
+
+  @override
+  String errorSavingCall(String error) {
+    return 'Error en desar la trucada: $error';
+  }
+
+  @override
+  String get noAuthenticatedUser => 'No hi ha usuari autenticat';
+
+  @override
+  String get noResults => 'No hi ha resultats';
+
+  @override
+  String get editContactFromProfile =>
+      'Edita aquest contacte des del perfil de l\'usuari associat';
+
+  @override
+  String get notEditableHere => 'No editable des d\'aquí';
+
+  @override
+  String get contactAssociatedUnlinkConfirm =>
+      'Aquest contacte està associat a un o diversos usuaris. Voleu desvincular-lo de tots els usuaris i eliminar-lo?';
+
+  @override
+  String get contactReferencedError =>
+      'Aquest contacte és referenciat des del perfil d\'un usuari. Elimina la referència des del perfil del client.';
+
+  @override
+  String get expandMenu => 'Expandir menú';
+
+  @override
+  String get compactMenu => 'Compactar menú';
+
+  @override
+  String invalidDniValue(String dni) {
+    return 'DNI invàlid: $dni';
+  }
+
+  @override
+  String get controlAndMonitoring => 'Control i seguiment';
+
+  @override
+  String get formatHHMM => 'Format HH:MM';
+
+  @override
+  String get onlyNumbers => 'Només números';
+
+  @override
+  String get noCallsFound => 'No s\'han trobat trucades';
+
+  @override
+  String get errorDataType =>
+      'Error de tipus de dades: verifiqueu els camps de text';
+
+  @override
+  String get results => 'Resultats';
+
+  @override
+  String get systemUser => 'Usuari del sistema';
+
+  @override
+  String get externalContact => 'Contacte extern';
+
+  @override
+  String get allEmergencyContacts => 'Tots els contactes';
 }

@@ -4,15 +4,17 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_page_enums.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/widgets/emergency_contact_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
-// Cuerpo principal de la pantalla de contactos de emergencia,
-// diseñado para replicar el estilo y estructura de UsersScaffoldBody.
 class EmergencyContactsScaffoldBody extends ConsumerWidget {
   final Future<List<ContactoEmergencia>> contactosFuture;
   final String textoFiltro;
+  final ContactoEmergenciaFilter filtroSeleccionado;
   final List<ContactoEmergencia> Function(List<ContactoEmergencia>) aplicarFiltros;
   final ValueChanged<String> onSearchChanged;
+  final ValueChanged<ContactoEmergenciaFilter> onFilterChanged;
   final void Function(BuildContext, ContactoEmergencia, bool, Map<String, String>) onContactoTap;
   final void Function(ContactoEmergencia) onContactoEdit;
 
@@ -20,8 +22,10 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
     super.key,
     required this.contactosFuture,
     required this.textoFiltro,
+    required this.filtroSeleccionado,
     required this.aplicarFiltros,
     required this.onSearchChanged,
+    required this.onFilterChanged,
     required this.onContactoTap,
     required this.onContactoEdit,
   });
@@ -47,16 +51,71 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: Material(
+                color: colorScheme.surface,
+                surfaceTintColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      general_busqueda_textfield(
-                        l10n.searchEmergencyContacts,
-                        icono: Icons.search,
-                        onChanged: onSearchChanged,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: general_busqueda_textfield(
+                              l10n.searchEmergencyContacts,
+                              icono: Icons.search,
+                              onChanged: onSearchChanged,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  filtroSeleccionado != ContactoEmergenciaFilter.all
+                                      ? Icons.filter_alt
+                                      : Icons.filter_alt_off,
+                                  color: colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: DropdownButtonFormField<ContactoEmergenciaFilter>(
+                                    initialValue: filtroSeleccionado,
+                                    icon: const Icon(Icons.arrow_drop_down),
+                                    borderRadius: BorderRadius.circular(12),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                    ),
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: ContactoEmergenciaFilter.all,
+                                        child: Text(l10n.allEmergencyContacts),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: ContactoEmergenciaFilter.sistema,
+                                        child: Text(l10n.systemUser),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: ContactoEmergenciaFilter.externo,
+                                        child: Text(l10n.externalContact),
+                                      ),
+                                    ],
+                                    onChanged: (value) {
+                                      if (value != null) onFilterChanged(value);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Divider(
@@ -67,8 +126,7 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                         child: FutureBuilder<List<dynamic>>(
                           future: Future.wait([contactosFuture, usuariosFuture]),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
                               return const AppSkeletonList(count: 4);
                             }
 
@@ -84,18 +142,21 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                             }
 
                             final results = snapshot.data ?? [];
-                            final contactos = (results.isNotEmpty && results[0] is List<ContactoEmergencia>) ? results[0] as List<ContactoEmergencia> : <ContactoEmergencia>[];
-                            final usuarios = (results.length > 1 && results[1] is List<Usuario>) ? results[1] as List<Usuario> : <Usuario>[];
+                            final contactos = (results.isNotEmpty && results[0] is List<ContactoEmergencia>)
+                                ? results[0] as List<ContactoEmergencia>
+                                : <ContactoEmergencia>[];
+                            final usuarios = (results.length > 1 && results[1] is List<Usuario>)
+                                ? results[1] as List<Usuario>
+                                : <Usuario>[];
                             final contactosFiltrados = aplicarFiltros(contactos);
 
-                            final Map<String, String> usuariosMap = { for (final u in usuarios) u.dni : '${u.nombre} ${u.apellidos}' };
+                            final Map<String, String> usuariosMap = {
+                              for (final u in usuarios) u.dni: '${u.nombre} ${u.apellidos}'
+                            };
 
                             if (contactosFiltrados.isEmpty) {
                               return Center(
-                                child: Text(
-                                  l10n.noResultsFound,
-                                  style: textTheme.bodyMedium,
-                                ),
+                                child: Text(l10n.noResultsFound, style: textTheme.bodyMedium),
                               );
                             }
 
@@ -105,10 +166,8 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        'Resultados: ${contactosFiltrados.length}',
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                        '${l10n.results}: ${contactosFiltrados.length}',
+                                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                                       ),
                                     ),
                                   ],
@@ -121,62 +180,13 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                                     itemBuilder: (context, index) {
                                       final contacto = contactosFiltrados[index];
-                                      final asociados = contacto.usuariosDnis.map((d) => usuariosMap[d] ?? d).toList();
-                                      return Material(
-                                        color: Theme.of(context).cardColor,
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(16),
-                                          onTap: () => onContactoTap(context, contacto, true, usuariosMap),
-                                          child: Stack(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(14, 12, 40, 12),
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      '${contacto.nombre} ${contacto.apellidos}',
-                                                      style: textTheme.headlineLarge?.copyWith(
-                                                        fontSize: 20,
-                                                        fontWeight: FontWeight.w700,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Row(
-                                                      children: [
-                                                        const Icon(Icons.phone, size: 18),
-                                                        const SizedBox(width: 6),
-                                                        Text(contacto.telefono, style: textTheme.bodyMedium),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    // Mostrar referencia a usuario(s) usando los asociados
-                                                    Row(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        const Icon(Icons.badge_outlined, size: 18),
-                                                        const SizedBox(width: 6),
-                                                        Expanded(child: Text('Usuarios: ${asociados.isEmpty ? '-' : asociados.join(', ')}', style: textTheme.bodyMedium)),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Positioned(
-                                                right: 12,
-                                                top: 0,
-                                                bottom: 0,
-                                                child: Center(
-                                                  child: Icon(
-                                                    Icons.chevron_right,
-                                                    color: colorScheme.onSurface.withValues(alpha: 0.5),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                                      final asociados = contacto.usuariosDnis
+                                          .map((d) => usuariosMap[d] ?? d)
+                                          .toList();
+                                      return EmergencyContactCard(
+                                        contacto: contacto,
+                                        asociados: asociados,
+                                        onTap: () => onContactoTap(context, contacto, true, usuariosMap),
                                       );
                                     },
                                   ),

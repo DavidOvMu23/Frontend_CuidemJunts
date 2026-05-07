@@ -99,6 +99,8 @@ class TodayCallsSection extends StatelessWidget {
     );
 
     return Material(
+      color: colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
       borderRadius: BorderRadius.circular(30),
       child: Padding(
         padding: const EdgeInsets.all(16.0),

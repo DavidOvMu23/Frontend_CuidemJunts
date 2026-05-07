@@ -11,6 +11,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notificati
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contact_create_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
@@ -35,6 +36,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
   late Future<List<ContactoEmergencia>> _contactosFuture;
 
   String textoFiltro = '';
+  ContactoEmergenciaFilter filtroSeleccionado = ContactoEmergenciaFilter.all;
 
   // Formulario inline
   bool _esCreacion = false;
@@ -61,16 +63,29 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     setState(() => textoFiltro = value);
   }
 
+  void _onFilterChanged(ContactoEmergenciaFilter value) {
+    setState(() => filtroSeleccionado = value);
+  }
+
   List<ContactoEmergencia> _aplicarFiltros(List<ContactoEmergencia> contactos) {
     final query = textoFiltro.trim().toLowerCase();
 
     final filtrados = contactos.where((contacto) {
       final nombreCompleto = '${contacto.nombre} ${contacto.apellidos}'.toLowerCase();
       final paciente = (contacto.pacienteNombre ?? '').toLowerCase();
-        return query.isEmpty ||
+      final coincideTexto = query.isEmpty ||
           nombreCompleto.contains(query) ||
           contacto.telefono.contains(query) ||
           paciente.contains(query);
+
+      final esSistema = (contacto.dniUsuarioRef ?? '').isNotEmpty;
+      final coincideFiltro = switch (filtroSeleccionado) {
+        ContactoEmergenciaFilter.all => true,
+        ContactoEmergenciaFilter.sistema => esSistema,
+        ContactoEmergenciaFilter.externo => !esSistema,
+      };
+
+      return coincideTexto && coincideFiltro;
     }).toList();
 
     filtrados.sort((a, b) => a.nombre.compareTo(b.nombre));
@@ -97,34 +112,20 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               ),
             ),
               if (isSupervisor)
-                (contacto.dniUsuarioRef == null || contacto.dniUsuarioRef!.trim().isEmpty)
-                  ? IconButton(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _abrirFormularioContacto(contacto: contacto);
-                      },
-                      icon: const Icon(Icons.edit, size: 20),
-                      tooltip: l10n.edit,
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
-                      style: IconButton.styleFrom(
-                        foregroundColor: Theme.of(ctx).colorScheme.primary,
-                        padding: EdgeInsets.zero,
-                      ),
-                    )
-                  : IconButton(
-                      onPressed: () {
-                        general_snackbar(context, 'Edita este contacto desde el perfil del usuario asociado', 3);
-                      },
-                      icon: const Icon(Icons.edit, size: 20),
-                      tooltip: 'No editable desde aquí',
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
-                      style: IconButton.styleFrom(
-                        foregroundColor: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.4),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _abrirFormularioContacto(contacto: contacto);
+                  },
+                  icon: const Icon(Icons.edit, size: 20),
+                  tooltip: l10n.edit,
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                  style: IconButton.styleFrom(
+                    foregroundColor: Theme.of(ctx).colorScheme.primary,
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
           ],
         ),
         content: SizedBox(
@@ -148,7 +149,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                 children: [
                   const Icon(Icons.badge_outlined),
                   const SizedBox(width: 12),
-                  Expanded(child: Text('Usuarios: ${asociados.isEmpty ? '-' : asociados.join(', ')}')),
+                  Expanded(child: Text('${l10n.users}: ${asociados.isEmpty ? '-' : asociados.join(', ')}')),
                 ],
               ),
             ],
@@ -159,7 +160,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
             onPressed: () => Navigator.pop(ctx),
             child: Text(l10n.close),
           ),
-          if (isSupervisor)
+          if (isSupervisor && (contacto.dniUsuarioRef ?? '').isEmpty)
             general_deletebutton(
               ctx,
               l10n.delete,
@@ -258,8 +259,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     final listBody = EmergencyContactsScaffoldBody(
       contactosFuture: _contactosFuture,
       textoFiltro: textoFiltro,
+      filtroSeleccionado: filtroSeleccionado,
       aplicarFiltros: _aplicarFiltros,
       onSearchChanged: _onSearchChanged,
+      onFilterChanged: _onFilterChanged,
       onContactoTap: (context, contacto, isSupervisor, usuariosMap) => _mostrarDetalleContacto(context, contacto, isSupervisor, usuariosMap),
       onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
     );
@@ -308,6 +311,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         onNotifications: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsPage()));
         },
+        context: context,
       ),
       drawer: appDrawer(
         userName: userName,

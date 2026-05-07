@@ -165,11 +165,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
         Navigator.pop(context);
       }
     } catch (e) {
-      general_snackbar_error(
-        context,
-        l10n.errorCreatingWorker(e.toString()),
-        3,
-      );
+      general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
     }
   }
 
@@ -424,6 +420,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
             MaterialPageRoute(builder: (_) => const NotificationsPage()),
           );
         },
+        context: context,
       ),
       drawer: appDrawer(
         userName: userName,

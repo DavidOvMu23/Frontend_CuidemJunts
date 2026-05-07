@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 
 class AppPalette {
   // -------- TEMA CLARO --------
-  static const Color backgroundLight = Color(0xFFFDF9F5); // Fondo general.
-  static const Color surfaceLight = Color(0xFFDFF0FD); // Paneles y surfaces.
-  static const Color cardLight = Color(0xFFBFE3FF); // Tarjetas e inputs.
-  static const Color primaryLight = Color(0xFF42a6ee); // Botones principales.
-  static const Color accentLight = Color(0xFF8fc7e8); // Acciones secundarias.
-  static const Color menuLight = Color(0xFF081d3c); // Iconos del AppBar.
+  static const Color backgroundLight = Color(0xFFDEEEFA); // Fondo general.
+  static const Color surfaceLight = Color(0xFFC4E0F5); // Paneles y surfaces.
+  static const Color cardLight = Color(0xFFAAD2F0); // Tarjetas e inputs.
+  static const Color primaryLight = Color(0xFF2F91D9); // Botones principales.
+  static const Color accentLight = Color(0xFF7CB9E0); // Acciones secundarias.
+  static const Color menuLight = Color(0xFF0F2A47); // Iconos del AppBar.
 
   // Estados (éxito, warning y error) para banners o textos informativos.
   static const Color successLight = Color(0xFFDCFCE7);
@@ -21,11 +21,11 @@ class AppPalette {
   static const Color errorFontLight = Color(0xFFA83B3D);
 
   // Textos en tema claro.
-  static const Color textPrimaryLight = Color(0xFF081d3c);
-  static const Color textSecondaryLight = Color(0xFF3c4b5a);
-  static const Color textMutedLight = Color(0xFF708198);
+  static const Color textPrimaryLight = Color(0xFF0F2A47);
+  static const Color textSecondaryLight = Color(0xFF3A4F66);
+  static const Color textMutedLight = Color(0xFF6B8299);
   static const Color textOnPrimaryLight = Colors.white;
-  static const Color textOnSurfaceLight = Color(0xFF0B233F);
+  static const Color textOnSurfaceLight = Color(0xFF0F2A47);
 
   // -------- TEMA OSCURO --------
   static const Color backgroundDark = Color(0xFF0a1524);
