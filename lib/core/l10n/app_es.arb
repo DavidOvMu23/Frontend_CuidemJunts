@@ -318,5 +318,11 @@
   "loginNoConnection": "No se pudo conectar con el servidor. Comprueba que el servidor esté en marcha y tu conexión a internet.",
   "monthlyCalendar": "Calendario mensual",
   "selectDayToSeeCalls": "Selecciona un día para ver sus llamadas",
-  "noCallsOnDay": "No hay llamadas este día"
+  "noCallsOnDay": "No hay llamadas este día",
+  "groupReactivated": "Grupo reactivado",
+  "groupReactivatedWorkersManual": "El grupo se ha reactivado correctamente.\n\nLos teleoperadores asignados a este grupo no se han reactivado automáticamente. Deberás reactivarlos manualmente desde la sección de Trabajadores.",
+  "groupDeactivatedWorkersAlso": "Grupo desactivado. Los teleoperadores del grupo también han sido desactivados automáticamente.",
+  "inactiveGroupWorkersWarning": "Inactivo · Los teleoperadores del grupo serán desactivados",
+  "confirmDeactivateGroup": "¿Desactivar grupo?",
+  "confirmDeactivateGroupContent": "Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?"
 }

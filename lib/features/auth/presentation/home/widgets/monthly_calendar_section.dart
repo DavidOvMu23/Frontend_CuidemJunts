@@ -67,19 +67,12 @@ class _MonthlyCalendarSectionState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.calendar_month_rounded,
-                    size: 18, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.monthlyCalendar,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+            Text(
+              l10n.monthlyCalendar,
+              style: textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+                fontSize: 18,
+              ),
             ),
             const SizedBox(height: 12),
             if (widget.expandContent)
@@ -88,7 +81,8 @@ class _MonthlyCalendarSectionState
                   builder: (context, constraints) {
                     return widget.callsAsync.when(
                       data: (calls) => _buildGrid(context, calls,
-                          availableHeight: constraints.maxHeight),
+                          availableHeight: constraints.maxHeight,
+                          availableWidth: constraints.maxWidth),
                       loading: () =>
                           const AppSkeletonCard(height: double.infinity),
                       error: (_, __) => Padding(
@@ -100,16 +94,21 @@ class _MonthlyCalendarSectionState
                 ),
               )
             else
-              widget.callsAsync.when(
-                data: (calls) => _buildGrid(context, calls),
-                loading: () => const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: AppSkeletonCard(height: 260),
-                ),
-                error: (_, __) => Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(l10n.errorCallsLoading),
-                ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return widget.callsAsync.when(
+                    data: (calls) => _buildGrid(context, calls,
+                        availableWidth: constraints.maxWidth),
+                    loading: () => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: AppSkeletonCard(height: 260),
+                    ),
+                    error: (_, __) => Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(l10n.errorCallsLoading),
+                    ),
+                  );
+                },
               ),
           ],
         ),
@@ -118,7 +117,7 @@ class _MonthlyCalendarSectionState
   }
 
   Widget _buildGrid(BuildContext context, List<Llamadas> calls,
-      {double? availableHeight}) {
+      {double? availableHeight, double? availableWidth}) {
     final Map<int, List<Llamadas>> callsByDay = {};
     for (final c in calls) {
       if (c.fecha.year == _focusedMonth.year &&
@@ -133,6 +132,7 @@ class _MonthlyCalendarSectionState
       callsByDay: callsByDay,
       isToday: _isToday,
       availableHeight: availableHeight,
+      availableWidth: availableWidth,
       onDayTapped: (date, dayCalls) =>
           _onDayTapped(context, date, dayCalls),
       onPrev: () => setState(() => _focusedMonth =
@@ -154,6 +154,7 @@ class _CalendarGrid extends StatelessWidget {
   final VoidCallback onPrev;
   final VoidCallback onNext;
   final double? availableHeight;
+  final double? availableWidth;
 
   const _CalendarGrid({
     required this.focusedMonth,
@@ -164,6 +165,7 @@ class _CalendarGrid extends StatelessWidget {
     required this.onPrev,
     required this.onNext,
     this.availableHeight,
+    this.availableWidth,
   });
 
   @override
@@ -181,16 +183,23 @@ class _CalendarGrid extends StatelessWidget {
     final totalCells = (firstWeekday - 1) + daysInMonth;
     final rowCount = (totalCells / 7).ceil();
 
-    // Calcula aspecto dinámico si tenemos altura disponible
+    // Calcula aspecto dinámico usando el ancho real del contenedor
     const headerH = 36.0;
     const dayNamesH = 22.0;
     const spacingH = 16.0;
     double aspectRatio = 1.3;
-    if (availableHeight != null && availableHeight! > 0) {
-      final gridH = availableHeight! - headerH - dayNamesH - spacingH;
-      final cellH = gridH / rowCount;
-      final cellW = (MediaQuery.of(context).size.width - 36) / 7;
-      aspectRatio = (cellW / cellH).clamp(0.8, 2.5);
+    final w = availableWidth;
+    if (w != null && w > 0) {
+      final cellW = w / 7;
+      if (availableHeight != null && availableHeight! > 0) {
+        final gridH = availableHeight! - headerH - dayNamesH - spacingH;
+        final cellH = (gridH - (rowCount - 1) * 2) / rowCount;
+        aspectRatio = (cellW / cellH).clamp(0.5, 4.0);
+      } else {
+        // Mobile: celdas cuadradas con mínimo de 44px
+        final cellH = (cellW / 1.1).clamp(44.0, 90.0);
+        aspectRatio = cellW / cellH;
+      }
     }
 
     return Column(

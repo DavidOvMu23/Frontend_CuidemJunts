@@ -1,13 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
 
-// -------- WIDGETS GENERALES DE LA APP --------
-
-/// Extrae el mensaje de error legible de una excepción, con soporte para
-/// DioException y los errores JSON de NestJS ({ message: [...] }).
+/// Extrae el mensaje de error legible de una excepción Dio / NestJS.
 String extractErrorMessage(dynamic e) {
   if (e is DioException) {
     try {
@@ -23,24 +20,19 @@ String extractErrorMessage(dynamic e) {
   }
   return e.toString();
 }
-// estos widgets serán los que se usarán en toda la app
-// los tenemos aquí guardados y no en presentations/widgets por que nuestro
-// proyecto usa la arquitectura "clean architecture" y se supone que los widgets globales
-// se deben de almacenar aquí en un proyecto de flutter, se me hace raro que estén aquí y no en
-// presentations/widgets pero bueno
 
-// APPBAR
-// Título centrado con botón de notificaciones
+// ── AppBar ────────────────────────────────────────────────────────────────────
+
 PreferredSizeWidget appMainAppBar({
   required VoidCallback onNotifications,
   int numeroNotificaciones = 0,
   BuildContext? context,
 }) {
   return AppBar(
-    title: const Text("Cuidem-nos en xarxa", style: TextStyle(fontSize: 19)),
+    title: const Text('Cuidem-nos en xarxa', style: TextStyle(fontSize: 19)),
     centerTitle: true,
     actions: [
-      general_badge(
+      _notificationBadge(
         numeroNotificaciones,
         Icons.notifications_active,
         onPressed: onNotifications,
@@ -50,11 +42,9 @@ PreferredSizeWidget appMainAppBar({
   );
 }
 
-// BADGE
-// Muestra un icono para las notificaciones
-Widget general_badge(
-  int numeroNotificaciones,
-  IconData icono, {
+Widget _notificationBadge(
+  int count,
+  IconData icon, {
   required VoidCallback onPressed,
   BuildContext? context,
 }) {
@@ -62,18 +52,18 @@ Widget general_badge(
       ? AppLocalizations.of(context)?.notifications ?? 'Notificaciones'
       : 'Notificaciones';
   return Badge(
-    label: Text(numeroNotificaciones.toString()),
+    label: Text(count.toString()),
     alignment: Alignment.topLeft,
     child: IconButton(
-      icon: Icon(icono),
+      icon: Icon(icon),
       onPressed: onPressed,
       tooltip: tooltip,
     ),
   );
 }
 
-// FILLED BUTTON
-// Botón grande para acciones principales
+// ── Buttons ───────────────────────────────────────────────────────────────────
+
 Widget general_filledbutton(String texto, {required VoidCallback onPressed}) {
   return FilledButton(
     onPressed: onPressed,
@@ -98,14 +88,6 @@ Widget general_filledbutton(String texto, {required VoidCallback onPressed}) {
   );
 }
 
-// TEXT BUTTON
-// Ideal para enlaces o acciones secundarias
-Widget general_textbutton(String texto, {required VoidCallback onPressed}) {
-  return TextButton(onPressed: onPressed, child: Text(texto));
-}
-
-// FLOATING BUTTON
-// Para acciones destacadas en la pantalla
 Widget general_floatingbutton(
   IconData icono, {
   required VoidCallback onPressed,
@@ -113,17 +95,26 @@ Widget general_floatingbutton(
   return FloatingActionButton(onPressed: onPressed, child: Icon(icono));
 }
 
-// ICON BUTTON
-// Útil cuando solo necesitamos un icono táctil (por ejemplo dar like a algo).
-Widget general_iconbutton(IconData icono, {required VoidCallback onPressed}) {
-  return IconButton(
-    icon: Icon(icono, color: AppPalette.primaryLight),
+Widget general_deletebutton(
+  BuildContext context,
+  String texto, {
+  required VoidCallback onPressed,
+}) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  return FilledButton(
     onPressed: onPressed,
+    style: FilledButton.styleFrom(
+      backgroundColor: isDark ? AppPalette.errorDark : AppPalette.errorLight,
+      foregroundColor:
+          isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight,
+    ),
+    child: Text(texto),
   );
 }
 
-// TEXTFIELD
-// Con icono opcional, radio y número de líneas
+// ── Text fields ───────────────────────────────────────────────────────────────
+
+/// Campo de texto básico con icono opcional y soporte para obscureText.
 TextField general_textfield(
   String texto,
   bool obscureText, {
@@ -137,7 +128,7 @@ TextField general_textfield(
     obscureText: obscureText,
     maxLines: maxLines,
     decoration: InputDecoration(
-      hintText: texto, // Texto gris que explica qué escribir.
+      hintText: texto,
       prefixIcon: icono != null ? Icon(icono) : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -148,10 +139,7 @@ TextField general_textfield(
   );
 }
 
-//TEXTFIELD
-//Lo mismo que arriba pero sin icono, pero si lo hacía con icono opcional se quedaba
-//feo por que dejaba un espacio vacío antes de poner el texto y sin el obscure text
-
+/// Campo de formulario con soporte para validación.
 TextFormField general_textfield_NoICON(
   String texto, {
   double borderRadius = 12.0,
@@ -170,7 +158,7 @@ TextFormField general_textfield_NoICON(
     inputFormatters: inputFormatters,
     keyboardType: keyboardType,
     decoration: InputDecoration(
-      hintText: texto, // Texto gris que explica qué escribir.
+      hintText: texto,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide.none,
@@ -180,9 +168,7 @@ TextFormField general_textfield_NoICON(
   );
 }
 
-//TEXTFIELD DE BÚSQUEDA
-//Lo mismo que el primero pero con un border radius mayor para que haya diferenciia entre
-//un textfield normal y este y que no fuiera solo el texto
+/// Campo de búsqueda con border radius redondeado.
 TextField general_busqueda_textfield(
   String texto, {
   IconData? icono,
@@ -194,7 +180,7 @@ TextField general_busqueda_textfield(
     controller: controller,
     onChanged: onChanged,
     decoration: InputDecoration(
-      hintText: texto, // Texto gris que explica qué escribir.
+      hintText: texto,
       prefixIcon: Icon(icono, color: AppPalette.primaryLight),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -205,8 +191,8 @@ TextField general_busqueda_textfield(
   );
 }
 
-// SNACKBAR
-// Muestra un mensaje en la parte inferior durante unos segundos
+// ── Snackbars ─────────────────────────────────────────────────────────────────
+
 void general_snackbar(
   BuildContext context,
   String content,
@@ -220,8 +206,6 @@ void general_snackbar(
   );
 }
 
-// SNACKNBAR ERROR
-// Lo mismo pero con otros colores
 void general_snackbar_error(
   BuildContext context,
   String content,
@@ -242,8 +226,8 @@ void general_snackbar_error(
   );
 }
 
-// LISTILE
-// Un elemento para una lista con icono, texto
+// ── List tiles ────────────────────────────────────────────────────────────────
+
 Widget general_listtile({
   required BuildContext context,
   required IconData icon,
@@ -251,8 +235,6 @@ Widget general_listtile({
   VoidCallback? onTap,
   bool selected = false,
 }) {
-  const iconColor =
-      AppPalette.primaryLight; // Azul principal de la app para los iconos
   final surfaceColor = Theme.of(context).colorScheme.surface;
   final defaultTextColor =
       Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
@@ -263,11 +245,11 @@ Widget general_listtile({
       borderRadius: BorderRadius.circular(24),
     ),
     child: ListTile(
-      leading: Icon(icon, color: iconColor),
+      leading: Icon(icon, color: AppPalette.primaryLight),
       title: Text(
         texto,
         style: TextStyle(
-          color: selected ? iconColor : defaultTextColor,
+          color: selected ? AppPalette.primaryLight : defaultTextColor,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -276,30 +258,25 @@ Widget general_listtile({
   );
 }
 
-// LISTILE CERRAR SESIÓN
-// lo mismo que arriba pero especifico para cerrar sesión por el tamaño de fuente y cosas que cambian
 Widget general_listtile_logout({
   required BuildContext context,
   required IconData icon,
   required String texto,
   required VoidCallback onTap,
 }) {
-  const iconColor = AppPalette.primaryLight;
-
   return ListTile(
     horizontalTitleGap: 2,
-    leading: Icon(icon, color: iconColor, size: 16),
+    leading: Icon(icon, color: AppPalette.primaryLight, size: 16),
     title: Text(
       texto,
-      style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
     ),
     onTap: onTap,
   );
 }
 
-// CONFIRM DIALOG
-// Para mostrar un menú que te de una opción para confirmar una acción importante, como cerrar sesión o
-// eliminar un usuario, grupo, teleoperador etc...
+// ── Dialogs ───────────────────────────────────────────────────────────────────
+
 Future<void> showConfirmDialog(
   BuildContext context, {
   required String title,
@@ -327,28 +304,5 @@ Future<void> showConfirmDialog(
         ),
       ],
     ),
-  );
-}
-
-// DELETE BUTTON
-// Botón de eliminar
-Widget general_deletebutton(
-  BuildContext context,
-  String texto, {
-  required VoidCallback onPressed,
-}) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final backgroundColor = isDark ? AppPalette.errorDark : AppPalette.errorLight;
-  final textColor = isDark
-      ? AppPalette.errorFontDark
-      : AppPalette.errorFontLight;
-
-  return FilledButton(
-    onPressed: onPressed,
-    style: FilledButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: textColor,
-    ),
-    child: Text(texto),
   );
 }

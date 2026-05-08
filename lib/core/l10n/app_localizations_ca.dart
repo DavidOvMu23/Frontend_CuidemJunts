@@ -954,4 +954,26 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get noCallsOnDay => 'No hi ha trucades aquest dia';
+
+  @override
+  String get groupReactivated => 'Grup reactivat';
+
+  @override
+  String get groupReactivatedWorkersManual =>
+      'El grup s\'ha reactivat correctament.\n\nEls teleoperadors assignats a aquest grup no s\'han reactivat automàticament. Hauràs de reactivar-los manualment des de la secció de Treballadors.';
+
+  @override
+  String get groupDeactivatedWorkersAlso =>
+      'Grup desactivat. Els teleoperadors del grup també han estat desactivats automàticament.';
+
+  @override
+  String get inactiveGroupWorkersWarning =>
+      'Inactiu · Els teleoperadors del grup seran desactivats';
+
+  @override
+  String get confirmDeactivateGroup => 'Desactivar grup?';
+
+  @override
+  String get confirmDeactivateGroupContent =>
+      'En desactivar aquest grup, tots els seus teleoperadors seran desactivats automàticament i no podran iniciar sessió.\n\nContinuar?';
 }

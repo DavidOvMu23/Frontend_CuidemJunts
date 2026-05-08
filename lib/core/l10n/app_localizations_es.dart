@@ -952,4 +952,26 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get noCallsOnDay => 'No hay llamadas este día';
+
+  @override
+  String get groupReactivated => 'Grupo reactivado';
+
+  @override
+  String get groupReactivatedWorkersManual =>
+      'El grupo se ha reactivado correctamente.\n\nLos teleoperadores asignados a este grupo no se han reactivado automáticamente. Deberás reactivarlos manualmente desde la sección de Trabajadores.';
+
+  @override
+  String get groupDeactivatedWorkersAlso =>
+      'Grupo desactivado. Los teleoperadores del grupo también han sido desactivados automáticamente.';
+
+  @override
+  String get inactiveGroupWorkersWarning =>
+      'Inactivo · Los teleoperadores del grupo serán desactivados';
+
+  @override
+  String get confirmDeactivateGroup => '¿Desactivar grupo?';
+
+  @override
+  String get confirmDeactivateGroupContent =>
+      'Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?';
 }

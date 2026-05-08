@@ -938,4 +938,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noCallsOnDay => 'No calls on this day';
+
+  @override
+  String get groupReactivated => 'Group reactivated';
+
+  @override
+  String get groupReactivatedWorkersManual =>
+      'The group has been reactivated successfully.\n\nThe teleoperators assigned to this group have not been automatically reactivated. You must reactivate them manually from the Workers section.';
+
+  @override
+  String get groupDeactivatedWorkersAlso =>
+      'Group deactivated. The group\'s teleoperators have also been automatically deactivated.';
+
+  @override
+  String get inactiveGroupWorkersWarning =>
+      'Inactive · The group\'s teleoperators will be deactivated';
+
+  @override
+  String get confirmDeactivateGroup => 'Deactivate group?';
+
+  @override
+  String get confirmDeactivateGroupContent =>
+      'Deactivating this group will automatically deactivate all its teleoperators and they will not be able to log in.\n\nContinue?';
 }

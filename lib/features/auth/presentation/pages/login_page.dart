@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/api_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor_shell_page.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/login_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
@@ -141,8 +140,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             Positioned(
               top: 30,
               right: 0,
-              child: login_iconbutton(
-                Icons.language,
+              child: IconButton(
+                icon: const Icon(Icons.language),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
@@ -160,22 +159,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          login_listile_demo(
-                            texto: l10n.languageSpanish,
+                          ListTile(
+                            title: Text(l10n.languageSpanish),
                             onTap: () {
                               Navigator.pop(context);
                               ref.read(localeProvider.notifier).setSpanish();
                             },
                           ),
-                          login_listile_demo(
-                            texto: l10n.languageCatalan,
+                          ListTile(
+                            title: Text(l10n.languageCatalan),
                             onTap: () {
                               Navigator.pop(context);
                               ref.read(localeProvider.notifier).setCatalan();
                             },
                           ),
-                          login_listile_demo(
-                            texto: l10n.languageEnglish,
+                          ListTile(
+                            title: Text(l10n.languageEnglish),
                             onTap: () {
                               Navigator.pop(context);
                               ref.read(localeProvider.notifier).setEnglish();

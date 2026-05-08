@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
@@ -315,7 +316,7 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                       fieldGroup(
                         l10n.group_label,
                         _cargandoGrupos
-                            ? const Center(child: CircularProgressIndicator())
+                            ? const AppSkeletonBox(height: 56)
                             : DropdownButtonFormField<int>(
                                 value: _grupoId,
                                 items: _grupos

@@ -311,5 +311,11 @@
   "loginNoConnection": "Could not connect to the server. Check that the server is running and your internet connection.",
   "monthlyCalendar": "Monthly calendar",
   "selectDayToSeeCalls": "Select a day to see its calls",
-  "noCallsOnDay": "No calls on this day"
+  "noCallsOnDay": "No calls on this day",
+  "groupReactivated": "Group reactivated",
+  "groupReactivatedWorkersManual": "The group has been reactivated successfully.\n\nThe teleoperators assigned to this group have not been automatically reactivated. You must reactivate them manually from the Workers section.",
+  "groupDeactivatedWorkersAlso": "Group deactivated. The group's teleoperators have also been automatically deactivated.",
+  "inactiveGroupWorkersWarning": "Inactive · The group's teleoperators will be deactivated",
+  "confirmDeactivateGroup": "Deactivate group?",
+  "confirmDeactivateGroupContent": "Deactivating this group will automatically deactivate all its teleoperators and they will not be able to log in.\n\nContinue?"
 }

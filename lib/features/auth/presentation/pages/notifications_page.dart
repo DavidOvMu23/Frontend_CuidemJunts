@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/notificacion.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
@@ -170,7 +171,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                               ),
                             );
                           },
-                          loading: () => const Center(child: CircularProgressIndicator()),
+                          loading: () => const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: AppSkeletonList(count: 5),
+                          ),
                           error: (err, st) => Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,

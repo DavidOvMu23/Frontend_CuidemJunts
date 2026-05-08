@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_emergencia_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
@@ -198,7 +199,7 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
                           child: FutureBuilder<List<Usuario>>(
                             future: usuariosFuture,
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+                              if (snapshot.connectionState == ConnectionState.waiting) return const AppSkeletonList(count: 4, itemHeight: 72);
                               if (snapshot.hasError) return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
 
                               final selfDni = (widget.contacto?.dniUsuarioRef ?? '').trim().toUpperCase();

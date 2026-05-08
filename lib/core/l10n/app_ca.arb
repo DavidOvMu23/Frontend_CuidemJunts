@@ -313,5 +313,11 @@
   "loginNoConnection": "No s'ha pogut connectar amb el servidor. Comprova que el servidor estigui en marxa i la teva connexió a internet.",
   "monthlyCalendar": "Calendari mensual",
   "selectDayToSeeCalls": "Selecciona un dia per veure les seves trucades",
-  "noCallsOnDay": "No hi ha trucades aquest dia"
+  "noCallsOnDay": "No hi ha trucades aquest dia",
+  "groupReactivated": "Grup reactivat",
+  "groupReactivatedWorkersManual": "El grup s'ha reactivat correctament.\n\nEls teleoperadors assignats a aquest grup no s'han reactivat automàticament. Hauràs de reactivar-los manualment des de la secció de Treballadors.",
+  "groupDeactivatedWorkersAlso": "Grup desactivat. Els teleoperadors del grup també han estat desactivats automàticament.",
+  "inactiveGroupWorkersWarning": "Inactiu · Els teleoperadors del grup seran desactivats",
+  "confirmDeactivateGroup": "Desactivar grup?",
+  "confirmDeactivateGroupContent": "En desactivar aquest grup, tots els seus teleoperadors seran desactivats automàticament i no podran iniciar sessió.\n\nContinuar?"
 }

@@ -50,6 +50,35 @@ class _GrupoCreateEditPageState extends ConsumerState<GrupoCreateEditPage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context)!;
+
+    final seDesactiva = _isEdit && widget.grupo!.activo && !_activo;
+    final seReactiva = _isEdit && !widget.grupo!.activo && _activo;
+
+    // Confirm before deactivating a group with workers
+    if (seDesactiva) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.confirmDeactivateGroup),
+          content: Text(l10n.confirmDeactivateGroupContent),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(ctx).colorScheme.error,
+              ),
+              child: Text(l10n.accept),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
     final grupoService = ref.read(grupoServiceProvider);
     final payload = <String, dynamic>{
       'nombre': _nombreCtrl.text.trim(),
@@ -60,7 +89,27 @@ class _GrupoCreateEditPageState extends ConsumerState<GrupoCreateEditPage> {
       if (_isEdit) {
         await grupoService.update(widget.grupo!.id, payload);
         if (!mounted) return;
-        general_snackbar(context, l10n.groupUpdatedSuccessfully, 2);
+        if (seReactiva) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: Text(l10n.groupReactivated),
+              content: Text(l10n.groupReactivatedWorkersManual),
+              actions: [
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.accept),
+                ),
+              ],
+            ),
+          );
+          if (!mounted) return;
+        } else if (seDesactiva) {
+          general_snackbar(context, l10n.groupDeactivatedWorkersAlso, 4);
+        } else {
+          general_snackbar(context, l10n.groupUpdatedSuccessfully, 2);
+        }
       } else {
         await grupoService.create(payload);
         if (!mounted) return;
@@ -127,7 +176,11 @@ class _GrupoCreateEditPageState extends ConsumerState<GrupoCreateEditPage> {
                 child: SwitchListTile(
                   title: Text(l10n.accountStatus, style: textTheme.bodyMedium),
                   subtitle: Text(
-                    _activo ? l10n.active : l10n.inactive,
+                    _activo
+                        ? l10n.active
+                        : (_isEdit
+                            ? l10n.inactiveGroupWorkersWarning
+                            : l10n.inactive),
                     style: TextStyle(
                       color: _activo
                           ? Colors.green.shade700

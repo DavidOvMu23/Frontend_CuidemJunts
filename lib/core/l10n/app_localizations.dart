@@ -1881,6 +1881,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay llamadas este día'**
   String get noCallsOnDay;
+
+  /// No description provided for @groupReactivated.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo reactivado'**
+  String get groupReactivated;
+
+  /// No description provided for @groupReactivatedWorkersManual.
+  ///
+  /// In es, this message translates to:
+  /// **'El grupo se ha reactivado correctamente.\n\nLos teleoperadores asignados a este grupo no se han reactivado automáticamente. Deberás reactivarlos manualmente desde la sección de Trabajadores.'**
+  String get groupReactivatedWorkersManual;
+
+  /// No description provided for @groupDeactivatedWorkersAlso.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo desactivado. Los teleoperadores del grupo también han sido desactivados automáticamente.'**
+  String get groupDeactivatedWorkersAlso;
+
+  /// No description provided for @inactiveGroupWorkersWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo · Los teleoperadores del grupo serán desactivados'**
+  String get inactiveGroupWorkersWarning;
+
+  /// No description provided for @confirmDeactivateGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Desactivar grupo?'**
+  String get confirmDeactivateGroup;
+
+  /// No description provided for @confirmDeactivateGroupContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?'**
+  String get confirmDeactivateGroupContent;
 }
 
 class _AppLocalizationsDelegate
