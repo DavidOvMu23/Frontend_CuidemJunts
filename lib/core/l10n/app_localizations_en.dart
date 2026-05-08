@@ -820,4 +820,113 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allEmergencyContacts => 'All contacts';
+
+  @override
+  String get totalContacts => 'Total contacts';
+
+  @override
+  String get searchNotifications => 'Search notifications';
+
+  @override
+  String get allNotifications => 'All notifications';
+
+  @override
+  String get unreadNotifications => 'Unread';
+
+  @override
+  String get readNotifications => 'Read';
+
+  @override
+  String get archivedNotifications => 'Archived';
+
+  @override
+  String get totalNotifications => 'Total notifications';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get sortRoleSupervisorFirst => 'Role (Supervisor first)';
+
+  @override
+  String get sortGroupAZ => 'Group A-Z';
+
+  @override
+  String get sortGroupZA => 'Group Z-A';
+
+  @override
+  String get sortInternalFirst => 'Internal contacts first';
+
+  @override
+  String get sortExternalFirst => 'External contacts first';
+
+  @override
+  String get sortByDate => 'By date (most recent first)';
+
+  @override
+  String get sortByDateOldest => 'By date (oldest first)';
+
+  @override
+  String get groups => 'Groups';
+
+  @override
+  String get manageGroups => 'Manage teleoperator groups';
+
+  @override
+  String get newGroup => 'New group';
+
+  @override
+  String get searchGroups => 'Search by name or description';
+
+  @override
+  String get allGroups => 'All groups';
+
+  @override
+  String get groupsFound => 'Groups found:';
+
+  @override
+  String get totalGroups => 'Total groups';
+
+  @override
+  String get noGroupsFound => 'No groups found';
+
+  @override
+  String get activeGroups => 'Active groups';
+
+  @override
+  String get inactiveGroups => 'Inactive groups';
+
+  @override
+  String get groupCreatedSuccessfully => 'Group created successfully';
+
+  @override
+  String get groupUpdatedSuccessfully => 'Group updated successfully';
+
+  @override
+  String get groupDeletedSuccessfully => 'Group deleted successfully';
+
+  @override
+  String get sortMostTeleoperators => 'Most teleoperators first';
+
+  @override
+  String get sortFewestTeleoperators => 'Fewest teleoperators first';
+
+  @override
+  String get deleteGroupContent =>
+      'Are you sure you want to delete this group?\n\nThis action cannot be undone.';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get loginForbidden =>
+      'Your account does not have access permissions. Contact a supervisor.';
+
+  @override
+  String get loginTimeout =>
+      'The server took too long to respond. Check your connection and try again.';
+
+  @override
+  String get loginNoConnection =>
+      'Could not connect to the server. Check that the server is running and your internet connection.';
 }

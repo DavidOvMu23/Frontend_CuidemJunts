@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-class WorkerCard extends StatefulWidget {
-  final Trabajador trabajador;
+class GrupoCard extends StatefulWidget {
+  final Grupo grupo;
   final VoidCallback onTap;
 
-  const WorkerCard({
+  const GrupoCard({
     super.key,
-    required this.trabajador,
+    required this.grupo,
     required this.onTap,
   });
 
   @override
-  State<WorkerCard> createState() => _WorkerCardState();
+  State<GrupoCard> createState() => _GrupoCardState();
 }
 
-class _WorkerCardState extends State<WorkerCard> {
+class _GrupoCardState extends State<GrupoCard> {
   bool _hovered = false;
 
   @override
@@ -25,7 +25,7 @@ class _WorkerCardState extends State<WorkerCard> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final grupo = (widget.trabajador.grupoNombre ?? '').trim();
+    final descripcion = widget.grupo.descripcion.trim();
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 170),
@@ -51,48 +51,42 @@ class _WorkerCardState extends State<WorkerCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${widget.trabajador.nombre} ${widget.trabajador.apellidos}',
+                      widget.grupo.nombre,
                       style: textTheme.headlineLarge?.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        const Icon(Icons.email_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            widget.trabajador.correo,
-                            style: textTheme.bodyMedium,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    if (descripcion.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.description_outlined, size: 18),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              descripcion,
+                              style: textTheme.bodyMedium,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.badge_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Text(widget.trabajador.rol, style: textTheme.bodyMedium),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.group_outlined, size: 18),
+                        const Icon(Icons.support_agent_outlined, size: 18),
                         const SizedBox(width: 6),
                         Text(
-                          grupo.isEmpty ? l10n.noGroupAssigned : grupo,
+                          '${widget.grupo.teleoperadoresCount} ${l10n.telemarketers.toLowerCase()}',
                           style: textTheme.bodyMedium,
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    _ActiveBadge(activo: widget.trabajador.activo),
+                    _GrupoActiveBadge(activo: widget.grupo.activo),
                   ],
                 ),
               ),
@@ -115,9 +109,9 @@ class _WorkerCardState extends State<WorkerCard> {
   }
 }
 
-class _ActiveBadge extends StatelessWidget {
+class _GrupoActiveBadge extends StatelessWidget {
   final bool activo;
-  const _ActiveBadge({required this.activo});
+  const _GrupoActiveBadge({required this.activo});
 
   @override
   Widget build(BuildContext context) {

@@ -835,4 +835,113 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get allEmergencyContacts => 'Tots els contactes';
+
+  @override
+  String get totalContacts => 'Total de contactes';
+
+  @override
+  String get searchNotifications => 'Cercar notificacions';
+
+  @override
+  String get allNotifications => 'Totes les notificacions';
+
+  @override
+  String get unreadNotifications => 'Sense llegir';
+
+  @override
+  String get readNotifications => 'Llegides';
+
+  @override
+  String get archivedNotifications => 'Arxivades';
+
+  @override
+  String get totalNotifications => 'Total de notificacions';
+
+  @override
+  String get inactive => 'Inactiu';
+
+  @override
+  String get sortRoleSupervisorFirst => 'Rol (Supervisor primer)';
+
+  @override
+  String get sortGroupAZ => 'Grup A-Z';
+
+  @override
+  String get sortGroupZA => 'Grup Z-A';
+
+  @override
+  String get sortInternalFirst => 'Interns primer';
+
+  @override
+  String get sortExternalFirst => 'Externs primer';
+
+  @override
+  String get sortByDate => 'Per data (més recent primer)';
+
+  @override
+  String get sortByDateOldest => 'Per data (més antic primer)';
+
+  @override
+  String get groups => 'Grups';
+
+  @override
+  String get manageGroups => 'Gestiona els grups de teleoperadors';
+
+  @override
+  String get newGroup => 'Nou grup';
+
+  @override
+  String get searchGroups => 'Cercar per nom o descripció';
+
+  @override
+  String get allGroups => 'Tots els grups';
+
+  @override
+  String get groupsFound => 'Grups trobats:';
+
+  @override
+  String get totalGroups => 'Total de grups';
+
+  @override
+  String get noGroupsFound => 'No s\'han trobat grups';
+
+  @override
+  String get activeGroups => 'Grups actius';
+
+  @override
+  String get inactiveGroups => 'Grups inactius';
+
+  @override
+  String get groupCreatedSuccessfully => 'Grup creat correctament';
+
+  @override
+  String get groupUpdatedSuccessfully => 'Grup actualitzat correctament';
+
+  @override
+  String get groupDeletedSuccessfully => 'Grup eliminat correctament';
+
+  @override
+  String get sortMostTeleoperators => 'Més teleoperadors primer';
+
+  @override
+  String get sortFewestTeleoperators => 'Menys teleoperadors primer';
+
+  @override
+  String get deleteGroupContent =>
+      'Estàs segur que vols eliminar aquest grup?\n\nAquesta acció no es pot desfer.';
+
+  @override
+  String get description => 'Descripció';
+
+  @override
+  String get loginForbidden =>
+      'El teu compte no té permisos d\'accés. Contacta amb un supervisor.';
+
+  @override
+  String get loginTimeout =>
+      'El servidor ha trigat massa a respondre. Comprova la teva connexió i torna-ho a intentar.';
+
+  @override
+  String get loginNoConnection =>
+      'No s\'ha pogut connectar amb el servidor. Comprova que el servidor estigui en marxa i la teva connexió a internet.';
 }

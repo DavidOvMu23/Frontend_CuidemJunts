@@ -4,164 +4,98 @@ import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/workers/widgets/worker_card.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/groups/widgets/grupo_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupo_create_edit_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_create_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_edit_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
-class WorkersPage extends ConsumerStatefulWidget {
+class GruposPage extends ConsumerStatefulWidget {
   final bool embedded;
 
-  const WorkersPage({
+  const GruposPage({
     super.key,
     this.embedded = false,
   });
 
   @override
-  ConsumerState<WorkersPage> createState() => _WorkersPageState();
+  ConsumerState<GruposPage> createState() => _GruposPageState();
 }
 
-enum WorkerFilter { all, supervisors, teleoperators, active, inactive }
+enum GrupoFilter { all, active, inactive }
 
-enum WorkerSort { nameAZ, nameZA, roleAZ, groupAZ, groupZA }
+enum GrupoSort { nameAZ, nameZA, mostTeleoperators, fewestTeleoperators }
 
-class _WorkersPageState extends ConsumerState<WorkersPage> {
-  late Future<List<Trabajador>> _trabajadoresFuture;
-  WorkerFilter filtroSeleccionado = WorkerFilter.all;
-  WorkerSort ordenSeleccionado = WorkerSort.nameAZ;
+class _GruposPageState extends ConsumerState<GruposPage> {
+  late Future<List<Grupo>> _gruposFuture;
+  GrupoFilter filtroSeleccionado = GrupoFilter.all;
+  GrupoSort ordenSeleccionado = GrupoSort.nameAZ;
   String textoFiltro = '';
 
-  // Formulario inline
   bool _esCreacion = false;
-  Trabajador? _trabajadorEnEdicion;
+  Grupo? _grupoEnEdicion;
 
   @override
   void initState() {
     super.initState();
-    // Only load workers if current user is supervisor to avoid 403 from backend
-    final authState = ref.read(authProvider);
-    final isSupervisor = (authState.rol ?? '').toString().toLowerCase() == 'supervisor';
-    if (isSupervisor) {
-      _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-    } else {
-      _trabajadoresFuture = Future.value(<Trabajador>[]);
-    }
+    _gruposFuture = _cargarGrupos();
   }
 
-  Future<List<Trabajador>> _cargarTrabajadoresConGrupo() async {
-    final trabajadorService = ref.read(trabajadorServiceProvider);
-    final gruposService = ref.read(grupoServiceProvider);
-
-    final trabajadores = await trabajadorService.getAll();
-    final Map<int, String?> cache = {};
-
-    final enriched = await Future.wait(
-      trabajadores.map((trabajador) async {
-        final esTeleoperador = trabajador.rol.toLowerCase() == 'teleoperador';
-        final grupoId = trabajador.grupoId;
-        if (!esTeleoperador || grupoId == null) {
-          return trabajador;
-        }
-
-        final nombreGrupo = await _obtenerNombreGrupo(
-          grupoId,
-          cache,
-          gruposService,
-        );
-        if (nombreGrupo == null) {
-          return trabajador;
-        }
-        return trabajador.copyWith(grupoNombre: nombreGrupo);
-      }),
-    );
-
-    return enriched;
+  Future<List<Grupo>> _cargarGrupos() async {
+    final grupoService = ref.read(grupoServiceProvider);
+    return grupoService.findAll();
   }
 
-  Future<String?> _obtenerNombreGrupo(
-    int grupoId,
-    Map<int, String?> cache,
-    GrupoService gruposService,
-  ) async {
-    if (cache.containsKey(grupoId)) {
-      return cache[grupoId];
-    }
-
-    try {
-      final grupo = await gruposService.getById(grupoId);
-      cache[grupoId] = grupo.nombre;
-      return grupo.nombre;
-    } catch (_) {
-      cache[grupoId] = null;
-      return null;
-    }
+  void _recargarGrupos() {
+    setState(() {
+      _gruposFuture = _cargarGrupos();
+    });
   }
 
-  List<Trabajador> _aplicarFiltros(List<Trabajador> trabajadores) {
+  List<Grupo> _aplicarFiltros(List<Grupo> grupos) {
     final query = textoFiltro.trim().toLowerCase();
 
-    final filtrados = trabajadores.where((trabajador) {
-      final nombreCompleto = '${trabajador.nombre} ${trabajador.apellidos}'
-          .toLowerCase();
-      final grupoNombre = (trabajador.grupoNombre ?? '').toLowerCase();
-      final rol = trabajador.rol.toLowerCase();
+    final filtrados = grupos.where((grupo) {
+      final nombre = grupo.nombre.toLowerCase();
+      final descripcion = grupo.descripcion.toLowerCase();
 
-      final coincideTexto =
-          query.isEmpty ||
-          nombreCompleto.contains(query) ||
-          trabajador.correo.toLowerCase().contains(query) ||
-          rol.contains(query) ||
-          grupoNombre.contains(query);
+      final coincideTexto = query.isEmpty ||
+          nombre.contains(query) ||
+          descripcion.contains(query);
 
       final coincideFiltro = switch (filtroSeleccionado) {
-        WorkerFilter.all => true,
-        WorkerFilter.supervisors => rol == 'supervisor',
-        WorkerFilter.teleoperators => rol == 'teleoperador',
-        WorkerFilter.active => trabajador.activo,
-        WorkerFilter.inactive => !trabajador.activo,
+        GrupoFilter.all => true,
+        GrupoFilter.active => grupo.activo,
+        GrupoFilter.inactive => !grupo.activo,
       };
 
       return coincideTexto && coincideFiltro;
     }).toList();
 
     filtrados.sort((a, b) {
-      final grupoA = (a.grupoNombre ?? '').toLowerCase();
-      final grupoB = (b.grupoNombre ?? '').toLowerCase();
       switch (ordenSeleccionado) {
-        case WorkerSort.nameAZ:
+        case GrupoSort.nameAZ:
           return a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase());
-        case WorkerSort.nameZA:
+        case GrupoSort.nameZA:
           return b.nombre.toLowerCase().compareTo(a.nombre.toLowerCase());
-        case WorkerSort.roleAZ:
-          return a.rol.toLowerCase().compareTo(b.rol.toLowerCase());
-        case WorkerSort.groupAZ:
-          return grupoA.compareTo(grupoB);
-        case WorkerSort.groupZA:
-          return grupoB.compareTo(grupoA);
+        case GrupoSort.mostTeleoperators:
+          return b.teleoperadoresCount.compareTo(a.teleoperadoresCount);
+        case GrupoSort.fewestTeleoperators:
+          return a.teleoperadoresCount.compareTo(b.teleoperadoresCount);
       }
     });
 
     return filtrados;
-  }
-
-  void _onSortChanged(WorkerSort sort) {
-    setState(() {
-      ordenSeleccionado = sort;
-    });
   }
 
   void _showSortBottomSheet(BuildContext context, AppLocalizations l10n) {
@@ -183,7 +117,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
               icon: Icons.sort_by_alpha,
               texto: l10n.sortNameAZ,
               onTap: () {
-                _onSortChanged(WorkerSort.nameAZ);
+                setState(() => ordenSeleccionado = GrupoSort.nameAZ);
                 Navigator.pop(ctx);
               },
             ),
@@ -192,34 +126,26 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
               icon: Icons.sort_by_alpha,
               texto: l10n.sortNameZA,
               onTap: () {
-                _onSortChanged(WorkerSort.nameZA);
+                setState(() => ordenSeleccionado = GrupoSort.nameZA);
                 Navigator.pop(ctx);
               },
             ),
             general_listtile(
               context: context,
-              icon: Icons.badge,
-              texto: l10n.sortRoleSupervisorFirst,
+              icon: Icons.arrow_downward,
+              texto: l10n.sortMostTeleoperators,
               onTap: () {
-                _onSortChanged(WorkerSort.roleAZ);
+                setState(() => ordenSeleccionado = GrupoSort.mostTeleoperators);
                 Navigator.pop(ctx);
               },
             ),
             general_listtile(
               context: context,
-              icon: Icons.group_work,
-              texto: l10n.sortGroupAZ,
+              icon: Icons.arrow_upward,
+              texto: l10n.sortFewestTeleoperators,
               onTap: () {
-                _onSortChanged(WorkerSort.groupAZ);
-                Navigator.pop(ctx);
-              },
-            ),
-            general_listtile(
-              context: context,
-              icon: Icons.group_work,
-              texto: l10n.sortGroupZA,
-              onTap: () {
-                _onSortChanged(WorkerSort.groupZA);
+                setState(
+                    () => ordenSeleccionado = GrupoSort.fewestTeleoperators);
                 Navigator.pop(ctx);
               },
             ),
@@ -229,9 +155,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     );
   }
 
-  void _showWorkerDetail(BuildContext context, Trabajador trabajador) {
+  void _showGrupoDetail(BuildContext context, Grupo grupo, bool isSupervisor) {
     final l10n = AppLocalizations.of(context)!;
-    final grupo = (trabajador.grupoNombre ?? '').trim();
 
     showDialog(
       context: context,
@@ -265,11 +190,13 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
               ),
             );
 
-        final activoBg = trabajador.activo
+        final activoBg = grupo.activo
             ? (isDark ? AppPalette.successDark : AppPalette.successLight)
             : (isDark ? AppPalette.errorDark : AppPalette.errorLight);
-        final activoFg = trabajador.activo
-            ? (isDark ? AppPalette.successFontDark : AppPalette.successFontLight)
+        final activoFg = grupo.activo
+            ? (isDark
+                ? AppPalette.successFontDark
+                : AppPalette.successFontLight)
             : (isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight);
 
         return AlertDialog(
@@ -277,29 +204,30 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
             children: [
               Expanded(
                 child: Text(
-                  '${trabajador.nombre} ${trabajador.apellidos}',
+                  grupo.nombre,
                   style: textTheme.headlineLarge
                       ?.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
                   softWrap: true,
                 ),
               ),
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  setState(() {
-                    _trabajadorEnEdicion = trabajador;
-                    _esCreacion = false;
-                  });
-                },
-                icon: const Icon(Icons.edit, size: 20),
-                tooltip: l10n.edit,
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                style: IconButton.styleFrom(
-                  foregroundColor: colorScheme.primary,
+              if (isSupervisor)
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _grupoEnEdicion = grupo;
+                      _esCreacion = false;
+                    });
+                  },
+                  icon: const Icon(Icons.edit, size: 20),
+                  tooltip: l10n.edit,
                   padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                  style: IconButton.styleFrom(
+                    foregroundColor: colorScheme.primary,
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
-              ),
             ],
           ),
           content: SizedBox(
@@ -310,14 +238,13 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  detailRow(Icons.email_outlined, l10n.email_label,
-                      trabajador.correo),
-                  detailRow(Icons.badge_outlined, l10n.role_label,
-                      trabajador.rol),
+                  if (grupo.descripcion.trim().isNotEmpty)
+                    detailRow(Icons.description_outlined, l10n.description,
+                        grupo.descripcion),
                   detailRow(
-                    Icons.group_outlined,
-                    l10n.group_label,
-                    grupo.isEmpty ? l10n.noGroupAssigned : grupo,
+                    Icons.support_agent_outlined,
+                    l10n.telemarketers,
+                    '${grupo.teleoperadoresCount}',
                   ),
                   const SizedBox(height: 4),
                   Text(l10n.accountStatus,
@@ -332,7 +259,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      trabajador.activo ? l10n.active : l10n.inactive,
+                      grupo.activo ? l10n.active : l10n.inactive,
                       style: textTheme.titleMedium?.copyWith(
                         color: activoFg,
                         fontWeight: FontWeight.bold,
@@ -348,8 +275,45 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
               onPressed: () => Navigator.pop(ctx),
               child: Text(l10n.close),
             ),
+            if (isSupervisor)
+              general_deletebutton(
+                ctx,
+                l10n.delete,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _confirmarEliminar(grupo);
+                },
+              ),
           ],
         );
+      },
+    );
+  }
+
+  Future<void> _confirmarEliminar(Grupo grupo) async {
+    final l10n = AppLocalizations.of(context)!;
+    final warning = grupo.teleoperadoresCount > 0
+        ? '\n\n⚠ Este grupo tiene ${grupo.teleoperadoresCount} teleoperador(es) asignado(s).'
+        : '';
+
+    await showConfirmDialog(
+      context,
+      title: l10n.delete,
+      content: '${l10n.deleteGroupContent}$warning\n\n${grupo.nombre}',
+      confirmText: l10n.accept,
+      cancelText: l10n.cancel,
+      onConfirm: () async {
+        try {
+          final grupoService = ref.read(grupoServiceProvider);
+          await grupoService.delete(grupo.id);
+          if (!mounted) return;
+          _recargarGrupos();
+          general_snackbar(context, l10n.groupDeletedSuccessfully, 2);
+        } catch (e) {
+          if (!mounted) return;
+          general_snackbar_error(
+              context, '${l10n.error}: ${extractErrorMessage(e)}', 4);
+        }
       },
     );
   }
@@ -363,15 +327,16 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final isSupervisor = userRole?.toLowerCase() == 'supervisor';
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
-    final fab = (userRole?.toLowerCase() == 'supervisor')
+    final fab = isSupervisor
         ? general_floatingbutton(
             Icons.add,
             onPressed: () {
               setState(() {
                 _esCreacion = true;
-                _trabajadorEnEdicion = null;
+                _grupoEnEdicion = null;
               });
             },
           )
@@ -405,7 +370,7 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                           Expanded(
                             flex: 3,
                             child: general_busqueda_textfield(
-                              l10n.searchWorkers,
+                              l10n.searchGroups,
                               icono: Icons.search,
                               onChanged: (value) {
                                 setState(() => textoFiltro = value);
@@ -418,14 +383,14 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                             child: Row(
                               children: [
                                 Icon(
-                                  filtroSeleccionado != WorkerFilter.all
+                                  filtroSeleccionado != GrupoFilter.all
                                       ? Icons.filter_alt
                                       : Icons.filter_alt_off,
                                   color: colorScheme.primary,
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: DropdownButtonFormField<WorkerFilter>(
+                                  child: DropdownButtonFormField<GrupoFilter>(
                                     initialValue: filtroSeleccionado,
                                     icon: const Icon(Icons.arrow_drop_down),
                                     borderRadius: BorderRadius.circular(12),
@@ -437,29 +402,22 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                     ),
                                     items: [
                                       DropdownMenuItem(
-                                        value: WorkerFilter.all,
-                                        child: Text(l10n.searchAllWorkers),
+                                        value: GrupoFilter.all,
+                                        child: Text(l10n.allGroups),
                                       ),
                                       DropdownMenuItem(
-                                        value: WorkerFilter.supervisors,
-                                        child: Text(l10n.supervisor),
+                                        value: GrupoFilter.active,
+                                        child: Text(l10n.activeGroups),
                                       ),
                                       DropdownMenuItem(
-                                        value: WorkerFilter.teleoperators,
-                                        child: Text(l10n.telemarketers),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: WorkerFilter.active,
-                                        child: Text(l10n.active),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: WorkerFilter.inactive,
-                                        child: Text(l10n.inactive),
+                                        value: GrupoFilter.inactive,
+                                        child: Text(l10n.inactiveGroups),
                                       ),
                                     ],
                                     onChanged: (newValue) {
                                       setState(() {
-                                        filtroSeleccionado = newValue ?? WorkerFilter.all;
+                                        filtroSeleccionado =
+                                            newValue ?? GrupoFilter.all;
                                       });
                                     },
                                   ),
@@ -475,8 +433,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                         color: colorScheme.primary.withValues(alpha: 0.3),
                       ),
                       Expanded(
-                        child: FutureBuilder<List<Trabajador>>(
-                          future: _trabajadoresFuture,
+                        child: FutureBuilder<List<Grupo>>(
+                          future: _gruposFuture,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -486,18 +444,16 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                             if (snapshot.hasError) {
                               return Center(
                                 child: Text(
-                                  l10n.errorLoadingWorkers,
+                                  l10n.noGroupsFound,
                                   style: textTheme.bodyMedium,
                                 ),
                               );
                             }
 
-                            final trabajadores = snapshot.data ?? [];
-                            final trabajadoresFiltrados = _aplicarFiltros(
-                              trabajadores,
-                            );
+                            final grupos = snapshot.data ?? [];
+                            final gruposFiltrados = _aplicarFiltros(grupos);
 
-                            if (trabajadoresFiltrados.isEmpty) {
+                            if (gruposFiltrados.isEmpty) {
                               return Center(
                                 child: Text(
                                   l10n.noResultsFound,
@@ -506,9 +462,10 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                               );
                             }
 
-                            final totalText = textoFiltro.isEmpty && filtroSeleccionado == WorkerFilter.all
-                                ? '${l10n.totalWorkers}: ${trabajadores.length}'
-                                : '${l10n.workersFound}: ${trabajadoresFiltrados.length}';
+                            final totalText = textoFiltro.isEmpty &&
+                                    filtroSeleccionado == GrupoFilter.all
+                                ? '${l10n.totalGroups}: ${grupos.length}'
+                                : '${l10n.groupsFound} ${gruposFiltrados.length}';
 
                             return Column(
                               children: [
@@ -525,13 +482,14 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                     ),
                                     IconButton(
                                       icon: Icon(
-                                        ordenSeleccionado == WorkerSort.nameAZ
+                                        ordenSeleccionado == GrupoSort.nameAZ
                                             ? Icons.filter_list_off
                                             : Icons.filter_list,
                                         color: colorScheme.primary,
                                       ),
                                       visualDensity: VisualDensity.compact,
-                                      onPressed: () => _showSortBottomSheet(context, l10n),
+                                      onPressed: () =>
+                                          _showSortBottomSheet(context, l10n),
                                     ),
                                   ],
                                 ),
@@ -539,17 +497,16 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                                 Expanded(
                                   child: ListView.separated(
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                    ),
-                                    itemCount: trabajadoresFiltrados.length,
+                                        vertical: 10),
+                                    itemCount: gruposFiltrados.length,
                                     separatorBuilder: (_, __) =>
                                         const SizedBox(height: 8),
                                     itemBuilder: (context, index) {
-                                      final trabajador =
-                                          trabajadoresFiltrados[index];
-                                      return WorkerCard(
-                                        trabajador: trabajador,
-                                        onTap: () => _showWorkerDetail(context, trabajador),
+                                      final grupo = gruposFiltrados[index];
+                                      return GrupoCard(
+                                        grupo: grupo,
+                                        onTap: () => _showGrupoDetail(
+                                            context, grupo, isSupervisor),
                                       );
                                     },
                                   ),
@@ -569,33 +526,23 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
       ),
     );
 
-    final showForm = _esCreacion || _trabajadorEnEdicion != null;
+    final showForm = _esCreacion || _grupoEnEdicion != null;
 
     final pageBody = showForm
-        ? (_esCreacion
-            ? CrearTrabajadorPage(
-                onCancel: () => setState(() {
-                  _esCreacion = false;
-                }),
-                onSaved: () {
-                  setState(() {
-                    _esCreacion = false;
-                    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-                  });
-                },
-              )
-            : EditarTrabajadorPage(
-                trabajador: _trabajadorEnEdicion!,
-                onCancel: () => setState(() {
-                  _trabajadorEnEdicion = null;
-                }),
-                onSaved: () {
-                  setState(() {
-                    _trabajadorEnEdicion = null;
-                    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-                  });
-                },
-              ))
+        ? GrupoCreateEditPage(
+            grupo: _grupoEnEdicion,
+            onCancel: () => setState(() {
+              _esCreacion = false;
+              _grupoEnEdicion = null;
+            }),
+            onSaved: () {
+              setState(() {
+                _esCreacion = false;
+                _grupoEnEdicion = null;
+                _gruposFuture = _cargarGrupos();
+              });
+            },
+          )
         : bodyContent;
 
     if (widget.embedded) {
@@ -616,10 +563,8 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
           error: (_, __) => 0,
         ),
         onNotifications: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NotificationsPage()),
-          );
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const NotificationsPage()));
         },
         context: context,
       ),
@@ -627,61 +572,43 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
         userName: userName,
         userRole: userRole,
         context: context,
-        selected: DrawerItem.telemarketers,
+        selected: DrawerItem.groups,
         onTapHome: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeSupervisorPage()),
-          );
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const HomeSupervisorPage()));
         },
         onTapCalls: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LlamadasPage()),
-          );
-        },
-        onTapNotifications: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NotificationsPage()),
-          );
-        },
-        onTapPreferences: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PreferencesPage()),
-          );
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const LlamadasPage()));
         },
         onTapUsers: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const UsersPage()),
-          );
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const UsersPage()));
         },
         onTapEmergencyContacts: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EmergencyContactsPage(),
-            ),
-          );
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const EmergencyContactsPage()));
         },
         onTapTelemarketers: () {
-          Navigator.pop(context);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const WorkersPage()));
         },
         onTapGroups: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const GruposPage()),
-          );
+          Navigator.pop(context);
+        },
+        onTapNotifications: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const NotificationsPage()));
+        },
+        onTapPreferences: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const PreferencesPage()));
         },
         onLogoutConfirmed: () async {
           await ref.read(authProvider.notifier).logout();
           if (!context.mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
         },
       ),
       body: pageBody,

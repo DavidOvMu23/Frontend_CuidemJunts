@@ -76,7 +76,7 @@ class CallsSortBottomSheet extends StatelessWidget {
           ),
           general_listtile(
             context: context,
-            icon: Icons.filter_1,
+            icon: Icons.bar_chart,
             texto: l10n.sortDependencyHighLow,
             onTap: () {
               onSortSelected(CallsPageSort.dependencyHighLow);
@@ -86,7 +86,7 @@ class CallsSortBottomSheet extends StatelessWidget {
           ),
           general_listtile(
             context: context,
-            icon: Icons.filter_3,
+            icon: Icons.bar_chart,
             texto: l10n.sortDependencyLowHigh,
             onTap: () {
               onSortSelected(CallsPageSort.dependencyLowHigh);

@@ -30,6 +30,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
   late TextEditingController _dniCtrl;
   String _rol = 'teleoperador';
   int? _grupoId;
+  bool _activo = true;
   List<Grupo> _grupos = <Grupo>[];
   bool _cargandoGrupos = false;
 
@@ -46,6 +47,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     _dniCtrl = TextEditingController();
     _rol = t.rol;
     _grupoId = t.grupoId;
+    _activo = t.activo;
     _fetchGrupos();
   }
 
@@ -87,6 +89,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
       'correo': _correoCtrl.text.trim(),
       'rol': _rol,
       'grupoId': _grupoId,
+      'activo': _activo,
     };
     if (_contrasenaCtrl.text.trim().isNotEmpty) {
       payload['contrasena'] = _contrasenaCtrl.text.trim();
@@ -282,6 +285,32 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                         ),
                       ),
                     ),
+
+                  const SizedBox(height: 16),
+
+                  // Estado activo/inactivo
+                  Builder(builder: (context) {
+                    final colorScheme = Theme.of(context).colorScheme;
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SwitchListTile(
+                        title: Text(l10n.accountStatus, style: textTheme.bodyMedium),
+                        subtitle: Text(
+                          _activo ? l10n.active : l10n.inactive,
+                          style: TextStyle(
+                            color: _activo ? Colors.green.shade700 : colorScheme.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        value: _activo,
+                        onChanged: (v) => setState(() => _activo = v),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      ),
+                    );
+                  }),
 
                   const SizedBox(height: 24),
                   Row(

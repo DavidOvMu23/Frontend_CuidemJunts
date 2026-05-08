@@ -8,6 +8,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
@@ -248,6 +249,12 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const WorkersPage()),
+          );
+        },
+        onTapGroups: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GruposPage()),
           );
         },
         onTapNotifications: () {

@@ -6,15 +6,18 @@ import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/widgets/emergency_contact_card.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/widgets/emergency_contacts_sort_bottom_sheet.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 class EmergencyContactsScaffoldBody extends ConsumerWidget {
   final Future<List<ContactoEmergencia>> contactosFuture;
   final String textoFiltro;
   final ContactoEmergenciaFilter filtroSeleccionado;
+  final ContactoEmergenciaSort ordenSeleccionado;
   final List<ContactoEmergencia> Function(List<ContactoEmergencia>) aplicarFiltros;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<ContactoEmergenciaFilter> onFilterChanged;
+  final ValueChanged<ContactoEmergenciaSort> onSortChanged;
   final void Function(BuildContext, ContactoEmergencia, bool, Map<String, String>) onContactoTap;
   final void Function(ContactoEmergencia) onContactoEdit;
 
@@ -23,9 +26,11 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
     required this.contactosFuture,
     required this.textoFiltro,
     required this.filtroSeleccionado,
+    required this.ordenSeleccionado,
     required this.aplicarFiltros,
     required this.onSearchChanged,
     required this.onFilterChanged,
+    required this.onSortChanged,
     required this.onContactoTap,
     required this.onContactoEdit,
   });
@@ -160,15 +165,37 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                               );
                             }
 
+                            final totalText = textoFiltro.isEmpty && filtroSeleccionado == ContactoEmergenciaFilter.all
+                                ? '${l10n.totalContacts}: ${contactos.length}'
+                                : '${l10n.results}: ${contactosFiltrados.length}';
+
                             return Column(
                               children: [
                                 Row(
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        '${l10n.results}: ${contactosFiltrados.length}',
-                                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                                        totalText,
+                                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, fontSize: 16),
                                       ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        ordenSeleccionado == ContactoEmergenciaSort.nameAZ
+                                            ? Icons.filter_list_off
+                                            : Icons.filter_list,
+                                        color: colorScheme.primary,
+                                      ),
+                                      visualDensity: VisualDensity.compact,
+                                      onPressed: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          builder: (_) => EmergencyContactsSortBottomSheet(
+                                            onSortSelected: onSortChanged,
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

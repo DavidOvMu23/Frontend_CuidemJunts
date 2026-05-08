@@ -8,6 +8,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
@@ -27,7 +28,6 @@ class NotificationsPageV2 extends ConsumerStatefulWidget {
 class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
   String _searchQuery = '';
   String? _selectedEstado;
-  String? _selectedTipo;
 
   @override
   Widget build(BuildContext context) {
@@ -51,166 +51,145 @@ class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
       child: Column(
         children: [
           const SizedBox(height: 16),
-          // Barra de búsqueda y filtros
-          _SearchAndFiltersBar(
-            searchQuery: _searchQuery,
-            selectedEstado: _selectedEstado,
-            selectedTipo: _selectedTipo,
-            onSearchChanged: (value) => setState(() => _searchQuery = value),
-            onEstadoChanged: (value) => setState(() => _selectedEstado = value),
-            onTipoChanged: (value) => setState(() => _selectedTipo = value),
-            onMarkAllRead: () async {
-              // TODO: Implementar marcar todas como leídas
-              general_snackbar(context, 'Función proximamente', 2);
-            },
-          ),
-          const SizedBox(height: 12),
-          // Contador de no leídas
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: notificacionesSinLeerAsync.when(
-                        data: (count) => count.toString(),
-                        loading: () => '...',
-                        error: (_, __) => '0',
-                      ),
-                      style: textTheme.titleLarge?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' ${l10n.unread}',
-                      style: textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.reload),
-                onPressed: () => ref.refresh(notificacionesProvider),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Lista de notificaciones
           Expanded(
-            child: Material(
-              borderRadius: BorderRadius.circular(30),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: notificacionesAsync.when(
-                  data: (notificaciones) {
-                    // Aplicar filtros
-                    var filtered = notificaciones;
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Material(
+                color: colorScheme.surface,
+                surfaceTintColor: Colors.transparent,
+                borderRadius: BorderRadius.circular(30),
+                child: Padding(
+                  padding: EdgeInsets.all(isDesktop ? 22 : 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Búsqueda + filtro
+                      _SearchAndFiltersBar(
+                        searchQuery: _searchQuery,
+                        selectedEstado: _selectedEstado,
+                        onSearchChanged: (value) => setState(() => _searchQuery = value),
+                        onEstadoChanged: (value) => setState(() => _selectedEstado = value),
+                        onMarkAllRead: () => general_snackbar(context, 'Función proximamente', 2),
+                      ),
+                      const SizedBox(height: 10),
+                      Divider(height: 8, color: colorScheme.primary.withValues(alpha: 0.3)),
+                      // 2. Lista
+                      Expanded(
+                        child: notificacionesAsync.when(
+                          data: (notificaciones) {
+                            var filtered = notificaciones;
 
-                    if (_searchQuery.isNotEmpty) {
-                      filtered = filtered
-                          .where(
-                            (n) => n.contenido.toLowerCase().contains(
-                              _searchQuery.toLowerCase(),
-                            ),
-                          )
-                          .toList();
-                    }
+                            if (_searchQuery.isNotEmpty) {
+                              filtered = filtered
+                                  .where((n) => n.contenido.toLowerCase().contains(_searchQuery.toLowerCase()))
+                                  .toList();
+                            }
+                            if (_selectedEstado != null) {
+                              filtered = filtered.where((n) => n.estado == _selectedEstado).toList();
+                            }
 
-                    if (_selectedEstado != null) {
-                      filtered = filtered
-                          .where((n) => n.estado == _selectedEstado)
-                          .toList();
-                    }
+                            final sinLeerCount = notificacionesSinLeerAsync.maybeWhen(data: (c) => c, orElse: () => 0);
+                            final totalText = _searchQuery.isEmpty && _selectedEstado == null
+                                ? '${l10n.totalNotifications}: ${notificaciones.length}'
+                                : '${l10n.results}: ${filtered.length}';
 
-                    if (_selectedTipo != null) {
-                      filtered = filtered
-                          .where((n) => n.tipo == _selectedTipo)
-                          .toList();
-                    }
+                            if (filtered.isEmpty) {
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(child: Text(totalText, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, fontSize: 16))),
+                                      IconButton(
+                                        icon: Icon(Icons.refresh, color: colorScheme.primary),
+                                        visualDensity: VisualDensity.compact,
+                                        onPressed: () => ref.refresh(notificacionesProvider),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Expanded(
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.notifications_off_outlined, size: 64, color: colorScheme.outline),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            notificaciones.isEmpty ? l10n.noNotifications : l10n.noResultsFound,
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
 
-                    if (filtered.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.notifications_off_outlined,
-                              size: 64,
-                              color: colorScheme.outline,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              notificaciones.isEmpty
-                                  ? l10n.noNotifications
-                                  : l10n.noResultsFound,
-                              style: textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    }
+                            final sinLeer = filtered.where((n) => n.esSinLeer).toList();
+                            final leidas = filtered.where((n) => n.esLeida).toList();
+                            final archivadas = filtered.where((n) => n.esArchivada).toList();
 
-                    // Agrupar por estado para mejor visualización
-                    final sinLeer = filtered.where((n) => n.esSinLeer).toList();
-                    final leidas = filtered.where((n) => n.esLeida).toList();
-                    final archivadas = filtered
-                        .where((n) => n.esArchivada)
-                        .toList();
-
-                    return ListView(
-                      children: [
-                        if (sinLeer.isNotEmpty)
-                          _NotificationGroup(
-                            title: '${l10n.unread} (${sinLeer.length})',
-                            notifications: sinLeer,
-                            backgroundColor: colorScheme.primaryContainer,
-                            onRefresh: () =>
-                                ref.refresh(notificacionesProvider),
-                          ),
-                        if (sinLeer.isNotEmpty && leidas.isNotEmpty)
-                          const SizedBox(height: 16),
-                        if (leidas.isNotEmpty)
-                          _NotificationGroup(
-                            title: '${l10n.read} (${leidas.length})',
-                            notifications: leidas,
-                            backgroundColor: colorScheme.surface,
-                            onRefresh: () =>
-                                ref.refresh(notificacionesProvider),
-                          ),
-                        if (leidas.isNotEmpty && archivadas.isNotEmpty)
-                          const SizedBox(height: 16),
-                        if (archivadas.isNotEmpty)
-                          _NotificationGroup(
-                            title: 'Archivadas (${archivadas.length})',
-                            notifications: archivadas,
-                            backgroundColor: colorScheme.outlineVariant
-                                .withValues(alpha: 0.1),
-                            onRefresh: () =>
-                                ref.refresh(notificacionesProvider),
-                          ),
-                      ],
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (error, stack) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: colorScheme.error,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          l10n.errorNotificationsLoading,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.error,
-                          ),
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(child: Text(totalText, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, fontSize: 16))),
+                                    if (sinLeerCount > 0)
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 4),
+                                        child: Text('$sinLeerCount ${l10n.unread}', style: textTheme.bodySmall?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600)),
+                                      ),
+                                    IconButton(
+                                      icon: Icon(Icons.refresh, color: colorScheme.primary),
+                                      visualDensity: VisualDensity.compact,
+                                      onPressed: () => ref.refresh(notificacionesProvider),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Expanded(
+                                  child: ListView(
+                                    children: [
+                                      if (sinLeer.isNotEmpty)
+                                        _NotificationGroup(
+                                          title: '${l10n.unread} (${sinLeer.length})',
+                                          notifications: sinLeer,
+                                          backgroundColor: colorScheme.primaryContainer,
+                                          onRefresh: () => ref.refresh(notificacionesProvider),
+                                        ),
+                                      if (sinLeer.isNotEmpty && leidas.isNotEmpty) const SizedBox(height: 16),
+                                      if (leidas.isNotEmpty)
+                                        _NotificationGroup(
+                                          title: '${l10n.read} (${leidas.length})',
+                                          notifications: leidas,
+                                          backgroundColor: colorScheme.surface,
+                                          onRefresh: () => ref.refresh(notificacionesProvider),
+                                        ),
+                                      if (leidas.isNotEmpty && archivadas.isNotEmpty) const SizedBox(height: 16),
+                                      if (archivadas.isNotEmpty)
+                                        _NotificationGroup(
+                                          title: '${l10n.archivedNotifications} (${archivadas.length})',
+                                          notifications: archivadas,
+                                          backgroundColor: colorScheme.outlineVariant.withValues(alpha: 0.1),
+                                          onRefresh: () => ref.refresh(notificacionesProvider),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (error, stack) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.error_outline, size: 64, color: colorScheme.error),
+                                const SizedBox(height: 12),
+                                Text(
+                                  l10n.errorNotificationsLoading,
+                                  style: textTheme.bodyMedium?.copyWith(color: colorScheme.error),
                         ),
                         const SizedBox(height: 8),
                         TextButton.icon(
@@ -220,6 +199,10 @@ class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
                         ),
                       ],
                     ),
+                  ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -278,6 +261,12 @@ class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
             MaterialPageRoute(builder: (_) => const WorkersPage()),
           );
         },
+        onTapGroups: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const GruposPage()),
+          );
+        },
         onTapPreferences: () {
           Navigator.push(
             context,
@@ -303,78 +292,66 @@ class _NotificationsPageV2State extends ConsumerState<NotificationsPageV2> {
 class _SearchAndFiltersBar extends StatelessWidget {
   final String searchQuery;
   final String? selectedEstado;
-  final String? selectedTipo;
   final Function(String) onSearchChanged;
   final Function(String?) onEstadoChanged;
-  final Function(String?) onTipoChanged;
   final VoidCallback onMarkAllRead;
 
   const _SearchAndFiltersBar({
     required this.searchQuery,
     required this.selectedEstado,
-    required this.selectedTipo,
     required this.onSearchChanged,
     required this.onEstadoChanged,
-    required this.onTipoChanged,
     required this.onMarkAllRead,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Búsqueda
-        TextField(
-          onChanged: onSearchChanged,
-          decoration: InputDecoration(
-            hintText: 'Buscar notificaciones...',
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: searchQuery.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () => onSearchChanged(''),
-                  )
-                : null,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
+        Expanded(
+          flex: 3,
+          child: general_busqueda_textfield(
+            l10n.searchNotifications,
+            icono: Icons.search,
+            onChanged: onSearchChanged,
           ),
         ),
-        const SizedBox(height: 8),
-        // Filtros
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // Filtro por estado
-            FilterChip(
-              label: Text(selectedEstado ?? 'Estado'),
-              selected: selectedEstado != null,
-              onSelected: (selected) =>
-                  onEstadoChanged(selected ? 'sin_leer' : null),
-              backgroundColor: Colors.transparent,
-              side: BorderSide(color: colorScheme.outline),
-            ),
-            // Filtro por tipo
-            FilterChip(
-              label: Text(selectedTipo ?? 'Tipo'),
-              selected: selectedTipo != null,
-              onSelected: (selected) =>
-                  onTipoChanged(selected ? 'mensaje' : null),
-              backgroundColor: Colors.transparent,
-              side: BorderSide(color: colorScheme.outline),
-            ),
-            // Botón marcar todas
-            ActionChip(
-              label: const Text('Marcar todo leído'),
-              onPressed: onMarkAllRead,
-              avatar: const Icon(Icons.done_all),
-            ),
-          ],
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 2,
+          child: Row(
+            children: [
+              Icon(
+                selectedEstado != null ? Icons.filter_alt : Icons.filter_alt_off,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<String?>(
+                  value: selectedEstado,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  borderRadius: BorderRadius.circular(12),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.allNotifications)),
+                    DropdownMenuItem(value: 'sin_leer', child: Text(l10n.unreadNotifications)),
+                    DropdownMenuItem(value: 'leida', child: Text(l10n.readNotifications)),
+                    DropdownMenuItem(value: 'archivada', child: Text(l10n.archivedNotifications)),
+                  ],
+                  onChanged: onEstadoChanged,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -398,7 +375,6 @@ class _NotificationGroup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(

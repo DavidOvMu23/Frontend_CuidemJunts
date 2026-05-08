@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_emergencia_service.dart';
@@ -9,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_super
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/emergency_contacts/emergency_contacts_page_enums.dart';
@@ -37,6 +39,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
 
   String textoFiltro = '';
   ContactoEmergenciaFilter filtroSeleccionado = ContactoEmergenciaFilter.all;
+  ContactoEmergenciaSort ordenSeleccionado = ContactoEmergenciaSort.nameAZ;
 
   // Formulario inline
   bool _esCreacion = false;
@@ -67,6 +70,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     setState(() => filtroSeleccionado = value);
   }
 
+  void _onSortChanged(ContactoEmergenciaSort value) {
+    setState(() => ordenSeleccionado = value);
+  }
+
   List<ContactoEmergencia> _aplicarFiltros(List<ContactoEmergencia> contactos) {
     final query = textoFiltro.trim().toLowerCase();
 
@@ -88,7 +95,18 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
       return coincideTexto && coincideFiltro;
     }).toList();
 
-    filtrados.sort((a, b) => a.nombre.compareTo(b.nombre));
+    filtrados.sort((a, b) {
+      final aSistema = (a.dniUsuarioRef ?? '').isNotEmpty;
+      final bSistema = (b.dniUsuarioRef ?? '').isNotEmpty;
+      return switch (ordenSeleccionado) {
+        ContactoEmergenciaSort.nameAZ => a.nombre.compareTo(b.nombre),
+        ContactoEmergenciaSort.nameZA => b.nombre.compareTo(a.nombre),
+        ContactoEmergenciaSort.sistemaPrimero =>
+          aSistema == bSistema ? a.nombre.compareTo(b.nombre) : (aSistema ? -1 : 1),
+        ContactoEmergenciaSort.externoPrimero =>
+          aSistema == bSistema ? a.nombre.compareTo(b.nombre) : (aSistema ? 1 : -1),
+      };
+    });
     return filtrados;
   }
 
@@ -99,18 +117,55 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
 
     await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${contacto.nombre} ${contacto.apellidos}',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+      builder: (ctx) {
+        final textTheme = Theme.of(ctx).textTheme;
+        final colorScheme = Theme.of(ctx).colorScheme;
+        final isUsuario = (contacto.dniUsuarioRef ?? '').isNotEmpty;
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+
+        Widget detailRow(IconData icon, String label, String value) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, size: 20, color: colorScheme.onSurface),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(label,
+                            style: textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold, fontSize: 15)),
+                        const SizedBox(height: 2),
+                        Text(value,
+                            style: textTheme.bodyMedium
+                                ?.copyWith(fontSize: 15)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+        final badgeBg = isUsuario
+            ? (isDark ? AppPalette.successDark : AppPalette.successLight)
+            : (isDark ? AppPalette.warningDark : AppPalette.warningLight);
+        final badgeFg = isUsuario
+            ? (isDark ? AppPalette.successFontDark : AppPalette.successFontLight)
+            : (isDark ? AppPalette.warningFontDark : AppPalette.warningFontLight);
+
+        return AlertDialog(
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${contacto.nombre} ${contacto.apellidos}',
+                  style: textTheme.headlineLarge
+                      ?.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+                  softWrap: true,
                 ),
               ),
-            ),
               if (isSupervisor)
                 IconButton(
                   onPressed: () {
@@ -122,55 +177,83 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                   style: IconButton.styleFrom(
-                    foregroundColor: Theme.of(ctx).colorScheme.primary,
+                    foregroundColor: colorScheme.primary,
                     padding: EdgeInsets.zero,
                   ),
                 ),
-          ],
-        ),
-        content: SizedBox(
-          width: 500,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 6),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.phone_outlined),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text('${l10n.phone}: ${contacto.telefono}')),
-                ],
-              ),
-                    const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.badge_outlined),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text('${l10n.users}: ${asociados.isEmpty ? '-' : asociados.join(', ')}')),
-                ],
-              ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.close),
-          ),
-          if (isSupervisor && (contacto.dniUsuarioRef ?? '').isEmpty)
-            general_deletebutton(
-              ctx,
-              l10n.delete,
-              onPressed: () {
-                Navigator.pop(ctx);
-                _confirmarEliminar(contacto);
-              },
+          content: SizedBox(
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  detailRow(Icons.phone_outlined, l10n.telephone,
+                      contacto.telefono.isNotEmpty ? contacto.telefono : l10n.notSpecified),
+                  if (contacto.direccion.isNotEmpty)
+                    detailRow(Icons.location_on_outlined, l10n.address, contacto.direccion),
+                  detailRow(
+                    Icons.people_outline,
+                    l10n.users,
+                    asociados.isEmpty ? '-' : asociados.join(', '),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(l10n.role,
+                      style: textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: badgeBg,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isUsuario
+                              ? Icons.verified_user_outlined
+                              : Icons.person_outline,
+                          size: 16,
+                          color: badgeFg,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          isUsuario ? l10n.systemUser : l10n.externalContact,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: badgeFg,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-        ],
-      ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.close),
+            ),
+            if (isSupervisor && (contacto.dniUsuarioRef ?? '').isEmpty)
+              general_deletebutton(
+                ctx,
+                l10n.delete,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _confirmarEliminar(contacto);
+                },
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -260,9 +343,11 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
       contactosFuture: _contactosFuture,
       textoFiltro: textoFiltro,
       filtroSeleccionado: filtroSeleccionado,
+      ordenSeleccionado: ordenSeleccionado,
       aplicarFiltros: _aplicarFiltros,
       onSearchChanged: _onSearchChanged,
       onFilterChanged: _onFilterChanged,
+      onSortChanged: _onSortChanged,
       onContactoTap: (context, contacto, isSupervisor, usuariosMap) => _mostrarDetalleContacto(context, contacto, isSupervisor, usuariosMap),
       onContactoEdit: (contacto) => _abrirFormularioContacto(contacto: contacto),
     );
@@ -329,6 +414,9 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
         },
         onTapTelemarketers: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const WorkersPage()));
+        },
+        onTapGroups: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const GruposPage()));
         },
         onTapPreferences: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PreferencesPage()));

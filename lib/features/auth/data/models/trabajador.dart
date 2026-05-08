@@ -9,6 +9,7 @@ class Trabajador {
   final String rol;
   final int? grupoId;
   final String? grupoNombre;
+  final bool activo;
 
   // Constructor que recibe los parámetros necesarios para crear un objeto Trabajador.
   const Trabajador({
@@ -19,6 +20,7 @@ class Trabajador {
     required this.rol,
     this.grupoId,
     this.grupoNombre,
+    this.activo = true,
   });
 
   // copyWith crea una copia del objeto Trabajador con los valores proporcionados.
@@ -30,6 +32,7 @@ class Trabajador {
     String? rol,
     int? grupoId,
     String? grupoNombre,
+    bool? activo,
   }) {
     return Trabajador(
       id: id ?? this.id,
@@ -39,6 +42,7 @@ class Trabajador {
       rol: rol ?? this.rol,
       grupoId: grupoId ?? this.grupoId,
       grupoNombre: grupoNombre ?? this.grupoNombre,
+      activo: activo ?? this.activo,
     );
   }
 
@@ -68,6 +72,7 @@ class Trabajador {
       rol: (json['rol'] ?? '') as String,
       grupoId: grupoId,
       grupoNombre: grupoNombre,
+      activo: (json['activo'] as bool?) ?? true,
     );
   }
 }

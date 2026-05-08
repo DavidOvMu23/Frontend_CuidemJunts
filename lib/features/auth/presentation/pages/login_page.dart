@@ -67,20 +67,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         context,
         MaterialPageRoute(builder: (context) => const SupervisorShellPage()),
       );
+    } on LoginException catch (e) {
+      if (!mounted) return;
+      final message = switch (e.type) {
+        LoginErrorType.unauthorized => l10n.loginError,
+        LoginErrorType.forbidden    => l10n.loginForbidden,
+        LoginErrorType.serverError  => l10n.serverUnavailable,
+        LoginErrorType.noConnection => l10n.loginNoConnection,
+        LoginErrorType.timeout      => l10n.loginTimeout,
+        LoginErrorType.unknown      => l10n.loginError,
+      };
+      general_snackbar_error(context, message, 5);
     } catch (e) {
       if (!mounted) return;
-
-      String message = l10n.loginError;
-      if (e.toString().contains('503')) {
-        message = l10n.serverUnavailable;
-      } else if (e.toString().contains('Connection refused')) {
-        message = l10n.connectionRefused;
-      } else if (e.toString().contains('404') ||
-          e.toString().contains('no encontrado')) {
-        message = 'Correo o contraseña incorrectos';
-      }
-
-      general_snackbar_error(context, message, 3);
+      general_snackbar_error(context, l10n.loginError, 3);
     } finally {
       if (mounted) {
         setState(() {

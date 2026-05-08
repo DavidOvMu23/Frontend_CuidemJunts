@@ -1653,6 +1653,216 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Todos los contactos'**
   String get allEmergencyContacts;
+
+  /// No description provided for @totalContacts.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de contactos'**
+  String get totalContacts;
+
+  /// No description provided for @searchNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar notificaciones'**
+  String get searchNotifications;
+
+  /// No description provided for @allNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las notificaciones'**
+  String get allNotifications;
+
+  /// No description provided for @unreadNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin leer'**
+  String get unreadNotifications;
+
+  /// No description provided for @readNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Leídas'**
+  String get readNotifications;
+
+  /// No description provided for @archivedNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivadas'**
+  String get archivedNotifications;
+
+  /// No description provided for @totalNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de notificaciones'**
+  String get totalNotifications;
+
+  /// No description provided for @inactive.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo'**
+  String get inactive;
+
+  /// No description provided for @sortRoleSupervisorFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol (Supervisor primero)'**
+  String get sortRoleSupervisorFirst;
+
+  /// No description provided for @sortGroupAZ.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo A-Z'**
+  String get sortGroupAZ;
+
+  /// No description provided for @sortGroupZA.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo Z-A'**
+  String get sortGroupZA;
+
+  /// No description provided for @sortInternalFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Internos primero'**
+  String get sortInternalFirst;
+
+  /// No description provided for @sortExternalFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Externos primero'**
+  String get sortExternalFirst;
+
+  /// No description provided for @sortByDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Por fecha (más reciente primero)'**
+  String get sortByDate;
+
+  /// No description provided for @sortByDateOldest.
+  ///
+  /// In es, this message translates to:
+  /// **'Por fecha (más antiguo primero)'**
+  String get sortByDateOldest;
+
+  /// No description provided for @groups.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupos'**
+  String get groups;
+
+  /// No description provided for @manageGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona los grupos de teleoperadores'**
+  String get manageGroups;
+
+  /// No description provided for @newGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo grupo'**
+  String get newGroup;
+
+  /// No description provided for @searchGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre o descripción'**
+  String get searchGroups;
+
+  /// No description provided for @allGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los grupos'**
+  String get allGroups;
+
+  /// No description provided for @groupsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupos encontrados:'**
+  String get groupsFound;
+
+  /// No description provided for @totalGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de grupos'**
+  String get totalGroups;
+
+  /// No description provided for @noGroupsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron grupos'**
+  String get noGroupsFound;
+
+  /// No description provided for @activeGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupos activos'**
+  String get activeGroups;
+
+  /// No description provided for @inactiveGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupos inactivos'**
+  String get inactiveGroups;
+
+  /// No description provided for @groupCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo creado correctamente'**
+  String get groupCreatedSuccessfully;
+
+  /// No description provided for @groupUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo actualizado correctamente'**
+  String get groupUpdatedSuccessfully;
+
+  /// No description provided for @groupDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo eliminado correctamente'**
+  String get groupDeletedSuccessfully;
+
+  /// No description provided for @sortMostTeleoperators.
+  ///
+  /// In es, this message translates to:
+  /// **'Más teleoperadores primero'**
+  String get sortMostTeleoperators;
+
+  /// No description provided for @sortFewestTeleoperators.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos teleoperadores primero'**
+  String get sortFewestTeleoperators;
+
+  /// No description provided for @deleteGroupContent.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar este grupo?\n\nEsta acción no se puede deshacer.'**
+  String get deleteGroupContent;
+
+  /// No description provided for @description.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción'**
+  String get description;
+
+  /// No description provided for @loginForbidden.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu cuenta no tiene permisos de acceso. Contacta con un supervisor.'**
+  String get loginForbidden;
+
+  /// No description provided for @loginTimeout.
+  ///
+  /// In es, this message translates to:
+  /// **'El servidor tardó demasiado en responder. Comprueba tu conexión e inténtalo de nuevo.'**
+  String get loginTimeout;
+
+  /// No description provided for @loginNoConnection.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo conectar con el servidor. Comprueba que el servidor esté en marcha y tu conexión a internet.'**
+  String get loginNoConnection;
 }
 
 class _AppLocalizationsDelegate

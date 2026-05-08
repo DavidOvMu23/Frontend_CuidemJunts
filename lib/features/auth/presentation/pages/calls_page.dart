@@ -10,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
@@ -489,6 +490,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const WorkersPage()),
+          );
+        },
+        onTapGroups: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GruposPage()),
           );
         },
         onTapPreferences: () {

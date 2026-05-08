@@ -10,6 +10,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_super
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
@@ -73,6 +74,8 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
         return l10n.emergencyContacts;
       case DrawerItem.telemarketers:
         return l10n.telemarketers;
+      case DrawerItem.groups:
+        return l10n.groups;
       case DrawerItem.notifications:
         return l10n.notifications;
       case DrawerItem.preferences:
@@ -92,6 +95,8 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
         return l10n.manageEmergencyContacts;
       case DrawerItem.telemarketers:
         return l10n.manageWorkers;
+      case DrawerItem.groups:
+        return l10n.manageGroups;
       case DrawerItem.notifications:
         return l10n.notificationsPressed;
       case DrawerItem.preferences:
@@ -127,6 +132,11 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
         label: l10n.telemarketers,
       ),
       _ShellNavigationEntry(
+        item: DrawerItem.groups,
+        icon: Icons.group_work_rounded,
+        label: l10n.groups,
+      ),
+      _ShellNavigationEntry(
         item: DrawerItem.notifications,
         icon: Icons.notifications_active_rounded,
         label: l10n.notifications,
@@ -151,6 +161,8 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
         return const EmergencyContactsPage(embedded: true);
       case DrawerItem.telemarketers:
         return const WorkersPage(embedded: true);
+      case DrawerItem.groups:
+        return const GruposPage(embedded: true);
       case DrawerItem.notifications:
         return const NotificationsPage(embedded: true);
       case DrawerItem.preferences:

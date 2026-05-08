@@ -11,6 +11,7 @@ enum DrawerItem {
   users,
   emergencyContacts,
   telemarketers,
+  groups,
   notifications,
   preferences,
 }
@@ -26,6 +27,7 @@ Drawer appDrawer({
   VoidCallback? onTapUsers,
   VoidCallback? onTapEmergencyContacts,
   VoidCallback? onTapTelemarketers,
+  VoidCallback? onTapGroups,
   VoidCallback? onTapNotifications,
   VoidCallback? onTapPreferences,
   required VoidCallback? onLogoutConfirmed,
@@ -140,6 +142,13 @@ Drawer appDrawer({
                       texto: l10n.workers,
                       selected: selected == DrawerItem.telemarketers,
                       onTap: onTapTelemarketers,
+                    ),
+                    general_listtile(
+                      context: context,
+                      icon: Icons.group_work,
+                      texto: l10n.groups,
+                      selected: selected == DrawerItem.groups,
+                      onTap: onTapGroups,
                     ),
                     general_listtile(
                       context: context,
