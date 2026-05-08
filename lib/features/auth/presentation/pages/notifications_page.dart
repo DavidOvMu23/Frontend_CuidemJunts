@@ -26,7 +26,6 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   String _selectedEstado = 'todos';
-  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -65,45 +64,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Cabecera
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              l10n.notifications,
-                              style: textTheme.headlineLarge?.copyWith(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          if (unreadCount > 0)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: colorScheme.primary,
-                                borderRadius: BorderRadius.circular(99),
-                              ),
-                              child: Text(
-                                '$unreadCount ${l10n.unread}',
-                                style: textTheme.labelSmall?.copyWith(
-                                  color: colorScheme.onPrimary,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Búsqueda
-                      general_busqueda_textfield(
-                        l10n.search,
-                        icono: Icons.search,
-                        onChanged: (v) => setState(() => _searchQuery = v),
-                      ),
-                      const SizedBox(height: 10),
-
                       // Filtros
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -146,11 +106,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         child: notificacionesAsync.when(
                           data: (notificaciones) {
                             final filtered = notificaciones.where((n) {
-                              final estadoMatch = _selectedEstado == 'todos' || n.estado == _selectedEstado;
-                              final searchMatch = _searchQuery.isEmpty ||
-                                  n.contenido.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                                  n.tipoLegible.toLowerCase().contains(_searchQuery.toLowerCase());
-                              return estadoMatch && searchMatch;
+                              return _selectedEstado == 'todos' || n.estado == _selectedEstado;
                             }).toList();
 
                             if (filtered.isEmpty) {
