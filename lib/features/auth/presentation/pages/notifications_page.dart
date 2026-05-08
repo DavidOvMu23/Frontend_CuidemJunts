@@ -295,10 +295,12 @@ class _NotificationCardState extends State<_NotificationCard> {
       curve: Curves.easeOutCubic,
       transform: Matrix4.translationValues(0, _hovered ? -2 : 0, 0),
       child: Material(
-        color: Theme.of(context).cardColor,
+        color: notif.esSinLeer
+            ? colorScheme.primary.withValues(alpha: 0.28)
+            : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        elevation: _hovered ? 2 : 0,
-        shadowColor: colorScheme.primary.withValues(alpha: 0.15),
+        elevation: _hovered ? 2 : (notif.esSinLeer ? 1 : 0),
+        shadowColor: colorScheme.primary.withValues(alpha: 0.25),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onHover: (v) { if (_hovered != v) setState(() => _hovered = v); },
@@ -331,12 +333,19 @@ class _NotificationCardState extends State<_NotificationCard> {
                             children: [
                               if (notif.esSinLeer) ...[
                                 Container(
-                                  width: 7,
-                                  height: 7,
-                                  margin: const EdgeInsets.only(right: 7, top: 1),
+                                  width: 9,
+                                  height: 9,
+                                  margin: const EdgeInsets.only(right: 8, top: 1),
                                   decoration: BoxDecoration(
                                     color: colorScheme.primary,
                                     shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: colorScheme.primary.withValues(alpha: 0.85),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -356,7 +365,9 @@ class _NotificationCardState extends State<_NotificationCard> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.65),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: notif.esSinLeer ? 0.9 : 0.65,
+                              ),
                               height: 1.35,
                             ),
                           ),

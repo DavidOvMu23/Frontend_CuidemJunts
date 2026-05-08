@@ -944,4 +944,14 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get loginNoConnection =>
       'No s\'ha pogut connectar amb el servidor. Comprova que el servidor estigui en marxa i la teva connexió a internet.';
+
+  @override
+  String get monthlyCalendar => 'Calendari mensual';
+
+  @override
+  String get selectDayToSeeCalls =>
+      'Selecciona un dia per veure les seves trucades';
+
+  @override
+  String get noCallsOnDay => 'No hi ha trucades aquest dia';
 }

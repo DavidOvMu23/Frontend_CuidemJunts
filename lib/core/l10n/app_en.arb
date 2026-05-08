@@ -308,5 +308,8 @@
   "description": "Description",
   "loginForbidden": "Your account does not have access permissions. Contact a supervisor.",
   "loginTimeout": "The server took too long to respond. Check your connection and try again.",
-  "loginNoConnection": "Could not connect to the server. Check that the server is running and your internet connection."
+  "loginNoConnection": "Could not connect to the server. Check that the server is running and your internet connection.",
+  "monthlyCalendar": "Monthly calendar",
+  "selectDayToSeeCalls": "Select a day to see its calls",
+  "noCallsOnDay": "No calls on this day"
 }

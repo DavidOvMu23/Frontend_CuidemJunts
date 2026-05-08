@@ -18,7 +18,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notifi
 
 import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/stats_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/today_calls_section.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/recent_activity_section.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/monthly_calendar_section.dart';
 
 // -------- PANTALLA PRINCIPAL DEL SUPERVISOR --------
 // Es la primera pantalla que ve el supervisor al entrar.
@@ -41,7 +41,7 @@ class HomeSupervisorPage extends ConsumerWidget {
     final scheduledCallsAsync = ref.watch(scheduledCallsTodayProvider);
     final completedCallsAsync = ref.watch(completedCallsTodayProvider);
     final callsTodayAsync = ref.watch(callsTodayProvider);
-    final recentCallsAsync = ref.watch(recentCallsProvider);
+    final allCallsAsync = ref.watch(llamadasProvider);
 
     // -------- DATOS DE NOTIFICACIÓN --------
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
@@ -166,7 +166,7 @@ class HomeSupervisorPage extends ConsumerWidget {
             const SizedBox(height: 20),
             TodayCallsSection(callsAsync: callsTodayAsync),
             const SizedBox(height: 20),
-            RecentActivitySection(callsAsync: recentCallsAsync),
+            MonthlyCalendarSection(callsAsync: allCallsAsync),
           ],
         ),
       );
@@ -198,8 +198,8 @@ class HomeSupervisorPage extends ConsumerWidget {
                       ),
                       const SizedBox(width: 20),
                       Expanded(
-                        child: RecentActivitySection(
-                          callsAsync: recentCallsAsync,
+                        child: MonthlyCalendarSection(
+                          callsAsync: allCallsAsync,
                           expandContent: true,
                         ),
                       ),

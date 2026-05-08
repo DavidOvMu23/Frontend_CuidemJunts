@@ -310,5 +310,8 @@
   "description": "Descripció",
   "loginForbidden": "El teu compte no té permisos d'accés. Contacta amb un supervisor.",
   "loginTimeout": "El servidor ha trigat massa a respondre. Comprova la teva connexió i torna-ho a intentar.",
-  "loginNoConnection": "No s'ha pogut connectar amb el servidor. Comprova que el servidor estigui en marxa i la teva connexió a internet."
+  "loginNoConnection": "No s'ha pogut connectar amb el servidor. Comprova que el servidor estigui en marxa i la teva connexió a internet.",
+  "monthlyCalendar": "Calendari mensual",
+  "selectDayToSeeCalls": "Selecciona un dia per veure les seves trucades",
+  "noCallsOnDay": "No hi ha trucades aquest dia"
 }

@@ -62,7 +62,6 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final textTheme = Theme.of(context).textTheme;
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;

@@ -1863,6 +1863,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo conectar con el servidor. Comprueba que el servidor esté en marcha y tu conexión a internet.'**
   String get loginNoConnection;
+
+  /// No description provided for @monthlyCalendar.
+  ///
+  /// In es, this message translates to:
+  /// **'Calendario mensual'**
+  String get monthlyCalendar;
+
+  /// No description provided for @selectDayToSeeCalls.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un día para ver sus llamadas'**
+  String get selectDayToSeeCalls;
+
+  /// No description provided for @noCallsOnDay.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay llamadas este día'**
+  String get noCallsOnDay;
 }
 
 class _AppLocalizationsDelegate

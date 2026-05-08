@@ -52,12 +52,13 @@ final scheduledCallsTodayProvider = Provider<AsyncValue<int>>((ref) {
   );
 });
 
-// Provider filtrado: Actividad RECIENTE (últimas 5)
-final recentCallsProvider = Provider<AsyncValue<List<Llamadas>>>((ref) {
-  final llamadasAsync = ref.watch(llamadasProvider);
-  return llamadasAsync.whenData((llamadas) {
-    final sorted = List<Llamadas>.from(llamadas)
-      ..sort((a, b) => b.fecha.compareTo(a.fecha));
-    return sorted.take(5).toList();
-  });
-});
+// Llamada pendiente de editar (usada para navegar al form desde otro módulo)
+class _PendingCallEditNotifier extends Notifier<Llamadas?> {
+  @override
+  Llamadas? build() => null;
+  void set(Llamadas? call) => state = call;
+}
+
+final pendingCallEditProvider =
+    NotifierProvider<_PendingCallEditNotifier, Llamadas?>(
+        _PendingCallEditNotifier.new);

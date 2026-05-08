@@ -29,10 +29,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuari
 // Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos
 class LlamadasPage extends ConsumerStatefulWidget {
   final bool embedded;
+  final Llamadas? llamadaParaEditar;
 
   const LlamadasPage({
     super.key,
     this.embedded = false,
+    this.llamadaParaEditar,
   });
 
   @override
@@ -57,8 +59,16 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = CallsPageFilter.all; // Por defecto mostramos todos
-    _llamadasFuture = _cargarLlamadasConGrupo(); // Iniciamos la carga
+    filtroSeleccionado = CallsPageFilter.all;
+    _llamadasFuture = _cargarLlamadasConGrupo();
+    if (widget.llamadaParaEditar != null) {
+      _llamadaEnEdicion = widget.llamadaParaEditar;
+      _esCreacion = false;
+      // Clear the provider so the shell doesn't re-pass it on next rebuild
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(pendingCallEditProvider.notifier).set(null);
+      });
+    }
   }
 
   // Obtiene la lista completa de llamadas del servidor
@@ -379,8 +389,18 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
-    // Obtenemos el estado de autenticación del provider
+
+    // For the case where LlamadasPage is already mounted and a new edit is requested
+    ref.listen<Llamadas?>(pendingCallEditProvider, (_, next) {
+      if (next != null && widget.embedded) {
+        setState(() {
+          _llamadaEnEdicion = next;
+          _esCreacion = false;
+        });
+        ref.read(pendingCallEditProvider.notifier).set(null);
+      }
+    });
+
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
                         // debug print removed (was inserted erroneously)

@@ -315,5 +315,8 @@
   "description": "Descripción",
   "loginForbidden": "Tu cuenta no tiene permisos de acceso. Contacta con un supervisor.",
   "loginTimeout": "El servidor tardó demasiado en responder. Comprueba tu conexión e inténtalo de nuevo.",
-  "loginNoConnection": "No se pudo conectar con el servidor. Comprueba que el servidor esté en marcha y tu conexión a internet."
+  "loginNoConnection": "No se pudo conectar con el servidor. Comprueba que el servidor esté en marcha y tu conexión a internet.",
+  "monthlyCalendar": "Calendario mensual",
+  "selectDayToSeeCalls": "Selecciona un día para ver sus llamadas",
+  "noCallsOnDay": "No hay llamadas este día"
 }

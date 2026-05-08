@@ -14,6 +14,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_pag
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
@@ -154,7 +156,10 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
       case DrawerItem.home:
         return const HomeSupervisorPage(embedded: true);
       case DrawerItem.calls:
-        return const LlamadasPage(embedded: true);
+        return LlamadasPage(
+          embedded: true,
+          llamadaParaEditar: ref.read(pendingCallEditProvider),
+        );
       case DrawerItem.users:
         return const UsersPage(embedded: true);
       case DrawerItem.emergencyContacts:
@@ -175,6 +180,10 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
     final unreadCountAsync = ref.watch(notificacionesSinLeerProvider);
+
+    ref.listen<Llamadas?>(pendingCallEditProvider, (_, next) {
+      if (next != null) _selectSection(DrawerItem.calls);
+    });
 
     final width = MediaQuery.of(context).size.width;
     final isDesktop = width >= 1080;

@@ -943,4 +943,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get loginNoConnection =>
       'No se pudo conectar con el servidor. Comprueba que el servidor esté en marcha y tu conexión a internet.';
+
+  @override
+  String get monthlyCalendar => 'Calendario mensual';
+
+  @override
+  String get selectDayToSeeCalls => 'Selecciona un día para ver sus llamadas';
+
+  @override
+  String get noCallsOnDay => 'No hay llamadas este día';
 }

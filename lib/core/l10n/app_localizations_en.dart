@@ -929,4 +929,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get loginNoConnection =>
       'Could not connect to the server. Check that the server is running and your internet connection.';
+
+  @override
+  String get monthlyCalendar => 'Monthly calendar';
+
+  @override
+  String get selectDayToSeeCalls => 'Select a day to see its calls';
+
+  @override
+  String get noCallsOnDay => 'No calls on this day';
 }
