@@ -97,20 +97,21 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       // Si falla, continuamos mostrando los contactos embebidos.
     }
 
+    final isSupervisor = (ref.read(authProvider).rol ?? '').toLowerCase() == 'supervisor';
+
     showDialog(
       context: context,
       builder: (ctx) => UserDetailDialog(
         usuario: usuario,
         dateFormatter: dateFormatter,
         contactosCanonicos: contactosCanonicos,
-        onDelete: () async {
+        onDelete: isSupervisor ? () async {
           try {
             final usuarioService = ref.read(usuarioServiceProvider);
             await usuarioService.delete(usuario.dni);
             if (!context.mounted) return;
-            Navigator.pop(ctx); // Cerrar diálogo
+            Navigator.pop(ctx);
             general_snackbar(context, l10n.userDeletedSuccessfully, 2);
-            // Recargar lista
             setState(() {
               _usuariosFuture = _cargarUsuariosConContactos();
             });
@@ -118,8 +119,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             if (!context.mounted) return;
             general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
           }
-        },
-        onEdit: () => _editarUsuario(context, usuario),
+        } : null,
+        onEdit: isSupervisor ? () => _editarUsuario(context, usuario) : null,
       ),
     );
   }
@@ -210,9 +211,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final isSupervisor = (userRole ?? '').toLowerCase() == 'supervisor';
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
-    final showForm = _esCreacion || _usuarioEnEdicion != null;
+    final showForm = isSupervisor && (_esCreacion || _usuarioEnEdicion != null);
 
     final listBody = UsersScaffoldBody(
       usuariosFuture: _usuariosFuture,
@@ -258,7 +260,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       return Stack(
         children: [
           Positioned.fill(child: pageBody),
-          if (!showForm) Positioned(right: 18, bottom: 18, child: fab),
+          if (!showForm && isSupervisor) Positioned(right: 18, bottom: 18, child: fab),
         ],
       );
     }
@@ -344,7 +346,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       body: pageBody,
 
       // -------- BOTÓN FLOTANTE --------
-      floatingActionButton: showForm ? null : fab,
+      floatingActionButton: (showForm || !isSupervisor) ? null : fab,
     );
   }
 }

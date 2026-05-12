@@ -174,7 +174,7 @@ class _GrupoCreateEditPageState extends ConsumerState<GrupoCreateEditPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: SwitchListTile(
-                  title: Text(l10n.accountStatus, style: textTheme.bodyMedium),
+                  title: Text(l10n.groupStatus, style: textTheme.bodyMedium),
                   subtitle: Text(
                     _activo
                         ? l10n.active

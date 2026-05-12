@@ -139,6 +139,10 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
     // Remove keys with null values to avoid sending nulls to backend
     payload.removeWhere((key, value) => value == null);
 
+    if (_telefonoCtrl.text.trim().isNotEmpty) {
+      payload['telefono'] = _telefonoCtrl.text.trim();
+    }
+
     // Añadimos campos según tipo
     // Si es teleoperador, añadimos el NIA
     if (_rol == 'teleoperador') {
@@ -317,29 +321,53 @@ class _CrearTrabajadorPageState extends ConsumerState<CrearTrabajadorPage> {
                         l10n.group_label,
                         _cargandoGrupos
                             ? const AppSkeletonBox(height: 56)
-                            : DropdownButtonFormField<int>(
-                                value: _grupoId,
-                                items: _grupos
-                                    .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
-                                          value: g.id,
-                                          child: Text(g.nombre),
-                                        ))
-                                    .toList(),
-                                onChanged: (v) => setState(() => _grupoId = v),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                            : _grupos.isEmpty
+                                ? Builder(builder: (context) {
+                                    final cs = Theme.of(context).colorScheme;
+                                    return Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                      decoration: BoxDecoration(
+                                        color: cs.errorContainer.withValues(alpha: 0.5),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.warning_amber_rounded, size: 18, color: cs.error),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              l10n.noGroupsAvailableCreateFirst,
+                                              style: TextStyle(color: cs.onErrorContainer, fontSize: 13),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  })
+                                : DropdownButtonFormField<int>(
+                                    value: _grupoId,
+                                    items: _grupos
+                                        .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
+                                              value: g.id,
+                                              child: Text(g.nombre),
+                                            ))
+                                        .toList(),
+                                    onChanged: (v) => setState(() => _grupoId = v),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      filled: true,
+                                    ),
+                                    validator: (v) {
+                                      if (_rol == 'teleoperador' && v == null) {
+                                        return l10n.noGroupAssigned;
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  filled: true,
-                                ),
-                                validator: (v) {
-                                  if (_rol == 'teleoperador' && v == null) {
-                                    return l10n.noGroupAssigned;
-                                  }
-                                  return null;
-                                },
-                              ),
                       ),
                     )
                   else if (_rol == 'supervisor')

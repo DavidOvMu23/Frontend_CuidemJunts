@@ -39,4 +39,14 @@ class TrabajadorService {
       throw Exception('Error creating trabajador: ${respData ?? e.message}');
     }
   }
+
+  // delete elimina un trabajador por su ID.
+  Future<void> delete(int id) async {
+    try {
+      await _dio.delete('/trabajador/$id');
+    } on DioError catch (e) {
+      final respData = e.response?.data;
+      throw Exception('Error deleting trabajador: ${respData ?? e.message}');
+    }
+  }
 }

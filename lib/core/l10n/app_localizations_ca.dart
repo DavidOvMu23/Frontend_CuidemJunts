@@ -665,6 +665,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get accountStatus => 'Estat del compte';
 
   @override
+  String get groupStatus => 'Estat del grup';
+
+  @override
   String get emergencyContacts => 'Contactes d\'emergència';
 
   @override
@@ -683,6 +686,16 @@ class AppLocalizationsCa extends AppLocalizations {
   String get userDeletedSuccessfully => 'Usuari eliminat correctament';
 
   @override
+  String get deleteWorkerTitle => 'Eliminar Treballador';
+
+  @override
+  String get deleteWorkerContent =>
+      'Esteu segur que voleu eliminar aquest treballador?\n\nAquesta acció no es pot desfer.';
+
+  @override
+  String get workerDeletedSuccessfully => 'Treballador eliminat correctament';
+
+  @override
   String get errorDeletingUser => 'Error en eliminar l\'usuari';
 
   @override
@@ -693,6 +706,10 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get noGroupAssigned => 'Sense grup assignat';
+
+  @override
+  String get noGroupsAvailableCreateFirst =>
+      'No hi ha grups disponibles. Crea un grup primer abans d\'afegir un teleoperador.';
 
   @override
   String get email_label => 'Correu';
@@ -919,6 +936,13 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get groupDeletedSuccessfully => 'Grup eliminat correctament';
+
+  @override
+  String get cannotDeleteGroup => 'No es pot eliminar el grup';
+
+  @override
+  String get cannotDeleteGroupContent =>
+      'Aquest grup no es pot eliminar perquè té';
 
   @override
   String get sortMostTeleoperators => 'Més teleoperadors primer';

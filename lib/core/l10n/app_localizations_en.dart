@@ -653,6 +653,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountStatus => 'Account status';
 
   @override
+  String get groupStatus => 'Group status';
+
+  @override
   String get emergencyContacts => 'Emergency contacts';
 
   @override
@@ -671,6 +674,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userDeletedSuccessfully => 'User deleted successfully';
 
   @override
+  String get deleteWorkerTitle => 'Delete Worker';
+
+  @override
+  String get deleteWorkerContent =>
+      'Are you sure you want to delete this worker?\n\nThis action cannot be undone.';
+
+  @override
+  String get workerDeletedSuccessfully => 'Worker deleted successfully';
+
+  @override
   String get errorDeletingUser => 'Error deleting user';
 
   @override
@@ -681,6 +694,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noGroupAssigned => 'No group assigned';
+
+  @override
+  String get noGroupsAvailableCreateFirst =>
+      'No groups available. Create a group first before adding a teleoperator.';
 
   @override
   String get email_label => 'Email';
@@ -904,6 +921,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupDeletedSuccessfully => 'Group deleted successfully';
+
+  @override
+  String get cannotDeleteGroup => 'Cannot delete group';
+
+  @override
+  String get cannotDeleteGroupContent =>
+      'This group cannot be deleted because it has';
 
   @override
   String get sortMostTeleoperators => 'Most teleoperators first';

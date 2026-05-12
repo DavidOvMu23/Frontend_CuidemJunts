@@ -247,7 +247,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                     '${grupo.teleoperadoresCount}',
                   ),
                   const SizedBox(height: 4),
-                  Text(l10n.accountStatus,
+                  Text(l10n.groupStatus,
                       style: textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
@@ -292,14 +292,29 @@ class _GruposPageState extends ConsumerState<GruposPage> {
 
   Future<void> _confirmarEliminar(Grupo grupo) async {
     final l10n = AppLocalizations.of(context)!;
-    final warning = grupo.teleoperadoresCount > 0
-        ? '\n\n⚠ Este grupo tiene ${grupo.teleoperadoresCount} teleoperador(es) asignado(s).'
-        : '';
+    if (grupo.teleoperadoresCount > 0) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.cannotDeleteGroup),
+          content: Text(
+            '${l10n.cannotDeleteGroupContent} ${grupo.teleoperadoresCount} teleoperador(es).',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.accept),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
 
     await showConfirmDialog(
       context,
       title: l10n.delete,
-      content: '${l10n.deleteGroupContent}$warning\n\n${grupo.nombre}',
+      content: '${l10n.deleteGroupContent}\n\n${grupo.nombre}',
       confirmText: l10n.accept,
       cancelText: l10n.cancel,
       onConfirm: () async {

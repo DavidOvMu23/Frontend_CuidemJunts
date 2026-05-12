@@ -1336,6 +1336,12 @@ abstract class AppLocalizations {
   /// **'Estado de cuenta'**
   String get accountStatus;
 
+  /// No description provided for @groupStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado del grupo'**
+  String get groupStatus;
+
   /// No description provided for @emergencyContacts.
   ///
   /// In es, this message translates to:
@@ -1372,6 +1378,24 @@ abstract class AppLocalizations {
   /// **'Usuario eliminado correctamente'**
   String get userDeletedSuccessfully;
 
+  /// No description provided for @deleteWorkerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Trabajador'**
+  String get deleteWorkerTitle;
+
+  /// No description provided for @deleteWorkerContent.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar este trabajador?\n\nEsta acción no se puede deshacer.'**
+  String get deleteWorkerContent;
+
+  /// No description provided for @workerDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajador eliminado correctamente'**
+  String get workerDeletedSuccessfully;
+
   /// No description provided for @errorDeletingUser.
   ///
   /// In es, this message translates to:
@@ -1395,6 +1419,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin grupo asignado'**
   String get noGroupAssigned;
+
+  /// No description provided for @noGroupsAvailableCreateFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay grupos disponibles. Crea un grupo primero antes de añadir un teleoperador.'**
+  String get noGroupsAvailableCreateFirst;
 
   /// No description provided for @email_label.
   ///
@@ -1821,6 +1851,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Grupo eliminado correctamente'**
   String get groupDeletedSuccessfully;
+
+  /// No description provided for @cannotDeleteGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede eliminar el grupo'**
+  String get cannotDeleteGroup;
+
+  /// No description provided for @cannotDeleteGroupContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Este grupo no puede eliminarse porque tiene'**
+  String get cannotDeleteGroupContent;
 
   /// No description provided for @sortMostTeleoperators.
   ///

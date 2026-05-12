@@ -10,8 +10,10 @@ class Trabajador {
   final int? grupoId;
   final String? grupoNombre;
   final bool activo;
+  final String? nia;
+  final String? dni;
+  final String? telefono;
 
-  // Constructor que recibe los parámetros necesarios para crear un objeto Trabajador.
   const Trabajador({
     required this.id,
     required this.nombre,
@@ -21,9 +23,11 @@ class Trabajador {
     this.grupoId,
     this.grupoNombre,
     this.activo = true,
+    this.nia,
+    this.dni,
+    this.telefono,
   });
 
-  // copyWith crea una copia del objeto Trabajador con los valores proporcionados.
   Trabajador copyWith({
     int? id,
     String? nombre,
@@ -33,6 +37,9 @@ class Trabajador {
     int? grupoId,
     String? grupoNombre,
     bool? activo,
+    String? nia,
+    String? dni,
+    String? telefono,
   }) {
     return Trabajador(
       id: id ?? this.id,
@@ -43,10 +50,12 @@ class Trabajador {
       grupoId: grupoId ?? this.grupoId,
       grupoNombre: grupoNombre ?? this.grupoNombre,
       activo: activo ?? this.activo,
+      nia: nia ?? this.nia,
+      dni: dni ?? this.dni,
+      telefono: telefono ?? this.telefono,
     );
   }
 
-  // fromJson crea un objeto Trabajador a partir de un json.
   factory Trabajador.fromJson(Map<String, dynamic> json) {
     final rawId = json['id_trab'] ?? json['id'];
     final grupoNombre =
@@ -73,6 +82,9 @@ class Trabajador {
       grupoId: grupoId,
       grupoNombre: grupoNombre,
       activo: (json['activo'] as bool?) ?? true,
+      nia: json['nia'] as String?,
+      dni: json['dni'] as String?,
+      telefono: json['telefono'] as String?,
     );
   }
 }

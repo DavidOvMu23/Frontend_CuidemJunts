@@ -310,15 +310,17 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  detailRow(Icons.email_outlined, l10n.email_label,
-                      trabajador.correo),
-                  detailRow(Icons.badge_outlined, l10n.role_label,
-                      trabajador.rol),
-                  detailRow(
-                    Icons.group_outlined,
-                    l10n.group_label,
-                    grupo.isEmpty ? l10n.noGroupAssigned : grupo,
-                  ),
+                  detailRow(Icons.email_outlined, l10n.email_label, trabajador.correo),
+                  detailRow(Icons.badge_outlined, l10n.role_label, trabajador.rol),
+                  if (trabajador.rol.toLowerCase() == 'teleoperador') ...[
+                    detailRow(Icons.group_outlined, l10n.group_label,
+                        grupo.isEmpty ? l10n.noGroupAssigned : grupo),
+                    if (trabajador.nia != null && trabajador.nia!.isNotEmpty)
+                      detailRow(Icons.numbers_outlined, 'NIA', trabajador.nia!),
+                  ],
+                  if (trabajador.rol.toLowerCase() == 'supervisor' &&
+                      trabajador.dni != null && trabajador.dni!.isNotEmpty)
+                    detailRow(Icons.credit_card_outlined, 'DNI', trabajador.dni!),
                   const SizedBox(height: 4),
                   Text(l10n.accountStatus,
                       style: textTheme.titleMedium
@@ -347,6 +349,44 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(l10n.close),
+            ),
+            general_deletebutton(
+              ctx,
+              l10n.delete,
+              onPressed: () {
+                showDialog(
+                  context: ctx,
+                  builder: (confirmCtx) => AlertDialog(
+                    title: Text(l10n.deleteWorkerTitle),
+                    content: Text(l10n.deleteWorkerContent),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(confirmCtx),
+                        child: Text(l10n.cancel),
+                      ),
+                      general_deletebutton(
+                        confirmCtx,
+                        l10n.delete,
+                        onPressed: () async {
+                          Navigator.pop(confirmCtx);
+                          Navigator.pop(ctx);
+                          try {
+                            await ref.read(trabajadorServiceProvider).delete(trabajador.id);
+                            if (!context.mounted) return;
+                            general_snackbar(context, l10n.workerDeletedSuccessfully, 2);
+                            setState(() {
+                              _trabajadoresFuture = _cargarTrabajadoresConGrupo();
+                            });
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            general_snackbar_error(context, '${l10n.error}: ${e.toString()}', 5);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         );

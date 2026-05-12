@@ -344,32 +344,23 @@ class _NotificationCardState extends State<_NotificationCard> {
       curve: Curves.easeOutCubic,
       transform: Matrix4.translationValues(0, _hovered ? -2 : 0, 0),
       child: Material(
-        color: notif.esSinLeer
-            ? tipoColor.withValues(alpha: 0.13)
-            : Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        elevation: _hovered ? 2 : (notif.esSinLeer ? 1 : 0),
+        color: Theme.of(context).cardColor,
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+        ),
+        elevation: _hovered ? 2 : 0,
         shadowColor: tipoColor.withValues(alpha: 0.25),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+          ),
           onHover: (v) { if (_hovered != v) setState(() => _hovered = v); },
           onTap: notif.esSinLeer ? widget.onMarkAsRead : null,
           child: Stack(
             children: [
-              // Borde izquierdo de color por tipo
-              Positioned(
-                left: 0, top: 0, bottom: 0,
-                child: Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    color: accentColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                    ),
-                  ),
-                ),
-              ),
+              // Contenido — determina la altura del Stack
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 12, 48, 12),
                 child: Row(
@@ -392,13 +383,13 @@ class _NotificationCardState extends State<_NotificationCard> {
                         children: [
                           // Título + punto de no leído
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (notif.esSinLeer) ...[
+                              if (notif.esSinLeer)
                                 Container(
                                   width: 9,
                                   height: 9,
-                                  margin: const EdgeInsets.only(right: 8, top: 1),
+                                  margin: const EdgeInsets.only(right: 8, top: 4),
                                   decoration: BoxDecoration(
                                     color: colorScheme.primary,
                                     shape: BoxShape.circle,
@@ -411,31 +402,32 @@ class _NotificationCardState extends State<_NotificationCard> {
                                     ],
                                   ),
                                 ),
-                              ],
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (notif.titulo != null) ...[
-                                      Text(
-                                        notif.titulo!,
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
-                                        ),
+                                    Text(
+                                      notif.titulo ?? notif.tipoLegible,
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
                                       ),
-                                      Text(
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: accentColor.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
                                         notif.tipoLegible,
-                                        style: textTheme.labelSmall?.copyWith(
-                                          color: colorScheme.onSurface.withValues(alpha: 0.5),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: accentColor,
                                         ),
                                       ),
-                                    ] else
-                                      Text(
-                                        notif.tipoLegible,
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
-                                        ),
-                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -456,11 +448,7 @@ class _NotificationCardState extends State<_NotificationCard> {
                           const SizedBox(height: 6),
                           Row(
                             children: [
-                              Icon(
-                                Icons.access_time,
-                                size: 13,
-                                color: colorScheme.primary,
-                              ),
+                              Icon(Icons.access_time, size: 13, color: colorScheme.primary),
                               const SizedBox(width: 4),
                               Text(
                                 _formatDate(notif.createdAt),
@@ -474,6 +462,21 @@ class _NotificationCardState extends State<_NotificationCard> {
                       ),
                     ),
                   ],
+                ),
+              ),
+
+              // Borde izquierdo de color por tipo
+              Positioned(
+                left: 0, top: 0, bottom: 0,
+                child: Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                    ),
+                  ),
                 ),
               ),
 

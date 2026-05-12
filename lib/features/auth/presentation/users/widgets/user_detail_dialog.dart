@@ -8,16 +8,16 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 class UserDetailDialog extends StatelessWidget {
   final Usuario usuario;
   final DateFormat dateFormatter;
-  final VoidCallback onDelete;
-  final VoidCallback onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
   final List<ContactoEmergencia>? contactosCanonicos;
 
   const UserDetailDialog({
     super.key,
     required this.usuario,
     required this.dateFormatter,
-    required this.onDelete,
-    required this.onEdit,
+    this.onDelete,
+    this.onEdit,
     this.contactosCanonicos,
   });
 
@@ -113,7 +113,7 @@ class UserDetailDialog extends StatelessWidget {
             l10n.delete,
             onPressed: () {
               Navigator.pop(ctx);
-              onDelete();
+              onDelete?.call();
             },
           ),
         ],
@@ -184,20 +184,21 @@ class UserDetailDialog extends StatelessWidget {
               softWrap: true,
             ),
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onEdit();
-            },
-            icon: const Icon(Icons.edit, size: 20),
-            tooltip: l10n.edit,
-            padding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
-            style: IconButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.primary,
+          if (onEdit != null)
+            IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+                onEdit!();
+              },
+              icon: const Icon(Icons.edit, size: 20),
+              tooltip: l10n.edit,
               padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              style: IconButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                padding: EdgeInsets.zero,
+              ),
             ),
-          ),
         ],
       ),
       content: SizedBox(
@@ -410,11 +411,12 @@ class UserDetailDialog extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           child: Text(l10n.close),
         ),
-        general_deletebutton(
-          context,
-          l10n.delete,
-          onPressed: () => _confirmarEliminacion(context),
-        ),
+        if (onDelete != null)
+          general_deletebutton(
+            context,
+            l10n.delete,
+            onPressed: () => _confirmarEliminacion(context),
+          ),
       ],
     );
   }

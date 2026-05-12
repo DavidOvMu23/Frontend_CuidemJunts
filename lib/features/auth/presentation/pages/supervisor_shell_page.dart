@@ -106,7 +106,7 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
     }
   }
 
-  List<_ShellNavigationEntry> _entries(AppLocalizations l10n) {
+  List<_ShellNavigationEntry> _entries(AppLocalizations l10n, {required bool isSupervisor}) {
     return [
       _ShellNavigationEntry(
         item: DrawerItem.home,
@@ -128,16 +128,18 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
         icon: Icons.contact_emergency_rounded,
         label: l10n.emergencyContacts,
       ),
-      _ShellNavigationEntry(
-        item: DrawerItem.telemarketers,
-        icon: Icons.support_agent_rounded,
-        label: l10n.telemarketers,
-      ),
-      _ShellNavigationEntry(
-        item: DrawerItem.groups,
-        icon: Icons.group_work_rounded,
-        label: l10n.groups,
-      ),
+      if (isSupervisor)
+        _ShellNavigationEntry(
+          item: DrawerItem.telemarketers,
+          icon: Icons.support_agent_rounded,
+          label: l10n.telemarketers,
+        ),
+      if (isSupervisor)
+        _ShellNavigationEntry(
+          item: DrawerItem.groups,
+          icon: Icons.group_work_rounded,
+          label: l10n.groups,
+        ),
       _ShellNavigationEntry(
         item: DrawerItem.notifications,
         icon: Icons.notifications_active_rounded,
@@ -191,6 +193,7 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
 
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final isSupervisor = (userRole ?? '').toLowerCase() == 'supervisor';
 
     if (userName == null) {
       return Scaffold(
@@ -216,7 +219,7 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 16),
                   child: _ShellSidebar(
-                    entries: _entries(l10n),
+                    entries: _entries(l10n, isSupervisor: isSupervisor),
                     compact: false,
                     selectedSection: _selectedSection,
                     userName: userName,
@@ -241,7 +244,7 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
                     SizedBox(
                       width: _compactSidebar ? 90 : 278,
                       child: _ShellSidebar(
-                        entries: _entries(l10n),
+                        entries: _entries(l10n, isSupervisor: isSupervisor),
                         compact: _compactSidebar,
                         selectedSection: _selectedSection,
                         userName: userName,

@@ -72,27 +72,27 @@ class _WorkerCardState extends State<WorkerCard> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.badge_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Text(widget.trabajador.rol, style: textTheme.bodyMedium),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.group_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Text(
-                          grupo.isEmpty ? l10n.noGroupAssigned : grupo,
-                          style: textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
+                    if (widget.trabajador.rol.toLowerCase() != 'supervisor') ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.group_outlined, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            grupo.isEmpty ? l10n.noGroupAssigned : grupo,
+                            style: textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
-                    _ActiveBadge(activo: widget.trabajador.activo),
+                    Row(
+                      children: [
+                        _RolBadge(rol: widget.trabajador.rol),
+                        const SizedBox(width: 8),
+                        _ActiveBadge(activo: widget.trabajador.activo),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -110,6 +110,46 @@ class _WorkerCardState extends State<WorkerCard> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _RolBadge extends StatelessWidget {
+  final String rol;
+  const _RolBadge({required this.rol});
+
+  @override
+  Widget build(BuildContext context) {
+    final isSupervisor = rol.toLowerCase() == 'supervisor';
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = isSupervisor ? colorScheme.primary : colorScheme.secondary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSupervisor ? Icons.manage_accounts_outlined : Icons.headset_mic_outlined,
+            size: 13,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            rol,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

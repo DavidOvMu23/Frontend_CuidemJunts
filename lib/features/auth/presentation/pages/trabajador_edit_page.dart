@@ -42,10 +42,10 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     _nombreCtrl = TextEditingController(text: t.nombre);
     _apellidosCtrl = TextEditingController(text: t.apellidos);
     _correoCtrl = TextEditingController(text: t.correo);
-    _telefonoCtrl = TextEditingController();
+    _telefonoCtrl = TextEditingController(text: t.telefono ?? '');
     _contrasenaCtrl = TextEditingController();
-    _niaCtrl = TextEditingController();
-    _dniCtrl = TextEditingController();
+    _niaCtrl = TextEditingController(text: t.nia ?? '');
+    _dniCtrl = TextEditingController(text: t.dni ?? '');
     _rol = t.rol;
     _grupoId = t.grupoId;
     _activo = t.activo;
@@ -95,6 +95,9 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     if (_contrasenaCtrl.text.trim().isNotEmpty) {
       payload['contrasena'] = _contrasenaCtrl.text.trim();
     }
+    if (_telefonoCtrl.text.trim().isNotEmpty) {
+      payload['telefono'] = _telefonoCtrl.text.trim();
+    }
     if (_rol == 'teleoperador') {
       payload['nia'] = _niaCtrl.text.trim();
     }
@@ -124,6 +127,8 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    final readOnlyFillColor = colorScheme.onSurface.withValues(alpha: 0.08);
     final l10n = AppLocalizations.of(context)!;
     final formBody = ResponsiveFormBody(
       title: l10n.edit,
@@ -197,7 +202,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                   ),
                   SizedBox(height: gap),
 
-                  // Row 4: Rol (full width)
+                  // Row 4: Rol (solo lectura al editar)
                   fieldGroup(
                     l10n.role,
                     DropdownButtonFormField<String>(
@@ -206,12 +211,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                         DropdownMenuItem(value: 'teleoperador', child: Text(l10n.teleoperator)),
                         DropdownMenuItem(value: 'supervisor', child: Text(l10n.supervisor)),
                       ],
-                      onChanged: (v) {
-                        setState(() {
-                          _rol = v ?? 'teleoperador';
-                          if (_rol != 'teleoperador') _grupoId = null;
-                        });
-                      },
+                      onChanged: null,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -230,6 +230,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                         l10n.nia8digits,
                         TextFormField(
                           controller: _niaCtrl,
+                          readOnly: true,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             hintText: l10n.nia,
@@ -238,6 +239,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                               borderSide: BorderSide.none,
                             ),
                             filled: true,
+                            fillColor: readOnlyFillColor,
                           ),
                         ),
                       ),
@@ -275,6 +277,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                       l10n.dniLabel,
                       TextFormField(
                         controller: _dniCtrl,
+                        readOnly: true,
                         textCapitalization: TextCapitalization.characters,
                         decoration: InputDecoration(
                           hintText: l10n.dni,
@@ -283,6 +286,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                             borderSide: BorderSide.none,
                           ),
                           filled: true,
+                          fillColor: readOnlyFillColor,
                         ),
                       ),
                     ),
