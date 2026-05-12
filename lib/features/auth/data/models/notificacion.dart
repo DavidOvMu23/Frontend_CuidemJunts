@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-// -------- NOTIFICACION MODEL --------
-
 class Notificacion {
   final int id;
+  final String? titulo;
   final String contenido;
   final String estado;
   final String tipo;
@@ -13,6 +12,7 @@ class Notificacion {
 
   const Notificacion({
     required this.id,
+    this.titulo,
     required this.contenido,
     required this.estado,
     required this.tipo,
@@ -24,6 +24,7 @@ class Notificacion {
   factory Notificacion.fromJson(Map<String, dynamic> json) {
     return Notificacion(
       id: json['id_not'] as int,
+      titulo: json['titulo'] as String?,
       contenido: json['contenido'] as String,
       estado: json['estado'] as String,
       tipo: json['tipo'] as String? ?? '',
@@ -37,39 +38,37 @@ class Notificacion {
     );
   }
 
-  // Getters de ayuda para identificar el estado
   bool get esLeida => estado == 'leida';
   bool get esSinLeer => estado == 'sin_leer';
   bool get esArchivada => estado == 'archivada';
   bool get esCancelada => estado == 'cancelada';
 
-  // Getter para texto legible del tipo
   String get tipoLegible {
-    const tipoMap = {
-      'usuario_nuevo': 'Usuario Nuevo',
-      'llamada_pending': 'Llamada Pendiente',
-      'contacto_asignado': 'Contacto Asignado',
-      'supervisor_asignado': 'Supervisor Asignado',
-      'mensaje': 'Mensaje',
-      'alerta': 'Alerta',
-    };
-    return tipoMap[tipo] ?? '';
+    switch (tipo) {
+      case 'call':
+        return 'Llamada';
+      case 'system':
+        return 'Sistema';
+      case 'supervision':
+        return 'Supervisión';
+      default:
+        return tipo;
+    }
   }
 
-  // Getter para icono del tipo
   IconData get tipoIcono {
-    const tipoIconMap = {
-      'usuario_nuevo': Icons.person_add_alt_1_outlined,
-      'llamada_pending': Icons.call_outlined,
-      'contacto_asignado': Icons.push_pin_outlined,
-      'supervisor_asignado': Icons.badge_outlined,
-      'mensaje': Icons.chat_bubble_outline,
-      'alerta': Icons.warning_amber_outlined,
-    };
-    return tipoIconMap[tipo] ?? Icons.notifications_none_outlined;
+    switch (tipo) {
+      case 'call':
+        return Icons.call_outlined;
+      case 'system':
+        return Icons.settings_outlined;
+      case 'supervision':
+        return Icons.supervisor_account_outlined;
+      default:
+        return Icons.notifications_none_outlined;
+    }
   }
 
-  // Getter para color del estado (puedes usarlo en UI)
   String get estadoColor {
     if (esSinLeer) return 'primary';
     if (esLeida) return 'onSurface';

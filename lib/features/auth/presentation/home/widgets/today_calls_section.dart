@@ -3,14 +3,55 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_detail_dialog.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/call_card.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 
-// Sección que muestra las llamadas programadas para hoy
-class TodayCallsSection extends StatelessWidget {
+class TodayCallsSection extends ConsumerStatefulWidget {
   final AsyncValue<List<Llamadas>> callsAsync;
   final bool expandContent;
 
   const TodayCallsSection({super.key, required this.callsAsync, this.expandContent = false});
+
+  @override
+  ConsumerState<TodayCallsSection> createState() => _TodayCallsSectionState();
+}
+
+class _TodayCallsSectionState extends ConsumerState<TodayCallsSection> {
+  void _openDetail(Llamadas llamada) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => CallDetailDialog(
+        llamada: llamada,
+        onEdit: () {
+          // CallDetailDialog ya se cerró solo antes de llamar a onEdit
+          ref.read(pendingCallEditProvider.notifier).set(llamada);
+        },
+        onDelete: () async {
+          final service = ref.read(llamadasServiceProvider);
+          final scaffoldMsg = ScaffoldMessenger.of(context);
+          final navCtx = Navigator.of(ctx);
+          try {
+            await service.delete(llamada.id);
+            ref.invalidate(llamadasProvider);
+            ref.invalidate(callsTodayProvider);
+            ref.invalidate(scheduledCallsTodayProvider);
+            ref.invalidate(completedCallsTodayProvider);
+            if (!mounted) return;
+            navCtx.pop();
+            scaffoldMsg.showSnackBar(SnackBar(content: Text(l10n.callDeletedSuccessfully)));
+          } catch (e) {
+            if (!mounted) return;
+            scaffoldMsg.showSnackBar(SnackBar(
+              content: Text(l10n.errorDeletingCall(e.toString())),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ));
+          }
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +59,7 @@ class TodayCallsSection extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final content = callsAsync.when(
+    final content = widget.callsAsync.when(
       data: (calls) {
         if (calls.isEmpty) {
           return Center(
@@ -57,6 +98,7 @@ class TodayCallsSection extends StatelessWidget {
                 grupoNombre: call.grupoNombre,
                 hora: call.hora,
                 estado: call.estado,
+                onTap: () => _openDetail(call),
               );
             },
           );
@@ -65,7 +107,7 @@ class TodayCallsSection extends StatelessWidget {
         return ListView.builder(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
-          physics: expandContent ? const ClampingScrollPhysics() : const NeverScrollableScrollPhysics(),
+          physics: widget.expandContent ? const ClampingScrollPhysics() : const NeverScrollableScrollPhysics(),
           itemCount: calls.length,
           itemBuilder: (context, index) {
             final call = calls[index];
@@ -77,6 +119,7 @@ class TodayCallsSection extends StatelessWidget {
                 grupoNombre: call.grupoNombre,
                 hora: call.hora,
                 estado: call.estado,
+                onTap: () => _openDetail(call),
               ),
             );
           },
@@ -116,11 +159,11 @@ class TodayCallsSection extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Divider(color: colorScheme.primary.withValues(alpha: 0.25)),
-            if (expandContent)
+            if (widget.expandContent)
               Expanded(child: content)
             else
               content,
-            if (!expandContent) const SizedBox(height: 4),
+            if (!widget.expandContent) const SizedBox(height: 4),
           ],
         ),
       ),

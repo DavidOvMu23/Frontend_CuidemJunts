@@ -354,11 +354,30 @@ class _NotificationCardState extends State<_NotificationCard> {
                                 ),
                               ],
                               Expanded(
-                                child: Text(
-                                  notif.tipoLegible,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (notif.titulo != null) ...[
+                                      Text(
+                                        notif.titulo!,
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
+                                        ),
+                                      ),
+                                      Text(
+                                        notif.tipoLegible,
+                                        style: textTheme.labelSmall?.copyWith(
+                                          color: colorScheme.onSurface.withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                    ] else
+                                      Text(
+                                        notif.tipoLegible,
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ],

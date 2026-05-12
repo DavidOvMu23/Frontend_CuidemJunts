@@ -9,6 +9,7 @@ class CallCard extends StatelessWidget {
   final String? grupoNombre;
   final String hora;
   final String? estado;
+  final VoidCallback? onTap;
 
   const CallCard({
     super.key,
@@ -17,6 +18,7 @@ class CallCard extends StatelessWidget {
     this.grupoNombre,
     required this.hora,
     this.estado,
+    this.onTap,
   });
 
   @override
@@ -29,7 +31,11 @@ class CallCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(top: 8.0, bottom: 2.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,6 +112,7 @@ class CallCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
