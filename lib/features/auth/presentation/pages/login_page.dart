@@ -103,8 +103,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              theme.colorScheme.background,
-              theme.colorScheme.primary.withOpacity(0.06),
+              theme.scaffoldBackgroundColor,
+              theme.colorScheme.primary.withValues(alpha: 0.06),
             ],
           ),
         ),
@@ -118,7 +118,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 width: 220,
                 height: 220,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.08),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -130,7 +130,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 width: 180,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.06),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.06),
                   shape: BoxShape.circle,
                 ),
               ),

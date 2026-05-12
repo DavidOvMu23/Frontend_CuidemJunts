@@ -27,6 +27,13 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   String _selectedEstado = 'todos';
+  String _selectedTipo = 'todos';
+
+  static const _tipoColors = {
+    'call':        Color(0xFF2196F3), // azul
+    'system':      Color(0xFFFF9800), // naranja
+    'supervision': Color(0xFF4CAF50), // verde
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -65,36 +72,74 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Filtros
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            FilterChip(
-                              label: Text(l10n.all),
-                              selected: _selectedEstado == 'todos',
-                              onSelected: (_) => setState(() => _selectedEstado = 'todos'),
-                            ),
-                            const SizedBox(width: 8),
-                            FilterChip(
-                              label: Text(l10n.unread),
-                              selected: _selectedEstado == 'sin_leer',
-                              onSelected: (_) => setState(() => _selectedEstado = 'sin_leer'),
-                            ),
-                            const SizedBox(width: 8),
-                            FilterChip(
-                              label: Text(l10n.read),
-                              selected: _selectedEstado == 'leida',
-                              onSelected: (_) => setState(() => _selectedEstado = 'leida'),
-                            ),
-                            const SizedBox(width: 8),
-                            FilterChip(
-                              label: Text(l10n.archived),
-                              selected: _selectedEstado == 'archivada',
-                              onSelected: (_) => setState(() => _selectedEstado = 'archivada'),
-                            ),
-                          ],
-                        ),
+                      // Filtros — estado (izquierda) + tipo (derecha)
+                      Row(
+                        children: [
+                          // Estado
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              _TipoChip(
+                                label: l10n.all,
+                                selected: _selectedEstado == 'todos',
+                                color: colorScheme.primary,
+                                onTap: () => setState(() => _selectedEstado = 'todos'),
+                              ),
+                              _TipoChip(
+                                label: l10n.unread,
+                                selected: _selectedEstado == 'sin_leer',
+                                color: colorScheme.primary,
+                                onTap: () => setState(() => _selectedEstado = 'sin_leer'),
+                              ),
+                              _TipoChip(
+                                label: l10n.read,
+                                selected: _selectedEstado == 'leida',
+                                color: colorScheme.primary,
+                                onTap: () => setState(() => _selectedEstado = 'leida'),
+                              ),
+                              _TipoChip(
+                                label: l10n.archived,
+                                selected: _selectedEstado == 'archivada',
+                                color: colorScheme.primary,
+                                onTap: () => setState(() => _selectedEstado = 'archivada'),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          // Tipo
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              _TipoChip(
+                                label: l10n.all,
+                                selected: _selectedTipo == 'todos',
+                                color: colorScheme.primary,
+                                onTap: () => setState(() => _selectedTipo = 'todos'),
+                              ),
+                              _TipoChip(
+                                label: 'Llamada',
+                                selected: _selectedTipo == 'call',
+                                color: _tipoColors['call']!,
+                                icon: Icons.call_outlined,
+                                onTap: () => setState(() => _selectedTipo = 'call'),
+                              ),
+                              _TipoChip(
+                                label: 'Sistema',
+                                selected: _selectedTipo == 'system',
+                                color: _tipoColors['system']!,
+                                icon: Icons.settings_outlined,
+                                onTap: () => setState(() => _selectedTipo = 'system'),
+                              ),
+                              _TipoChip(
+                                label: 'Supervisión',
+                                selected: _selectedTipo == 'supervision',
+                                color: _tipoColors['supervision']!,
+                                icon: Icons.supervisor_account_outlined,
+                                onTap: () => setState(() => _selectedTipo = 'supervision'),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Divider(
@@ -107,7 +152,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         child: notificacionesAsync.when(
                           data: (notificaciones) {
                             final filtered = notificaciones.where((n) {
-                              return _selectedEstado == 'todos' || n.estado == _selectedEstado;
+                              final estadoOk = _selectedEstado == 'todos' || n.estado == _selectedEstado;
+                              final tipoOk = _selectedTipo == 'todos' || n.tipo == _selectedTipo;
+                              return estadoOk && tipoOk;
                             }).toList();
 
                             if (filtered.isEmpty) {
@@ -288,11 +335,9 @@ class _NotificationCardState extends State<_NotificationCard> {
     final textTheme = Theme.of(context).textTheme;
     final notif = widget.notif;
 
-    final accentColor = notif.esSinLeer
-        ? colorScheme.primary
-        : notif.esArchivada
-            ? colorScheme.outline
-            : colorScheme.secondary;
+    const tipoColors = _NotificationsPageState._tipoColors;
+    final tipoColor = tipoColors[notif.tipo] ?? colorScheme.primary;
+    final accentColor = notif.esArchivada ? colorScheme.outline : tipoColor;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 170),
@@ -300,19 +345,33 @@ class _NotificationCardState extends State<_NotificationCard> {
       transform: Matrix4.translationValues(0, _hovered ? -2 : 0, 0),
       child: Material(
         color: notif.esSinLeer
-            ? colorScheme.primary.withValues(alpha: 0.28)
+            ? tipoColor.withValues(alpha: 0.13)
             : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         elevation: _hovered ? 2 : (notif.esSinLeer ? 1 : 0),
-        shadowColor: colorScheme.primary.withValues(alpha: 0.25),
+        shadowColor: tipoColor.withValues(alpha: 0.25),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onHover: (v) { if (_hovered != v) setState(() => _hovered = v); },
           onTap: notif.esSinLeer ? widget.onMarkAsRead : null,
           child: Stack(
             children: [
+              // Borde izquierdo de color por tipo
+              Positioned(
+                left: 0, top: 0, bottom: 0,
+                child: Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 12, 48, 12),
+                padding: const EdgeInsets.fromLTRB(18, 12, 48, 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -321,7 +380,7 @@ class _NotificationCardState extends State<_NotificationCard> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.14),
+                        color: accentColor.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(notif.tipoIcono, size: 21, color: accentColor),
@@ -476,6 +535,58 @@ class _NotificationCardState extends State<_NotificationCard> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TipoChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final Color color;
+  final IconData? icon;
+  final VoidCallback onTap;
+
+  const _TipoChip({
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? color : color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? color : color.withValues(alpha: 0.35),
+            width: selected ? 0 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 15, color: selected ? Colors.white : color),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? Colors.white : color,
+              ),
+            ),
+          ],
         ),
       ),
     );
