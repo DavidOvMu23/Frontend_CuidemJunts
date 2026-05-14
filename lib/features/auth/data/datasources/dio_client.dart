@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/core/navigation/navigator_key.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/jwt_interceptor.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
-
-// -------- DIO CLIENT CON JWT INTERCEPTOR --------
-// Provider que crea una instancia de Dio con el interceptor JWT configurado.
-// Esto asegura que todas las peticiones HTTP incluyan el token JWT automáticamente.
 
 final dioClientProvider = Provider<Dio>((ref) {
   final preferencesService = ref.watch(preferencesServiceProvider);
@@ -19,8 +19,16 @@ final dioClientProvider = Provider<Dio>((ref) {
     ),
   );
 
-  // Agregar el interceptor JWT
-  dio.interceptors.add(JwtInterceptor(preferencesService: preferencesService));
+  dio.interceptors.add(JwtInterceptor(
+    preferencesService: preferencesService,
+    onUnauthorized: () async {
+      await ref.read(authProvider.notifier).logout();
+      appNavigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (route) => false,
+      );
+    },
+  ));
 
   return dio;
 });

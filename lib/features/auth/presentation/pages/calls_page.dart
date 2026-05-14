@@ -44,10 +44,8 @@ class LlamadasPage extends ConsumerStatefulWidget {
 
 
 class _LlamadasPageState extends ConsumerState<LlamadasPage> {
-  // Cache del Future para evitar recargas innecesarias al reconstruir el widget
   late Future<List<Llamadas>> _llamadasFuture;
 
-  // Estado local de la interfaz
   late CallsPageFilter filtroSeleccionado;
   String textoFiltro = '';
   CallsPageSort ordenSeleccionado = CallsPageSort.none;
@@ -55,6 +53,8 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   DateTime? fechaHasta;
   Llamadas? _llamadaEnEdicion;
   bool _esCreacion = false;
+  // Lista de teleoperadores para el selector del formulario (solo supervisores)
+  List<TeleoperadorBusqueda>? _teleoperadoresCached;
 
   @override
   void initState() {
@@ -64,11 +64,29 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     if (widget.llamadaParaEditar != null) {
       _llamadaEnEdicion = widget.llamadaParaEditar;
       _esCreacion = false;
-      // Clear the provider so the shell doesn't re-pass it on next rebuild
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) ref.read(pendingCallEditProvider.notifier).set(null);
       });
     }
+    // Precargar teleoperadores si el usuario es supervisor
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rol = ref.read(authProvider).rol ?? '';
+      if (rol.toLowerCase() == 'supervisor') _cargarTeleoperadores();
+    });
+  }
+
+  Future<void> _cargarTeleoperadores() async {
+    try {
+      final service = ref.read(trabajadorServiceProvider);
+      final todos = await service.getAll();
+      if (!mounted) return;
+      setState(() {
+        _teleoperadoresCached = todos
+            .where((t) => t.rol.toLowerCase() == 'teleoperador' && t.activo)
+            .map((t) => TeleoperadorBusqueda(id: t.id, nombreCompleto: '${t.nombre} ${t.apellidos}'))
+            .toList();
+      });
+    } catch (_) {}
   }
 
   // Obtiene la lista completa de llamadas del servidor
@@ -232,6 +250,8 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     }
 
     final llamadasService = ref.read(llamadasServiceProvider);
+    // El teleoperadorId se obtiene del formulario (supervisor elige) o del propio usuario (teleoperador)
+    final int? teleoperadorId = isTele ? authState.id : data.teleoperadorId;
     final payload = {
       'usuarioId': data.usuarioId,
       'resumen': data.resumen,
@@ -241,6 +261,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       'fecha': data.fecha.toIso8601String(),
       'hora': data.hora,
       'grupoId': grupoIdToUse,
+      if (teleoperadorId != null) 'teleoperadorId': teleoperadorId,
     };
 
     try {
@@ -420,6 +441,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             isEdit: _llamadaEnEdicion != null,
             buscarUsuarios: _buscarUsuarios,
             onSubmit: _guardarLlamada,
+            teleoperadores: _teleoperadoresCached,
             onCancel: () {
               setState(() {
                 _llamadaEnEdicion = null;

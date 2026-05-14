@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_cuidemjunts/core/navigation/navigator_key.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/notification_overlay_widget.dart';
 
 // ----- Widget principal de la aplicación (MaterialApp) -----
@@ -32,7 +33,7 @@ class App extends ConsumerWidget {
 
     // Creamos la app, el MaterialApp es el widget raíz que proporciona los componentes visuales de la app.
     return MaterialApp(
-      // Quitar etiqueta roja de debug de mierda
+      navigatorKey: appNavigatorKey,
       debugShowCheckedModeBanner: false,
 
       // Le decimos a Flutter qué idioma usar

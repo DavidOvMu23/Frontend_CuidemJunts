@@ -11,6 +11,8 @@ class CallFormPage extends StatefulWidget {
   final Future<void> Function(CallFormData data) onSubmit;
   final VoidCallback? onCancel;
   final bool isEdit;
+  // Si se pasa, el supervisor puede elegir qué teleoperador hizo la llamada
+  final List<TeleoperadorBusqueda>? teleoperadores;
 
   const CallFormPage({
     super.key,
@@ -19,6 +21,7 @@ class CallFormPage extends StatefulWidget {
     required this.onSubmit,
     this.onCancel,
     this.isEdit = false,
+    this.teleoperadores,
   });
 
   @override
@@ -31,6 +34,12 @@ class UsuarioBusqueda {
   UsuarioBusqueda({required this.id, required this.nombreCompleto});
 }
 
+class TeleoperadorBusqueda {
+  final int id;
+  final String nombreCompleto;
+  TeleoperadorBusqueda({required this.id, required this.nombreCompleto});
+}
+
 class CallFormData {
   final String usuarioId;
   final String resumen;
@@ -39,6 +48,7 @@ class CallFormData {
   final String observaciones;
   final DateTime fecha;
   final String hora;
+  final int? teleoperadorId;
   CallFormData({
     required this.usuarioId,
     required this.resumen,
@@ -47,6 +57,7 @@ class CallFormData {
     required this.observaciones,
     required this.fecha,
     required this.hora,
+    this.teleoperadorId,
   });
 }
 
@@ -62,6 +73,7 @@ class _CallFormPageState extends State<CallFormPage> {
   UsuarioBusqueda? _usuarioSeleccionado;
   List<UsuarioBusqueda> _usuariosBusqueda = [];
   bool _buscandoUsuario = false;
+  TeleoperadorBusqueda? _teleoperadorSeleccionado;
 
   final List<String> _estados = [
     'completada',
@@ -82,8 +94,11 @@ class _CallFormPageState extends State<CallFormPage> {
     if (llamada != null && llamada.usuarioId != null) {
       _usuarioSeleccionado = UsuarioBusqueda(
         id: llamada.usuarioId.toString(),
-        nombreCompleto: (llamada.usuarioNombre ?? '') + (llamada.usuarioApellidos != null ? ' ' + llamada.usuarioApellidos! : ''),
+        nombreCompleto: '${llamada.usuarioNombre ?? ''}${llamada.usuarioApellidos != null ? ' ${llamada.usuarioApellidos}' : ''}',
       );
+    }
+    if (llamada != null && llamada.teleoperadorId != null && widget.teleoperadores != null) {
+      _teleoperadorSeleccionado = widget.teleoperadores!.where((t) => t.id == llamada.teleoperadorId).firstOrNull;
     }
   }
 
@@ -130,6 +145,7 @@ class _CallFormPageState extends State<CallFormPage> {
       observaciones: _observacionesController.text.trim(),
       fecha: _fecha!,
       hora: _horaController.text.trim(),
+      teleoperadorId: _teleoperadorSeleccionado?.id,
     );
 
     try {
@@ -560,6 +576,32 @@ class _CallFormPageState extends State<CallFormPage> {
                         ),
                       ],
                     ),
+                    if (widget.teleoperadores != null && widget.teleoperadores!.isNotEmpty) ...[
+                      SizedBox(height: gap),
+                      label(l10n.teleoperator),
+                      DropdownButtonFormField<TeleoperadorBusqueda?>(
+                        value: _teleoperadorSeleccionado,
+                        hint: Text(l10n.none),
+                        items: [
+                          DropdownMenuItem<TeleoperadorBusqueda?>(
+                            value: null,
+                            child: Text(l10n.none),
+                          ),
+                          ...widget.teleoperadores!.map((t) => DropdownMenuItem(
+                            value: t,
+                            child: Text(t.nombreCompleto),
+                          )),
+                        ],
+                        onChanged: (v) => setState(() => _teleoperadorSeleccionado = v),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
@@ -44,6 +45,7 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
     final isDesktop = width >= 1100;
     final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
+    final isSupervisor = (ref.read(authProvider).rol ?? '').toLowerCase() == 'supervisor';
     final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
 
     return Padding(
@@ -213,7 +215,7 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                                       return EmergencyContactCard(
                                         contacto: contacto,
                                         asociados: asociados,
-                                        onTap: () => onContactoTap(context, contacto, true, usuariosMap),
+                                        onTap: () => onContactoTap(context, contacto, isSupervisor, usuariosMap),
                                       );
                                     },
                                   ),

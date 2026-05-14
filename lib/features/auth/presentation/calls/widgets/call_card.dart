@@ -158,19 +158,16 @@ class _CallCardState extends State<CallCard> {
                     ),
                     const SizedBox(height: 6),
 
-                    // Grupo / Usuario
+                    // Grupo
                     Row(
                       children: [
-                        const Icon(
-                          Icons.person_outline,
-                          size: 18,
-                        ),
+                        const Icon(Icons.group_outlined, size: 18),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            widget.llamada.grupoNombre?.isEmpty ?? true
-                                ? l10n.noGroupAssigned
-                                : 'Tel. ${widget.llamada.grupoNombre}',
+                            widget.llamada.grupoNombre?.isNotEmpty == true
+                                ? widget.llamada.grupoNombre!
+                                : l10n.noGroupAssigned,
                             style: widget.textTheme.bodyMedium,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -178,6 +175,23 @@ class _CallCardState extends State<CallCard> {
                         ),
                       ],
                     ),
+                    if (widget.llamada.teleoperadorNombre != null && widget.llamada.teleoperadorNombre!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.support_agent_outlined, size: 18),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              '${widget.llamada.teleoperadorNombre} ${widget.llamada.teleoperadorApellidos ?? ''}',
+                              style: widget.textTheme.bodyMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 4),
 
                     // Fecha y Duración

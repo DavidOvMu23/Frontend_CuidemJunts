@@ -157,17 +157,24 @@ class HomeSupervisorPage extends ConsumerWidget {
     }
 
     Widget buildMobileBody() {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildStatsRow(false),
-            const SizedBox(height: 20),
-            TodayCallsSection(callsAsync: callsTodayAsync),
-            const SizedBox(height: 20),
-            MonthlyCalendarSection(callsAsync: allCallsAsync),
-          ],
+      return RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(llamadasProvider);
+          await ref.read(llamadasProvider.future);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildStatsRow(false),
+              const SizedBox(height: 20),
+              TodayCallsSection(callsAsync: callsTodayAsync),
+              const SizedBox(height: 20),
+              MonthlyCalendarSection(callsAsync: allCallsAsync),
+            ],
+          ),
         ),
       );
     }

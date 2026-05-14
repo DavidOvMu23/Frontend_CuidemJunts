@@ -1,14 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/preferences_service.dart';
 
-// -------- HTTP INTERCEPTOR CON JWT --------
-// Este interceptor se encarga de agregar el token JWT a todas las peticiones HTTP
-// de manera automática. Así no tenemos que agregarlo manualmente en cada llamada.
-
 class JwtInterceptor extends Interceptor {
   final PreferencesService preferencesService;
+  final Future<void> Function()? onUnauthorized;
 
-  JwtInterceptor({required this.preferencesService});
+  JwtInterceptor({required this.preferencesService, this.onUnauthorized});
 
   @override
   void onRequest(
@@ -43,13 +40,10 @@ class JwtInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Si recibimos un 401 (Unauthorized), significa que el token expiró o es inválido
     if (err.response?.statusCode == 401) {
-      // Aquí podríamos limpiar la sesión y redirigir al login
-      // Por ahora solo dejamos que se propague el error
+      onUnauthorized?.call();
     }
 
-    // Depuración de errores HTTP
     try {
       print('DIO ERROR ${err.type} ${err.response?.statusCode} ${err.requestOptions.uri}');
       print('Response data: ${err.response?.data}');

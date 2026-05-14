@@ -10,6 +10,8 @@ class CallCard extends StatelessWidget {
   final String hora;
   final String? estado;
   final VoidCallback? onTap;
+  final VoidCallback? onMarkCompleted;
+  final VoidCallback? onMarkNoAnswer;
 
   const CallCard({
     super.key,
@@ -19,6 +21,8 @@ class CallCard extends StatelessWidget {
     required this.hora,
     this.estado,
     this.onTap,
+    this.onMarkCompleted,
+    this.onMarkNoAnswer,
   });
 
   @override
@@ -57,13 +61,13 @@ class CallCard extends StatelessWidget {
                 Icon(
                   Icons.group,
                   size: 16,
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   grupoNombre ?? l10n.noGroup,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -76,13 +80,13 @@ class CallCard extends StatelessWidget {
                 Icon(
                   Icons.access_time,
                   size: 16,
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   hora,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -110,6 +114,48 @@ class CallCard extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Botones de acción rápida (solo para llamadas pendientes)
+            if (estado?.trim().toUpperCase() == 'PENDIENTE' &&
+                (onMarkCompleted != null || onMarkNoAnswer != null)) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  if (onMarkCompleted != null)
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: onMarkCompleted,
+                        icon: const Icon(Icons.check, size: 16),
+                        label: Text(l10n.callCompleted, style: const TextStyle(fontSize: 13)),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: isDark ? AppPalette.successDark : AppPalette.successLight,
+                          foregroundColor: isDark ? AppPalette.successFontDark : AppPalette.successFontLight,
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ),
+                  if (onMarkCompleted != null && onMarkNoAnswer != null)
+                    const SizedBox(width: 8),
+                  if (onMarkNoAnswer != null)
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: onMarkNoAnswer,
+                        icon: const Icon(Icons.phone_missed, size: 16),
+                        label: Text(l10n.callNoAnswer, style: const TextStyle(fontSize: 13)),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: isDark ? AppPalette.errorDark : AppPalette.errorLight,
+                          foregroundColor: isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight,
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

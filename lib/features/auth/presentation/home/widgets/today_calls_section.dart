@@ -10,14 +10,28 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamad
 class TodayCallsSection extends ConsumerStatefulWidget {
   final AsyncValue<List<Llamadas>> callsAsync;
   final bool expandContent;
+  final bool showQuickActions;
 
-  const TodayCallsSection({super.key, required this.callsAsync, this.expandContent = false});
+  const TodayCallsSection({
+    super.key,
+    required this.callsAsync,
+    this.expandContent = false,
+    this.showQuickActions = false,
+  });
 
   @override
   ConsumerState<TodayCallsSection> createState() => _TodayCallsSectionState();
 }
 
 class _TodayCallsSectionState extends ConsumerState<TodayCallsSection> {
+  Future<void> _updateEstado(Llamadas llamada, String nuevoEstado) async {
+    final service = ref.read(llamadasServiceProvider);
+    try {
+      await service.update(llamada.id, {'estado': nuevoEstado});
+      ref.invalidate(llamadasProvider);
+    } catch (_) {}
+  }
+
   void _openDetail(Llamadas llamada) {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -99,6 +113,12 @@ class _TodayCallsSectionState extends ConsumerState<TodayCallsSection> {
                 hora: call.hora,
                 estado: call.estado,
                 onTap: () => _openDetail(call),
+                onMarkCompleted: widget.showQuickActions
+                    ? () => _updateEstado(call, 'completada')
+                    : null,
+                onMarkNoAnswer: widget.showQuickActions
+                    ? () => _updateEstado(call, 'no_contesto')
+                    : null,
               );
             },
           );
@@ -120,6 +140,12 @@ class _TodayCallsSectionState extends ConsumerState<TodayCallsSection> {
                 hora: call.hora,
                 estado: call.estado,
                 onTap: () => _openDetail(call),
+                onMarkCompleted: widget.showQuickActions
+                    ? () => _updateEstado(call, 'completada')
+                    : null,
+                onMarkNoAnswer: widget.showQuickActions
+                    ? () => _updateEstado(call, 'no_contesto')
+                    : null,
               ),
             );
           },

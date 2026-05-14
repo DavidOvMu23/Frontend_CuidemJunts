@@ -6,6 +6,7 @@ import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_operador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
@@ -153,10 +154,12 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
     ];
   }
 
-  Widget _sectionWidget() {
+  Widget _sectionWidget(bool isSupervisor) {
     switch (_selectedSection) {
       case DrawerItem.home:
-        return const HomeSupervisorPage(embedded: true);
+        return isSupervisor
+            ? const HomeSupervisorPage(embedded: true)
+            : const HomeOperadorPage(embedded: true);
       case DrawerItem.calls:
         return LlamadasPage(
           embedded: true,
@@ -320,7 +323,7 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
                                 borderRadius: BorderRadius.circular(
                                   isDesktop ? 30 : 24,
                                 ),
-                                child: _sectionWidget(),
+                                child: _sectionWidget(isSupervisor),
                               ),
                             ),
                           ),

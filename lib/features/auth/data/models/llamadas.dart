@@ -1,6 +1,5 @@
 // -------- LLAMADAS MODEL --------
 
-// Este modelo representa una llamada. y lo que hace es que al recibir un json, sepa como convertir cada elemento del json a un objeto Llamadas.
 class Llamadas {
   final int id;
   final DateTime fecha;
@@ -14,8 +13,10 @@ class Llamadas {
   final int? usuarioId;
   final String? usuarioNombre;
   final String? usuarioApellidos;
+  final int? teleoperadorId;
+  final String? teleoperadorNombre;
+  final String? teleoperadorApellidos;
 
-  // Constructor que recibe los parámetros necesarios para crear un objeto Llamadas.
   const Llamadas({
     required this.id,
     required this.fecha,
@@ -29,9 +30,11 @@ class Llamadas {
     this.usuarioId,
     this.usuarioNombre,
     this.usuarioApellidos,
+    this.teleoperadorId,
+    this.teleoperadorNombre,
+    this.teleoperadorApellidos,
   });
 
-  // copyWith crea una copia del objeto Llamadas con los valores proporcionados.
   Llamadas copyWith({
     int? id,
     DateTime? fecha,
@@ -45,6 +48,9 @@ class Llamadas {
     int? usuarioId,
     String? usuarioNombre,
     String? usuarioApellidos,
+    int? teleoperadorId,
+    String? teleoperadorNombre,
+    String? teleoperadorApellidos,
   }) {
     return Llamadas(
       id: id ?? this.id,
@@ -59,10 +65,12 @@ class Llamadas {
       usuarioId: usuarioId ?? this.usuarioId,
       usuarioNombre: usuarioNombre ?? this.usuarioNombre,
       usuarioApellidos: usuarioApellidos ?? this.usuarioApellidos,
+      teleoperadorId: teleoperadorId ?? this.teleoperadorId,
+      teleoperadorNombre: teleoperadorNombre ?? this.teleoperadorNombre,
+      teleoperadorApellidos: teleoperadorApellidos ?? this.teleoperadorApellidos,
     );
   }
 
-  // fromJson crea un objeto Llamadas a partir de un json.
   factory Llamadas.fromJson(Map<String, dynamic> json) {
     final rawId = json['id_com'] ?? json['id'];
     final fechaRaw = json['fecha']?.toString();
@@ -76,8 +84,6 @@ class Llamadas {
       resumen: (json['resumen'] ?? '') as String,
       observaciones: (json['observaciones'] ?? '') as String,
       estado: (json['estado'] ?? '') as String,
-      // El backend puede devolver la relación 'grupo' como objeto o
-      // solo enviar un grupoId/grupoNombre. Soportamos ambos formatos.
       grupoId: (json['grupo'] is Map)
           ? (json['grupo']['id_grup'] is int
                 ? json['grupo']['id_grup'] as int
@@ -86,8 +92,6 @@ class Llamadas {
       grupoNombre: (json['grupo'] is Map)
           ? (json['grupo']['nombre'] as String?)
           : (json['grupoNombre'] as String?),
-      // El backend puede devolver la relación 'usuario' como objeto o
-      // solo enviar usuarioId/usuarioNombre. Soportamos ambos formatos.
       usuarioId: (json['usuario'] is Map)
           ? (json['usuario']['id_usu'] is int
                 ? json['usuario']['id_usu'] as int
@@ -99,6 +103,17 @@ class Llamadas {
       usuarioApellidos: (json['usuario'] is Map)
           ? (json['usuario']['apellidos'] as String?)
           : (json['usuarioApellidos'] as String?),
+      teleoperadorId: (json['teleoperador'] is Map)
+          ? (json['teleoperador']['id_trab'] is int
+                ? json['teleoperador']['id_trab'] as int
+                : int.tryParse('${json['teleoperador']['id_trab']}'))
+          : (json['teleoperadorId'] as int?),
+      teleoperadorNombre: (json['teleoperador'] is Map)
+          ? (json['teleoperador']['nombre'] as String?)
+          : (json['teleoperadorNombre'] as String?),
+      teleoperadorApellidos: (json['teleoperador'] is Map)
+          ? (json['teleoperador']['apellidos'] as String?)
+          : (json['teleoperadorApellidos'] as String?),
     );
   }
 }
