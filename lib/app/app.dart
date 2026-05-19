@@ -1,12 +1,22 @@
+// Paquete principal de Flutter
 import 'package:flutter/material.dart';
+// ConsumerWidget: versión de StatelessWidget que puede leer providers de Riverpod
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// Necesario para que los widgets de Material (calendarios, botones…) usen el idioma correcto
 import 'package:flutter_localizations/flutter_localizations.dart';
+// Nuestros temas claro y oscuro definidos en app_theme.dart
 import 'package:frontend_cuidemjunts/app/theme/app_theme.dart';
+// Clase generada automáticamente con todas las traducciones de la app
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
+// Provider que guarda el idioma activo (español, catalán o inglés)
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale_provider.dart';
+// Provider que guarda el tema activo (claro, oscuro o el del sistema)
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/theme_provider.dart';
+// Primera pantalla que ve el usuario al abrir la app
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
+// Clave global del navegador para navegar desde fuera del árbol de widgets
 import 'package:frontend_cuidemjunts/core/navigation/navigator_key.dart';
+// Widget flotante que muestra notificaciones encima de cualquier pantalla
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/notification_overlay_widget.dart';
 
 // ----- Widget principal de la aplicación (MaterialApp) -----

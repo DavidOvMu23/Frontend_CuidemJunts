@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 
+// Ventana emergente (diálogo) que muestra todos los detalles de una llamada
+// y permite editarla o eliminarla.
 class CallDetailDialog extends StatelessWidget {
+  // Los datos de la llamada a mostrar
   final Llamadas llamada;
+  // Función opcional que se llama si el usuario pulsa "Eliminar"
   final VoidCallback? onDelete;
+  // Función opcional que se llama si el usuario pulsa el botón de editar
   final VoidCallback? onEdit;
 
   const CallDetailDialog({
@@ -15,6 +22,8 @@ class CallDetailDialog extends StatelessWidget {
     this.onEdit,
   });
 
+  // Muestra un segundo diálogo de confirmación antes de borrar la llamada,
+  // para evitar eliminaciones accidentales
   void _confirmarEliminacion(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -40,6 +49,8 @@ class CallDetailDialog extends StatelessWidget {
     );
   }
 
+  // Crea una fila reutilizable con icono, etiqueta y valor para mostrar
+  // cada campo del detalle (fecha, duración, grupo, etc.)
   Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
@@ -77,14 +88,15 @@ class CallDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        // Convierte el estado interno (como "no_contesto") en un texto legible para el usuario
         String estadoLegible(String estado) {
           final l10n = AppLocalizations.of(context)!;
           switch (estado.trim().toLowerCase()) {
-            case 'completada':
+            case CallStatus.completada:
               return l10n.callCompleted;
-            case 'pendiente':
+            case CallStatus.pendiente:
               return l10n.callPending;
-            case 'no_contesto':
+            case CallStatus.noContesto:
             case 'no contestó':
             case 'no contestada':
               return l10n.callNoAnswer;

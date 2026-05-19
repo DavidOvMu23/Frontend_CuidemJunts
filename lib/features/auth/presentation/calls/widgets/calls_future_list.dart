@@ -6,14 +6,23 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/calls_sort_bottom_sheet.dart';
 
-// Lista de llamadas que gestiona los estados de carga (FutureBuilder).
+// Lista de llamadas que gestiona los estados de carga, error y vacío mediante
+// un FutureBuilder — espera a que lleguen los datos del servidor y muestra
+// el resultado apropiado en cada caso.
 class CallsFutureList extends StatelessWidget {
+  // La petición al servidor que traerá la lista de llamadas
   final Future<List<Llamadas>> llamadasFuture;
+  // Función que aplica los filtros y el orden activos sobre la lista completa
   final List<Llamadas> Function(List<Llamadas>) aplicarFiltros;
+  // Texto que el usuario ha escrito en el buscador
   final String textoFiltro;
+  // Filtro de estado seleccionado (todas, completadas, pendientes, no contestadas)
   final CallsPageFilter filtroSeleccionado;
+  // Criterio de ordenación activo
   final CallsPageSort ordenSeleccionado;
+  // Se llama cuando el usuario elige un nuevo criterio de orden
   final ValueChanged<CallsPageSort> onSortChanged;
+  // Se llama cuando el usuario pulsa sobre una llamada de la lista
   final void Function(BuildContext, Llamadas) onLlamadaTap;
 
   const CallsFutureList({

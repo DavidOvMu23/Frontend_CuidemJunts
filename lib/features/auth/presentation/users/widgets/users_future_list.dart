@@ -8,16 +8,27 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_sort_bottom_sheet.dart';
 
-// Lista de usuarios que gestiona los estados de carga (FutureBuilder).
+// Lista de usuarios que gestiona los estados de carga, error y vacío mediante
+// un FutureBuilder — espera a que lleguen los datos del servidor y pinta el
+// resultado apropiado en cada caso.
 class UsersFutureList extends StatelessWidget {
+  // La petición al servidor que traerá la lista de usuarios
   final Future<List<Usuario>> usuariosFuture;
+  // Función que aplica los filtros y el orden activos sobre la lista completa
   final List<Usuario> Function(List<Usuario>) aplicarFiltros;
+  // Texto que el usuario ha escrito en el buscador
   final String textoFiltro;
+  // Filtro de dependencia activo
   final UsersPageFilter filtroSeleccionado;
+  // Criterio de ordenación activo
   final UsersPageSort ordenSeleccionado;
+  // Se llama cuando el usuario elige un nuevo criterio de orden
   final ValueChanged<UsersPageSort> onSortChanged;
+  // Formato de fecha para mostrar la fecha de nacimiento en las tarjetas
   final DateFormat dateFormatter;
+  // Se llama cuando el usuario pulsa una tarjeta para ver el detalle
   final void Function(BuildContext, Usuario, DateFormat) onUsuarioTap;
+  // Se llama cuando el usuario quiere editar un usuario
   final void Function(BuildContext, Usuario) onUsuarioEdit;
 
   const UsersFutureList({
@@ -39,8 +50,8 @@ class UsersFutureList extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    // FutureBuilder que gestiona los estados de carga, error y vacío.
-    // Lo que hacemos es que, según el estado de la FutureBuilder, mostramos un widget u otro.
+    // FutureBuilder espera la respuesta del servidor y muestra el widget correspondiente
+    // según el estado: girando (cargando), error o datos disponibles.
     return FutureBuilder<List<Usuario>>(
       future: usuariosFuture,
       builder: (context, snapshot) {

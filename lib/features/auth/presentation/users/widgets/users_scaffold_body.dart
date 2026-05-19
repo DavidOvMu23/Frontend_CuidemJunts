@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/search_and_filter_section.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_future_list.dart';
 
-// Cuerpo principal de la pantalla de usuarios.
+// Cuerpo principal de la pantalla de usuarios — organiza el buscador, los filtros
+// y la lista de usuarios dentro del área principal de la pantalla.
 class UsersScaffoldBody extends StatelessWidget {
+  // La petición al servidor con la lista de usuarios
   final Future<List<Usuario>> usuariosFuture;
+  // Estado actual de los filtros y la ordenación
   final UsersPageFilter filtroSeleccionado;
   final UsersPageSort ordenSeleccionado;
   final String textoFiltro;
 
   // Funciones para aplicar filtros y ordenar
   final List<Usuario> Function(List<Usuario>) aplicarFiltros;
+  // Se llaman cuando el usuario cambia cualquiera de los controles de búsqueda/filtro
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<UsersPageFilter> onFilterChanged;
   final ValueChanged<UsersPageSort> onSortChanged;
 
-  // Función para mostrar el detalle de un usuario
+  // Función para mostrar el detalle de un usuario cuando el usuario pulsa su tarjeta
   final void Function(BuildContext, Usuario, DateFormat) onUsuarioTap;
 
+  // Función para abrir el formulario de edición de un usuario
   final void Function(BuildContext, Usuario) onUsuarioEdit;
 
   const UsersScaffoldBody({
@@ -40,9 +47,11 @@ class UsersScaffoldBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    // Formato de fecha que usarán todas las tarjetas de usuario de esta pantalla
     final dateFormatter = DateFormat('dd/MM/yyyy');
+    // Detectamos si estamos en escritorio para adaptar el diseño
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1100;
+    final isDesktop = width >= AppBreakpoints.desktop;
     final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     return Padding(

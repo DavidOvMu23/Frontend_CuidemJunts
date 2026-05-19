@@ -3,11 +3,16 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page_enums.dart';
 
-// Sección que agrupa el buscador de texto y el filtro por estado/grupo
+// Sección que agrupa el buscador de texto y el menú desplegable de filtros
+// por estado de llamada — aparece en la parte superior de la pantalla de llamadas.
 class SearchAndFilterSection extends StatelessWidget {
+  // Estado del filtro activo (todas, completadas, pendientes, no contestadas)
   final CallsPageFilter filtroSeleccionado;
+  // Se llama cada vez que el usuario escribe en el buscador
   final ValueChanged<String> onSearchChanged;
+  // Se llama cuando el usuario cambia el filtro de estado
   final ValueChanged<CallsPageFilter> onFilterChanged;
+  // Si estamos en escritorio, el buscador y el filtro se muestran en fila
   final bool isDesktop;
 
   const SearchAndFilterSection({
@@ -23,8 +28,10 @@ class SearchAndFilterSection extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    // El menú desplegable de filtro — se reutiliza en móvil y escritorio
     final filterSelector = Row(
       children: [
+        // El icono cambia según si hay un filtro activo o no, para indicarlo visualmente
         Icon(
           filtroSeleccionado != CallsPageFilter.all
               ? Icons.filter_alt
@@ -43,6 +50,7 @@ class SearchAndFilterSection extends StatelessWidget {
                 borderSide: BorderSide.none,
               ),
             ),
+            // Las opciones disponibles del filtro
             items: [
               DropdownMenuItem(
                 value: CallsPageFilter.all,
@@ -61,6 +69,7 @@ class SearchAndFilterSection extends StatelessWidget {
                 child: Text(l10n.callNoAnswer),
               ),
             ],
+            // Cuando el usuario elige una opción, se notifica a la pantalla padre
             onChanged: (value) {
               if (value != null) onFilterChanged(value);
             },
@@ -69,6 +78,7 @@ class SearchAndFilterSection extends StatelessWidget {
       ],
     );
 
+    // En escritorio, el buscador y el filtro están en la misma fila para aprovechar el espacio
     if (isDesktop) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,6 +97,7 @@ class SearchAndFilterSection extends StatelessWidget {
       );
     }
 
+    // En móvil, el buscador y el filtro se apilan verticalmente para no quedar apretados
     return Column(
       children: [
         // Buscador por nombre/resumen

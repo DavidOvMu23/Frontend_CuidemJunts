@@ -1,5 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
@@ -10,9 +11,14 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_
 import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
+// Página para editar los datos de un trabajador existente.
+// Recibe el trabajador a editar y callbacks para cancelar o confirmar.
 class EditarTrabajadorPage extends ConsumerStatefulWidget {
+  // El trabajador cuyos datos se van a modificar.
   final Trabajador trabajador;
+  // Función que se llama si el usuario cancela la edición.
   final VoidCallback? onCancel;
+  // Función que se llama cuando los cambios se han guardado correctamente.
   final VoidCallback? onSaved;
   const EditarTrabajadorPage({super.key, required this.trabajador, this.onCancel, this.onSaved});
 
@@ -20,38 +26,59 @@ class EditarTrabajadorPage extends ConsumerStatefulWidget {
   ConsumerState<EditarTrabajadorPage> createState() => _EditarTrabajadorPageState();
 }
 
+// Estado y lógica del formulario de edición de trabajadores.
 class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
+  // Clave para validar el formulario antes de enviarlo.
   final _formKey = GlobalKey<FormState>();
+
+  // Controladores de texto para cada campo editable del formulario.
   late TextEditingController _nombreCtrl;
   late TextEditingController _apellidosCtrl;
   late TextEditingController _correoCtrl;
   late TextEditingController _telefonoCtrl;
+  // La contraseña se deja vacía; solo se cambia si el usuario escribe algo.
   late TextEditingController _contrasenaCtrl;
+  // NIA y DNI son de solo lectura al editar (no se pueden cambiar).
   late TextEditingController _niaCtrl;
   late TextEditingController _dniCtrl;
-  String _rol = 'teleoperador';
+
+  // Rol del trabajador (no se puede cambiar al editar).
+  String _rol = AppRoles.teleoperador;
+
+  // ID del grupo asignado (solo para teleoperadores, sí se puede cambiar).
   int? _grupoId;
+
+  // Estado activo/inactivo de la cuenta del trabajador.
   bool _activo = true;
+
+  // Lista de grupos activos disponibles para el desplegable.
   List<Grupo> _grupos = <Grupo>[];
+
+  // Indica si los grupos están cargándose desde el servidor.
   bool _cargandoGrupos = false;
 
+  // Inicializa los campos del formulario con los datos actuales del trabajador.
   @override
   void initState() {
     super.initState();
+    // Usamos una variable corta para acceder más cómodamente al trabajador.
     final t = widget.trabajador;
     _nombreCtrl = TextEditingController(text: t.nombre);
     _apellidosCtrl = TextEditingController(text: t.apellidos);
     _correoCtrl = TextEditingController(text: t.correo);
     _telefonoCtrl = TextEditingController(text: t.telefono ?? '');
+    // La contraseña empieza vacía; si se deja vacía al guardar, no se cambia.
     _contrasenaCtrl = TextEditingController();
     _niaCtrl = TextEditingController(text: t.nia ?? '');
     _dniCtrl = TextEditingController(text: t.dni ?? '');
     _rol = t.rol;
     _grupoId = t.grupoId;
     _activo = t.activo;
+    // Cargamos los grupos disponibles para el selector.
     _fetchGrupos();
   }
 
+  // Obtiene todos los grupos activos del servidor para el desplegable.
   Future<void> _fetchGrupos() async {
     setState(() => _cargandoGrupos = true);
     try {
@@ -65,6 +92,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     }
   }
 
+  // Libera los controladores al cerrar la página para no desperdiciar memoria.
   @override
   void dispose() {
     _nombreCtrl.dispose();
@@ -77,13 +105,19 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     super.dispose();
   }
 
+  // Valida el formulario y envía los cambios al servidor.
   Future<void> _submit() async {
+    // Si algún campo obligatorio no es válido, no continuamos.
     if (!_formKey.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context)!;
-    if (_rol == 'teleoperador' && _grupoId == null) {
+
+    // Los teleoperadores deben tener siempre un grupo asignado.
+    if (_rol == AppRoles.teleoperador && _grupoId == null) {
       general_snackbar_error(context, l10n.noGroupAssigned, 3);
       return;
     }
+
+    // Construimos el objeto con los datos actualizados.
     final payload = <String, dynamic>{
       'nombre': _nombreCtrl.text.trim(),
       'apellidos': _apellidosCtrl.text.trim(),
@@ -92,31 +126,40 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
       'grupoId': _grupoId,
       'activo': _activo,
     };
+
+    // La contraseña es opcional: solo se envía si el usuario escribió una nueva.
     if (_contrasenaCtrl.text.trim().isNotEmpty) {
       payload['contrasena'] = _contrasenaCtrl.text.trim();
     }
+
+    // El teléfono también es opcional.
     if (_telefonoCtrl.text.trim().isNotEmpty) {
       payload['telefono'] = _telefonoCtrl.text.trim();
     }
-    if (_rol == 'teleoperador') {
+
+    // El NIA solo aplica a los teleoperadores.
+    if (_rol == AppRoles.teleoperador) {
       payload['nia'] = _niaCtrl.text.trim();
     }
-    if (_rol == 'supervisor') {
+
+    // El DNI solo aplica a los supervisores.
+    if (_rol == AppRoles.supervisor) {
       payload['dni'] = _dniCtrl.text.trim().toUpperCase();
     }
-    // Remove null values to avoid sending null keys
+
+    // Eliminamos campos nulos para no enviarlos al servidor.
     payload.removeWhere((key, value) => value == null);
+
     try {
       final trabajadorService = ref.read(trabajadorServiceProvider);
-      try {
-        print('Updating trabajador payload: $payload');
-        print('Updating trabajador payload JSON: ${jsonEncode(payload)}');
-      } catch (_) {}
+      // Actualizamos el trabajador en el servidor usando su ID.
       await trabajadorService.update(widget.trabajador.id, payload);
       general_snackbar(context, l10n.workerCreatedSuccessfully, 2);
       if (widget.onSaved != null) {
+        // Si estamos incrustados, notificamos al padre.
         widget.onSaved!();
       } else {
+        // Si somos pantalla completa, volvemos a la pantalla anterior.
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -124,31 +167,38 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     }
   }
 
+  // Construye la interfaz visual del formulario de edición.
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    // Color de fondo para los campos de solo lectura (NIA, DNI, rol).
     final readOnlyFillColor = colorScheme.onSurface.withValues(alpha: 0.08);
     final l10n = AppLocalizations.of(context)!;
+
     final formBody = ResponsiveFormBody(
       title: l10n.edit,
       form: Form(
         key: _formKey,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 700;
+            // En pantallas anchas usamos dos columnas.
+            final isWide = constraints.maxWidth >= AppBreakpoints.formWide;
             final gap = isWide ? 16.0 : 15.0;
 
+            // Etiqueta de texto encima de cada campo.
             Widget label(String text) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Text(text, style: textTheme.bodyMedium),
                 );
 
+            // Agrupa la etiqueta con su campo.
             Widget fieldGroup(String labelText, Widget field) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [label(labelText), field],
                 );
 
+            // En pantalla ancha: dos campos en fila. En estrecha: uno encima del otro.
             Widget fieldRow(Widget left, Widget right) {
               if (!isWide) {
                 return Column(
@@ -170,18 +220,18 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Row 1: Nombre | Apellidos
+                  // Fila 1: Nombre y apellidos.
                   fieldRow(
                     fieldGroup(l10n.name, general_textfield(l10n.name, false, controller: _nombreCtrl)),
                     fieldGroup(l10n.lastName, general_textfield(l10n.lastName, false, controller: _apellidosCtrl)),
                   ),
                   SizedBox(height: gap),
 
-                  // Row 2: Correo (full width)
+                  // Fila 2: Correo electrónico (ocupa todo el ancho).
                   fieldGroup(l10n.email, general_textfield(l10n.email, false, controller: _correoCtrl)),
                   SizedBox(height: gap),
 
-                  // Row 3: Teléfono | Contraseña
+                  // Fila 3: Teléfono y contraseña (vacía = no se cambia).
                   fieldRow(
                     fieldGroup(l10n.telephone, general_textfield(l10n.telephone, false, controller: _telefonoCtrl)),
                     fieldGroup(
@@ -202,15 +252,16 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                   ),
                   SizedBox(height: gap),
 
-                  // Row 4: Rol (solo lectura al editar)
+                  // Fila 4: Rol (deshabilitado al editar, no se puede cambiar el rol).
                   fieldGroup(
                     l10n.role,
                     DropdownButtonFormField<String>(
                       value: _rol,
                       items: [
-                        DropdownMenuItem(value: 'teleoperador', child: Text(l10n.teleoperator)),
-                        DropdownMenuItem(value: 'supervisor', child: Text(l10n.supervisor)),
+                        DropdownMenuItem(value: AppRoles.teleoperador, child: Text(l10n.teleoperator)),
+                        DropdownMenuItem(value: AppRoles.supervisor, child: Text(l10n.supervisor)),
                       ],
+                      // onChanged: null significa que el campo es de solo lectura.
                       onChanged: null,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -223,11 +274,13 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                   ),
                   SizedBox(height: gap),
 
-                  // Row 5: Role-dependent fields
-                  if (_rol == 'teleoperador')
+                  // Fila 5: Campos específicos según el rol.
+                  // Para teleoperadores: NIA (solo lectura) y grupo (editable).
+                  if (_rol == AppRoles.teleoperador)
                     fieldRow(
                       fieldGroup(
                         l10n.nia8digits,
+                        // El NIA no se puede cambiar una vez creado.
                         TextFormField(
                           controller: _niaCtrl,
                           readOnly: true,
@@ -239,12 +292,14 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                               borderSide: BorderSide.none,
                             ),
                             filled: true,
+                            // Color más apagado para indicar que es solo lectura.
                             fillColor: readOnlyFillColor,
                           ),
                         ),
                       ),
                       fieldGroup(
                         l10n.group_label,
+                        // Mientras cargan los grupos, mostramos una animación.
                         _cargandoGrupos
                             ? const AppSkeletonBox(height: 56)
                             : DropdownButtonFormField<int>(
@@ -264,7 +319,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                                   filled: true,
                                 ),
                                 validator: (v) {
-                                  if (_rol == 'teleoperador' && v == null) {
+                                  if (_rol == AppRoles.teleoperador && v == null) {
                                     return l10n.noGroupAssigned;
                                   }
                                   return null;
@@ -272,7 +327,8 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                               ),
                       ),
                     )
-                  else if (_rol == 'supervisor')
+                  // Para supervisores: DNI (solo lectura, no se puede cambiar).
+                  else if (_rol == AppRoles.supervisor)
                     fieldGroup(
                       l10n.dniLabel,
                       TextFormField(
@@ -293,7 +349,8 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
 
                   const SizedBox(height: 16),
 
-                  // Estado activo/inactivo
+                  // Interruptor para activar o desactivar la cuenta del trabajador.
+                  // Al desactivar, el trabajador no puede acceder a la aplicación.
                   Builder(builder: (context) {
                     final colorScheme = Theme.of(context).colorScheme;
                     return Container(
@@ -303,6 +360,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                       ),
                       child: SwitchListTile(
                         title: Text(l10n.accountStatus, style: textTheme.bodyMedium),
+                        // Muestra "Activo" o "Inactivo" según el estado del interruptor.
                         subtitle: Text(
                           _activo ? l10n.active : l10n.inactive,
                           style: TextStyle(
@@ -311,6 +369,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                           ),
                         ),
                         value: _activo,
+                        // Al cambiar el interruptor, actualizamos la variable local.
                         onChanged: (v) => setState(() => _activo = v),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       ),
@@ -318,6 +377,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                   }),
 
                   const SizedBox(height: 24),
+                  // Botones de acción: cancelar y guardar cambios.
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -340,6 +400,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                       const SizedBox(width: 16),
                       SizedBox(
                         width: 140,
+                        // Botón principal que ejecuta la validación y el envío.
                         child: FilledButton(
                           onPressed: _submit,
                           child: Text(l10n.save),
@@ -355,9 +416,11 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
       ),
     );
 
+    // Si estamos incrustados, devolvemos solo el formulario sin Scaffold.
     if (widget.onCancel != null) {
       return formBody;
     }
+    // Si somos pantalla completa, envolvemos con Scaffold.
     return Scaffold(
       appBar: AppBar(title: Text(l10n.edit)),
       body: formBody,

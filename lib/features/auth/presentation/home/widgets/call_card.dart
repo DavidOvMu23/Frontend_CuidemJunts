@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-// Tarjeta que muestra la información de una llamada
+// Tarjeta que muestra la información de una llamada en la pantalla de inicio.
+// Incluye el nombre del paciente, grupo, hora, estado y botones de acción rápida
+// para marcarla como completada o no contestada sin entrar al detalle.
 class CallCard extends StatelessWidget {
+  // Nombre y apellidos del paciente al que va dirigida la llamada (pueden ser nulos)
   final String? usuarioNombre;
   final String? usuarioApellidos;
+  // Nombre del grupo al que pertenece la llamada
   final String? grupoNombre;
+  // Hora a la que está programada la llamada
   final String hora;
+  // Estado actual: PENDIENTE, COMPLETADA, NO_CONTESTO, etc.
   final String? estado;
+  // Función al pulsar la tarjeta para ver el detalle completo
   final VoidCallback? onTap;
+  // Botones de acción rápida — solo se muestran en llamadas pendientes
   final VoidCallback? onMarkCompleted;
   final VoidCallback? onMarkNoAnswer;
 
@@ -163,7 +171,7 @@ class CallCard extends StatelessWidget {
     );
   }
 
-  // Funciones helper para colores
+  // Devuelve el texto traducido del estado según el idioma de la aplicación
   String _getEstadoTexto(String? estado, AppLocalizations l10n) {
     if (estado == null || estado.trim().isEmpty) return l10n.noStatus;
     final upper = estado.trim().toUpperCase();
@@ -186,6 +194,7 @@ class CallCard extends StatelessWidget {
     }
   }
 
+  // Devuelve el color de fondo del badge de estado: verde, naranja, gris o rojo
   Color _getEstadoColor(String? estado, {required bool isDark}) {
     if (estado == null || estado.trim().isEmpty) {
       return isDark ? Colors.grey[800]! : Colors.grey[300]!;
@@ -210,6 +219,7 @@ class CallCard extends StatelessWidget {
     }
   }
 
+  // Devuelve el color del texto del badge para que tenga buen contraste con el fondo
   Color _getEstadoTextColor(String? estado, {required bool isDark}) {
     if (estado == null || estado.trim().isEmpty) {
       return isDark ? Colors.grey[300]! : Colors.grey[700]!;

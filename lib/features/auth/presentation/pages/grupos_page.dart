@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
@@ -20,7 +22,10 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
+// Pantalla principal que muestra la lista de grupos de teleoperadores.
+// Permite buscar, filtrar, ordenar, ver el detalle, crear y editar grupos.
 class GruposPage extends ConsumerStatefulWidget {
+  // Si es true, se muestra incrustada dentro de otra pantalla (sin barra de navegación propia).
   final bool embedded;
 
   const GruposPage({
@@ -32,47 +37,69 @@ class GruposPage extends ConsumerStatefulWidget {
   ConsumerState<GruposPage> createState() => _GruposPageState();
 }
 
+// Opciones para filtrar la lista de grupos por su estado.
 enum GrupoFilter { all, active, inactive }
 
+// Opciones para ordenar la lista de grupos.
 enum GrupoSort { nameAZ, nameZA, mostTeleoperators, fewestTeleoperators }
 
+// Estado y lógica interna de la página de grupos.
 class _GruposPageState extends ConsumerState<GruposPage> {
+  // Resultado de la petición al servidor con todos los grupos.
   late Future<List<Grupo>> _gruposFuture;
+
+  // Filtro actualmente seleccionado (por defecto todos).
   GrupoFilter filtroSeleccionado = GrupoFilter.all;
+
+  // Orden actualmente seleccionado (por defecto A→Z por nombre).
   GrupoSort ordenSeleccionado = GrupoSort.nameAZ;
+
+  // Texto que el usuario escribe en el buscador.
   String textoFiltro = '';
 
+  // Controla si se está mostrando el formulario de creación.
   bool _esCreacion = false;
+
+  // Grupo que se está editando. Si es null, no hay edición activa.
   Grupo? _grupoEnEdicion;
 
+  // Carga los grupos al abrir la página por primera vez.
   @override
   void initState() {
     super.initState();
     _gruposFuture = _cargarGrupos();
   }
 
+  // Pide al servidor la lista de todos los grupos.
   Future<List<Grupo>> _cargarGrupos() async {
     final grupoService = ref.read(grupoServiceProvider);
     return grupoService.findAll();
   }
 
+  // Vuelve a cargar los grupos desde el servidor y actualiza la interfaz.
+  // Se llama después de crear, editar o eliminar un grupo.
   void _recargarGrupos() {
     setState(() {
       _gruposFuture = _cargarGrupos();
     });
   }
 
+  // Filtra y ordena la lista de grupos según el texto buscado,
+  // el filtro de estado y el orden elegido.
   List<Grupo> _aplicarFiltros(List<Grupo> grupos) {
     final query = textoFiltro.trim().toLowerCase();
 
+    // Filtramos primero por texto y luego por estado activo/inactivo.
     final filtrados = grupos.where((grupo) {
       final nombre = grupo.nombre.toLowerCase();
       final descripcion = grupo.descripcion.toLowerCase();
 
+      // El grupo coincide si el texto buscado aparece en el nombre o la descripción.
       final coincideTexto = query.isEmpty ||
           nombre.contains(query) ||
           descripcion.contains(query);
 
+      // Filtramos por estado según la opción elegida en el desplegable.
       final coincideFiltro = switch (filtroSeleccionado) {
         GrupoFilter.all => true,
         GrupoFilter.active => grupo.activo,
@@ -82,14 +109,17 @@ class _GruposPageState extends ConsumerState<GruposPage> {
       return coincideTexto && coincideFiltro;
     }).toList();
 
+    // Ordenamos la lista según la opción de ordenación elegida.
     filtrados.sort((a, b) {
       switch (ordenSeleccionado) {
         case GrupoSort.nameAZ:
           return a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase());
         case GrupoSort.nameZA:
           return b.nombre.toLowerCase().compareTo(a.nombre.toLowerCase());
+        // De más a menos teleoperadores.
         case GrupoSort.mostTeleoperators:
           return b.teleoperadoresCount.compareTo(a.teleoperadoresCount);
+        // De menos a más teleoperadores.
         case GrupoSort.fewestTeleoperators:
           return a.teleoperadoresCount.compareTo(b.teleoperadoresCount);
       }
@@ -98,6 +128,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
     return filtrados;
   }
 
+  // Muestra un panel deslizable desde abajo con las opciones de orden.
   void _showSortBottomSheet(BuildContext context, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
@@ -112,6 +143,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 12),
+            // Opción: ordenar por nombre A→Z
             general_listtile(
               context: context,
               icon: Icons.sort_by_alpha,
@@ -121,6 +153,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                 Navigator.pop(ctx);
               },
             ),
+            // Opción: ordenar por nombre Z→A
             general_listtile(
               context: context,
               icon: Icons.sort_by_alpha,
@@ -130,6 +163,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                 Navigator.pop(ctx);
               },
             ),
+            // Opción: mostrar primero los grupos con más teleoperadores
             general_listtile(
               context: context,
               icon: Icons.arrow_downward,
@@ -139,6 +173,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                 Navigator.pop(ctx);
               },
             ),
+            // Opción: mostrar primero los grupos con menos teleoperadores
             general_listtile(
               context: context,
               icon: Icons.arrow_upward,
@@ -155,6 +190,8 @@ class _GruposPageState extends ConsumerState<GruposPage> {
     );
   }
 
+  // Abre un cuadro de diálogo con todos los detalles del grupo seleccionado.
+  // Desde ahí se puede editar (si es supervisor) o eliminar el grupo.
   void _showGrupoDetail(BuildContext context, Grupo grupo, bool isSupervisor) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -163,8 +200,10 @@ class _GruposPageState extends ConsumerState<GruposPage> {
       builder: (ctx) {
         final textTheme = Theme.of(ctx).textTheme;
         final colorScheme = Theme.of(ctx).colorScheme;
+        // Detectamos si el tema es oscuro para usar los colores correctos.
         final isDark = Theme.of(ctx).brightness == Brightness.dark;
 
+        // Función auxiliar que construye una fila con icono, etiqueta y valor.
         Widget detailRow(IconData icon, String label, String value) => Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: Row(
@@ -190,9 +229,12 @@ class _GruposPageState extends ConsumerState<GruposPage> {
               ),
             );
 
+        // Color de fondo del estado: verde si activo, rojo si inactivo.
         final activoBg = grupo.activo
             ? (isDark ? AppPalette.successDark : AppPalette.successLight)
             : (isDark ? AppPalette.errorDark : AppPalette.errorLight);
+
+        // Color del texto del estado según modo claro/oscuro.
         final activoFg = grupo.activo
             ? (isDark
                 ? AppPalette.successFontDark
@@ -210,9 +252,11 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                   softWrap: true,
                 ),
               ),
+              // El botón de editar solo aparece si el usuario es supervisor.
               if (isSupervisor)
                 IconButton(
                   onPressed: () {
+                    // Cerramos el diálogo y abrimos el formulario de edición.
                     Navigator.pop(ctx);
                     setState(() {
                       _grupoEnEdicion = grupo;
@@ -238,19 +282,23 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
+                  // Descripción del grupo (solo si no está vacía).
                   if (grupo.descripcion.trim().isNotEmpty)
                     detailRow(Icons.description_outlined, l10n.description,
                         grupo.descripcion),
+                  // Número de teleoperadores asignados al grupo.
                   detailRow(
                     Icons.support_agent_outlined,
                     l10n.telemarketers,
                     '${grupo.teleoperadoresCount}',
                   ),
                   const SizedBox(height: 4),
+                  // Título de la sección de estado.
                   Text(l10n.groupStatus,
                       style: textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
+                  // Etiqueta de color que indica si el grupo está activo o inactivo.
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 8),
@@ -271,16 +319,19 @@ class _GruposPageState extends ConsumerState<GruposPage> {
             ),
           ),
           actions: [
+            // Botón para cerrar sin hacer cambios.
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(l10n.close),
             ),
+            // El botón de eliminar solo aparece si el usuario es supervisor.
             if (isSupervisor)
               general_deletebutton(
                 ctx,
                 l10n.delete,
                 onPressed: () {
                   Navigator.pop(ctx);
+                  // Mostramos un segundo diálogo de confirmación antes de borrar.
                   _confirmarEliminar(grupo);
                 },
               ),
@@ -290,8 +341,12 @@ class _GruposPageState extends ConsumerState<GruposPage> {
     );
   }
 
+  // Muestra un diálogo de confirmación antes de eliminar un grupo.
+  // Si el grupo tiene teleoperadores asignados, no se puede eliminar.
   Future<void> _confirmarEliminar(Grupo grupo) async {
     final l10n = AppLocalizations.of(context)!;
+
+    // Si el grupo tiene teleoperadores, mostramos un aviso y no permitimos borrar.
     if (grupo.teleoperadoresCount > 0) {
       showDialog(
         context: context,
@@ -311,6 +366,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
       return;
     }
 
+    // Si no tiene teleoperadores, pedimos confirmación para proceder con el borrado.
     await showConfirmDialog(
       context,
       title: l10n.delete,
@@ -320,8 +376,10 @@ class _GruposPageState extends ConsumerState<GruposPage> {
       onConfirm: () async {
         try {
           final grupoService = ref.read(grupoServiceProvider);
+          // Enviamos la petición de borrado al servidor.
           await grupoService.delete(grupo.id);
           if (!mounted) return;
+          // Actualizamos la lista para reflejar el borrado.
           _recargarGrupos();
           general_snackbar(context, l10n.groupDeletedSuccessfully, 2);
         } catch (e) {
@@ -333,18 +391,23 @@ class _GruposPageState extends ConsumerState<GruposPage> {
     );
   }
 
+  // Construye toda la interfaz visual de la página de grupos.
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    // Leemos los datos del usuario que ha iniciado sesión.
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
-    final isSupervisor = userRole?.toLowerCase() == 'supervisor';
+    // Solo los supervisores pueden crear, editar y eliminar grupos.
+    final isSupervisor = userRole?.toLowerCase() == AppRoles.supervisor;
+    // Número de notificaciones sin leer para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
+    // El botón flotante para crear grupos solo aparece si es supervisor.
     final fab = isSupervisor
         ? general_floatingbutton(
             Icons.add,
@@ -357,10 +420,12 @@ class _GruposPageState extends ConsumerState<GruposPage> {
           )
         : null;
 
+    // Ajustamos el padding según el tamaño de pantalla.
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1100;
+    final isDesktop = width >= AppBreakpoints.desktop;
     final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
+    // Contenido principal: buscador, filtro y lista de grupos.
     final bodyContent = Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Column(
@@ -379,9 +444,11 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Fila superior con buscador de texto y desplegable de filtro.
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Campo de búsqueda por texto libre.
                           Expanded(
                             flex: 3,
                             child: general_busqueda_textfield(
@@ -393,10 +460,12 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                             ),
                           ),
                           const SizedBox(width: 16),
+                          // Desplegable para filtrar grupos por estado.
                           Expanded(
                             flex: 2,
                             child: Row(
                               children: [
+                                // Icono que cambia según si hay un filtro activo.
                                 Icon(
                                   filtroSeleccionado != GrupoFilter.all
                                       ? Icons.filter_alt
@@ -429,6 +498,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                                         child: Text(l10n.inactiveGroups),
                                       ),
                                     ],
+                                    // Al cambiar el filtro, actualizamos la lista.
                                     onChanged: (newValue) {
                                       setState(() {
                                         filtroSeleccionado =
@@ -443,19 +513,23 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                         ],
                       ),
                       const SizedBox(height: 8),
+                      // Línea separadora decorativa.
                       Divider(
                         height: 8,
                         color: colorScheme.primary.withValues(alpha: 0.3),
                       ),
+                      // Área principal que muestra la lista o mensajes de estado.
                       Expanded(
                         child: FutureBuilder<List<Grupo>>(
                           future: _gruposFuture,
                           builder: (context, snapshot) {
+                            // Mientras carga, mostramos una animación de esqueleto.
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const AppSkeletonList(count: 4);
                             }
 
+                            // Si hay un error al cargar, mostramos un mensaje.
                             if (snapshot.hasError) {
                               return Center(
                                 child: Text(
@@ -466,8 +540,10 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                             }
 
                             final grupos = snapshot.data ?? [];
+                            // Aplicamos los filtros y el orden a los datos cargados.
                             final gruposFiltrados = _aplicarFiltros(grupos);
 
+                            // Si no hay grupos tras filtrar, lo indicamos.
                             if (gruposFiltrados.isEmpty) {
                               return Center(
                                 child: Text(
@@ -477,6 +553,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                               );
                             }
 
+                            // Texto que muestra el total o la cantidad filtrada.
                             final totalText = textoFiltro.isEmpty &&
                                     filtroSeleccionado == GrupoFilter.all
                                 ? '${l10n.totalGroups}: ${grupos.length}'
@@ -486,6 +563,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                               children: [
                                 Row(
                                   children: [
+                                    // Contador de grupos mostrados.
                                     Expanded(
                                       child: Text(
                                         totalText,
@@ -495,6 +573,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                                         ),
                                       ),
                                     ),
+                                    // Botón para abrir el panel de ordenación.
                                     IconButton(
                                       icon: Icon(
                                         ordenSeleccionado == GrupoSort.nameAZ
@@ -509,17 +588,21 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                                   ],
                                 ),
                                 const SizedBox(height: 8),
+                                // Lista desplazable de tarjetas de grupos.
                                 Expanded(
                                   child: ListView.separated(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10),
                                     itemCount: gruposFiltrados.length,
+                                    // Separador visual entre tarjetas.
                                     separatorBuilder: (_, __) =>
                                         const SizedBox(height: 8),
+                                    // Cada elemento es una tarjeta de grupo.
                                     itemBuilder: (context, index) {
                                       final grupo = gruposFiltrados[index];
                                       return GrupoCard(
                                         grupo: grupo,
+                                        // Al pulsar la tarjeta, abrimos el detalle.
                                         onTap: () => _showGrupoDetail(
                                             context, grupo, isSupervisor),
                                       );
@@ -541,6 +624,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
       ),
     );
 
+    // Decidimos si mostrar el formulario (crear/editar) o la lista.
     final showForm = _esCreacion || _grupoEnEdicion != null;
 
     final pageBody = showForm
@@ -551,6 +635,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
               _grupoEnEdicion = null;
             }),
             onSaved: () {
+              // Al guardar, volvemos a la lista y recargamos los datos.
               setState(() {
                 _esCreacion = false;
                 _grupoEnEdicion = null;
@@ -560,6 +645,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
           )
         : bodyContent;
 
+    // Si está incrustada, usamos un Stack para el botón flotante.
     if (widget.embedded) {
       return Stack(
         children: [
@@ -570,6 +656,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
       );
     }
 
+    // Versión de pantalla completa con barra superior, menú lateral y botón flotante.
     return Scaffold(
       appBar: appMainAppBar(
         numeroNotificaciones: notificacionesSinLeerAsync.when(
@@ -583,6 +670,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
         },
         context: context,
       ),
+      // Menú lateral con acceso a las demás secciones.
       drawer: appDrawer(
         userName: userName,
         userRole: userRole,
@@ -608,6 +696,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const WorkersPage()));
         },
+        // Ya estamos en grupos, solo cerramos el menú.
         onTapGroups: () {
           Navigator.pop(context);
         },
@@ -627,6 +716,7 @@ class _GruposPageState extends ConsumerState<GruposPage> {
         },
       ),
       body: pageBody,
+      // Ocultamos el botón flotante cuando hay un formulario abierto.
       floatingActionButton: showForm ? null : fab,
     );
   }

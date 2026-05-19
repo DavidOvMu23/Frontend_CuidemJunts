@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/search_and_filter_section.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/calls_future_list.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/date_filter_section.dart';
 
-// Cuerpo principal de la pantalla de llamadas.
+// Cuerpo principal de la pantalla de llamadas — organiza el buscador, el filtro
+// de fechas y la lista de llamadas dentro del área principal de la pantalla.
 class CallsScaffoldBody extends StatelessWidget {
+  // La petición al servidor con la lista de llamadas
   final Future<List<Llamadas>> llamadasFuture;
+  // Estado actual de los filtros y la ordenación
   final CallsPageFilter filtroSeleccionado;
   final CallsPageSort ordenSeleccionado;
   final String textoFiltro;
+  // Rango de fechas para el filtro — pueden ser nulos si no se ha seleccionado
   final DateTime? fechaDesde;
   final DateTime? fechaHasta;
 
   // Funciones para aplicar filtros y ordenar
   final List<Llamadas> Function(List<Llamadas>) aplicarFiltros;
+  // Se llaman cuando el usuario cambia cualquiera de los filtros
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<CallsPageFilter> onFilterChanged;
   final ValueChanged<CallsPageSort> onSortChanged;
   final ValueChanged<DateTime?> onFechaDesdeChanged;
   final ValueChanged<DateTime?> onFechaHastaChanged;
 
-  // Función para mostrar el detalle de una llamada
+  // Función para mostrar el detalle de una llamada cuando el usuario la pulsa
   final void Function(BuildContext, Llamadas) onLlamadaTap;
 
   const CallsScaffoldBody({
@@ -45,8 +52,10 @@ class CallsScaffoldBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    // Obtenemos el ancho de la pantalla para saber si estamos en escritorio o móvil
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1100;
+    // Si el ancho supera el punto de corte, usamos el diseño de escritorio con más espacio
+    final isDesktop = width >= AppBreakpoints.desktop;
     final horizontalPadding = isDesktop ? 20.0 : 12.0;
 
     return Padding(
@@ -56,7 +65,7 @@ class CallsScaffoldBody extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
 
-          // Contenedor principal con fondo de tarjeta
+          // Contenedor principal con fondo de tarjeta que envuelve todos los elementos
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),

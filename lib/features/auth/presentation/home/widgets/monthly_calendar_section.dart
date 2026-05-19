@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
@@ -8,8 +10,13 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/ca
 import 'package:frontend_cuidemjunts/features/auth/presentation/home/widgets/call_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 
+// Sección del calendario mensual — muestra un grid con los días del mes
+// y marca aquellos que tienen llamadas asignadas con puntos de colores.
+// Al pulsar un día con llamadas, abre un diálogo con la lista de esas llamadas.
 class MonthlyCalendarSection extends ConsumerStatefulWidget {
+  // Lista de llamadas del mes (puede estar cargando, tener error o datos)
   final AsyncValue<List<Llamadas>> callsAsync;
+  // Cuando es true, el calendario ocupa todo el espacio disponible (modo escritorio)
   final bool expandContent;
 
   const MonthlyCalendarSection({
@@ -25,21 +32,28 @@ class MonthlyCalendarSection extends ConsumerStatefulWidget {
 
 class _MonthlyCalendarSectionState
     extends ConsumerState<MonthlyCalendarSection> {
+  // El mes que se está mostrando actualmente en el calendario
   late DateTime _focusedMonth;
+  // El día que está seleccionado (cuando el usuario pulsa uno con llamadas)
   DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
+    // Al iniciar, mostramos el mes actual
     final now = DateTime.now();
     _focusedMonth = DateTime(now.year, now.month);
   }
 
+  // Comprueba si dos fechas corresponden al mismo día (ignorando la hora)
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
+  // Comprueba si una fecha es hoy
   bool _isToday(DateTime d) => _isSameDay(d, DateTime.now());
 
+  // Cuando el usuario pulsa un día del calendario:
+  // si tiene llamadas, guarda el día seleccionado y abre el diálogo con ellas
   void _onDayTapped(BuildContext context, DateTime day, List<Llamadas> calls) {
     if (calls.isEmpty) return;
     setState(() => _selectedDay = day);
@@ -48,6 +62,7 @@ class _MonthlyCalendarSectionState
       barrierColor: Colors.black.withValues(alpha: 0.45),
       builder: (_) => _DayCallsDialog(day: day, calls: calls),
     ).then((_) {
+      // Al cerrar el diálogo, quitamos la selección del día
       if (mounted) setState(() => _selectedDay = null);
     });
   }
@@ -116,10 +131,13 @@ class _MonthlyCalendarSectionState
     );
   }
 
+  // Construye el grid del calendario agrupando las llamadas por día
   Widget _buildGrid(BuildContext context, List<Llamadas> calls,
       {double? availableHeight, double? availableWidth}) {
+    // Creamos un mapa día→llamadas para acceder rápidamente a las llamadas de cada día
     final Map<int, List<Llamadas>> callsByDay = {};
     for (final c in calls) {
+      // Solo incluimos las llamadas que pertenecen al mes que se está mostrando
       if (c.fecha.year == _focusedMonth.year &&
           c.fecha.month == _focusedMonth.month) {
         callsByDay.putIfAbsent(c.fecha.day, () => []).add(c);
@@ -143,16 +161,23 @@ class _MonthlyCalendarSectionState
   }
 }
 
-// ── Rejilla del calendario ─────────────────────────────────────────────────────
+// ── Rejilla del calendario: pinta la cabecera con el mes y las filas de días ──
 
 class _CalendarGrid extends StatelessWidget {
+  // El mes actualmente visible en pantalla
   final DateTime focusedMonth;
+  // El día seleccionado (si hay alguno) para resaltarlo
   final DateTime? selectedDay;
+  // Mapa con las llamadas agrupadas por número de día del mes
   final Map<int, List<Llamadas>> callsByDay;
+  // Función para comprobar si un día es hoy
   final bool Function(DateTime) isToday;
+  // Función que se llama al pulsar un día con llamadas
   final void Function(DateTime day, List<Llamadas> calls) onDayTapped;
+  // Funciones para ir al mes anterior o al siguiente
   final VoidCallback onPrev;
   final VoidCallback onNext;
+  // Dimensiones disponibles para calcular el tamaño óptimo de cada celda
   final double? availableHeight;
   final double? availableWidth;
 
@@ -176,11 +201,14 @@ class _CalendarGrid extends StatelessWidget {
     final raw = DateFormat('MMMM yyyy', locale).format(focusedMonth);
     final monthLabel = raw[0].toUpperCase() + raw.substring(1);
 
+    // Calculamos cuántos días tiene el mes y en qué día de la semana empieza
+    // para saber cuántas celdas vacías poner al principio
     final daysInMonth =
         DateUtils.getDaysInMonth(focusedMonth.year, focusedMonth.month);
     final firstWeekday =
         DateTime(focusedMonth.year, focusedMonth.month, 1).weekday;
     final totalCells = (firstWeekday - 1) + daysInMonth;
+    // Número de filas necesarias para mostrar todos los días en semanas de 7
     final rowCount = (totalCells / 7).ceil();
 
     // Calcula aspecto dinámico usando el ancho real del contenedor
@@ -270,13 +298,20 @@ class _CalendarGrid extends StatelessWidget {
   }
 }
 
-// ── Celda de un día ────────────────────────────────────────────────────────────
+// ── Celda individual de un día del calendario ─────────────────────────────────
+// Se resalta si es hoy o está seleccionado, y muestra puntos de colores si
+// hay llamadas ese día (verde=completada, naranja=pendiente, rojo=no contestada)
 
 class _DayCell extends StatefulWidget {
+  // Número del día del mes (1-31)
   final int day;
+  // Lista de llamadas que hay en este día
   final List<Llamadas> dayCalls;
+  // Indica si este día es el día de hoy
   final bool isToday;
+  // Indica si el usuario ha seleccionado este día pulsando sobre él
   final bool isSelected;
+  // Función que se llama al pulsar la celda
   final VoidCallback onTap;
 
   const _DayCell({
@@ -292,20 +327,26 @@ class _DayCell extends StatefulWidget {
 }
 
 class _DayCellState extends State<_DayCell> {
+  // Controla si el ratón está encima de esta celda
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    // Determinamos si hay alguna llamada en este día para mostrar los puntos
     final hasCalls = widget.dayCalls.isNotEmpty;
 
+    // Calculamos el color de fondo de la celda según su estado
     Color bgColor = Colors.transparent;
     if (widget.isSelected) {
+      // Día seleccionado: fondo del color primario (azul/morado)
       bgColor = colorScheme.primary;
     } else if (widget.isToday) {
+      // Día de hoy: fondo semitransparente del color primario
       bgColor = colorScheme.primary.withValues(alpha: 0.18);
     } else if (_hovered && hasCalls) {
+      // Al pasar el ratón por un día con llamadas, se resalta levemente
       bgColor = colorScheme.primary.withValues(alpha: 0.08);
     }
 
@@ -359,21 +400,27 @@ class _DayCellState extends State<_DayCell> {
     );
   }
 
+  // Construye los puntos de colores debajo del número del día.
+  // Cada color representa un tipo de estado de llamada diferente ese día.
   List<Widget> _buildDots(
       List<Llamadas> calls, bool selected, ColorScheme colorScheme) {
     final dots = <Widget>[];
-    if (calls.any((c) => c.estado == 'completada')) {
+    // Punto verde si hay alguna llamada completada
+    if (calls.any((c) => c.estado == CallStatus.completada)) {
       dots.add(_dot(selected ? Colors.white70 : Colors.green.shade400));
     }
-    if (calls.any((c) => c.estado == 'pendiente')) {
+    // Punto naranja si hay alguna llamada pendiente
+    if (calls.any((c) => c.estado == CallStatus.pendiente)) {
       dots.add(_dot(selected ? Colors.white70 : Colors.orange.shade400));
     }
-    if (calls.any((c) => c.estado == 'cancelada' || c.estado == 'no_contesto')) {
+    // Punto rojo si hay alguna llamada cancelada o no contestada
+    if (calls.any((c) => c.estado == CallStatus.cancelada || c.estado == CallStatus.noContesto)) {
       dots.add(_dot(selected ? Colors.white70 : Colors.red.shade400));
     }
     return dots;
   }
 
+  // Crea un pequeño círculo de color para indicar el estado de las llamadas del día
   Widget _dot(Color color) => Container(
         width: 5,
         height: 5,
@@ -382,10 +429,13 @@ class _DayCellState extends State<_DayCell> {
       );
 }
 
-// ── Diálogo flotante con llamadas del día ──────────────────────────────────────
+// ── Diálogo flotante que aparece al pulsar un día con llamadas ────────────────
+// Muestra la lista de llamadas de ese día y permite ver o eliminar cada una.
 
 class _DayCallsDialog extends ConsumerStatefulWidget {
+  // El día que se está mostrando
   final DateTime day;
+  // Las llamadas de ese día
   final List<Llamadas> calls;
 
   const _DayCallsDialog({required this.day, required this.calls});
@@ -395,14 +445,17 @@ class _DayCallsDialog extends ConsumerStatefulWidget {
 }
 
 class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
+  // Copia local de las llamadas para poder actualizarla si el usuario elimina alguna
   late List<Llamadas> _calls;
 
   @override
   void initState() {
     super.initState();
+    // Hacemos una copia para no modificar la lista original
     _calls = List.from(widget.calls);
   }
 
+  // Abre el diálogo de detalle de una llamada concreta con opciones de editar y eliminar
   void _openDetail(Llamadas llamada) {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -410,8 +463,9 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
       builder: (ctx) => CallDetailDialog(
         llamada: llamada,
         onEdit: () {
-          // CallDetailDialog already popped itself before invoking onEdit
-          Navigator.pop(context);  // cierra DayCallsDialog
+          // El diálogo de detalle ya se cerró antes de llamar a onEdit
+          Navigator.pop(context);  // cierra DayCallsDialog también
+          // Marcamos la llamada para que la pantalla de llamadas la abra en modo edición
           ref.read(pendingCallEditProvider.notifier).set(llamada);
         },
         onDelete: () async {
@@ -421,11 +475,14 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
           final navCtx = Navigator.of(ctx);
           try {
             await service.delete(llamada.id);
+            // Recargamos la lista de llamadas del proveedor para que los datos estén actualizados
             ref.invalidate(llamadasProvider);
             if (!mounted) return;
+            // Quitamos la llamada borrada de la lista local para actualizar la UI sin recargar
             setState(() => _calls.removeWhere((c) => c.id == llamada.id));
             navCtx.pop();
             scaffoldMsg.showSnackBar(SnackBar(content: Text(l10n.callDeletedSuccessfully)));
+            // Si ya no quedan llamadas en el día, cerramos también este diálogo
             if (_calls.isEmpty) nav.pop();
           } catch (e) {
             if (!mounted) return;
@@ -533,10 +590,12 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
   }
 }
 
-// ── Botón de navegación ────────────────────────────────────────────────────────
+// ── Botón de navegación para cambiar de mes (flecha izquierda/derecha) ────────
 
 class _NavButton extends StatefulWidget {
+  // El icono que se mostrará (flecha izquierda o derecha)
   final IconData icon;
+  // Función que se llama al pulsar el botón para cambiar el mes
   final VoidCallback onTap;
   const _NavButton({required this.icon, required this.onTap});
 
@@ -545,6 +604,7 @@ class _NavButton extends StatefulWidget {
 }
 
 class _NavButtonState extends State<_NavButton> {
+  // Controla si el ratón está encima del botón para resaltarlo
   bool _hovered = false;
 
   @override

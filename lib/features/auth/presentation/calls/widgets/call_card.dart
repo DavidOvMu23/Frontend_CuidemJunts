@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 
-// Tarjeta individual de una llamada
+// Tarjeta individual de una llamada — muestra el resumen, grupo, teleoperador,
+// fecha, duración y estado de cada llamada en la lista.
 class CallCard extends StatefulWidget {
+  // Datos de la llamada que se va a mostrar
   final Llamadas llamada;
+  // Estilos de texto y colores que vienen de la pantalla padre para ser consistentes
   final TextTheme textTheme;
   final ColorScheme colorScheme;
+  // Función que se ejecuta cuando el usuario pulsa la tarjeta
   final VoidCallback onTap;
 
   const CallCard({
@@ -23,8 +29,10 @@ class CallCard extends StatefulWidget {
 }
 
 class _CallCardState extends State<CallCard> {
+  // Controla si el ratón está encima de la tarjeta (para el efecto de elevación)
   bool _hovered = false;
 
+  // Convierte un objeto DateTime en texto legible como "14 may 2025"
   String _formatDate(DateTime date) {
     final months = [
       'ene',
@@ -43,7 +51,9 @@ class _CallCardState extends State<CallCard> {
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  // para esto nos a ayudado un poco el chat
+  // Convierte la duración al formato "X min" para que sea legible.
+  // El servidor puede enviar la duración en distintos formatos (con ":", como número
+  // o ya con "min"), por eso se comprueba cada caso.
   String _formatDuration(String duration) {
     if (duration.toLowerCase().contains('min')) return duration;
 
@@ -66,50 +76,56 @@ class _CallCardState extends State<CallCard> {
     return duration;
   }
 
+  // Devuelve el texto traducido del estado de la llamada según el idioma activo
   String _estadoTexto(AppLocalizations l10n) {
     final estado = widget.llamada.estado.toLowerCase();
-    if (estado.contains('completada')) {
+    if (estado.contains(CallStatus.completada)) {
       return l10n.callCompleted;
-    } else if (estado.contains('pendiente')) {
+    } else if (estado.contains(CallStatus.pendiente)) {
       return l10n.callPending;
     } else if (estado.contains('no contestada') ||
         estado.contains('no contestó') ||
-        estado.contains('no_contesto')) {
+        estado.contains(CallStatus.noContesto)) {
       return l10n.callNoAnswer;
     }
     if (widget.llamada.estado.isEmpty) return '';
 
+    // Si el estado no coincide con ninguno conocido, se limpia el guión bajo y se capitaliza
     final limpio = widget.llamada.estado.replaceAll('_', ' ');
     return limpio[0].toUpperCase() + limpio.substring(1);
   }
 
+  // Devuelve el color de fondo del badge de estado según si la llamada está
+  // completada (verde), pendiente (naranja) o no contestada (rojo)
   Color _getStatusColor(BuildContext context) {
     final estado = widget.llamada.estado.toLowerCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (estado.contains('completada')) {
+    if (estado.contains(CallStatus.completada)) {
       return isDark ? AppPalette.successDark : AppPalette.successLight;
-    } else if (estado.contains('pendiente')) {
+    } else if (estado.contains(CallStatus.pendiente)) {
       return isDark ? AppPalette.warningDark : AppPalette.warningLight;
     } else if (estado.contains('no contestada') ||
         estado.contains('no contestó') ||
-        estado.contains('no_contesto')) {
+        estado.contains(CallStatus.noContesto)) {
       return isDark ? AppPalette.errorDark : AppPalette.errorLight;
     }
     return widget.colorScheme.surfaceContainerHighest;
   }
 
+  // Devuelve el color del texto dentro del badge para que tenga buen contraste
+  // con el fondo del estado (verde, naranja o rojo)
   Color _getStatusTextColor(BuildContext context) {
     final estado = widget.llamada.estado.toLowerCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (estado.contains('completada')) {
+    if (estado.contains(CallStatus.completada)) {
       return isDark ? AppPalette.successFontDark : AppPalette.successFontLight;
-    } else if (estado.contains('pendiente')) {
+    } else if (estado.contains(CallStatus.pendiente)) {
       return isDark ? AppPalette.warningFontDark : AppPalette.warningFontLight;
     } else if (estado.contains('no contestada') ||
         estado.contains('no contestó') ||
-        estado.contains('no_contesto')) {
+        estado.contains(CallStatus.noContesto)) {
       return isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight;
     }
     return widget.colorScheme.onSurface;
@@ -118,21 +134,26 @@ class _CallCardState extends State<CallCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // Preparamos los textos con formato antes de pintar la tarjeta
     final dateText = _formatDate(widget.llamada.fecha);
     final durationText = _formatDuration(widget.llamada.duracion);
 
+    // AnimatedContainer hace que la tarjeta suba suavemente cuando el ratón pasa por encima
     return AnimatedContainer(
       duration: const Duration(milliseconds: 170),
       curve: Curves.easeOutCubic,
+      // Si el ratón está encima (_hovered), desplaza la tarjeta 2 píxeles hacia arriba
       transform: Matrix4.translationValues(0.0, _hovered ? -2.0 : 0.0, 0.0),
       child: Material(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
+        // La sombra solo aparece cuando el ratón está encima, para dar sensación de profundidad
         elevation: _hovered ? 3 : 0,
         shadowColor: widget.colorScheme.primary.withValues(alpha: 0.22),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: widget.onTap,
+          // Cuando el ratón entra o sale, actualizamos el estado para activar la animación
           onHover: (value) {
             if (_hovered == value) return;
             setState(() => _hovered = value);

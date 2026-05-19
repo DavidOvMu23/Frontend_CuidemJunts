@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
@@ -23,9 +25,10 @@ import 'package:frontend_cuidemjunts/features/auth/data/datasources/contacto_eme
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- PANTALLA DE USUARIOS --------
-// Controlador principal de la vista de usuarios
-// Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos
+// Controlador principal de la vista de usuarios (personas atendidas por el servicio).
+// Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos desde el servidor.
 class UsersPage extends ConsumerStatefulWidget {
+  // Si es true, la página se muestra incrustada dentro de otra sin barra de navegación propia.
   final bool embedded;
 
   const UsersPage({
@@ -38,66 +41,78 @@ class UsersPage extends ConsumerStatefulWidget {
 }
 
 class _UsersPageState extends ConsumerState<UsersPage> {
-  // Cache del Future para evitar recargas innecesarias al reconstruir el widget
+  // Guardamos el resultado de la petición al servidor para no recargar innecesariamente.
   late Future<List<Usuario>> _usuariosFuture;
 
-  // Estado local de la interfaz
+  // Filtro actualmente seleccionado (por defecto se muestran todos).
   late UsersPageFilter filtroSeleccionado;
+
+  // Texto que el usuario escribe en la barra de búsqueda.
   String textoFiltro = '';
+
+  // Orden actualmente seleccionado (por defecto A→Z).
   UsersPageSort ordenSeleccionado = UsersPageSort.noneAZ;
 
-  // Formulario inline
+  // Controla si se está mostrando el formulario de creación de usuario.
   bool _esCreacion = false;
+
+  // Usuario que se está editando. Si es null, no hay edición activa.
   Usuario? _usuarioEnEdicion;
 
+  // Se ejecuta una sola vez al abrir la página para cargar los datos iniciales.
   @override
   void initState() {
     super.initState();
-    filtroSeleccionado = UsersPageFilter.all; // Por defecto mostramos todos
-    _usuariosFuture = _cargarUsuariosConContactos(); // Iniciamos la carga
+    // Por defecto mostramos todos los usuarios sin filtrar.
+    filtroSeleccionado = UsersPageFilter.all;
+    // Iniciamos la carga de usuarios desde el servidor.
+    _usuariosFuture = _cargarUsuariosConContactos();
   }
 
-  // Obtiene la lista completa de usuarios del servidor
+  // Obtiene la lista completa de usuarios del servidor.
   Future<List<Usuario>> _cargarUsuariosConContactos() async {
     final usuarioService = ref.read(usuarioServiceProvider);
     final usuarios = await usuarioService.getAll();
     return usuarios;
   }
 
-  // --- Métodos para actualizar el estado desde los widgets hijos ---
+  // --- Métodos que actualizan el estado cuando los widgets hijos cambian algo ---
 
-  // Actualiza el texto de búsqueda
+  // Actualiza el texto de búsqueda y refiltra la lista.
   void _onSearchChanged(String value) {
     setState(() => textoFiltro = value);
   }
 
-  // Actualiza el filtro seleccionado
+  // Actualiza el filtro de nivel de dependencia y refiltra la lista.
   void _onFilterChanged(UsersPageFilter value) {
     setState(() => filtroSeleccionado = value);
   }
 
-  // Actualiza el orden seleccionado
+  // Actualiza el orden y reordena la lista.
   void _onSortChanged(UsersPageSort value) {
     setState(() => ordenSeleccionado = value);
   }
 
-  // Muestra el detalle de un usuario
+  // Abre el diálogo de detalle de un usuario concreto.
+  // Intenta cargar también sus contactos de emergencia del servidor.
   Future<void> _mostrarDetalleUsuario(
     BuildContext context,
     Usuario usuario,
     DateFormat dateFormatter,
   ) async {
     final l10n = AppLocalizations.of(context)!;
-    // Intentamos obtener la lista canónica de contactos para este usuario.
+
+    // Intentamos obtener la lista actualizada de contactos de emergencia del usuario.
     List<ContactoEmergencia> contactosCanonicos = [];
     try {
       final contactoService = ref.read(contactoEmergenciaServiceProvider);
       contactosCanonicos = await contactoService.getByUsuario(usuario.dni);
     } catch (e) {
-      // Si falla, continuamos mostrando los contactos embebidos.
+      // Si falla, continuamos mostrando los contactos que ya vienen con el usuario.
     }
 
-    final isSupervisor = (ref.read(authProvider).rol ?? '').toLowerCase() == 'supervisor';
+    // Comprobamos si el usuario conectado es supervisor para mostrar botones de edición/borrado.
+    final isSupervisor = (ref.read(authProvider).rol ?? '').toLowerCase() == AppRoles.supervisor;
 
     showDialog(
       context: context,
@@ -105,13 +120,16 @@ class _UsersPageState extends ConsumerState<UsersPage> {
         usuario: usuario,
         dateFormatter: dateFormatter,
         contactosCanonicos: contactosCanonicos,
+        // El botón de borrar solo aparece si es supervisor.
         onDelete: isSupervisor ? () async {
           try {
             final usuarioService = ref.read(usuarioServiceProvider);
+            // Borramos el usuario del servidor usando su DNI.
             await usuarioService.delete(usuario.dni);
             if (!context.mounted) return;
             Navigator.pop(ctx);
             general_snackbar(context, l10n.userDeletedSuccessfully, 2);
+            // Recargamos la lista para reflejar el borrado.
             setState(() {
               _usuariosFuture = _cargarUsuariosConContactos();
             });
@@ -120,11 +138,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
           }
         } : null,
+        // El botón de editar solo aparece si es supervisor.
         onEdit: isSupervisor ? () => _editarUsuario(context, usuario) : null,
       ),
     );
   }
 
+  // Activa el modo edición para un usuario concreto, mostrando el formulario de edición.
   void _editarUsuario(BuildContext context, Usuario usuario) {
     setState(() {
       _usuarioEnEdicion = usuario;
@@ -132,25 +152,23 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     });
   }
 
-  // Filtra y ordena la lista de usuarios según el estado actual
-  // Se ejecuta en el cliente sobre los datos ya cargados
+  // Filtra y ordena la lista de usuarios en el dispositivo (sin llamar al servidor de nuevo).
+  // Se ejecuta cada vez que cambia el texto de búsqueda, el filtro o el orden.
   List<Usuario> _aplicarFiltros(List<Usuario> usuarios) {
     final query = textoFiltro.trim().toLowerCase();
 
-    // 1. Filtrado
+    // Paso 1: Filtrado por texto y nivel de dependencia.
     final filtrados = usuarios.where((usuario) {
-      // Coincidencia de texto (nombre completo o DNI)
+      // Buscamos en el nombre completo y en el teléfono.
       final nombreCompleto = '${usuario.nombre} ${usuario.apellidos}'
           .toLowerCase();
 
-      print(
-        'Usuario: ${usuario.nombre}, Dependencia: "${usuario.nivelDependencia}"',
-      );
       final coincideTexto =
           query.isEmpty ||
           nombreCompleto.contains(query) ||
           usuario.telefono.contains(query);
-      // Coincidencia de filtro de dependencia
+
+      // Filtramos por el nivel de dependencia seleccionado.
       final coincideFiltro = switch (filtroSeleccionado) {
         UsersPageFilter.all => true,
         UsersPageFilter.ningunaDep =>
@@ -167,20 +185,24 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       return coincideTexto && coincideFiltro;
     }).toList();
 
-    // 2. Ordenación
+    // Paso 2: Ordenación de la lista filtrada.
     filtrados.sort((a, b) {
       switch (ordenSeleccionado) {
         case UsersPageSort.nameZA:
           return b.nombre.compareTo(a.nombre);
         case UsersPageSort.noneAZ:
           return a.nombre.compareTo(b.nombre);
+        // Los más mayores primero (fecha de nacimiento más antigua).
         case UsersPageSort.dateBirthOldest:
           return a.f_nac.compareTo(b.f_nac);
+        // Los más jóvenes primero (fecha de nacimiento más reciente).
         case UsersPageSort.dateBirthNewest:
           return b.f_nac.compareTo(a.f_nac);
+        // De mayor a menor dependencia (más grave primero).
         case UsersPageSort.dependencyHighLow:
           return _dependencyRank(b.nivelDependencia) -
               _dependencyRank(a.nivelDependencia);
+        // De menor a mayor dependencia (menos grave primero).
         case UsersPageSort.dependencyLowHigh:
           return _dependencyRank(a.nivelDependencia) -
               _dependencyRank(b.nivelDependencia);
@@ -190,7 +212,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     return filtrados;
   }
 
-  // Helper para convertir el nivel de dependencia en un valor numérico comparable
+  // Convierte el nivel de dependencia en un número para poder comparar y ordenar.
+  // Mayor número = mayor nivel de dependencia.
   int _dependencyRank(String nivel) {
     switch (nivel.toLowerCase()) {
       case 'severa':
@@ -200,22 +223,27 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       case 'leve':
         return 1;
       default:
+        // 'ninguna' u otros valores desconocidos = nivel 0.
         return 0;
     }
   }
 
+  // Construye toda la interfaz visual de la pantalla de usuarios.
   @override
   Widget build(BuildContext context) {
-    // -------- OBTENER NOMBRE DEL USUARIO DESDE RIVERPOD --------
-    // Obtenemos el estado de autenticación del provider
+    // Leemos los datos del usuario que ha iniciado sesión.
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
-    final isSupervisor = (userRole ?? '').toLowerCase() == 'supervisor';
+    // Solo los supervisores pueden crear, editar y borrar usuarios.
+    final isSupervisor = (userRole ?? '').toLowerCase() == AppRoles.supervisor;
+    // Número de notificaciones sin leer para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
+    // Si es supervisor y hay formulario activo, mostramos el formulario.
     final showForm = isSupervisor && (_esCreacion || _usuarioEnEdicion != null);
 
+    // Cuerpo de la lista de usuarios con buscador, filtro y ordenación.
     final listBody = UsersScaffoldBody(
       usuariosFuture: _usuariosFuture,
       filtroSeleccionado: filtroSeleccionado,
@@ -229,13 +257,16 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       onUsuarioEdit: _editarUsuario,
     );
 
+    // Si hay formulario activo, lo mostramos en lugar de la lista.
     final pageBody = showForm
         ? CrearUserPage(
             usuario: _usuarioEnEdicion,
+            // Al cancelar, volvemos a la lista sin guardar.
             onCancel: () => setState(() {
               _esCreacion = false;
               _usuarioEnEdicion = null;
             }),
+            // Al guardar, volvemos a la lista y recargamos los datos.
             onSaved: () {
               setState(() {
                 _esCreacion = false;
@@ -246,6 +277,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           )
         : listBody;
 
+    // Botón flotante para crear un nuevo usuario.
     final fab = general_floatingbutton(
       Icons.add,
       onPressed: () {
@@ -256,15 +288,18 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       },
     );
 
+    // Si está incrustada en otra pantalla, usamos Stack para el botón flotante.
     if (widget.embedded) {
       return Stack(
         children: [
           Positioned.fill(child: pageBody),
+          // El botón flotante solo aparece para supervisores y cuando no hay formulario.
           if (!showForm && isSupervisor) Positioned(right: 18, bottom: 18, child: fab),
         ],
       );
     }
 
+    // Versión de pantalla completa con barra superior, menú lateral y botón flotante.
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       appBar: appMainAppBar(
@@ -346,6 +381,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       body: pageBody,
 
       // -------- BOTÓN FLOTANTE --------
+      // Se oculta si hay un formulario abierto o si el usuario no es supervisor.
       floatingActionButton: (showForm || !isSupervisor) ? null : fab,
     );
   }

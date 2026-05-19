@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// Sección de filtro por fecha con campos "Fecha Desde" y "Fecha Hasta"
+// Sección de filtro por fecha con campos "Fecha Desde" y "Fecha Hasta".
+// Permite al supervisor buscar llamadas dentro de un rango de fechas concreto.
 class DateFilterSection extends StatelessWidget {
+  // La fecha de inicio del rango (puede ser nula si no se ha seleccionado)
   final DateTime? fechaDesde;
+  // La fecha de fin del rango (puede ser nula si no se ha seleccionado)
   final DateTime? fechaHasta;
+  // Funciones que se llaman cuando el usuario cambia alguna fecha
   final ValueChanged<DateTime?> onFechaDesdeChanged;
   final ValueChanged<DateTime?> onFechaHastaChanged;
+  // Función para borrar el filtro de fechas; es nula cuando no hay fechas activas
   final VoidCallback? onClearDates;
+  // Controla si usar el diseño de escritorio (campos en fila) o móvil (en columna)
   final bool isDesktop;
 
   const DateFilterSection({
@@ -20,6 +26,8 @@ class DateFilterSection extends StatelessWidget {
     this.isDesktop = false,
   });
 
+  // Abre el selector de fecha del sistema operativo y, si el usuario elige una,
+  // llama a onChanged para actualizar el valor en la pantalla padre
   Future<void> _selectDate(
     BuildContext context,
     DateTime? currentDate,
@@ -40,11 +48,13 @@ class DateFilterSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    // Formato de fecha que se mostrará en los botones (día/mes/año corto)
     final dateFormat = DateFormat('dd/MM/yy');
 
+    // Los dos botones de fecha se agrupan en una misma fila
     final dateInputs = Row(
       children: [
-        // Fecha Desde
+        // Campo para seleccionar la fecha de inicio del rango
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,6 +144,7 @@ class DateFilterSection extends StatelessWidget {
       ],
     );
 
+    // En escritorio se muestra el botón "Quitar filtro" al lado del título para ahorrar espacio
     if (isDesktop) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,6 +162,7 @@ class DateFilterSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
+              // Solo se muestra el botón de limpiar si hay alguna fecha seleccionada
               if ((fechaDesde != null || fechaHasta != null) &&
                   onClearDates != null)
                 TextButton.icon(

@@ -5,11 +5,18 @@ import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
+// Ventana emergente con todos los detalles de un usuario: datos personales,
+// nivel de dependencia, datos médicos y contactos de emergencia asignados.
 class UserDetailDialog extends StatelessWidget {
+  // Los datos completos del usuario a mostrar
   final Usuario usuario;
+  // Formato para mostrar la fecha de nacimiento
   final DateFormat dateFormatter;
+  // Funciones opcionales para eliminar o editar — si son nulas, los botones no aparecen
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
+  // Lista de contactos de emergencia canónicos (con datos completos desde el servidor)
+  // Si es nula, se usan los contactos que vienen dentro del objeto usuario
   final List<ContactoEmergencia>? contactosCanonicos;
 
   const UserDetailDialog({
@@ -21,6 +28,7 @@ class UserDetailDialog extends StatelessWidget {
     this.contactosCanonicos,
   });
 
+  // Traduce el código de dependencia (G1, G2...) al texto legible en el idioma activo
   String _dependenciaTexto(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final raw = usuario.nivelDependencia.trim();
@@ -46,6 +54,7 @@ class UserDetailDialog extends StatelessWidget {
     }
   }
 
+  // Devuelve el color de fondo del badge de dependencia según el nivel (verde, naranja, rojo)
   Color _dependenciaBg(BuildContext context) {
     final raw = usuario.nivelDependencia.trim().toUpperCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -69,6 +78,7 @@ class UserDetailDialog extends StatelessWidget {
     }
   }
 
+  // Devuelve el color del texto del badge para garantizar contraste con el fondo
   Color _dependenciaText(BuildContext context) {
     final raw = usuario.nivelDependencia.trim().toUpperCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -96,6 +106,8 @@ class UserDetailDialog extends StatelessWidget {
     }
   }
 
+  // Muestra un segundo diálogo de confirmación antes de borrar el usuario,
+  // para evitar eliminaciones accidentales
   void _confirmarEliminacion(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -121,6 +133,8 @@ class UserDetailDialog extends StatelessWidget {
     );
   }
 
+  // Crea una fila reutilizable con icono, etiqueta y valor para mostrar
+  // cada campo del detalle del usuario (nombre, DNI, teléfono, etc.)
   Widget _buildDetailRow(
     BuildContext context,
     IconData icon,
@@ -166,9 +180,12 @@ class UserDetailDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
+    // Formateamos la fecha de nacimiento antes de mostrarla
     final fechaNacimiento = dateFormatter.format(usuario.f_nac);
+    // Preparamos los colores del badge de dependencia
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
+    // Usamos los contactos canónicos si los hay; si no, los que trae el objeto usuario
     final contactos = contactosCanonicos ?? usuario.contactosEmergencia;
 
     return AlertDialog(

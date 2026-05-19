@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
+// Tarjeta que muestra la información resumida de un trabajador (teleoperador o supervisor):
+// nombre, correo, grupo asignado, rol y si está activo o no.
 class WorkerCard extends StatefulWidget {
+  // Los datos del trabajador a mostrar
   final Trabajador trabajador;
+  // Función que se ejecuta cuando el usuario pulsa la tarjeta
   final VoidCallback onTap;
 
   const WorkerCard({
@@ -18,6 +24,7 @@ class WorkerCard extends StatefulWidget {
 }
 
 class _WorkerCardState extends State<WorkerCard> {
+  // Controla si el ratón está encima de la tarjeta para activar el efecto de elevación
   bool _hovered = false;
 
   @override
@@ -25,8 +32,10 @@ class _WorkerCardState extends State<WorkerCard> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    // El nombre del grupo puede ser nulo — usamos cadena vacía como valor por defecto
     final grupo = (widget.trabajador.grupoNombre ?? '').trim();
 
+    // La tarjeta sube 2 píxeles al pasar el ratón por encima
     return AnimatedContainer(
       duration: const Duration(milliseconds: 170),
       curve: Curves.easeOutCubic,
@@ -34,11 +43,13 @@ class _WorkerCardState extends State<WorkerCard> {
       child: Material(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
+        // La sombra solo aparece cuando el ratón está encima
         elevation: _hovered ? 3 : 0,
         shadowColor: colorScheme.primary.withValues(alpha: 0.22),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: widget.onTap,
+          // Actualizamos el estado de hover para disparar la animación
           onHover: (value) {
             if (_hovered == value) return;
             setState(() => _hovered = value);
@@ -50,6 +61,7 @@ class _WorkerCardState extends State<WorkerCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Nombre completo del trabajador
                     Text(
                       '${widget.trabajador.nombre} ${widget.trabajador.apellidos}',
                       style: textTheme.headlineLarge?.copyWith(
@@ -58,6 +70,7 @@ class _WorkerCardState extends State<WorkerCard> {
                       ),
                     ),
                     const SizedBox(height: 6),
+                    // Correo electrónico del trabajador
                     Row(
                       children: [
                         const Icon(Icons.email_outlined, size: 18),
@@ -72,7 +85,9 @@ class _WorkerCardState extends State<WorkerCard> {
                         ),
                       ],
                     ),
-                    if (widget.trabajador.rol.toLowerCase() != 'supervisor') ...[
+                    // El grupo solo se muestra si el trabajador no es supervisor
+                    // (los supervisores no tienen grupo asignado)
+                    if (widget.trabajador.rol.toLowerCase() != AppRoles.supervisor) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -86,6 +101,7 @@ class _WorkerCardState extends State<WorkerCard> {
                       ),
                     ],
                     const SizedBox(height: 8),
+                    // Badges de rol (supervisor/teleoperador) y estado (activo/inactivo)
                     Row(
                       children: [
                         _RolBadge(rol: widget.trabajador.rol),
@@ -96,6 +112,7 @@ class _WorkerCardState extends State<WorkerCard> {
                   ],
                 ),
               ),
+              // Flecha a la derecha para indicar que la tarjeta es clicable
               Positioned(
                 right: 12,
                 top: 0,
@@ -115,14 +132,17 @@ class _WorkerCardState extends State<WorkerCard> {
   }
 }
 
+// Badge que muestra el rol del trabajador (supervisor o teleoperador) con un color distintivo
 class _RolBadge extends StatelessWidget {
+  // El rol en texto ("supervisor", "teleoperador", etc.)
   final String rol;
   const _RolBadge({required this.rol});
 
   @override
   Widget build(BuildContext context) {
-    final isSupervisor = rol.toLowerCase() == 'supervisor';
+    final isSupervisor = rol.toLowerCase() == AppRoles.supervisor;
     final colorScheme = Theme.of(context).colorScheme;
+    // Los supervisores usan el color primario; los teleoperadores, el secundario
     final color = isSupervisor ? colorScheme.primary : colorScheme.secondary;
 
     return Container(
@@ -155,7 +175,9 @@ class _RolBadge extends StatelessWidget {
   }
 }
 
+// Badge verde/rojo que indica si el trabajador está activo o ha sido dado de baja
 class _ActiveBadge extends StatelessWidget {
+  // true = trabajador activo, false = inactivo/dado de baja
   final bool activo;
   const _ActiveBadge({required this.activo});
 
@@ -163,9 +185,11 @@ class _ActiveBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Color de fondo según el estado y el tema (claro u oscuro)
     final bg = activo
         ? (isDark ? AppPalette.successDark : AppPalette.successLight)
         : (isDark ? AppPalette.errorDark : AppPalette.errorLight);
+    // Color del texto con contraste adecuado
     final fg = activo
         ? (isDark ? AppPalette.successFontDark : AppPalette.successFontLight)
         : (isDark ? AppPalette.errorFontDark : AppPalette.errorFontLight);

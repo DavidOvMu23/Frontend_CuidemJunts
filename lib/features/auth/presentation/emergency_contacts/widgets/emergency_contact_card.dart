@@ -3,9 +3,14 @@ import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
+// Tarjeta que muestra la información resumida de un contacto de emergencia:
+// nombre, teléfono, usuarios asociados y si es del sistema o externo.
 class EmergencyContactCard extends StatefulWidget {
+  // Los datos del contacto a mostrar
   final ContactoEmergencia contacto;
+  // Lista de nombres de los usuarios que tienen este contacto asignado
   final List<String> asociados;
+  // Función que se ejecuta cuando el usuario pulsa la tarjeta
   final VoidCallback onTap;
 
   const EmergencyContactCard({
@@ -20,6 +25,7 @@ class EmergencyContactCard extends StatefulWidget {
 }
 
 class _EmergencyContactCardState extends State<EmergencyContactCard> {
+  // Controla si el ratón está encima de la tarjeta para activar el efecto de elevación
   bool _hovered = false;
 
   @override
@@ -27,21 +33,26 @@ class _EmergencyContactCardState extends State<EmergencyContactCard> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    // Si tiene un DNI de referencia a un usuario del sistema, es de tipo "sistema"; si no, es externo
     final isUsuario = (widget.contacto.dniUsuarioRef ?? '').isNotEmpty;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // La tarjeta se anima suavemente al pasar el ratón por encima
     return AnimatedContainer(
       duration: const Duration(milliseconds: 170),
       curve: Curves.easeOutCubic,
+      // Sube 2 píxeles cuando el ratón está encima para dar sensación de interactividad
       transform: Matrix4.translationValues(0.0, _hovered ? -2.0 : 0.0, 0.0),
       child: Material(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
+        // La sombra solo aparece cuando el ratón está encima
         elevation: _hovered ? 3 : 0,
         shadowColor: colorScheme.primary.withValues(alpha: 0.22),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: widget.onTap,
+          // Actualizamos el estado de hover para activar la animación
           onHover: (value) {
             if (_hovered == value) return;
             setState(() => _hovered = value);
@@ -53,6 +64,7 @@ class _EmergencyContactCardState extends State<EmergencyContactCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Nombre completo del contacto
                     Text(
                       '${widget.contacto.nombre} ${widget.contacto.apellidos}',
                       style: textTheme.headlineLarge?.copyWith(
@@ -61,6 +73,7 @@ class _EmergencyContactCardState extends State<EmergencyContactCard> {
                       ),
                     ),
                     const SizedBox(height: 6),
+                    // Número de teléfono del contacto
                     Row(
                       children: [
                         const Icon(Icons.phone, size: 18),
@@ -69,6 +82,7 @@ class _EmergencyContactCardState extends State<EmergencyContactCard> {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    // Usuarios del sistema que tienen este contacto asignado
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -83,6 +97,7 @@ class _EmergencyContactCardState extends State<EmergencyContactCard> {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    // Badge que indica si el contacto es del sistema (verde) o externo (naranja)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -117,6 +132,7 @@ class _EmergencyContactCardState extends State<EmergencyContactCard> {
                   ],
                 ),
               ),
+              // Flecha a la derecha para indicar que la tarjeta es clicable
               Positioned(
                 right: 12,
                 top: 0,

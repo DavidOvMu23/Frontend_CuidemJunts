@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 
-// -------- DRAWER SUPERVISOR --------
+// -------- MENÚ LATERAL DEL SUPERVISOR --------
+// Este drawer (cajón lateral) aparece al deslizar desde la izquierda o pulsar
+// el icono de menú. Contiene la navegación principal de la aplicación.
 
-// -------- ENUM DE SECCIONES DEL DRAWER --------
+// -------- ENUM: IDENTIFICA QUÉ SECCIÓN ESTÁ ACTIVA AHORA MISMO --------
+// Se usa para resaltar la opción correspondiente en el menú lateral
 enum DrawerItem {
   home,
   calls,
@@ -16,12 +19,17 @@ enum DrawerItem {
   preferences,
 }
 
-// -------- WIDGET: DRAWER DEL SUPERVISOR --------
+// -------- FUNCIÓN: CONSTRUYE EL DRAWER COMPLETO DEL SUPERVISOR --------
+// Recibe qué sección está activa (para resaltarla) y las funciones de navegación
+// para cada opción del menú.
 Drawer appDrawer({
   required BuildContext context,
+  // La sección que está seleccionada actualmente (para pintarla como activa)
   required DrawerItem selected,
-  String? userName, // Nombre del usuario logueado
+  // Nombre y rol del usuario logueado, para mostrarlo en el pie del menú
+  String? userName,
   String? userRole,
+  // Funciones de navegación para cada sección
   VoidCallback? onTapHome,
   VoidCallback? onTapCalls,
   VoidCallback? onTapUsers,
@@ -30,6 +38,7 @@ Drawer appDrawer({
   VoidCallback? onTapGroups,
   VoidCallback? onTapNotifications,
   VoidCallback? onTapPreferences,
+  // Función que se ejecuta cuando el usuario confirma el cierre de sesión
   required VoidCallback? onLogoutConfirmed,
 }) {
   final l10n = AppLocalizations.of(context)!;
@@ -170,12 +179,13 @@ Drawer appDrawer({
             ],
           ),
         ),
-        // -------- PIE DEL DRAWER: PERFIL + LOGOUT --------
+        // -------- PIE DEL DRAWER: MUESTRA EL NOMBRE DEL USUARIO Y EL BOTÓN DE CERRAR SESIÓN --------
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: Column(
             children: [
+              // Avatar circular con el nombre del usuario logueado
               ListTile(
                 leading: CircleAvatar(
                   radius: 24,
@@ -184,14 +194,16 @@ Drawer appDrawer({
                   child: const Icon(Icons.person, size: 32),
                 ),
                 title: Text(
+                  // Si no se recibe el nombre, mostramos "Usuario" como valor por defecto
                   userName ??
-                      'Usuario', // Muestra el nombre del usuario que ha iniciado sesión
+                      'Usuario',
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               const SizedBox(height: 8),
+              // Botón de cerrar sesión — antes de hacerlo, muestra un diálogo de confirmación
               general_listtile_logout(
                 context: context,
                 icon: Icons.logout,

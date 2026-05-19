@@ -4,12 +4,17 @@ import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
-// Tarjeta que muestra la información resumida de un usuario.
+// Tarjeta que muestra la información resumida de un usuario: nombre, fecha
+// de nacimiento, teléfono, dirección y nivel de dependencia con un badge de color.
 class UserCard extends StatefulWidget {
+  // Los datos del usuario a mostrar
   final Usuario usuario;
+  // Estilos de texto y colores compartidos desde la pantalla padre
   final TextTheme textTheme;
   final ColorScheme colorScheme;
+  // Formato para mostrar la fecha de nacimiento (p. ej. "dd/MM/yyyy")
   final DateFormat dateFormatter;
+  // Función que se ejecuta cuando el usuario pulsa la tarjeta
   final VoidCallback onTap;
 
   const UserCard({
@@ -26,6 +31,7 @@ class UserCard extends StatefulWidget {
 }
 
 class _UserCardState extends State<UserCard> {
+  // Controla si el ratón está encima de la tarjeta para activar el efecto de elevación
   bool _hovered = false;
 
   // Traduce el código de dependencia (G1, G2...)
@@ -108,13 +114,15 @@ class _UserCardState extends State<UserCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Formateamos la fecha de nacimiento con el formato configurado
     final fechaNacimiento = widget.dateFormatter.format(widget.usuario.f_nac);
     final direccion = widget.usuario.direccion.trim();
 
-    // Calculamos los colores antes de pintar
+    // Calculamos los colores del badge de dependencia antes de pintar la tarjeta
     final depBg = _dependenciaBg(context);
     final depText = _dependenciaText(context);
 
+    // La tarjeta sube 2 píxeles al pasar el ratón para indicar que es interactiva
     return AnimatedContainer(
       duration: const Duration(milliseconds: 170),
       curve: Curves.easeOutCubic,
@@ -122,11 +130,13 @@ class _UserCardState extends State<UserCard> {
       child: Material(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
+        // La sombra aparece solo cuando el ratón está encima
         elevation: _hovered ? 3 : 0,
         shadowColor: widget.colorScheme.primary.withValues(alpha: 0.22),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: widget.onTap,
+          // Actualizamos el estado de hover para disparar la animación
           onHover: (value) {
             if (_hovered == value) return;
             setState(() => _hovered = value);

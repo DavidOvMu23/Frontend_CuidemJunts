@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 
-// Tarjeta de estadística que muestra un contador con icono
+// Tarjeta de estadística que muestra un contador numérico con un título e icono.
+// Aparece en la pantalla de inicio para mostrar resúmenes como "Total llamadas hoy".
 class StatsCard extends StatelessWidget {
+  // Título descriptivo de la estadística (p. ej. "Llamadas completadas")
   final String title;
+  // El número o valor a mostrar (p. ej. "12")
   final String value;
+  // Icono representativo del tipo de estadística
   final IconData icon;
+  // Mientras los datos se están cargando, muestra un esqueleto en lugar del valor
   final bool isLoading;
 
   const StatsCard({

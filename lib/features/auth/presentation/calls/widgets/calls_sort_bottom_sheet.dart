@@ -3,8 +3,10 @@ import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page_enums.dart';
 
-// Bottom sheet para seleccionar el tipo de ordenación de llamadas
+// Panel inferior que aparece desde abajo cuando el usuario quiere ordenar la lista
+// de llamadas — muestra las opciones disponibles como filas seleccionables.
 class CallsSortBottomSheet extends StatelessWidget {
+  // Se llama con la opción elegida para que la pantalla padre actualice el orden
   final ValueChanged<CallsPageSort> onSortSelected;
 
   const CallsSortBottomSheet({super.key, required this.onSortSelected});
@@ -19,11 +21,13 @@ class CallsSortBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Título del panel
           Text(
             l10n.sortType,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 12),
+          // Opción: sin orden — muestra la lista como viene del servidor
           general_listtile(
             context: context,
             icon: Icons.filter_list_off,
@@ -34,6 +38,7 @@ class CallsSortBottomSheet extends StatelessWidget {
               general_snackbar(context, l10n.noSortedCalls, 2);
             },
           ),
+          // Opción: ordenar por nombre de A a Z
           general_listtile(
             context: context,
             icon: Icons.sort_by_alpha,
@@ -44,6 +49,7 @@ class CallsSortBottomSheet extends StatelessWidget {
               general_snackbar(context, l10n.sortNameAZ, 2);
             },
           ),
+          // Opción: ordenar por nombre de Z a A
           general_listtile(
             context: context,
             icon: Icons.sort_by_alpha,
@@ -54,6 +60,7 @@ class CallsSortBottomSheet extends StatelessWidget {
               general_snackbar(context, l10n.sortNameZA, 2);
             },
           ),
+          // Opción: ordenar por duración de menor a mayor
           general_listtile(
             context: context,
             icon: Icons.timer,
@@ -64,6 +71,7 @@ class CallsSortBottomSheet extends StatelessWidget {
               general_snackbar(context, l10n.sortCallDurationShortLong, 2);
             },
           ),
+          // Opción: ordenar por duración de mayor a menor
           general_listtile(
             context: context,
             icon: Icons.timer,
@@ -74,6 +82,7 @@ class CallsSortBottomSheet extends StatelessWidget {
               general_snackbar(context, l10n.sortCallDurationLongShort, 2);
             },
           ),
+          // Opción: ordenar por nivel de dependencia de mayor a menor
           general_listtile(
             context: context,
             icon: Icons.bar_chart,
@@ -84,6 +93,7 @@ class CallsSortBottomSheet extends StatelessWidget {
               general_snackbar(context, l10n.sortDependencyHighLow, 2);
             },
           ),
+          // Opción: ordenar por nivel de dependencia de menor a mayor
           general_listtile(
             context: context,
             icon: Icons.bar_chart,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
@@ -25,10 +27,13 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/call_creat
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 // -------- PANTALLA DE LLAMADAS --------
-// Controlador principal de la vista de llamadas
-// Gestiona el estado (filtros, búsqueda, ordenación) y la carga de datos
+// Controlador principal de la vista de llamadas.
+// Gestiona el estado (filtros, búsqueda, ordenación, rango de fechas) y la carga de datos.
 class LlamadasPage extends ConsumerStatefulWidget {
+  // Si es true, la página se muestra incrustada dentro de otra pantalla.
   final bool embedded;
+  // Llamada que se debe abrir directamente en modo edición al entrar.
+  // Se usa cuando se navega desde una notificación.
   final Llamadas? llamadaParaEditar;
 
   const LlamadasPage({
@@ -41,72 +46,96 @@ class LlamadasPage extends ConsumerStatefulWidget {
   ConsumerState<LlamadasPage> createState() => _LlamadasPageState();
 }
 
-
-
 class _LlamadasPageState extends ConsumerState<LlamadasPage> {
+  // Resultado de la petición al servidor con todas las llamadas.
   late Future<List<Llamadas>> _llamadasFuture;
 
+  // Filtro actualmente seleccionado (por defecto todos).
   late CallsPageFilter filtroSeleccionado;
+
+  // Texto que el usuario escribe en el buscador.
   String textoFiltro = '';
+
+  // Orden actualmente seleccionado.
   CallsPageSort ordenSeleccionado = CallsPageSort.none;
+
+  // Fecha de inicio y fin del rango de fechas para filtrar por fecha.
   DateTime? fechaDesde;
   DateTime? fechaHasta;
+
+  // Llamada que se está editando. Si es null, no hay edición activa.
   Llamadas? _llamadaEnEdicion;
+
+  // Controla si se está mostrando el formulario de creación.
   bool _esCreacion = false;
-  // Lista de teleoperadores para el selector del formulario (solo supervisores)
+
+  // Lista de teleoperadores cargada previamente para el selector del formulario.
+  // Solo se usa cuando el usuario conectado es supervisor.
   List<TeleoperadorBusqueda>? _teleoperadoresCached;
 
+  // Inicializa el estado y carga los datos al abrir la página.
   @override
   void initState() {
     super.initState();
     filtroSeleccionado = CallsPageFilter.all;
     _llamadasFuture = _cargarLlamadasConGrupo();
+
+    // Si venimos con una llamada para editar (desde notificación), la activamos.
     if (widget.llamadaParaEditar != null) {
       _llamadaEnEdicion = widget.llamadaParaEditar;
       _esCreacion = false;
+      // Limpiamos el provider de edición pendiente para no volver a entrar en este modo.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) ref.read(pendingCallEditProvider.notifier).set(null);
       });
     }
-    // Precargar teleoperadores si el usuario es supervisor
+
+    // Precargamos los teleoperadores si el usuario es supervisor
+    // para que el selector del formulario esté listo cuando se abra.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rol = ref.read(authProvider).rol ?? '';
-      if (rol.toLowerCase() == 'supervisor') _cargarTeleoperadores();
+      if (rol.toLowerCase() == AppRoles.supervisor) _cargarTeleoperadores();
     });
   }
 
+  // Obtiene todos los teleoperadores activos del servidor y los guarda en caché.
   Future<void> _cargarTeleoperadores() async {
     try {
       final service = ref.read(trabajadorServiceProvider);
       final todos = await service.getAll();
       if (!mounted) return;
       setState(() {
+        // Solo nos quedamos con los teleoperadores que están activos.
         _teleoperadoresCached = todos
-            .where((t) => t.rol.toLowerCase() == 'teleoperador' && t.activo)
+            .where((t) => t.rol.toLowerCase() == AppRoles.teleoperador && t.activo)
             .map((t) => TeleoperadorBusqueda(id: t.id, nombreCompleto: '${t.nombre} ${t.apellidos}'))
             .toList();
       });
     } catch (_) {}
   }
 
-  // Obtiene la lista completa de llamadas del servidor
+  // Obtiene todas las llamadas del servidor y les añade el nombre del grupo.
+  // Si la llamada ya tiene el nombre del grupo, no hace una petición extra.
   Future<List<Llamadas>> _cargarLlamadasConGrupo() async {
     try {
       final llamadasService = ref.read(llamadasServiceProvider);
       final gruposService = ref.read(grupoServiceProvider);
 
       final llamadas = await llamadasService.getAll();
+
+      // Mapa para guardar los nombres de grupos ya consultados y evitar repeticiones.
       final Map<int, String?> cache = {};
 
+      // Para cada llamada, intentamos añadir el nombre del grupo si aún no lo tiene.
       final enriched = await Future.wait(
         llamadas.map((llamada) async {
-          // Si el backend ya incluye el nombre del grupo en la comunicación,
-          // no necesitamos hacer una petición adicional.
+          // Si la llamada ya trae el nombre del grupo, no necesitamos consultarlo.
           if (llamada.grupoNombre != null && llamada.grupoNombre!.isNotEmpty) {
             return llamada;
           }
 
           final grupoId = llamada.grupoId;
+          // Si el ID de grupo es 0, no tiene grupo asignado.
           if (grupoId == 0) return llamada;
 
           final nombreGrupo = await _obtenerNombreGrupo(
@@ -127,11 +156,13 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     }
   }
 
+  // Obtiene el nombre de un grupo por su ID usando un caché para no repetir peticiones.
   Future<String?> _obtenerNombreGrupo(
     int grupoId,
     Map<int, String?> cache,
     GrupoService gruposService,
   ) async {
+    // Si ya lo consultamos, devolvemos el valor guardado.
     if (cache.containsKey(grupoId)) {
       return cache[grupoId];
     }
@@ -146,39 +177,41 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     }
   }
 
-  // --- Métodos para actualizar el estado desde los widgets hijos ---
+  // --- Métodos que actualizan el estado cuando los widgets hijos cambian algo ---
 
-  // Actualiza el texto de búsqueda
+  // Actualiza el texto de búsqueda y refiltra la lista.
   void _onSearchChanged(String value) {
     setState(() => textoFiltro = value);
   }
 
-  // Actualiza el filtro seleccionado
+  // Actualiza el filtro de estado de llamada.
   void _onFilterChanged(CallsPageFilter value) {
     setState(() => filtroSeleccionado = value);
   }
 
-  // Actualiza el orden seleccionado
+  // Actualiza el orden de la lista.
   void _onSortChanged(CallsPageSort value) {
     setState(() => ordenSeleccionado = value);
   }
 
-  // Actualiza la fecha desde
+  // Actualiza la fecha de inicio del rango de filtrado por fecha.
   void _onFechaDesdeChanged(DateTime? value) {
     setState(() => fechaDesde = value);
   }
 
-  // Actualiza la fecha hasta
+  // Actualiza la fecha de fin del rango de filtrado por fecha.
   void _onFechaHastaChanged(DateTime? value) {
     setState(() => fechaHasta = value);
   }
 
-  // Muestra el detalle de una llamada
+  // Abre el diálogo de detalle de una llamada.
+  // Desde ahí se puede editar o eliminar la llamada.
   Future<void> _mostrarDetalleLlamada(BuildContext context, Llamadas llamada) async {
     showDialog(
       context: context,
       builder: (ctx) => CallDetailDialog(
         llamada: llamada,
+        // Al pulsar editar, cerramos el diálogo y abrimos el formulario de edición.
         onEdit: () {
           setState(() {
             _llamadaEnEdicion = llamada;
@@ -186,7 +219,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           });
         },
         onDelete: () {
-          // Implementar borrado de llamada
+          // Borrado de llamada mediante función asíncrona inmediatamente invocada.
           final l10n = AppLocalizations.of(context)!;
           () async {
             final llamadasService = ref.read(llamadasServiceProvider);
@@ -197,6 +230,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(l10n.callDeletedSuccessfully)),
               );
+              // Recargamos la lista para reflejar el borrado.
               setState(() {
                 _llamadasFuture = _cargarLlamadasConGrupo();
               });
@@ -212,10 +246,14 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     );
   }
 
+  // Guarda una llamada nueva o los cambios de una existente.
+  // Determina el grupo correcto según si el usuario es teleoperador o supervisor.
   Future<void> _guardarLlamada(CallFormData data) async {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.read(authProvider);
     final correo = authState.correo;
+
+    // Si no hay usuario conectado, no podemos continuar.
     if (correo == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.noAuthenticatedUser)),
@@ -223,9 +261,11 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       return;
     }
 
-    final bool isTele = (authState.rol ?? '').toLowerCase() == 'teleoperador';
+    final bool isTele = (authState.rol ?? '').toLowerCase() == AppRoles.teleoperador;
     int? grupoIdToUse;
+
     if (isTele) {
+      // Los teleoperadores usan el grupo que tienen asignado en su perfil.
       grupoIdToUse = authState.grupoId;
       if (grupoIdToUse == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -234,6 +274,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
         return;
       }
     } else {
+      // Los supervisores buscan el grupo del trabajador que coincide con su correo.
       final trabajadorService = ref.read(trabajadorServiceProvider);
       final trabajadores = await trabajadorService.getAll();
       final trabajador = trabajadores.firstWhere(
@@ -250,8 +291,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     }
 
     final llamadasService = ref.read(llamadasServiceProvider);
-    // El teleoperadorId se obtiene del formulario (supervisor elige) o del propio usuario (teleoperador)
+
+    // El ID del teleoperador: si es teleoperador usa el suyo propio;
+    // si es supervisor, usa el que eligió en el formulario.
     final int? teleoperadorId = isTele ? authState.id : data.teleoperadorId;
+
+    // Construimos el objeto con los datos de la llamada.
     final payload = {
       'usuarioId': data.usuarioId,
       'resumen': data.resumen,
@@ -261,21 +306,29 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       'fecha': data.fecha.toIso8601String(),
       'hora': data.hora,
       'grupoId': grupoIdToUse,
+      // Solo añadimos el ID del teleoperador si existe.
       if (teleoperadorId != null) 'teleoperadorId': teleoperadorId,
     };
 
     try {
       final wasCreating = _esCreacion;
+
       if (_esCreacion) {
+        // Modo creación: creamos una llamada nueva.
         await llamadasService.create(payload);
       } else if (_llamadaEnEdicion != null) {
+        // Modo edición: actualizamos la llamada existente.
         await llamadasService.update(_llamadaEnEdicion!.id, payload);
       }
+
+      // Volvemos a la lista y recargamos los datos.
       setState(() {
         _llamadaEnEdicion = null;
         _esCreacion = false;
         _llamadasFuture = _cargarLlamadasConGrupo();
       });
+
+      // Mostramos un mensaje diferente según si creamos o editamos.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(wasCreating ? l10n.callCreatedSuccessfully : l10n.callUpdatedSuccessfully)),
       );
@@ -286,60 +339,43 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     }
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-                            // debug prints removed (were inserted erroneously)
-          Expanded(child: Text(value)),
-        ],
-      ),
-    );
-  }
-
-  // Filtra y ordena la lista de llamadas según el estado actual
-  // Se ejecuta en el cliente sobre los datos ya cargados
+  // Filtra y ordena la lista de llamadas en el dispositivo.
+  // Se ejecuta cuando cambia el texto de búsqueda, el filtro, el orden o el rango de fechas.
   List<Llamadas> _aplicarFiltros(List<Llamadas> llamadas) {
     final query = textoFiltro.trim().toLowerCase();
 
-    // 1. Filtrado
+    // Paso 1: Filtrado por texto, estado y rango de fechas.
     final filtradas = llamadas.where((llamada) {
-      // Coincidencia de texto (resumen o grupo)
+      // La llamada coincide si el texto aparece en el resumen o en el nombre del grupo.
       final coincideTexto =
           query.isEmpty ||
           llamada.resumen.toLowerCase().contains(query) ||
           (llamada.grupoNombre?.toLowerCase().contains(query) ?? false);
 
-      // Coincidencia de filtro de estado/grupo
+      // Filtramos por el estado de la llamada (completada, pendiente, no contestada).
       final coincideFiltro = switch (filtroSeleccionado) {
         CallsPageFilter.all => true,
         CallsPageFilter.complete =>
-          llamada.estado.toLowerCase() == 'completada',
-        CallsPageFilter.pending => llamada.estado.toLowerCase() == 'pendiente',
+          llamada.estado.toLowerCase() == CallStatus.completada,
+        CallsPageFilter.pending => llamada.estado.toLowerCase() == CallStatus.pendiente,
+        // El estado "no contestada" puede venir con distintos textos del servidor.
         CallsPageFilter.incomplete =>
           llamada.estado.toLowerCase().contains('no contestada') ||
               llamada.estado.toLowerCase().contains('no contestó') ||
-              llamada.estado.toLowerCase().contains('no_contesto'),
+              llamada.estado.toLowerCase().contains(CallStatus.noContesto),
       };
 
-      // Coincidencia de filtro de fecha
+      // Filtramos por rango de fechas si el usuario ha seleccionado alguno.
       bool coincideFecha = true;
       if (fechaDesde != null) {
+        // La llamada debe ser el mismo día o posterior a la fecha de inicio.
         coincideFecha =
             coincideFecha &&
             (llamada.fecha.isAfter(fechaDesde!) ||
                 llamada.fecha.isAtSameMomentAs(fechaDesde!));
       }
       if (fechaHasta != null) {
+        // La llamada debe ser antes del final del día de la fecha límite.
         final fechaHastaFin = DateTime(
           fechaHasta!.year,
           fechaHasta!.month,
@@ -357,25 +393,25 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       return coincideTexto && coincideFiltro && coincideFecha;
     }).toList();
 
-    // 2. Ordenación
+    // Paso 2: Ordenamos la lista filtrada.
     filtradas.sort((a, b) {
       switch (ordenSeleccionado) {
         case CallsPageSort.none:
+          // Sin orden especial: mantenemos el orden del servidor.
           return 0;
         case CallsPageSort.dateLatest:
+          // Las más recientes primero.
           return b.fecha.compareTo(a.fecha);
         case CallsPageSort.nameAZ:
           return a.resumen.compareTo(b.resumen);
         case CallsPageSort.nameZA:
           return b.resumen.compareTo(a.resumen);
+        // Las de menor duración primero.
         case CallsPageSort.callDurationShortLong:
-          return _parseDuration(
-            a.duracion,
-          ).compareTo(_parseDuration(b.duracion));
+          return _parseDuration(a.duracion).compareTo(_parseDuration(b.duracion));
+        // Las de mayor duración primero.
         case CallsPageSort.callDurationLongShort:
-          return _parseDuration(
-            b.duracion,
-          ).compareTo(_parseDuration(a.duracion));
+          return _parseDuration(b.duracion).compareTo(_parseDuration(a.duracion));
         case CallsPageSort.dependencyHighLow:
           return b.grupoId.compareTo(a.grupoId);
         case CallsPageSort.dependencyLowHigh:
@@ -386,12 +422,15 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     return filtradas;
   }
 
-  // Helper para convertir duración en segundos
+  // Convierte una cadena de duración a segundos para poder comparar y ordenar.
+  // Acepta formatos "mm:ss" o solo un número de minutos.
   int _parseDuration(String duracion) {
     try {
       final clean = duracion.trim().toLowerCase().replaceAll('min', '').replaceAll(' ', '');
       if (clean.isEmpty) return 0;
+
       if (clean.contains(':')) {
+        // Formato "minutos:segundos"
         final parts = clean.split(':');
         if (parts.length == 2) {
           final minutes = int.tryParse(parts[0]) ?? 0;
@@ -399,7 +438,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           return minutes * 60 + seconds;
         }
       } else {
-        // Si solo es un número, interpretarlo como minutos
+        // Si solo es un número, lo interpretamos como minutos.
         final minutes = int.tryParse(clean) ?? 0;
         return minutes * 60;
       }
@@ -407,11 +446,13 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     return 0;
   }
 
+  // Construye toda la interfaz visual de la pantalla de llamadas.
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // For the case where LlamadasPage is already mounted and a new edit is requested
+    // Escuchamos si llega una solicitud de edición desde otra parte de la app
+    // (por ejemplo, desde una notificación cuando la pantalla ya está abierta).
     ref.listen<Llamadas?>(pendingCallEditProvider, (_, next) {
       if (next != null && widget.embedded) {
         setState(() {
@@ -422,19 +463,21 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       }
     });
 
+    // Leemos los datos del usuario conectado.
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
-                        // debug print removed (was inserted erroneously)
     final userRole = authState.rol;
+    // Número de notificaciones para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
-    // Si no hay usuario logueado, mostrar un mensaje
+    // Si no hay usuario conectado, mostramos un mensaje de error.
     if (userName == null) {
       return Scaffold(
         body: Center(child: Text(l10n.noAuthenticatedUser)),
       );
     }
 
+    // Decidimos si mostrar el formulario (creación/edición) o la lista de llamadas.
     final pageBody = _llamadaEnEdicion != null || _esCreacion
         ? CallFormPage(
             llamadaInicial: _llamadaEnEdicion,
@@ -442,6 +485,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             buscarUsuarios: _buscarUsuarios,
             onSubmit: _guardarLlamada,
             teleoperadores: _teleoperadoresCached,
+            // Al cancelar, volvemos a la lista.
             onCancel: () {
               setState(() {
                 _llamadaEnEdicion = null;
@@ -465,6 +509,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             onLlamadaTap: _mostrarDetalleLlamada,
           );
 
+    // Botón flotante para crear una nueva llamada.
     final fab = general_floatingbutton(
       Icons.add,
       onPressed: () {
@@ -475,16 +520,19 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       },
     );
 
+    // Si está incrustada en otra pantalla, usamos Stack para el botón flotante.
     if (widget.embedded) {
       return Stack(
         children: [
           Positioned.fill(child: pageBody),
+          // El botón flotante solo aparece cuando no hay formulario abierto.
           if (_llamadaEnEdicion == null && !_esCreacion)
             Positioned(right: 18, bottom: 18, child: fab),
         ],
       );
     }
 
+    // Versión de pantalla completa con barra superior, menú lateral y botón flotante.
     return Scaffold(
       // -------- BARRA SUPERIOR --------
       appBar: appMainAppBar(
@@ -566,14 +614,19 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       body: pageBody,
 
       // -------- BOTÓN FLOTANTE --------
+      // Se oculta cuando hay un formulario abierto.
       floatingActionButton: (_esCreacion || _llamadaEnEdicion != null) ? null : fab,
     );
   }
 
+  // Busca usuarios en el servidor que coincidan con el texto de búsqueda.
+  // Se usa en el formulario de llamada para buscar al usuario que recibió la llamada.
   Future<List<UsuarioBusqueda>> _buscarUsuarios(String query) async {
     final usuarioService = ref.read(usuarioServiceProvider);
     final usuarios = await usuarioService.getAll();
     final lower = query.trim().toLowerCase();
+
+    // Filtramos por nombre, apellidos, teléfono o DNI que contengan el texto buscado.
     return usuarios
         .where((u) =>
             u.nombre.toLowerCase().contains(lower) ||
