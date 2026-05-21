@@ -136,11 +136,23 @@ class _MonthlyCalendarSectionState
       {double? availableHeight, double? availableWidth}) {
     // Creamos un mapa día→llamadas para acceder rápidamente a las llamadas de cada día
     final Map<int, List<Llamadas>> callsByDay = {};
+    int monthCompleted = 0;
+    int monthPending = 0;
+    int monthNoAnswer = 0;
+
     for (final c in calls) {
       // Solo incluimos las llamadas que pertenecen al mes que se está mostrando
       if (c.fecha.year == _focusedMonth.year &&
           c.fecha.month == _focusedMonth.month) {
         callsByDay.putIfAbsent(c.fecha.day, () => []).add(c);
+        final estado = c.estado.toLowerCase();
+        if (estado == CallStatus.completada) {
+          monthCompleted++;
+        } else if (estado == CallStatus.pendiente) {
+          monthPending++;
+        } else if (estado == CallStatus.noContesto || estado == CallStatus.cancelada) {
+          monthNoAnswer++;
+        }
       }
     }
 
@@ -151,6 +163,9 @@ class _MonthlyCalendarSectionState
       isToday: _isToday,
       availableHeight: availableHeight,
       availableWidth: availableWidth,
+      monthCompleted: monthCompleted,
+      monthPending: monthPending,
+      monthNoAnswer: monthNoAnswer,
       onDayTapped: (date, dayCalls) =>
           _onDayTapped(context, date, dayCalls),
       onPrev: () => setState(() => _focusedMonth =
@@ -180,6 +195,10 @@ class _CalendarGrid extends StatelessWidget {
   // Dimensiones disponibles para calcular el tamaño óptimo de cada celda
   final double? availableHeight;
   final double? availableWidth;
+  // Conteos totales del mes por estado
+  final int monthCompleted;
+  final int monthPending;
+  final int monthNoAnswer;
 
   const _CalendarGrid({
     required this.focusedMonth,
@@ -191,6 +210,9 @@ class _CalendarGrid extends StatelessWidget {
     required this.onNext,
     this.availableHeight,
     this.availableWidth,
+    this.monthCompleted = 0,
+    this.monthPending = 0,
+    this.monthNoAnswer = 0,
   });
 
   @override
@@ -230,6 +252,8 @@ class _CalendarGrid extends StatelessWidget {
       }
     }
 
+    final totalMonth = monthCompleted + monthPending + monthNoAnswer;
+
     return Column(
       children: [
         Row(
@@ -242,7 +266,24 @@ class _CalendarGrid extends StatelessWidget {
             _NavButton(icon: Icons.chevron_right, onTap: onNext),
           ],
         ),
-        const SizedBox(height: 6),
+        // ── Resumen mensual ──────────────────────────────────────────────────
+        if (totalMonth > 0) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _StatPill(color: Colors.green.shade400, count: monthCompleted, label: 'Comp.'),
+              const SizedBox(width: 6),
+              _StatPill(color: Colors.orange.shade400, count: monthPending, label: 'Pend.'),
+              if (monthNoAnswer > 0) ...[
+                const SizedBox(width: 6),
+                _StatPill(color: Colors.red.shade400, count: monthNoAnswer, label: 'No cont.'),
+              ],
+            ],
+          ),
+        ],
+        const SizedBox(height: 8),
+        // ── Nombres de días de la semana ─────────────────────────────────────
         Row(
           children: ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((d) {
             final isWeekend = d == 'S' || d == 'D';
@@ -444,9 +485,12 @@ class _DayCallsDialog extends ConsumerStatefulWidget {
   ConsumerState<_DayCallsDialog> createState() => _DayCallsDialogState();
 }
 
+enum _CallFilter { all, completed, pending, noAnswer }
+
 class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
   // Copia local de las llamadas para poder actualizarla si el usuario elimina alguna
   late List<Llamadas> _calls;
+  _CallFilter _filter = _CallFilter.all;
 
   @override
   void initState() {
@@ -493,6 +537,22 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
     );
   }
 
+  List<Llamadas> get _filteredCalls {
+    switch (_filter) {
+      case _CallFilter.completed:
+        return _calls.where((c) => c.estado.toLowerCase() == CallStatus.completada).toList();
+      case _CallFilter.pending:
+        return _calls.where((c) => c.estado.toLowerCase() == CallStatus.pendiente).toList();
+      case _CallFilter.noAnswer:
+        return _calls.where((c) {
+          final e = c.estado.toLowerCase();
+          return e == CallStatus.noContesto || e == CallStatus.cancelada;
+        }).toList();
+      case _CallFilter.all:
+        return _calls;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -500,6 +560,18 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final raw = DateFormat('d MMMM yyyy', locale).format(widget.day);
     final dayLabel = raw[0].toUpperCase() + raw.substring(1);
+    final l10n = AppLocalizations.of(context)!;
+
+    final hasCompleted = _calls.any((c) => c.estado.toLowerCase() == CallStatus.completada);
+    final hasPending = _calls.any((c) => c.estado.toLowerCase() == CallStatus.pendiente);
+    final hasNoAnswer = _calls.any((c) {
+      final e = c.estado.toLowerCase();
+      return e == CallStatus.noContesto || e == CallStatus.cancelada;
+    });
+    final showFilterRow = hasCompleted && (hasPending || hasNoAnswer) ||
+        hasPending && (hasCompleted || hasNoAnswer);
+
+    final visible = _filteredCalls;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -521,6 +593,7 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // ── Cabecera ────────────────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
                 child: Row(
@@ -562,29 +635,174 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
                 ),
               ),
               Divider(height: 1, color: colorScheme.onSurface.withValues(alpha: 0.08)),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 420),
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
-                  shrinkWrap: true,
-                  physics: const ClampingScrollPhysics(),
-                  itemCount: _calls.length,
-                  itemBuilder: (context, i) => InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => _openDetail(_calls[i]),
-                    child: CallCard(
-                      usuarioNombre: _calls[i].usuarioNombre,
-                      usuarioApellidos: _calls[i].usuarioApellidos,
-                      grupoNombre: _calls[i].grupoNombre,
-                      hora: _calls[i].hora,
-                      estado: _calls[i].estado,
+
+              // ── Chips de filtro (solo si hay más de un estado) ─────────────
+              if (showFilterRow)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 2),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _FilterChip(
+                          label: 'Todas',
+                          selected: _filter == _CallFilter.all,
+                          color: colorScheme.primary,
+                          onTap: () => setState(() => _filter = _CallFilter.all),
+                        ),
+                        if (hasCompleted) ...[
+                          const SizedBox(width: 6),
+                          _FilterChip(
+                            label: l10n.callCompleted,
+                            selected: _filter == _CallFilter.completed,
+                            color: Colors.green.shade400,
+                            onTap: () => setState(() => _filter = _CallFilter.completed),
+                          ),
+                        ],
+                        if (hasPending) ...[
+                          const SizedBox(width: 6),
+                          _FilterChip(
+                            label: l10n.callPending,
+                            selected: _filter == _CallFilter.pending,
+                            color: Colors.orange.shade400,
+                            onTap: () => setState(() => _filter = _CallFilter.pending),
+                          ),
+                        ],
+                        if (hasNoAnswer) ...[
+                          const SizedBox(width: 6),
+                          _FilterChip(
+                            label: l10n.callNoAnswer,
+                            selected: _filter == _CallFilter.noAnswer,
+                            color: Colors.red.shade400,
+                            onTap: () => setState(() => _filter = _CallFilter.noAnswer),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
+
+              // ── Lista de llamadas ────────────────────────────────────────────
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 400),
+                child: visible.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          'No hay llamadas con este estado',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
+                        shrinkWrap: true,
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: visible.length,
+                        itemBuilder: (context, i) => InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => _openDetail(visible[i]),
+                          child: CallCard(
+                            usuarioNombre: visible[i].usuarioNombre,
+                            usuarioApellidos: visible[i].usuarioApellidos,
+                            grupoNombre: visible[i].grupoNombre,
+                            hora: visible[i].hora,
+                            estado: visible[i].estado,
+                          ),
+                        ),
+                      ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Chip de filtro para el diálogo de llamadas del día ────────────────────────
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? color.withValues(alpha: 0.18) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? color : color.withValues(alpha: 0.35),
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: textTheme.labelSmall?.copyWith(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? color : color.withValues(alpha: 0.7),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Pastilla de estadística mensual (color + número + etiqueta) ───────────────
+
+class _StatPill extends StatelessWidget {
+  final Color color;
+  final int count;
+  final String label;
+
+  const _StatPill({required this.color, required this.count, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '$count $label',
+            style: textTheme.labelSmall?.copyWith(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: color.withValues(alpha: 0.9),
+            ),
+          ),
+        ],
       ),
     );
   }
