@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Servicio que hace las peticiones de autenticación al servidor (backend).
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/api_service.dart';
-// Pantalla principal con barra lateral, adonde navegamos tras hacer login.
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/supervisor_shell_page.dart';
 // Widgets reutilizables de la app (botones, campos de texto, snackbars…).
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 // Sistema de traducciones de la app (español, catalán, inglés).
@@ -73,63 +71,40 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     try {
       // -------- LLAMADA AL BACKEND: AUTENTICACIÓN --------
-      // Enviamos correo y contraseña al servidor. Si son correctos, devuelve un token JWT
-      // y los datos del trabajador (nombre, rol, etc.).
       final loginResponse = await authService.login(correo, contrasena);
 
       // -------- GUARDAR SESIÓN EN RIVERPOD --------
-      // Guardamos el token y los datos del usuario en el estado global.
-      // Así cualquier otra pantalla puede saber quién está logueado.
-      await ref
-          .read(authProvider.notifier)
-          .login(
-            token: loginResponse.token,
-            id: loginResponse.trabajador.id,
-            correo: loginResponse.trabajador.correo,
-            nombre: loginResponse.trabajador.nombre,
-            rol: loginResponse.trabajador.rol,
-            nia: loginResponse.trabajador.nia,
-            grupoId: loginResponse.trabajador.grupoId,
-          );
-
-      // Comprobamos que la pantalla sigue montada antes de navegar
-      // (el usuario podría haberla cerrado mientras esperaba).
-      if (!mounted) return;
-
-      // -------- NAVEGAR A LA PANTALLA PRINCIPAL --------
-      // pushReplacement reemplaza el login por la pantalla principal,
-      // de modo que el usuario no pueda volver atrás al login con el botón "atrás".
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SupervisorShellPage()),
+      // Al cambiar isAuthenticated a true, _AuthGate en app.dart se encarga
+      // automáticamente de navegar a SupervisorShellPage. No hace falta
+      // llamar a Navigator aquí — hacerlo causaría una doble navegación.
+      await ref.read(authProvider.notifier).login(
+        token: loginResponse.token,
+        id: loginResponse.trabajador.id,
+        correo: loginResponse.trabajador.correo,
+        nombre: loginResponse.trabajador.nombre,
+        rol: loginResponse.trabajador.rol,
+        nia: loginResponse.trabajador.nia,
+        grupoId: loginResponse.trabajador.grupoId,
       );
+      // El widget será reemplazado por _AuthGate; no tocamos isLoading aquí.
 
     // -------- MANEJO DE ERRORES DE LOGIN --------
-    // LoginException cubre todos los errores conocidos del proceso de autenticación.
     } on LoginException catch (e) {
       if (!mounted) return;
-      // Según el tipo de error, mostramos un mensaje diferente al usuario.
       final message = switch (e.type) {
-        LoginErrorType.unauthorized => l10n.loginError,        // Credenciales incorrectas.
-        LoginErrorType.forbidden    => l10n.loginForbidden,    // Sin permiso de acceso.
-        LoginErrorType.serverError  => l10n.serverUnavailable, // El servidor falló.
-        LoginErrorType.noConnection => l10n.loginNoConnection, // Sin internet.
-        LoginErrorType.timeout      => l10n.loginTimeout,      // El servidor tardó demasiado.
-        LoginErrorType.unknown      => l10n.loginError,        // Error desconocido.
+        LoginErrorType.unauthorized => l10n.loginError,
+        LoginErrorType.forbidden    => l10n.loginForbidden,
+        LoginErrorType.serverError  => l10n.serverUnavailable,
+        LoginErrorType.noConnection => l10n.loginNoConnection,
+        LoginErrorType.timeout      => l10n.loginTimeout,
+        LoginErrorType.unknown      => l10n.loginError,
       };
-      // Mostramos el error en una barra de aviso de color rojo durante 5 segundos.
       general_snackbar_error(context, message, 5);
+      if (mounted) setState(() { isLoading = false; });
     } catch (e) {
-      // Capturamos cualquier otro error inesperado.
       if (!mounted) return;
       general_snackbar_error(context, l10n.loginError, 3);
-    } finally {
-      // Tanto si tuvo éxito como si falló, quitamos el indicador de carga.
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      if (mounted) setState(() { isLoading = false; });
     }
   }
 

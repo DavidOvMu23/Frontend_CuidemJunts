@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
@@ -26,9 +27,9 @@ class CallFormPage extends ConsumerStatefulWidget {
   // Indica si el formulario está en modo edición (true) o creación (false).
   final bool isEdit;
 
-  // Lista de teleoperadores disponibles para que el supervisor elija quién hizo la llamada.
+  // Lista de grupos activos para que el supervisor elija a qué grupo asignar la llamada.
   // Solo se pasa cuando el usuario conectado es supervisor.
-  final List<TeleoperadorBusqueda>? teleoperadores;
+  final List<Grupo>? grupos;
 
   const CallFormPage({
     super.key,
@@ -36,7 +37,7 @@ class CallFormPage extends ConsumerStatefulWidget {
     required this.onSubmit,
     this.onCancel,
     this.isEdit = false,
-    this.teleoperadores,
+    this.grupos,
   });
 
   @override
@@ -55,7 +56,10 @@ class UsuarioBusqueda {
 class TeleoperadorBusqueda {
   final int id;
   final String nombreCompleto;
-  TeleoperadorBusqueda({required this.id, required this.nombreCompleto});
+  // Grupo al que pertenece el teleoperador; se usa como grupo de la llamada cuando
+  // un supervisor crea una llamada asignándola a este teleoperador.
+  final int? grupoId;
+  TeleoperadorBusqueda({required this.id, required this.nombreCompleto, this.grupoId});
 }
 
 // Clase que agrupa todos los datos del formulario que se envían al servidor.
@@ -74,8 +78,8 @@ class CallFormData {
   final DateTime fecha;
   // Hora en que se realizó la llamada (formato HH:MM).
   final String hora;
-  // ID del teleoperador que hizo la llamada (opcional, solo para supervisores).
-  final int? teleoperadorId;
+  // ID del grupo seleccionado en el formulario (opcional, solo para supervisores).
+  final int? grupoIdFormulario;
 
   CallFormData({
     required this.usuarioId,
@@ -85,7 +89,7 @@ class CallFormData {
     required this.observaciones,
     required this.fecha,
     required this.hora,
-    this.teleoperadorId,
+    this.grupoIdFormulario,
   });
 }
 
@@ -125,8 +129,8 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
   // Texto introducido en el buscador de usuarios; filtra la lista en memoria.
   String _busquedaUsuario = '';
 
-  // Teleoperador seleccionado en el desplegable (solo supervisores).
-  TeleoperadorBusqueda? _teleoperadorSeleccionado;
+  // Grupo seleccionado en el desplegable (solo supervisores).
+  Grupo? _grupoSeleccionado;
 
   // Lista de estados posibles para una llamada.
   final List<String> _estados = [
@@ -155,10 +159,9 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
       );
     }
 
-    // Si la llamada tiene teleoperador asignado y tenemos la lista de teleoperadores,
-    // pre-seleccionamos el teleoperador correspondiente.
-    if (llamada != null && llamada.teleoperadorId != null && widget.teleoperadores != null) {
-      _teleoperadorSeleccionado = widget.teleoperadores!.where((t) => t.id == llamada.teleoperadorId).firstOrNull;
+    // En edición pre-seleccionamos el grupo al que pertenecía la llamada.
+    if (llamada != null && widget.grupos != null) {
+      _grupoSeleccionado = widget.grupos!.where((g) => g.id == llamada.grupoId).firstOrNull;
     }
   }
 
@@ -317,8 +320,8 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
       observaciones: _observacionesController.text.trim(),
       fecha: _fecha!,
       hora: _horaController.text.trim(),
-      // El teleoperador es opcional; solo se incluye si se seleccionó uno.
-      teleoperadorId: _teleoperadorSeleccionado?.id,
+      // El grupo seleccionado por el supervisor (null para teleoperadores).
+      grupoIdFormulario: _grupoSeleccionado?.id,
     );
 
     try {
@@ -745,26 +748,27 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                       ],
                     ),
 
-                    // Selector de teleoperador (solo visible para supervisores).
-                    // Permite asignar la llamada a un teleoperador específico.
-                    if (widget.teleoperadores != null && widget.teleoperadores!.isNotEmpty) ...[
+                    // Selector de grupo (solo visible para supervisores).
+                    // Obligatorio al crear: la llamada queda vinculada al grupo seleccionado.
+                    // En edición permite cambiar el grupo o dejarlo sin cambios.
+                    if (widget.grupos != null && widget.grupos!.isNotEmpty) ...[
                       SizedBox(height: gap),
-                      label(l10n.teleoperator),
-                      DropdownButtonFormField<TeleoperadorBusqueda?>(
-                        value: _teleoperadorSeleccionado,
-                        // La opción "ninguno" permite dejar la llamada sin teleoperador asignado.
-                        hint: Text(l10n.none),
+                      label(l10n.group_label),
+                      DropdownButtonFormField<Grupo?>(
+                        value: _grupoSeleccionado,
+                        hint: Text(widget.isEdit ? l10n.none : l10n.selectGroup),
                         items: [
-                          DropdownMenuItem<TeleoperadorBusqueda?>(
-                            value: null,
-                            child: Text(l10n.none),
-                          ),
-                          ...widget.teleoperadores!.map((t) => DropdownMenuItem(
-                            value: t,
-                            child: Text(t.nombreCompleto),
+                          if (widget.isEdit)
+                            DropdownMenuItem<Grupo?>(
+                              value: null,
+                              child: Text(l10n.none),
+                            ),
+                          ...widget.grupos!.map((g) => DropdownMenuItem(
+                            value: g,
+                            child: Text(g.nombre),
                           )),
                         ],
-                        onChanged: (v) => setState(() => _teleoperadorSeleccionado = v),
+                        onChanged: (v) => setState(() => _grupoSeleccionado = v),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -772,6 +776,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                           ),
                           filled: true,
                         ),
+                        validator: widget.isEdit ? null : (v) => v == null ? l10n.requiredField : null,
                       ),
                     ],
 

@@ -712,6 +712,18 @@ abstract class AppLocalizations {
   /// **'Selecciona un usuario'**
   String get selectUser;
 
+  /// No description provided for @selectTeleoperator.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un teleoperador'**
+  String get selectTeleoperator;
+
+  /// No description provided for @selectGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un grupo'**
+  String get selectGroup;
+
   /// No description provided for @selectedUser.
   ///
   /// In es, this message translates to:
@@ -1780,6 +1792,18 @@ abstract class AppLocalizations {
   /// **'Grupos'**
   String get groups;
 
+  /// No description provided for @groupMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembros del grupo'**
+  String get groupMembers;
+
+  /// No description provided for @noGroupMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Este grupo no tiene miembros asignados'**
+  String get noGroupMembers;
+
   /// No description provided for @manageGroups.
   ///
   /// In es, this message translates to:
@@ -1947,6 +1971,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Inactivo · Los teleoperadores del grupo serán desactivados'**
   String get inactiveGroupWorkersWarning;
+
+  /// No description provided for @cannotActivateWorkerInactiveGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes activar este trabajador porque su grupo está inactivo. Reactiva el grupo primero.'**
+  String get cannotActivateWorkerInactiveGroup;
 
   /// No description provided for @confirmDeactivateGroup.
   ///

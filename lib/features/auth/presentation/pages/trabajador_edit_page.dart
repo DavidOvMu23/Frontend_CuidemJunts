@@ -54,8 +54,17 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
   // Lista de grupos activos disponibles para el desplegable.
   List<Grupo> _grupos = <Grupo>[];
 
+  // Lista completa de grupos (activos e inactivos) para comprobar el estado
+  // del grupo actual del trabajador.
+  List<Grupo> _todosGrupos = <Grupo>[];
+
   // Indica si los grupos están cargándose desde el servidor.
   bool _cargandoGrupos = false;
+
+  // Devuelve true si el grupo asignado al trabajador está inactivo.
+  bool get _grupoActualInactivo =>
+      _grupoId != null &&
+      _todosGrupos.any((g) => g.id == _grupoId && !g.activo);
 
   // Inicializa los campos del formulario con los datos actuales del trabajador.
   @override
@@ -78,13 +87,15 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     _fetchGrupos();
   }
 
-  // Obtiene todos los grupos activos del servidor para el desplegable.
+  // Obtiene todos los grupos del servidor. Los activos van al desplegable;
+  // todos se guardan en _todosGrupos para comprobar el estado del grupo actual.
   Future<void> _fetchGrupos() async {
     setState(() => _cargandoGrupos = true);
     try {
       final grupoService = ref.read(grupoServiceProvider);
       final grupos = await grupoService.findAll();
       setState(() {
+        _todosGrupos = grupos;
         _grupos = grupos.where((g) => g.activo).toList();
       });
     } catch (_) {} finally {
@@ -114,6 +125,12 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
     // Los teleoperadores deben tener siempre un grupo asignado.
     if (_rol == AppRoles.teleoperador && _grupoId == null) {
       general_snackbar_error(context, l10n.noGroupAssigned, 3);
+      return;
+    }
+
+    // No se puede reactivar un teleoperador si su grupo está inactivo.
+    if (_activo && _grupoActualInactivo) {
+      general_snackbar_error(context, l10n.cannotActivateWorkerInactiveGroup, 5);
       return;
     }
 
@@ -154,15 +171,15 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
       final trabajadorService = ref.read(trabajadorServiceProvider);
       // Actualizamos el trabajador en el servidor usando su ID.
       await trabajadorService.update(widget.trabajador.id, payload);
+      if (!mounted) return;
       general_snackbar(context, l10n.workerCreatedSuccessfully, 2);
       if (widget.onSaved != null) {
-        // Si estamos incrustados, notificamos al padre.
         widget.onSaved!();
       } else {
-        // Si somos pantalla completa, volvemos a la pantalla anterior.
         Navigator.pop(context, true);
       }
     } catch (e) {
+      if (!mounted) return;
       general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
     }
   }
@@ -256,7 +273,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                   fieldGroup(
                     l10n.role,
                     DropdownButtonFormField<String>(
-                      value: _rol,
+                      initialValue: _rol,
                       items: [
                         DropdownMenuItem(value: AppRoles.teleoperador, child: Text(l10n.teleoperator)),
                         DropdownMenuItem(value: AppRoles.supervisor, child: Text(l10n.supervisor)),
@@ -303,7 +320,7 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                         _cargandoGrupos
                             ? const AppSkeletonBox(height: 56)
                             : DropdownButtonFormField<int>(
-                                value: _grupoId,
+                                initialValue: _grupoId,
                                 items: _grupos
                                     .map<DropdownMenuItem<int>>((Grupo g) => DropdownMenuItem<int>(
                                           value: g.id,
@@ -369,8 +386,14 @@ class _EditarTrabajadorPageState extends ConsumerState<EditarTrabajadorPage> {
                           ),
                         ),
                         value: _activo,
-                        // Al cambiar el interruptor, actualizamos la variable local.
-                        onChanged: (v) => setState(() => _activo = v),
+                        onChanged: (v) {
+                          // Bloquear reactivación si el grupo del trabajador está inactivo.
+                          if (v && _grupoActualInactivo) {
+                            general_snackbar_error(context, l10n.cannotActivateWorkerInactiveGroup, 5);
+                            return;
+                          }
+                          setState(() => _activo = v);
+                        },
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       ),
                     );

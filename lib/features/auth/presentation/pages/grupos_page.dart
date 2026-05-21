@@ -19,6 +19,7 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/users_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 
@@ -295,6 +296,70 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(),
+                  Text(
+                    l10n.groupMembers,
+                    style: textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final trabajadoresAsync =
+                          ref.watch(trabajadoresProvider);
+                      return trabajadoresAsync.when(
+                        loading: () => const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (e, _) => Text('${l10n.error}: $e'),
+                        data: (trabajadores) {
+                          final miembros = trabajadores
+                              .where((t) =>
+                                  t.grupoId == grupo.id &&
+                                  t.rol.toLowerCase() ==
+                                      AppRoles.teleoperador)
+                              .toList();
+                          if (miembros.isEmpty) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                l10n.noGroupMembers,
+                                style: textTheme.bodyMedium,
+                              ),
+                            );
+                          }
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: miembros
+                                .map((t) => ListTile(
+                                      dense: true,
+                                      leading: CircleAvatar(
+                                        child: Text(
+                                          '${t.nombre[0]}${t.apellidos[0]}',
+                                        ),
+                                      ),
+                                      title: Text(
+                                          '${t.nombre} ${t.apellidos}'),
+                                      subtitle: Text(t.correo),
+                                      trailing: !t.activo
+                                          ? Text(
+                                              l10n.inactive,
+                                              style: TextStyle(
+                                                color: colorScheme.error,
+                                                fontSize: 12,
+                                              ),
+                                            )
+                                          : null,
+                                    ))
+                                .toList(),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),

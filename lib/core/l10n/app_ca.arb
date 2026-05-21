@@ -102,6 +102,8 @@
   "createCall": "Crear trucada",
   "user": "Usuari",
   "selectUser": "Selecciona un usuari",
+  "selectTeleoperator": "Selecciona un teleoperador",
+  "selectGroup": "Selecciona un grup",
   "selectedUser": "Usuari seleccionat",
   "time": "Hora",
   "requiredField": "Camp obligatori",
@@ -297,6 +299,8 @@
   "sortByDate": "Per data (més recent primer)",
   "sortByDateOldest": "Per data (més antic primer)",
   "groups": "Grups",
+  "groupMembers": "Membres del grup",
+  "noGroupMembers": "Aquest grup no té membres assignats",
   "manageGroups": "Gestiona els grups de teleoperadors",
   "newGroup": "Nou grup",
   "searchGroups": "Cercar per nom o descripció",
@@ -325,6 +329,7 @@
   "groupReactivatedWorkersManual": "El grup s'ha reactivat correctament.\n\nEls teleoperadors assignats a aquest grup no s'han reactivat automàticament. Hauràs de reactivar-los manualment des de la secció de Treballadors.",
   "groupDeactivatedWorkersAlso": "Grup desactivat. Els teleoperadors del grup també han estat desactivats automàticament.",
   "inactiveGroupWorkersWarning": "Inactiu · Els teleoperadors del grup seran desactivats",
+  "cannotActivateWorkerInactiveGroup": "No pots activar aquest treballador perquè el seu grup està inactiu. Reactiva el grup primer.",
   "confirmDeactivateGroup": "Desactivar grup?",
   "confirmDeactivateGroupContent": "En desactivar aquest grup, tots els seus teleoperadors seran desactivats automàticament i no podran iniciar sessió.\n\nContinuar?"
 }

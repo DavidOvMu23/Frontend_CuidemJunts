@@ -20,7 +20,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/ca
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_detail_dialog.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/call_create_page.dart';
 
 // -------- PANTALLA DE LLAMADAS --------
@@ -63,9 +64,9 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   // Controla si se está mostrando el formulario de creación.
   bool _esCreacion = false;
 
-  // Lista de teleoperadores cargada previamente para el selector del formulario.
+  // Lista de grupos activos cargada previamente para el selector del formulario.
   // Solo se usa cuando el usuario conectado es supervisor.
-  List<TeleoperadorBusqueda>? _teleoperadoresCached;
+  List<Grupo>? _gruposCached;
 
   // Inicializa el estado y precarga teleoperadores al abrir la página.
   // La lista de llamadas viene del provider con polling.
@@ -84,26 +85,22 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       });
     }
 
-    // Precargamos los teleoperadores si el usuario es supervisor
+    // Precargamos los grupos si el usuario es supervisor
     // para que el selector del formulario esté listo cuando se abra.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rol = ref.read(authProvider).rol ?? '';
-      if (rol.toLowerCase() == AppRoles.supervisor) _cargarTeleoperadores();
+      if (rol.toLowerCase() == AppRoles.supervisor) _cargarGrupos();
     });
   }
 
-  // Obtiene todos los teleoperadores activos del servidor y los guarda en caché.
-  Future<void> _cargarTeleoperadores() async {
+  // Obtiene todos los grupos activos del servidor y los guarda en caché.
+  Future<void> _cargarGrupos() async {
     try {
-      final service = ref.read(trabajadorServiceProvider);
-      final todos = await service.getAll();
+      final service = ref.read(grupoServiceProvider);
+      final todos = await service.findAll();
       if (!mounted) return;
       setState(() {
-        // Solo nos quedamos con los teleoperadores que están activos.
-        _teleoperadoresCached = todos
-            .where((t) => t.rol.toLowerCase() == AppRoles.teleoperador && t.activo)
-            .map((t) => TeleoperadorBusqueda(id: t.id, nombreCompleto: '${t.nombre} ${t.apellidos}'))
-            .toList();
+        _gruposCached = todos.where((g) => g.activo).toList();
       });
     } catch (_) {}
   }
@@ -150,26 +147,21 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
           });
         },
         onDelete: () {
-          // Borrado de llamada mediante función asíncrona inmediatamente invocada.
           final l10n = AppLocalizations.of(context)!;
-          () async {
-            final llamadasService = ref.read(llamadasServiceProvider);
-            try {
-              await llamadasService.delete(llamada.id);
-              if (!context.mounted) return;
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.callDeletedSuccessfully)),
-              );
-              // Forzamos un refresco inmediato del provider para reflejar el borrado.
-              ref.invalidate(llamadasProvider);
-            } catch (e) {
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.errorDeletingCall(e.toString()))),
-              );
-            }
-          }();
+          final llamadasService = ref.read(llamadasServiceProvider);
+          llamadasService.delete(llamada.id).then((_) {
+            if (!context.mounted) return;
+            Navigator.pop(ctx);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.callDeletedSuccessfully)),
+            );
+            ref.invalidate(llamadasProvider);
+          }).catchError((e) {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.errorDeletingCall(e.toString()))),
+            );
+          });
         },
       ),
     );
@@ -203,27 +195,21 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
         return;
       }
     } else {
-      // Los supervisores buscan el grupo del trabajador que coincide con su correo.
-      final trabajadorService = ref.read(trabajadorServiceProvider);
-      final trabajadores = await trabajadorService.getAll();
-      final trabajador = trabajadores.firstWhere(
-        (t) => t.correo == correo,
-        orElse: () => throw Exception('Trabajador no encontrado'),
-      );
-      if (trabajador.grupoId == null) {
+      // Los supervisores asignan la llamada directamente a un grupo.
+      if (data.grupoIdFormulario == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.noGroupAssigned)),
+          SnackBar(content: Text(l10n.requiredField)),
         );
         return;
       }
-      grupoIdToUse = trabajador.grupoId;
+      grupoIdToUse = data.grupoIdFormulario;
     }
 
     final llamadasService = ref.read(llamadasServiceProvider);
 
     // El ID del teleoperador: si es teleoperador usa el suyo propio;
-    // si es supervisor, usa el que eligió en el formulario.
-    final int? teleoperadorId = isTele ? authState.id : data.teleoperadorId;
+    // si es supervisor, la llamada no se vincula a un teleoperador concreto.
+    final int? teleoperadorId = isTele ? authState.id : null;
 
     // Construimos el objeto con los datos de la llamada.
     final payload = {
@@ -231,7 +217,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       'resumen': data.resumen,
       'duracion': data.duracion,
       'estado': data.estado,
-      'observaciones': data.observaciones,
+      if (data.observaciones.isNotEmpty) 'observaciones': data.observaciones,
       'fecha': data.fecha.toIso8601String(),
       'hora': data.hora,
       'grupoId': grupoIdToUse,
@@ -258,10 +244,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       ref.invalidate(llamadasProvider);
 
       // Mostramos un mensaje diferente según si creamos o editamos.
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(wasCreating ? l10n.callCreatedSuccessfully : l10n.callUpdatedSuccessfully)),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.errorSavingCall(e.toString()))),
       );
@@ -425,7 +413,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             llamadaInicial: _llamadaEnEdicion,
             isEdit: _llamadaEnEdicion != null,
             onSubmit: _guardarLlamada,
-            teleoperadores: _teleoperadoresCached,
+            grupos: _gruposCached,
             // Al cancelar, volvemos a la lista.
             onCancel: () {
               setState(() {

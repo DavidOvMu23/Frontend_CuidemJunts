@@ -320,6 +320,12 @@ class AppLocalizationsCa extends AppLocalizations {
   String get selectUser => 'Selecciona un usuari';
 
   @override
+  String get selectTeleoperator => 'Selecciona un teleoperador';
+
+  @override
+  String get selectGroup => 'Selecciona un grup';
+
+  @override
   String get selectedUser => 'Usuari seleccionat';
 
   @override
@@ -902,6 +908,12 @@ class AppLocalizationsCa extends AppLocalizations {
   String get groups => 'Grups';
 
   @override
+  String get groupMembers => 'Membres del grup';
+
+  @override
+  String get noGroupMembers => 'Aquest grup no té membres assignats';
+
+  @override
   String get manageGroups => 'Gestiona els grups de teleoperadors';
 
   @override
@@ -993,6 +1005,10 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get inactiveGroupWorkersWarning =>
       'Inactiu · Els teleoperadors del grup seran desactivats';
+
+  @override
+  String get cannotActivateWorkerInactiveGroup =>
+      'No pots activar aquest treballador perquè el seu grup està inactiu. Reactiva el grup primer.';
 
   @override
   String get confirmDeactivateGroup => 'Desactivar grup?';

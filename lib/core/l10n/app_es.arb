@@ -102,6 +102,8 @@
   "createCall": "Crear llamada",
   "user": "Usuario",
   "selectUser": "Selecciona un usuario",
+  "selectTeleoperator": "Selecciona un teleoperador",
+  "selectGroup": "Selecciona un grupo",
   "selectedUser": "Usuario seleccionado",
   "time": "Hora",
   "requiredField": "Campo requerido",
@@ -302,6 +304,8 @@
   "sortByDate": "Por fecha (más reciente primero)",
   "sortByDateOldest": "Por fecha (más antiguo primero)",
   "groups": "Grupos",
+  "groupMembers": "Miembros del grupo",
+  "noGroupMembers": "Este grupo no tiene miembros asignados",
   "manageGroups": "Gestiona los grupos de teleoperadores",
   "newGroup": "Nuevo grupo",
   "searchGroups": "Buscar por nombre o descripción",
@@ -330,6 +334,7 @@
   "groupReactivatedWorkersManual": "El grupo se ha reactivado correctamente.\n\nLos teleoperadores asignados a este grupo no se han reactivado automáticamente. Deberás reactivarlos manualmente desde la sección de Trabajadores.",
   "groupDeactivatedWorkersAlso": "Grupo desactivado. Los teleoperadores del grupo también han sido desactivados automáticamente.",
   "inactiveGroupWorkersWarning": "Inactivo · Los teleoperadores del grupo serán desactivados",
+  "cannotActivateWorkerInactiveGroup": "No puedes activar este trabajador porque su grupo está inactivo. Reactiva el grupo primero.",
   "confirmDeactivateGroup": "¿Desactivar grupo?",
   "confirmDeactivateGroupContent": "Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?"
 }

@@ -89,25 +89,22 @@ class AuthService {
   // Devuelve los datos del payload (id, correo, nombre, rol, nia, grupoId si
   // aplica) cuando el token es válido, o `null` si el servidor lo rechaza o
   // no se puede contactar.
+  // Devuelve el perfil si el token es válido (200), null si el servidor lo
+  // rechaza explícitamente (401/403), o lanza una excepción si hay un error
+  // de red (sin conexión, timeout, etc.). El llamador usa esta distinción:
+  // - null  → token caducado/revocado → hacer logout
+  // - throw → red no disponible → mantener la sesión en caché
   Future<Map<String, dynamic>?> getProfile(String token) async {
     final url = Uri.parse('$baseUrl/auth/profile');
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 10));
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    ).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      }
-      // 401/403 → token caducado o revocado.
-      return null;
-    } catch (_) {
-      // Sin red u otro error: tratamos como token no verificable; el llamador
-      // decide qué hacer (típicamente usar los datos cacheados).
-      return null;
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
+    // 401/403 → token caducado o revocado.
+    return null;
   }
 }

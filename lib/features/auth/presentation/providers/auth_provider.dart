@@ -143,14 +143,17 @@ class AuthNotifier extends Notifier<AuthState> {
     );
 
     // Verificación contra el backend.
-    final profile = await AuthService(baseUrl: 'http://localhost:3000')
-        .getProfile(token);
-    if (profile == null) {
-      // Si no podemos saber si el token es válido (sin red, etc.), no expulsamos.
-      // Solo cerramos sesión si recibimos explícitamente 401/403 — getProfile
-      // devuelve null en ambos casos, así que aquí asumimos que el token está
-      // caducado y cerramos para forzar relogin.
-      await logout();
+    // - null  → 401/403 explícito → token inválido → hacer logout
+    // - throw → error de red/timeout → no podemos saber → mantener sesión
+    try {
+      final profile = await AuthService(baseUrl: 'http://localhost:3000')
+          .getProfile(token);
+      if (profile == null) {
+        await logout();
+      }
+    } catch (_) {
+      // Sin red o timeout: mantenemos la sesión en caché para no expulsar
+      // al usuario por un problema temporal de conectividad.
     }
   }
 

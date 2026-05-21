@@ -75,6 +75,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final isSupervisor = userRole?.toLowerCase() == AppRoles.supervisor;
     // Lista completa de notificaciones del usuario.
     final notificacionesAsync = ref.watch(notificacionesProvider);
     // Número de notificaciones sin leer (para el badge de la campana).
@@ -155,14 +156,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                           Wrap(
                             spacing: 8,
                             children: [
-                              // Chip "Todos": muestra todos los tipos.
                               _TipoChip(
                                 label: l10n.all,
                                 selected: _selectedTipo == 'todos',
                                 color: colorScheme.primary,
                                 onTap: () => setState(() => _selectedTipo = 'todos'),
                               ),
-                              // Chip "Llamada": solo notificaciones de llamadas.
                               _TipoChip(
                                 label: 'Llamada',
                                 selected: _selectedTipo == 'call',
@@ -170,7 +169,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                 icon: Icons.call_outlined,
                                 onTap: () => setState(() => _selectedTipo = 'call'),
                               ),
-                              // Chip "Sistema": solo notificaciones del sistema.
                               _TipoChip(
                                 label: 'Sistema',
                                 selected: _selectedTipo == 'system',
@@ -178,14 +176,15 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                 icon: Icons.settings_outlined,
                                 onTap: () => setState(() => _selectedTipo = 'system'),
                               ),
-                              // Chip "Supervisión": solo notificaciones de supervisión.
-                              _TipoChip(
-                                label: 'Supervisión',
-                                selected: _selectedTipo == 'supervision',
-                                color: _tipoColors['supervision']!,
-                                icon: Icons.supervisor_account_outlined,
-                                onTap: () => setState(() => _selectedTipo = 'supervision'),
-                              ),
+                              // Chip "Supervisión": solo visible para supervisores.
+                              if (isSupervisor)
+                                _TipoChip(
+                                  label: 'Supervisión',
+                                  selected: _selectedTipo == 'supervision',
+                                  color: _tipoColors['supervision']!,
+                                  icon: Icons.supervisor_account_outlined,
+                                  onTap: () => setState(() => _selectedTipo = 'supervision'),
+                                ),
                             ],
                           ),
                         ],

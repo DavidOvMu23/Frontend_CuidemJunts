@@ -102,6 +102,8 @@
   "createCall": "Create call",
   "user": "User",
   "selectUser": "Select a user",
+  "selectTeleoperator": "Select a teleoperator",
+  "selectGroup": "Select a group",
   "selectedUser": "Selected user",
   "time": "Time",
   "requiredField": "Required field",
@@ -295,6 +297,8 @@
   "sortByDate": "By date (most recent first)",
   "sortByDateOldest": "By date (oldest first)",
   "groups": "Groups",
+  "groupMembers": "Group members",
+  "noGroupMembers": "This group has no assigned members",
   "manageGroups": "Manage teleoperator groups",
   "newGroup": "New group",
   "searchGroups": "Search by name or description",
@@ -323,6 +327,7 @@
   "groupReactivatedWorkersManual": "The group has been reactivated successfully.\n\nThe teleoperators assigned to this group have not been automatically reactivated. You must reactivate them manually from the Workers section.",
   "groupDeactivatedWorkersAlso": "Group deactivated. The group's teleoperators have also been automatically deactivated.",
   "inactiveGroupWorkersWarning": "Inactive · The group's teleoperators will be deactivated",
+  "cannotActivateWorkerInactiveGroup": "Cannot activate this worker because their group is inactive. Reactivate the group first.",
   "confirmDeactivateGroup": "Deactivate group?",
   "confirmDeactivateGroupContent": "Deactivating this group will automatically deactivate all its teleoperators and they will not be able to log in.\n\nContinue?"
 }

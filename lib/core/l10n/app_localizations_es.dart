@@ -320,6 +320,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get selectUser => 'Selecciona un usuario';
 
   @override
+  String get selectTeleoperator => 'Selecciona un teleoperador';
+
+  @override
+  String get selectGroup => 'Selecciona un grupo';
+
+  @override
   String get selectedUser => 'Usuario seleccionado';
 
   @override
@@ -901,6 +907,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get groups => 'Grupos';
 
   @override
+  String get groupMembers => 'Miembros del grupo';
+
+  @override
+  String get noGroupMembers => 'Este grupo no tiene miembros asignados';
+
+  @override
   String get manageGroups => 'Gestiona los grupos de teleoperadores';
 
   @override
@@ -991,6 +1003,10 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get inactiveGroupWorkersWarning =>
       'Inactivo · Los teleoperadores del grupo serán desactivados';
+
+  @override
+  String get cannotActivateWorkerInactiveGroup =>
+      'No puedes activar este trabajador porque su grupo está inactivo. Reactiva el grupo primero.';
 
   @override
   String get confirmDeactivateGroup => '¿Desactivar grupo?';
