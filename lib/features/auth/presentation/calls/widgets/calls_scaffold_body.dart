@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
@@ -10,8 +11,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/da
 // Cuerpo principal de la pantalla de llamadas — organiza el buscador, el filtro
 // de fechas y la lista de llamadas dentro del área principal de la pantalla.
 class CallsScaffoldBody extends StatelessWidget {
-  // La petición al servidor con la lista de llamadas
-  final Future<List<Llamadas>> llamadasFuture;
+  // Estado actual de la lista de llamadas procedente del provider con polling.
+  final AsyncValue<List<Llamadas>> llamadasAsync;
   // Estado actual de los filtros y la ordenación
   final CallsPageFilter filtroSeleccionado;
   final CallsPageSort ordenSeleccionado;
@@ -34,7 +35,7 @@ class CallsScaffoldBody extends StatelessWidget {
 
   const CallsScaffoldBody({
     super.key,
-    required this.llamadasFuture,
+    required this.llamadasAsync,
     required this.filtroSeleccionado,
     required this.ordenSeleccionado,
     required this.textoFiltro,
@@ -107,7 +108,7 @@ class CallsScaffoldBody extends StatelessWidget {
                       // 3. Lista de llamadas (ocupa el resto del espacio)
                       Expanded(
                         child: CallsFutureList(
-                          llamadasFuture: llamadasFuture,
+                          llamadasAsync: llamadasAsync,
                           aplicarFiltros: aplicarFiltros,
                           textoFiltro: textoFiltro,
                           filtroSeleccionado: filtroSeleccionado,

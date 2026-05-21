@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/datasources/api_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/preferences_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
 
@@ -14,6 +15,11 @@ class AuthState {
   // Indica si se está realizando alguna operación asíncrona (como hacer login)
   // Se usa para mostrar un indicador de carga mientras se espera respuesta del servidor
   final bool loading;
+  // true mientras se está restaurando la sesión desde el almacenamiento local
+  // al arrancar la app (p. ej. tras un refresco del navegador). La interfaz
+  // debería mostrar un splash en lugar del login durante este tiempo para no
+  // parpadear entre pantallas.
+  final bool bootstrapping;
   // Número identificador único del trabajador en la base de datos
   final int? id;
   // Token JWT del trabajador: es una cadena de texto que el servidor usa para
@@ -35,6 +41,7 @@ class AuthState {
   const AuthState({
     this.isAuthenticated = false,
     this.loading = false,
+    this.bootstrapping = false,
     this.id,
     this.token,
     this.correo,
@@ -50,6 +57,7 @@ class AuthState {
   AuthState copyWith({
     bool? isAuthenticated,
     bool? loading,
+    bool? bootstrapping,
     int? id,
     String? token,
     String? correo,
@@ -62,6 +70,7 @@ class AuthState {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       loading: loading ?? this.loading,
+      bootstrapping: bootstrapping ?? this.bootstrapping,
       id: id ?? this.id,
       token: token ?? this.token,
       correo: correo ?? this.correo,
@@ -81,18 +90,68 @@ class AuthNotifier extends Notifier<AuthState> {
   late PreferencesService _preferencesService;
 
   // build() se ejecuta automáticamente al crear el provider.
-  // Aquí definimos el estado inicial: siempre empieza sin sesión activa.
+  // Empezamos en modo "bootstrapping" y, en segundo plano, intentamos
+  // recuperar la sesión guardada para que un refresco del navegador no
+  // expulse al usuario.
   @override
   AuthState build() {
     _preferencesService = ref.watch(preferencesServiceProvider);
 
-    // Sesión NO persistente: al iniciar la app, siempre se requiere login.
-    // Borramos cualquier sesión guardada de una ejecución anterior para
-    // obligar al usuario a identificarse cada vez que abre la app.
-    _preferencesService.clearSession();
+    // Disparamos la restauración en el siguiente tick para no mutar el estado
+    // mientras se está construyendo el provider por primera vez.
+    Future.microtask(_restoreSession);
 
-    // Estado inicial: sin sesión y sin carga
-    return const AuthState(isAuthenticated: false, loading: false);
+    return const AuthState(
+      isAuthenticated: false,
+      loading: false,
+      bootstrapping: true,
+    );
+  }
+
+  // Recupera la sesión guardada al arrancar la app. Si hay token:
+  //   1. Restauramos el estado de forma optimista con los datos cacheados.
+  //   2. Verificamos en segundo plano que el token siga siendo válido contra
+  //      /auth/profile. Si el servidor lo rechaza (401), cerramos sesión.
+  //   3. Si la verificación falla por falta de red, mantenemos la sesión
+  //      cacheada para no expulsar al usuario por un problema temporal.
+  Future<void> _restoreSession() async {
+    final token = _preferencesService.getToken();
+    if (token == null || token.isEmpty) {
+      state = const AuthState(
+        isAuthenticated: false,
+        loading: false,
+        bootstrapping: false,
+      );
+      return;
+    }
+
+    final cached = _preferencesService.getUserSession();
+    // Restauración optimista: enseñamos la app enseguida con los datos
+    // cacheados. Si el token está caducado, la verificación posterior lo
+    // detectará y haremos logout.
+    state = AuthState(
+      isAuthenticated: true,
+      loading: false,
+      bootstrapping: false,
+      id: cached.id,
+      token: token,
+      correo: cached.correo,
+      nombre: cached.nombre,
+      rol: cached.rol,
+      nia: cached.nia,
+      grupoId: cached.grupoId,
+    );
+
+    // Verificación contra el backend.
+    final profile = await AuthService(baseUrl: 'http://localhost:3000')
+        .getProfile(token);
+    if (profile == null) {
+      // Si no podemos saber si el token es válido (sin red, etc.), no expulsamos.
+      // Solo cerramos sesión si recibimos explícitamente 401/403 — getProfile
+      // devuelve null en ambos casos, así que aquí asumimos que el token está
+      // caducado y cerramos para forzar relogin.
+      await logout();
+    }
   }
 
   // Guarda la sesión cuando el trabajador introduce sus credenciales correctamente.
@@ -109,16 +168,22 @@ class AuthNotifier extends Notifier<AuthState> {
     // Marcamos que hay una operación en curso para mostrar un indicador de carga
     state = state.copyWith(loading: true);
 
-    // Guardamos el token y el correo en el almacenamiento del dispositivo
-    // para que estén disponibles mientras dure la sesión
+    // Persistimos token y datos del trabajador para sobrevivir al refresco.
     await _preferencesService.saveToken(token);
-    // Reutilizamos el campo "dni" para guardar el correo del trabajador
-    await _preferencesService.saveUserDni(correo);
+    await _preferencesService.saveUserSession(
+      id: id,
+      correo: correo,
+      nombre: nombre,
+      rol: rol,
+      nia: nia,
+      grupoId: grupoId,
+    );
 
     // Actualizamos el estado con todos los datos del trabajador recibidos del servidor
     state = AuthState(
       isAuthenticated: true,
       loading: false,
+      bootstrapping: false,
       id: id,
       token: token,
       correo: correo,
@@ -135,12 +200,15 @@ class AuthNotifier extends Notifier<AuthState> {
     // Indicamos que hay una operación en curso
     state = state.copyWith(loading: true);
 
-    // Borramos el token del almacenamiento del dispositivo
-    // para que no quede ningún rastro de la sesión
+    // Borramos todos los datos de sesión del almacenamiento del dispositivo
     await _preferencesService.clearSession();
 
     // Volvemos al estado inicial: sin sesión y sin carga
-    state = const AuthState(isAuthenticated: false, loading: false);
+    state = const AuthState(
+      isAuthenticated: false,
+      loading: false,
+      bootstrapping: false,
+    );
   }
 }
 

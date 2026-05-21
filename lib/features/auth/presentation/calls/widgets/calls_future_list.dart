@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
@@ -6,12 +7,11 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/calls_sort_bottom_sheet.dart';
 
-// Lista de llamadas que gestiona los estados de carga, error y vacío mediante
-// un FutureBuilder — espera a que lleguen los datos del servidor y muestra
-// el resultado apropiado en cada caso.
+// Lista de llamadas que se reconstruye automáticamente al recibir un nuevo
+// AsyncValue<List<Llamadas>> del provider con polling.
 class CallsFutureList extends StatelessWidget {
-  // La petición al servidor que traerá la lista de llamadas
-  final Future<List<Llamadas>> llamadasFuture;
+  // Estado actual de la lista de llamadas (cargando / error / datos).
+  final AsyncValue<List<Llamadas>> llamadasAsync;
   // Función que aplica los filtros y el orden activos sobre la lista completa
   final List<Llamadas> Function(List<Llamadas>) aplicarFiltros;
   // Texto que el usuario ha escrito en el buscador
@@ -27,7 +27,7 @@ class CallsFutureList extends StatelessWidget {
 
   const CallsFutureList({
     super.key,
-    required this.llamadasFuture,
+    required this.llamadasAsync,
     required this.aplicarFiltros,
     required this.textoFiltro,
     required this.filtroSeleccionado,
@@ -42,41 +42,29 @@ class CallsFutureList extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    // FutureBuilder que gestiona los estados de carga, error y vacío.
-    return FutureBuilder<List<Llamadas>>(
-      future: llamadasFuture,
-      builder: (context, snapshot) {
-        // 1. Estado de carga
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const AppSkeletonList(count: 4);
-        }
-
-        // 2. Estado de error
-        if (snapshot.hasError) {
-          return Center(
-            child: Card(
-              margin: EdgeInsets.zero,
-              color: colorScheme.error.withValues(alpha: 0.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(
-                  'Error: ${snapshot.error}',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.error,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+    return llamadasAsync.when(
+      loading: () => const AppSkeletonList(count: 4),
+      error: (e, _) => Center(
+        child: Card(
+          margin: EdgeInsets.zero,
+          color: colorScheme.error.withValues(alpha: 0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Text(
+              'Error: $e',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.error,
+                fontWeight: FontWeight.w700,
               ),
             ),
-          );
-        }
-
-        final llamadas = snapshot.data ?? [];
-
-        // 3. Estado vacío (sin llamadas en la BD)
+          ),
+        ),
+      ),
+      data: (llamadas) {
+        // Estado vacío (sin llamadas en la BD)
         if (llamadas.isEmpty) {
           return Center(
             child: Text(
@@ -129,7 +117,7 @@ class CallsFutureList extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // 4. Lista filtrada vacía (no hay coincidencias)
+            // Lista filtrada vacía (no hay coincidencias)
             if (llamadasFiltradas.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -139,7 +127,7 @@ class CallsFutureList extends StatelessWidget {
                 ),
               )
             else
-              // 5. Lista de llamadas
+              // Lista de llamadas
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 12),

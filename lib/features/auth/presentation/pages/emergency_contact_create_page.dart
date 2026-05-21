@@ -157,8 +157,8 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // Cargamos la lista de todos los usuarios del sistema para el selector.
-    final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
+    // Lista de usuarios del sistema en tiempo real (provider con polling).
+    final usuariosAsync = ref.watch(usuariosProvider);
 
     // El título del formulario cambia según si estamos editando o creando.
     final isEdit = widget.contacto != null;
@@ -237,16 +237,12 @@ class _EmergencyContactCreatePageState extends ConsumerState<EmergencyContactCre
                             borderRadius: BorderRadius.circular(12),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: FutureBuilder<List<Usuario>>(
-                            future: usuariosFuture,
-                            builder: (context, snapshot) {
-                              // Mientras carga, mostramos una animación de esqueleto.
-                              if (snapshot.connectionState == ConnectionState.waiting) return const AppSkeletonList(count: 4, itemHeight: 72);
-                              if (snapshot.hasError) return Text('${l10n.error}: ${snapshot.error}', style: TextStyle(color: Theme.of(context).colorScheme.error));
-
+                          child: usuariosAsync.when(
+                            loading: () => const AppSkeletonList(count: 4, itemHeight: 72),
+                            error: (e, _) => Text('${l10n.error}: $e', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            data: (usuarios) {
                               // El DNI del usuario de referencia (si lo hay) se excluye de la lista.
                               final selfDni = (widget.contacto?.dniUsuarioRef ?? '').trim().toUpperCase();
-                              final usuarios = snapshot.data ?? [];
 
                               // Filtramos los usuarios que coinciden con el texto buscado.
                               final filtered = usuarios.where((u) {

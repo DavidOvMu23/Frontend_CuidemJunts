@@ -41,9 +41,6 @@ class UsersPage extends ConsumerStatefulWidget {
 }
 
 class _UsersPageState extends ConsumerState<UsersPage> {
-  // Guardamos el resultado de la petición al servidor para no recargar innecesariamente.
-  late Future<List<Usuario>> _usuariosFuture;
-
   // Filtro actualmente seleccionado (por defecto se muestran todos).
   late UsersPageFilter filtroSeleccionado;
 
@@ -65,15 +62,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     super.initState();
     // Por defecto mostramos todos los usuarios sin filtrar.
     filtroSeleccionado = UsersPageFilter.all;
-    // Iniciamos la carga de usuarios desde el servidor.
-    _usuariosFuture = _cargarUsuariosConContactos();
-  }
-
-  // Obtiene la lista completa de usuarios del servidor.
-  Future<List<Usuario>> _cargarUsuariosConContactos() async {
-    final usuarioService = ref.read(usuarioServiceProvider);
-    final usuarios = await usuarioService.getAll();
-    return usuarios;
   }
 
   // --- Métodos que actualizan el estado cuando los widgets hijos cambian algo ---
@@ -129,10 +117,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             if (!context.mounted) return;
             Navigator.pop(ctx);
             general_snackbar(context, l10n.userDeletedSuccessfully, 2);
-            // Recargamos la lista para reflejar el borrado.
-            setState(() {
-              _usuariosFuture = _cargarUsuariosConContactos();
-            });
+            // Invalidamos el provider para que el polling traiga la lista
+            // actualizada inmediatamente.
+            ref.invalidate(usuariosProvider);
           } catch (e) {
             if (!context.mounted) return;
             general_snackbar_error(context, '${l10n.error}: ${extractErrorMessage(e)}', 5);
@@ -239,13 +226,15 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final isSupervisor = (userRole ?? '').toLowerCase() == AppRoles.supervisor;
     // Número de notificaciones sin leer para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+    // Lista de usuarios en tiempo real (refresca sola cada 10s vía polling).
+    final usuariosAsync = ref.watch(usuariosProvider);
 
     // Si es supervisor y hay formulario activo, mostramos el formulario.
     final showForm = isSupervisor && (_esCreacion || _usuarioEnEdicion != null);
 
     // Cuerpo de la lista de usuarios con buscador, filtro y ordenación.
     final listBody = UsersScaffoldBody(
-      usuariosFuture: _usuariosFuture,
+      usuariosAsync: usuariosAsync,
       filtroSeleccionado: filtroSeleccionado,
       ordenSeleccionado: ordenSeleccionado,
       textoFiltro: textoFiltro,
@@ -266,13 +255,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
               _esCreacion = false;
               _usuarioEnEdicion = null;
             }),
-            // Al guardar, volvemos a la lista y recargamos los datos.
+            // Al guardar, volvemos a la lista y forzamos refresco inmediato.
             onSaved: () {
               setState(() {
                 _esCreacion = false;
                 _usuarioEnEdicion = null;
-                _usuariosFuture = _cargarUsuariosConContactos();
               });
+              ref.invalidate(usuariosProvider);
             },
           )
         : listBody;

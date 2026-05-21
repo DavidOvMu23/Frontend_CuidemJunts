@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
+import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/core/widgets/responsive_form_body.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 import 'package:flutter/services.dart';
 
 // Formulario para crear o editar una llamada.
 // Puede mostrarse como pantalla completa o incrustado dentro de otra.
-class CallFormPage extends StatefulWidget {
+class CallFormPage extends ConsumerStatefulWidget {
   // Llamada existente con la que rellenar el formulario (modo edición).
   // Si es null, el formulario empieza vacío (modo creación).
   final Llamadas? llamadaInicial;
-
-  // Función que el padre proporciona para buscar usuarios por nombre/DNI.
-  final Future<List<UsuarioBusqueda>> Function(String query) buscarUsuarios;
 
   // Función que el padre proporciona para guardar la llamada en el servidor.
   final Future<void> Function(CallFormData data) onSubmit;
@@ -33,7 +33,6 @@ class CallFormPage extends StatefulWidget {
   const CallFormPage({
     super.key,
     this.llamadaInicial,
-    required this.buscarUsuarios,
     required this.onSubmit,
     this.onCancel,
     this.isEdit = false,
@@ -41,7 +40,7 @@ class CallFormPage extends StatefulWidget {
   });
 
   @override
-  State<CallFormPage> createState() => _CallFormPageState();
+  ConsumerState<CallFormPage> createState() => _CallFormPageState();
 }
 
 // Clase de datos que representa un usuario encontrado en la búsqueda.
@@ -91,12 +90,22 @@ class CallFormData {
 }
 
 // Estado y lógica interna del formulario de llamadas.
-class _CallFormPageState extends State<CallFormPage> {
-  // Controlador del campo de búsqueda de usuarios.
-  final TextEditingController _usuarioBusquedaController = TextEditingController();
-
+class _CallFormPageState extends ConsumerState<CallFormPage> {
   // Clave para validar el formulario antes de enviarlo.
   final _formKey = GlobalKey<FormState>();
+
+  // Clave del botón de seleccionar fecha; la usamos para hacer scroll a ese
+  // campo cuando el usuario intenta crear la llamada y falta la fecha.
+  final GlobalKey _fechaFieldKey = GlobalKey();
+
+  // Controlador de scroll del formulario para poder llevar al usuario al
+  // primer campo con error si la validación falla.
+  final ScrollController _scrollController = ScrollController();
+
+  // Indica si el usuario ya ha intentado enviar el formulario al menos una
+  // vez. Mientras es false, no destacamos visualmente los campos vacíos
+  // para no alarmar antes de que se haya intentado guardar.
+  bool _submitAttempted = false;
 
   // Controladores de texto para los campos del formulario.
   late TextEditingController _resumenController;
@@ -110,14 +119,11 @@ class _CallFormPageState extends State<CallFormPage> {
   // Estado seleccionado en el desplegable (completada, pendiente, no contestada).
   String? _estado;
 
-  // Usuario seleccionado en el buscador de usuarios.
+  // Usuario seleccionado para esta llamada (solo uno).
   UsuarioBusqueda? _usuarioSeleccionado;
 
-  // Resultados de la última búsqueda de usuarios.
-  List<UsuarioBusqueda> _usuariosBusqueda = [];
-
-  // Indica si la búsqueda de usuarios está en curso.
-  bool _buscandoUsuario = false;
+  // Texto introducido en el buscador de usuarios; filtra la lista en memoria.
+  String _busquedaUsuario = '';
 
   // Teleoperador seleccionado en el desplegable (solo supervisores).
   TeleoperadorBusqueda? _teleoperadorSeleccionado;
@@ -163,40 +169,142 @@ class _CallFormPageState extends State<CallFormPage> {
     _duracionController.dispose();
     _observacionesController.dispose();
     _horaController.dispose();
-    _usuarioBusquedaController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  // Busca usuarios en el servidor que coincidan con el texto escrito.
-  // Se activa cuando el usuario escribe en el campo de búsqueda.
-  void _buscarUsuario(String query) async {
-    setState(() => _buscandoUsuario = true);
-    final resultados = await widget.buscarUsuarios(query);
-    setState(() {
-      _usuariosBusqueda = resultados;
-      _buscandoUsuario = false;
-    });
+  // Abre el selector de hora del sistema (TimePicker). Si el campo ya tiene un
+  // valor válido HH:MM, lo usamos como hora inicial; si no, partimos de la hora
+  // actual. Forzamos formato de 24 horas para coincidir con el HH:MM que
+  // guardamos en el servidor.
+  Future<void> _pickHora() async {
+    TimeOfDay initial = TimeOfDay.now();
+    final current = _horaController.text.trim();
+    final match = RegExp(r'^(\d{1,2}):(\d{2})$').firstMatch(current);
+    if (match != null) {
+      final h = int.tryParse(match.group(1)!);
+      final m = int.tryParse(match.group(2)!);
+      if (h != null && m != null && h < 24 && m < 60) {
+        initial = TimeOfDay(hour: h, minute: m);
+      }
+    }
+
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+
+    if (picked != null) {
+      final hh = picked.hour.toString().padLeft(2, '0');
+      final mm = picked.minute.toString().padLeft(2, '0');
+      setState(() {
+        _horaController.text = '$hh:$mm';
+      });
+    }
+  }
+
+  // Campo "Hora" no editable directamente: al pulsarlo se abre el TimePicker.
+  // El texto resultante (HH:MM) se valida igual que antes para el envío.
+  Widget _buildHoraField(AppLocalizations l10n) {
+    return TextFormField(
+      controller: _horaController,
+      readOnly: true,
+      onTap: _pickHora,
+      decoration: InputDecoration(
+        hintText: l10n.time,
+        suffixIcon: const Icon(Icons.access_time),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+      ),
+      validator: (v) {
+        if (v == null || v.isEmpty) return l10n.requiredField;
+        final regex = RegExp(r'^([01]?\d|2[0-3]):[0-5]\d$');
+        if (!regex.hasMatch(v)) return l10n.formatHHMM;
+        return null;
+      },
+    );
+  }
+
+  // Marca que el usuario ha pulsado "Crear" al menos una vez para activar la
+  // indicación visual de campos obligatorios (p. ej. borde rojo en Fecha).
+  void _markSubmitAttempted() {
+    if (!_submitAttempted) {
+      setState(() => _submitAttempted = true);
+    }
+  }
+
+  // Desplaza el scroll hasta el botón de Fecha para que el usuario vea el
+  // campo que falta. Se llama tras un error de validación cuando _fecha es
+  // null, que es el motivo más frecuente de bloqueo del formulario.
+  void _scrollToFecha() {
+    final ctx = _fechaFieldKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+        alignment: 0.1,
+      );
+    } else if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  // Muestra un aviso rojo bien visible al usuario cuando hay campos sin
+  // rellenar. Reemplaza la SnackBar gris por una de error con icono.
+  void _showFormErrorSnack(String mensaje) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(mensaje)),
+          ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   // Valida el formulario y llama a la función del padre para guardar la llamada.
   void _onSubmit() async {
-    // Si algún campo obligatorio falla, no continuamos.
-    if (_formKey.currentState?.validate() != true) return;
     final l10n = AppLocalizations.of(context)!;
+    _markSubmitAttempted();
+
+    // Si algún campo obligatorio falla, avisamos con SnackBar y desplazamos
+    // la vista al primer campo problemático (típicamente la Fecha).
+    if (_formKey.currentState?.validate() != true) {
+      _showFormErrorSnack(l10n.requiredField);
+      if (_fecha == null) _scrollToFecha();
+      return;
+    }
 
     // El usuario es obligatorio; si no se seleccionó ninguno, lo indicamos.
     if (_usuarioSeleccionado == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.selectUser)),
-      );
+      _showFormErrorSnack(l10n.selectUser);
       return;
     }
 
     // La fecha también es obligatoria.
     if (_fecha == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.selectDate)),
-      );
+      _showFormErrorSnack(l10n.selectDate);
+      _scrollToFecha();
       return;
     }
 
@@ -282,114 +390,88 @@ class _CallFormPageState extends State<CallFormPage> {
                 );
               }
 
-              // Bloque de búsqueda de usuario: campo de texto + lista de resultados
-              // + indicador del usuario seleccionado.
+              // Bloque de selección de usuario: misma UX que el formulario de
+              // contactos de emergencia — buscador + lista filtrada con
+              // casillas, pero con selección única (solo un usuario por llamada).
+              final usuariosAsync = ref.watch(usuariosProvider);
               final userSearch = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Campo de texto para buscar usuarios.
-                  TextFormField(
-                    controller: _usuarioBusquedaController,
+                  // Campo de búsqueda por nombre, apellidos o DNI.
+                  TextField(
                     decoration: InputDecoration(
                       hintText: l10n.searchUser,
                       prefixIcon: const Icon(Icons.search),
-                      // Icono de carga mientras busca, o botón de limpiar si hay texto.
-                      suffixIcon: _buscandoUsuario
-                          ? const Padding(
-                              padding: EdgeInsets.all(10.0),
-                              child: SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                            )
-                          : (_usuarioBusquedaController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    // Limpiamos la búsqueda y el usuario seleccionado.
-                                    setState(() {
-                                      _usuarioBusquedaController.clear();
-                                      _usuariosBusqueda = [];
-                                      _usuarioSeleccionado = null;
-                                    });
-                                  },
-                                )
-                              : null),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
                     ),
-                    // Buscamos cuando el texto tiene más de 2 caracteres para evitar
-                    // búsquedas con resultados demasiado amplios.
-                    onChanged: (value) {
-                      if (value.length > 2) {
-                        _buscarUsuario(value);
-                      } else {
-                        setState(() => _usuariosBusqueda = []);
-                      }
-                    },
-                    // El campo falla la validación si no se ha seleccionado ningún usuario.
-                    validator: (_) => _usuarioSeleccionado == null ? l10n.selectUser : null,
+                    onChanged: (v) => setState(() => _busquedaUsuario = v),
                   ),
-                  const SizedBox(height: 6),
-                  // Lista de resultados de búsqueda (solo visible si hay texto y no hay selección).
-                  if (_usuarioBusquedaController.text.isNotEmpty && _usuarioSeleccionado == null)
-                    Container(
-                      constraints: const BoxConstraints(maxHeight: 220),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                      ),
-                      child: _buscandoUsuario
-                          // Mientras busca, mostramos un indicador circular.
-                          ? const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                            )
-                          : _usuariosBusqueda.isEmpty
-                              // Si no hay resultados, lo indicamos.
-                              ? Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.info_outline, color: Colors.grey),
-                                      const SizedBox(width: 8),
-                                      Text(l10n.noResults, style: const TextStyle(color: Colors.grey)),
-                                    ],
-                                  ),
-                                )
-                              // Lista de resultados donde el usuario puede seleccionar uno.
-                              : ListView.separated(
-                                  shrinkWrap: true,
-                                  padding: const EdgeInsets.symmetric(vertical: 6),
-                                  itemCount: _usuariosBusqueda.length,
-                                  separatorBuilder: (_, __) => const Divider(height: 1),
-                                  itemBuilder: (context, i) {
-                                    final u = _usuariosBusqueda[i];
-                                    return ListTile(
-                                      title: Text(u.nombreCompleto),
-                                      // Al pulsar, seleccionamos este usuario y cerramos la lista.
-                                      onTap: () {
-                                        setState(() {
-                                          _usuarioSeleccionado = u;
-                                          _usuariosBusqueda = [];
-                                          // Actualizamos el campo de texto con el nombre seleccionado.
-                                          _usuarioBusquedaController.text = u.nombreCompleto;
-                                        });
-                                      },
-                                      selected: _usuarioSeleccionado?.id == u.id,
-                                      leading: const Icon(Icons.person_outline),
-                                    );
-                                  },
-                                ),
+                  const SizedBox(height: 8),
+                  // Lista de usuarios con casillas — solo se puede tener uno marcado.
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 220),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  // Si hay un usuario seleccionado, mostramos su nombre con un check verde.
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: usuariosAsync.when(
+                      loading: () => const AppSkeletonList(count: 4, itemHeight: 72),
+                      error: (e, _) => Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          '${l10n.error}: $e',
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                      ),
+                      data: (usuarios) {
+                        // Filtramos por texto buscado (nombre, apellidos, DNI o teléfono).
+                        final query = _busquedaUsuario.trim().toLowerCase();
+                        final filtered = usuarios.where((u) {
+                          if (query.isEmpty) return true;
+                          return u.nombre.toLowerCase().contains(query) ||
+                              u.apellidos.toLowerCase().contains(query) ||
+                              u.dni.toLowerCase().contains(query) ||
+                              u.telefono.toLowerCase().contains(query);
+                        }).toList();
+
+                        if (filtered.isEmpty) {
+                          return Center(child: Text(l10n.noResultsFound));
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            final u = filtered[index];
+                            final selected = _usuarioSeleccionado?.id == u.dni;
+                            return CheckboxListTile(
+                              value: selected,
+                              title: Text('${u.nombre} ${u.apellidos} (${u.dni})'),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              // Selección única: marcar uno reemplaza al anterior;
+                              // desmarcar el actual deja la llamada sin usuario.
+                              onChanged: (checked) => setState(() {
+                                if (checked == true) {
+                                  _usuarioSeleccionado = UsuarioBusqueda(
+                                    id: u.dni,
+                                    nombreCompleto: '${u.nombre} ${u.apellidos}',
+                                  );
+                                } else {
+                                  _usuarioSeleccionado = null;
+                                }
+                              }),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  // Indicador del usuario actualmente seleccionado.
                   if (_usuarioSeleccionado != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, left: 4.0),
@@ -404,91 +486,91 @@ class _CallFormPageState extends State<CallFormPage> {
                 ],
               );
 
+              // Selector visual de fecha; comparte UI entre desktop y móvil.
+              // Se renderiza como un campo de entrada (mismo aspecto que Hora /
+              // Duración) y se marca en rojo si el usuario intentó crear sin
+              // elegir fecha.
+              Widget buildFechaSelector() {
+                final faltaFecha = _submitAttempted && _fecha == null;
+                final colorScheme = Theme.of(context).colorScheme;
+                Future<void> abrirPicker() async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _fecha ?? DateTime.now(),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2035),
+                  );
+                  if (picked != null) setState(() => _fecha = picked);
+                }
+
+                final fechaTexto = _fecha != null
+                    ? '${_fecha!.day.toString().padLeft(2, '0')}/${_fecha!.month.toString().padLeft(2, '0')}/${_fecha!.year}'
+                    : null;
+
+                return Column(
+                  key: _fechaFieldKey,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // TextFormField de solo lectura para que combine visualmente
+                    // con los demás campos de la fila (Estado, Hora, Duración).
+                    TextFormField(
+                      readOnly: true,
+                      onTap: abrirPicker,
+                      controller: TextEditingController(text: fechaTexto ?? ''),
+                      decoration: InputDecoration(
+                        hintText: l10n.selectDate,
+                        suffixIcon: const Icon(Icons.calendar_today),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        // Borde rojo cuando falta la fecha y ya se intentó enviar.
+                        enabledBorder: faltaFecha
+                            ? OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide(
+                                  color: colorScheme.error,
+                                  width: 1.5,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+                    if (faltaFecha)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6, left: 4),
+                        child: Text(
+                          l10n.selectDate,
+                          style: TextStyle(
+                            color: colorScheme.error,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              }
+
               return SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (isWide)
-                      // En escritorio: buscador de usuario y selector de fecha en la misma fila.
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                label(l10n.user),
-                                userSearch,
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: gap),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                label(l10n.date),
-                                // Botón que abre el selector de fecha.
-                                SizedBox(
-                                  height: 56,
-                                  child: FilledButton(
-                                    onPressed: () async {
-                                      final picked = await showDatePicker(
-                                        context: context,
-                                        initialDate: _fecha ?? DateTime.now(),
-                                        firstDate: DateTime(2020),
-                                        lastDate: DateTime(2035),
-                                      );
-                                      if (picked != null) setState(() => _fecha = picked);
-                                    },
-                                    child: Text(
-                                      _fecha != null
-                                          // Si hay fecha, la mostramos en formato dd/mm/aaaa.
-                                          ? '${_fecha!.day.toString().padLeft(2, '0')}/${_fecha!.month.toString().padLeft(2, '0')}/${_fecha!.year}'
-                                          : l10n.selectDate,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      // En móvil: buscador de usuario y fecha en columna.
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          label(l10n.user),
-                          userSearch,
-                          SizedBox(height: gap),
-                          label(l10n.date),
-                          SizedBox(
-                            height: 56,
-                            child: FilledButton(
-                              onPressed: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _fecha ?? DateTime.now(),
-                                  firstDate: DateTime(2020),
-                                  lastDate: DateTime(2035),
-                                );
-                                if (picked != null) setState(() => _fecha = picked);
-                              },
-                              child: Text(
-                                _fecha != null
-                                    ? '${_fecha!.day.toString().padLeft(2, '0')}/${_fecha!.month.toString().padLeft(2, '0')}/${_fecha!.year}'
-                                    : l10n.selectDate,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    // Buscador de usuario en su propia fila para que la lista
+                    // disponga de toda la anchura. La fecha se ha movido a la
+                    // siguiente fila, junto a Hora.
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        label(l10n.user),
+                        userSearch,
+                      ],
+                    ),
                     SizedBox(height: gap),
 
                     if (isWide)
-                      // En escritorio: estado, hora y duración en la misma fila.
+                      // En escritorio: estado, fecha, hora y duración en la misma fila.
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -534,24 +616,19 @@ class _CallFormPageState extends State<CallFormPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                label(l10n.date),
+                                buildFechaSelector(),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: gap),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 label(l10n.time),
-                                // Campo de hora con formato HH:MM validado.
-                                general_textfield_NoICON(
-                                  l10n.time,
-                                  controller: _horaController,
-                                  borderRadius: 12.0,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty) return l10n.requiredField;
-                                    final regex = RegExp(r'^([01]?\d|2[0-3]):[0-5]\d$');
-                                    if (!regex.hasMatch(v)) return l10n.formatHHMM;
-                                    return null;
-                                  },
-                                  // Solo permite números y el carácter ":".
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
-                                    LengthLimitingTextInputFormatter(5),
-                                  ],
-                                ),
+                                // Campo de hora con selector visual (TimePicker).
+                                _buildHoraField(l10n),
                               ],
                             ),
                           ),
@@ -616,22 +693,13 @@ class _CallFormPageState extends State<CallFormPage> {
                               ),
                             ),
                           SizedBox(height: gap),
+                          // Fecha justo encima de Hora para que vayan juntas.
+                          label(l10n.date),
+                          buildFechaSelector(),
+                          SizedBox(height: gap),
                           label(l10n.time),
-                          general_textfield_NoICON(
-                            l10n.time,
-                            controller: _horaController,
-                            borderRadius: 12.0,
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return l10n.requiredField;
-                              final regex = RegExp(r'^([01]?\d|2[0-3]):[0-5]\d$');
-                              if (!regex.hasMatch(v)) return l10n.formatHHMM;
-                              return null;
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
-                              LengthLimitingTextInputFormatter(5),
-                            ],
-                          ),
+                          // Campo de hora con selector visual (TimePicker).
+                          _buildHoraField(l10n),
                           SizedBox(height: gap),
                           label(l10n.duration),
                           general_textfield_NoICON(

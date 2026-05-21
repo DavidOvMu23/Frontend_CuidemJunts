@@ -76,6 +76,18 @@ class _CallCardState extends State<CallCard> {
     return duration;
   }
 
+  // Construye el título de la tarjeta: prioriza "Nombre Apellidos" del usuario
+  // al que va dirigida la llamada; si esos campos están vacíos cae al resumen y,
+  // en último caso, al placeholder de "sin resumen".
+  String _tituloTarjeta(AppLocalizations l10n) {
+    final nombre = widget.llamada.usuarioNombre?.trim() ?? '';
+    final apellidos = widget.llamada.usuarioApellidos?.trim() ?? '';
+    final completo = [nombre, apellidos].where((p) => p.isNotEmpty).join(' ');
+    if (completo.isNotEmpty) return completo;
+    if (widget.llamada.resumen.isNotEmpty) return widget.llamada.resumen;
+    return l10n.noSummary;
+  }
+
   // Devuelve el texto traducido del estado de la llamada según el idioma activo
   String _estadoTexto(AppLocalizations l10n) {
     final estado = widget.llamada.estado.toLowerCase();
@@ -165,11 +177,10 @@ class _CallCardState extends State<CallCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Título
+                    // Título: nombre del usuario al que va dirigida la llamada.
+                    // Si por algún motivo no hay usuario asignado, caemos al resumen.
                     Text(
-                      widget.llamada.resumen.isNotEmpty
-                          ? widget.llamada.resumen
-                          : l10n.noSummary,
+                      _tituloTarjeta(l10n),
                       style: widget.textTheme.headlineLarge?.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -196,23 +207,6 @@ class _CallCardState extends State<CallCard> {
                         ),
                       ],
                     ),
-                    if (widget.llamada.teleoperadorNombre != null && widget.llamada.teleoperadorNombre!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.support_agent_outlined, size: 18),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              '${widget.llamada.teleoperadorNombre} ${widget.llamada.teleoperadorApellidos ?? ''}',
-                              style: widget.textTheme.bodyMedium,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                     const SizedBox(height: 4),
 
                     // Fecha y Duración

@@ -15,8 +15,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuari
 // Cuerpo principal de la pantalla de contactos de emergencia — muestra el buscador,
 // el filtro por tipo (sistema/externo) y la lista de contactos.
 class EmergencyContactsScaffoldBody extends ConsumerWidget {
-  // La petición al servidor que traerá la lista de contactos
-  final Future<List<ContactoEmergencia>> contactosFuture;
+  // Estado actual de la lista de contactos (cargando / error / datos).
+  final AsyncValue<List<ContactoEmergencia>> contactosAsync;
   // Texto escrito en el buscador
   final String textoFiltro;
   // Filtro activo (todos, del sistema, externos)
@@ -36,7 +36,7 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
 
   const EmergencyContactsScaffoldBody({
     super.key,
-    required this.contactosFuture,
+    required this.contactosAsync,
     required this.textoFiltro,
     required this.filtroSeleccionado,
     required this.ordenSeleccionado,
@@ -59,9 +59,8 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
 
     // Comprobamos si el usuario logueado es supervisor para mostrar las opciones adecuadas
     final isSupervisor = (ref.read(authProvider).rol ?? '').toLowerCase() == AppRoles.supervisor;
-    // También pedimos la lista de usuarios del sistema para poder mostrar sus nombres
-    // junto a los contactos que los referencian
-    final usuariosFuture = ref.read(usuarioServiceProvider).getAll();
+    // Lista de usuarios en tiempo real para resolver nombres a partir del DNI.
+    final usuariosAsync = ref.watch(usuariosProvider);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -145,35 +144,25 @@ class EmergencyContactsScaffoldBody extends ConsumerWidget {
                         color: colorScheme.primary.withValues(alpha: 0.3),
                       ),
                       Expanded(
-                        child: FutureBuilder<List<dynamic>>(
-                          // Esperamos a que lleguen AMBAS peticiones al mismo tiempo antes de pintar
-                          future: Future.wait([contactosFuture, usuariosFuture]),
-                          builder: (context, snapshot) {
-                            // Mientras esperamos, mostramos un esqueleto de carga
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const AppSkeletonList(count: 4);
-                            }
+                        child: contactosAsync.when(
+                          loading: () => const AppSkeletonList(count: 4),
+                          error: (e, _) => Center(
+                            child: Text(
+                              '${l10n.error}: $e',
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.error,
+                              ),
+                            ),
+                          ),
+                          data: (contactos) {
+                            // Si los usuarios aún no han llegado, mostramos los
+                            // contactos sin resolver los nombres asociados en
+                            // lugar de bloquear la lista con un esqueleto.
+                            final usuarios = usuariosAsync.maybeWhen(
+                              data: (list) => list,
+                              orElse: () => const <Usuario>[],
+                            );
 
-                            // Si algo salió mal, mostramos el mensaje de error
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  '${l10n.error}: ${snapshot.error}',
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.error,
-                                  ),
-                                ),
-                              );
-                            }
-
-                            // Separamos los dos resultados que llegaron juntos
-                            final results = snapshot.data ?? [];
-                            final contactos = (results.isNotEmpty && results[0] is List<ContactoEmergencia>)
-                                ? results[0] as List<ContactoEmergencia>
-                                : <ContactoEmergencia>[];
-                            final usuarios = (results.length > 1 && results[1] is List<Usuario>)
-                                ? results[1] as List<Usuario>
-                                : <Usuario>[];
                             // Aplicamos los filtros activos sobre la lista de contactos
                             final contactosFiltrados = aplicarFiltros(contactos);
 

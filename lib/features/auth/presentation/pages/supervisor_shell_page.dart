@@ -128,10 +128,12 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
 
   // -------- SUBTÍTULO DE LA SECCIÓN ACTIVA --------
   // Texto descriptivo pequeño que aparece debajo del título en la barra superior.
-  String _sectionSubtitle(AppLocalizations l10n) {
+  // Para la pantalla de inicio adaptamos el texto al rol: "Supervisión" si es
+  // supervisor, "Teleoperador" si es teleoperador.
+  String _sectionSubtitle(AppLocalizations l10n, {required bool isSupervisor}) {
     switch (_selectedSection) {
       case DrawerItem.home:
-        return l10n.supervison;
+        return isSupervisor ? l10n.supervison : l10n.teleoperator;
       case DrawerItem.calls:
         return l10n.superviseCalls;
       case DrawerItem.users:
@@ -354,7 +356,7 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
                           builder: (context) {
                             return _ShellTopBar(
                               title: _sectionTitle(l10n),
-                              subtitle: _sectionSubtitle(l10n),
+                              subtitle: _sectionSubtitle(l10n, isSupervisor: isSupervisor),
                               // En móvil mostramos el botón de menú hamburguesa.
                               showMenuButton: !isDesktop,
                               unreadCount: unreadCount,

@@ -1,15 +1,17 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/notificacion.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/notificaciones_service.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 
 // ----- Provider del banner flotante de notificaciones -----
 // Este archivo gestiona las notificaciones que aparecen brevemente en pantalla
 // como un banner emergente (overlay) cuando llega una notificación nueva.
-// Revisa el servidor cada 5 segundos y muestra cada notificación durante 5 segundos.
+// Se alimenta del stream global de notificaciones (notificacionesProvider) y muestra
+// cada notificación nueva durante _displayDuration antes de retirarla.
+
+// Cuánto tiempo permanece visible cada banner en pantalla.
+const Duration _displayDuration = Duration(seconds: 5);
 
 // Clase que agrupa una notificación con la hora a la que se empezó a mostrar.
 // Se usa para saber cuándo fue visible y poder calcular cuándo ocultarla.
@@ -22,68 +24,117 @@ class DisplayNotification {
   DisplayNotification({required this.notificacion, required this.showTime});
 }
 
-// Provider que mantiene la lista de notificaciones actualmente visibles en pantalla.
-// Funciona como un "reloj" que comprueba notificaciones nuevas cada 5 segundos
-// y las muestra como banners flotantes durante 5 segundos antes de quitarlas.
-final notificationOverlayProvider = Provider<List<DisplayNotification>>((ref) {
-  // Leemos el estado de autenticación para saber de qué usuario son las notificaciones
-  final authState = ref.watch(authProvider);
-  final dio = ref.watch(dioClientProvider);
+// Notifier que mantiene la lista de banners visibles.
+// Escucha el stream de notificaciones del usuario logueado y, cuando aparece
+// una notificación sin leer que no se ha mostrado antes, la añade a la lista
+// y programa un temporizador para retirarla pasado _displayDuration.
+class _OverlayNotifier extends Notifier<List<DisplayNotification>> {
+  // IDs de notificaciones que ya hemos mostrado (para no repetir el banner
+  // aunque vuelva a aparecer en sucesivos pollings).
+  final Set<int> _seen = <int>{};
+  // Timers programados para retirar cada banner cuando vence su duración.
+  final Map<int, Timer> _expiryTimers = <int, Timer>{};
+  // En la primera emisión del stream solo marcamos como "vistas" las
+  // notificaciones que YA existían al cargar la app, para no inundar al
+  // usuario con popups de avisos antiguos tras un F5 o login.
+  bool _primeraEmision = true;
 
-  // Si no hay usuario logueado, no hay notificaciones que mostrar
-  if (authState.id == null || authState.id == 0) {
-    return [];
+  @override
+  List<DisplayNotification> build() {
+    // Solo trabajamos si hay sesión iniciada.
+    final authState = ref.watch(authProvider);
+    if (authState.id == null || authState.id == 0) {
+      _reset();
+      return const [];
+    }
+
+    // Escuchamos el stream principal de notificaciones; cada emisión nos da la
+    // lista completa actual y de ahí filtramos las "sin_leer" para procesarlas.
+    ref.listen<AsyncValue<List<Notificacion>>>(
+      notificacionesProvider,
+      (prev, next) {
+        next.whenData((list) {
+          final sinLeer = list.where((n) => n.estado == 'sin_leer').toList();
+          if (_primeraEmision) {
+            // Snapshot inicial: marcamos los IDs ya existentes como vistos
+            // SIN mostrar popups. Solo dispararemos banners para las que
+            // lleguen en pollings posteriores (genuinamente nuevas).
+            _primeraEmision = false;
+            for (final n in sinLeer) {
+              _seen.add(n.id);
+            }
+            return;
+          }
+          _process(sinLeer);
+        });
+      },
+      fireImmediately: true,
+    );
+
+    // Al destruirse el Notifier (cierre de sesión, hot-reload), cancelamos los timers.
+    ref.onDispose(_reset);
+
+    return const [];
   }
 
-  // Lista de notificaciones actualmente visibles en el banner
-  final notifications = <DisplayNotification>[];
-  // Creamos el servicio de notificaciones para consultar el servidor
-  final service = NotificacionService(dio: dio);
-  // Referencia al temporizador para poder cancelarlo cuando el provider se destruya
-  Timer? timer;
+  void _process(List<Notificacion> sinLeer) {
+    final nuevos = <DisplayNotification>[];
+    final ahora = DateTime.now();
 
-  // Configuramos un temporizador que se repite cada 5 segundos
-  // para consultar si hay notificaciones nuevas sin leer
-  timer = Timer.periodic(const Duration(seconds: 5), (t) async {
-    try {
-      // Preguntamos al servidor las notificaciones sin leer de este teleoperador
-      final nuevas = await service.getSinLeer(
-        teleoperadorId: authState.id!,
-        take: 100,
-      );
+    for (final notif in sinLeer) {
+      if (_seen.contains(notif.id)) continue;
+      _seen.add(notif.id);
+      nuevos.add(DisplayNotification(notificacion: notif, showTime: ahora));
 
-      // Recorremos cada notificación nueva que llegó del servidor
-      for (final notif in nuevas) {
-        // Comprobamos si esta notificación ya la estamos mostrando
-        // para no mostrar la misma dos veces
-        final existe = notifications.any((x) => x.notificacion.id == notif.id);
-        if (!existe) {
-          // Añadimos la notificación a la lista de visibles con la hora actual
-          notifications.add(
-            DisplayNotification(notificacion: notif, showTime: DateTime.now()),
-          );
-
-          // Programamos que esta notificación desaparezca después de 5 segundos
-          Future.delayed(const Duration(seconds: 5), () {
-            notifications.removeWhere((n) => n.notificacion.id == notif.id);
-          });
+      // Programamos la retirada del banner cuando vence su duración.
+      _expiryTimers[notif.id] = Timer(_displayDuration, () {
+        _expiryTimers.remove(notif.id);
+        // El Notifier puede haber sido reconstruido; protegemos con try/catch
+        // implícito via ref.mounted-equivalent: simplemente ignoramos si state
+        // ya no existe (Riverpod lanza si se asigna tras dispose).
+        try {
+          state = state.where((d) => d.notificacion.id != notif.id).toList();
+        } catch (_) {
+          // El notifier fue dispuesto; nada que hacer.
         }
-      }
-    } catch (e) {
-      // Si falla la petición al servidor, lo mostramos en consola para depurar
-      // pero no mostramos error al usuario para no interrumpir su trabajo
-      debugPrint('Overlay polling error: $e');
+      });
     }
-  });
 
-  // Cuando el provider se destruye (usuario cierra sesión o sale de la app),
-  // cancelamos el temporizador para no seguir haciendo peticiones al servidor
-  // y limpiamos la lista de notificaciones visibles
-  ref.onDispose(() {
+    if (nuevos.isNotEmpty) {
+      state = [...state, ...nuevos];
+    }
+  }
+
+  // Cierra un banner manualmente (cuando el usuario pulsa la "X"). También
+  // cancela el temporizador que estaba programado para retirarlo solo.
+  void dismiss(int notificacionId) {
+    final timer = _expiryTimers.remove(notificacionId);
     timer?.cancel();
-    notifications.clear();
-  });
+    try {
+      state = state
+          .where((d) => d.notificacion.id != notificacionId)
+          .toList();
+    } catch (_) {
+      // Notifier fue dispuesto durante la animación: ignoramos.
+    }
+  }
 
-  // Devolvemos la lista actual de notificaciones visibles
-  return notifications;
-});
+  void _reset() {
+    for (final t in _expiryTimers.values) {
+      t.cancel();
+    }
+    _expiryTimers.clear();
+    _seen.clear();
+    // Tras cerrar sesión, la próxima carga vuelve a considerar la primera
+    // emisión como "snapshot" para que el nuevo usuario no reciba popups
+    // de notificaciones que ya tenía sin leer en su cuenta.
+    _primeraEmision = true;
+  }
+}
+
+// Provider expuesto al widget. Se redibuja cada vez que el notifier emite un
+// nuevo estado (al añadir o retirar un banner).
+final notificationOverlayProvider =
+    NotifierProvider<_OverlayNotifier, List<DisplayNotification>>(
+  _OverlayNotifier.new,
+);
