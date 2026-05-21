@@ -27,6 +27,13 @@ class PreferencesService {
   static const String _keyLanguageCode = 'languageCode';
   static const String _keyJwtToken = 'jwt_token';
   static const String _keyUserDni = 'user_dni';
+  // Claves adicionales del usuario logueado, para poder restaurar la sesión
+  // tras un refresco del navegador sin tener que pedir credenciales otra vez.
+  static const String _keyUserId = 'user_id';
+  static const String _keyUserNombre = 'user_nombre';
+  static const String _keyUserRol = 'user_rol';
+  static const String _keyUserNia = 'user_nia';
+  static const String _keyUserGrupoId = 'user_grupo_id';
 
   // Esta variable guardará la conexión al sistema de almacenamiento local.
   // La marcamos como "late" porque se inicializará después (en init()).
@@ -94,9 +101,64 @@ class PreferencesService {
     return _prefs.getString(_keyUserDni);
   }
 
-  // Limpia la sesión del usuario (logout)
+  // Guarda los datos completos del usuario logueado para poder restaurar la
+  // sesión tras un refresco del navegador. Pasamos los campos como nulos para
+  // borrarlos sin tener que llamar a clearSession.
+  Future<void> saveUserSession({
+    required int id,
+    required String correo,
+    String? nombre,
+    String? rol,
+    String? nia,
+    int? grupoId,
+  }) async {
+    await _prefs.setInt(_keyUserId, id);
+    await _prefs.setString(_keyUserDni, correo);
+    if (nombre != null) {
+      await _prefs.setString(_keyUserNombre, nombre);
+    } else {
+      await _prefs.remove(_keyUserNombre);
+    }
+    if (rol != null) {
+      await _prefs.setString(_keyUserRol, rol);
+    } else {
+      await _prefs.remove(_keyUserRol);
+    }
+    if (nia != null) {
+      await _prefs.setString(_keyUserNia, nia);
+    } else {
+      await _prefs.remove(_keyUserNia);
+    }
+    if (grupoId != null) {
+      await _prefs.setInt(_keyUserGrupoId, grupoId);
+    } else {
+      await _prefs.remove(_keyUserGrupoId);
+    }
+  }
+
+  // Lee los datos del usuario logueado guardados previamente; devuelve null
+  // en cada campo si no hay sesión almacenada.
+  ({int? id, String? correo, String? nombre, String? rol, String? nia, int? grupoId})
+      getUserSession() {
+    return (
+      id: _prefs.getInt(_keyUserId),
+      correo: _prefs.getString(_keyUserDni),
+      nombre: _prefs.getString(_keyUserNombre),
+      rol: _prefs.getString(_keyUserRol),
+      nia: _prefs.getString(_keyUserNia),
+      grupoId: _prefs.getInt(_keyUserGrupoId),
+    );
+  }
+
+  // Limpia la sesión del usuario (logout). Borra todos los campos relacionados
+  // con la sesión, no solo el token.
   Future<void> clearSession() async {
     await _prefs.remove(_keyJwtToken);
     await _prefs.remove(_keyUserDni);
+    await _prefs.remove(_keyUserId);
+    await _prefs.remove(_keyUserNombre);
+    await _prefs.remove(_keyUserRol);
+    await _prefs.remove(_keyUserNia);
+    await _prefs.remove(_keyUserGrupoId);
   }
 }

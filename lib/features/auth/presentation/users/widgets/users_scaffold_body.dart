@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
@@ -10,8 +11,8 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/us
 // Cuerpo principal de la pantalla de usuarios — organiza el buscador, los filtros
 // y la lista de usuarios dentro del área principal de la pantalla.
 class UsersScaffoldBody extends StatelessWidget {
-  // La petición al servidor con la lista de usuarios
-  final Future<List<Usuario>> usuariosFuture;
+  // Estado actual de la lista de usuarios procedente del provider con polling.
+  final AsyncValue<List<Usuario>> usuariosAsync;
   // Estado actual de los filtros y la ordenación
   final UsersPageFilter filtroSeleccionado;
   final UsersPageSort ordenSeleccionado;
@@ -32,7 +33,7 @@ class UsersScaffoldBody extends StatelessWidget {
 
   const UsersScaffoldBody({
     super.key,
-    required this.usuariosFuture,
+    required this.usuariosAsync,
     required this.filtroSeleccionado,
     required this.ordenSeleccionado,
     required this.textoFiltro,
@@ -88,7 +89,7 @@ class UsersScaffoldBody extends StatelessWidget {
                       // 2. Lista de usuarios (ocupa el resto del espacio)
                       Expanded(
                         child: UsersFutureList(
-                          usuariosFuture: usuariosFuture,
+                          usuariosAsync: usuariosAsync,
                           aplicarFiltros: aplicarFiltros,
                           textoFiltro: textoFiltro,
                           filtroSeleccionado: filtroSeleccionado,

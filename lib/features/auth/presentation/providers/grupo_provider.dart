@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
+import 'package:frontend_cuidemjunts/features/auth/data/models/grupo.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart'
+    show kListPollInterval;
 
 // ----- Provider de GrupoService -----
 // Este archivo gestiona el acceso al servicio de grupos.
@@ -15,4 +19,31 @@ final grupoServiceProvider = Provider<GrupoService>((ref) {
   final dio = ref.watch(dioClientProvider);
   // Creamos el servicio de grupos pasándole el cliente HTTP
   return GrupoService(dio: dio);
+});
+
+// StreamProvider con la lista completa de grupos en tiempo real.
+// Hace polling cada kListPollInterval para que las pantallas que muestran
+// grupos se refresquen automáticamente al cambiar los datos en el servidor.
+final gruposProvider = StreamProvider<List<Grupo>>((ref) {
+  final service = ref.watch(grupoServiceProvider);
+  final controller = StreamController<List<Grupo>>();
+
+  Future<void> fetch() async {
+    try {
+      final fresh = await service.findAll();
+      if (!controller.isClosed) controller.add(fresh);
+    } catch (_) {
+      // Silenciamos errores transitorios de red para no romper el stream.
+    }
+  }
+
+  fetch();
+  final timer = Timer.periodic(kListPollInterval, (_) => fetch());
+
+  ref.onDispose(() {
+    timer.cancel();
+    controller.close();
+  });
+
+  return controller.stream;
 });

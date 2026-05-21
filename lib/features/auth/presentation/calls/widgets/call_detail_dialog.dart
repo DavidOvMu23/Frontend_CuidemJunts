@@ -168,15 +168,6 @@ class CallDetailDialog extends StatelessWidget {
                 l10n.group_label,
                 llamada.grupoNombre?.isNotEmpty == true ? llamada.grupoNombre! : l10n.noGroupAssigned,
               ),
-              if (llamada.teleoperadorNombre != null && llamada.teleoperadorNombre!.isNotEmpty)
-                _buildDetailRow(
-                  context,
-                  Icons.support_agent_outlined,
-                  l10n.teleoperator,
-                  llamada.teleoperadorApellidos?.isNotEmpty == true
-                      ? '${llamada.teleoperadorNombre} ${llamada.teleoperadorApellidos}'
-                      : llamada.teleoperadorNombre!,
-                ),
               _buildDetailRow(
                 context,
                 Icons.info_outline,

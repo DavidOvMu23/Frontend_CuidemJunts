@@ -6,7 +6,6 @@ import 'package:frontend_cuidemjunts/app/theme/app_palette.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/workers/widgets/worker_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page.dart';
@@ -48,9 +47,6 @@ enum WorkerSort { nameAZ, nameZA, roleAZ, groupAZ, groupZA }
 
 // Estado y lógica interna de la página de trabajadores.
 class _WorkersPageState extends ConsumerState<WorkersPage> {
-  // Resultado de la petición al servidor con todos los trabajadores.
-  late Future<List<Trabajador>> _trabajadoresFuture;
-
   // Filtro actualmente seleccionado (por defecto se muestran todos).
   WorkerFilter filtroSeleccionado = WorkerFilter.all;
 
@@ -65,88 +61,6 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
 
   // Trabajador que se está editando. Si es null, no hay edición activa.
   Trabajador? _trabajadorEnEdicion;
-
-  // Se ejecuta una sola vez al abrir la página para cargar los datos iniciales.
-  @override
-  void initState() {
-    super.initState();
-    // Solo cargamos trabajadores si el usuario es supervisor,
-    // porque el backend devuelve error 403 si lo solicita otro rol.
-    final authState = ref.read(authProvider);
-    final isSupervisor = (authState.rol ?? '').toString().toLowerCase() == AppRoles.supervisor;
-    if (isSupervisor) {
-      _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-    } else {
-      // Si no es supervisor, devolvemos una lista vacía sin llamar al servidor.
-      _trabajadoresFuture = Future.value(<Trabajador>[]);
-    }
-  }
-
-  // Obtiene todos los trabajadores del servidor y les añade el nombre del grupo
-  // al que pertenecen (solo para los teleoperadores que tienen grupo asignado).
-  Future<List<Trabajador>> _cargarTrabajadoresConGrupo() async {
-    final trabajadorService = ref.read(trabajadorServiceProvider);
-    final gruposService = ref.read(grupoServiceProvider);
-
-    // Pedimos la lista completa de trabajadores al servidor.
-    final trabajadores = await trabajadorService.getAll();
-
-    // Mapa que guarda los nombres de grupos ya consultados para no repetir peticiones.
-    final Map<int, String?> cache = {};
-
-    // Para cada trabajador, buscamos el nombre de su grupo si es teleoperador.
-    final enriched = await Future.wait(
-      trabajadores.map((trabajador) async {
-        final esTeleoperador = trabajador.rol.toLowerCase() == AppRoles.teleoperador;
-        final grupoId = trabajador.grupoId;
-
-        // Si no es teleoperador o no tiene grupo, lo devolvemos sin cambios.
-        if (!esTeleoperador || grupoId == null) {
-          return trabajador;
-        }
-
-        // Obtenemos el nombre del grupo usando el caché para evitar llamadas repetidas.
-        final nombreGrupo = await _obtenerNombreGrupo(
-          grupoId,
-          cache,
-          gruposService,
-        );
-
-        // Si no se encontró el grupo, devolvemos el trabajador sin nombre de grupo.
-        if (nombreGrupo == null) {
-          return trabajador;
-        }
-
-        // Devolvemos el trabajador con el nombre del grupo añadido.
-        return trabajador.copyWith(grupoNombre: nombreGrupo);
-      }),
-    );
-
-    return enriched;
-  }
-
-  // Obtiene el nombre de un grupo por su ID. Usa un caché para no repetir peticiones
-  // al servidor cuando varios trabajadores pertenecen al mismo grupo.
-  Future<String?> _obtenerNombreGrupo(
-    int grupoId,
-    Map<int, String?> cache,
-    GrupoService gruposService,
-  ) async {
-    // Si ya lo consultamos antes, devolvemos el valor guardado.
-    if (cache.containsKey(grupoId)) {
-      return cache[grupoId];
-    }
-
-    try {
-      final grupo = await gruposService.getById(grupoId);
-      cache[grupoId] = grupo.nombre;
-      return grupo.nombre;
-    } catch (_) {
-      // Si falla la consulta, guardamos null para no volver a intentarlo.
-      cache[grupoId] = null;
-      return null;
-    }
-  }
 
   // Filtra y ordena la lista de trabajadores según el texto buscado,
   // el filtro seleccionado y el orden elegido.
@@ -443,10 +357,10 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                             await ref.read(trabajadorServiceProvider).delete(trabajador.id);
                             if (!context.mounted) return;
                             general_snackbar(context, l10n.workerDeletedSuccessfully, 2);
-                            // Recargamos la lista para reflejar el cambio.
-                            setState(() {
-                              _trabajadoresFuture = _cargarTrabajadoresConGrupo();
-                            });
+                            // Invalidamos los providers para que el polling traiga
+                            // los datos actualizados inmediatamente.
+                            ref.invalidate(trabajadoresProvider);
+                            ref.invalidate(gruposProvider);
                           } catch (e) {
                             if (!context.mounted) return;
                             general_snackbar_error(context, '${l10n.error}: ${e.toString()}', 5);
@@ -478,6 +392,13 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
 
     // Número de notificaciones sin leer para mostrarlo en la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+
+    // Solo los supervisores tienen permiso para listar trabajadores; para los
+    // demás roles mostramos una lista vacía sin tocar el servidor.
+    final isSupervisor = (userRole ?? '').toLowerCase() == AppRoles.supervisor;
+    final trabajadoresAsync = isSupervisor
+        ? ref.watch(trabajadoresConGrupoProvider)
+        : const AsyncValue<List<Trabajador>>.data([]);
 
     // El botón flotante para crear trabajadores solo aparece si es supervisor.
     final fab = (userRole?.toLowerCase() == AppRoles.supervisor)
@@ -600,27 +521,15 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                       ),
                       // Área principal donde se muestra la lista o mensajes de estado.
                       Expanded(
-                        child: FutureBuilder<List<Trabajador>>(
-                          future: _trabajadoresFuture,
-                          builder: (context, snapshot) {
-                            // Mientras carga, mostramos una animación de esqueleto.
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const AppSkeletonList(count: 4);
-                            }
-
-                            // Si hay error, mostramos un mensaje.
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  l10n.errorLoadingWorkers,
-                                  style: textTheme.bodyMedium,
-                                ),
-                              );
-                            }
-
-                            final trabajadores = snapshot.data ?? [];
-
+                        child: trabajadoresAsync.when(
+                          loading: () => const AppSkeletonList(count: 4),
+                          error: (_, __) => Center(
+                            child: Text(
+                              l10n.errorLoadingWorkers,
+                              style: textTheme.bodyMedium,
+                            ),
+                          ),
+                          data: (trabajadores) {
                             // Aplicamos los filtros y el orden actual a la lista cargada.
                             final trabajadoresFiltrados = _aplicarFiltros(
                               trabajadores,
@@ -717,12 +626,13 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                 onCancel: () => setState(() {
                   _esCreacion = false;
                 }),
-                // Al guardar, volvemos a la lista y recargamos los datos.
+                // Al guardar, volvemos a la lista y forzamos refresco inmediato.
                 onSaved: () {
                   setState(() {
                     _esCreacion = false;
-                    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
                   });
+                  ref.invalidate(trabajadoresProvider);
+                  ref.invalidate(gruposProvider);
                 },
               )
             : EditarTrabajadorPage(
@@ -733,8 +643,9 @@ class _WorkersPageState extends ConsumerState<WorkersPage> {
                 onSaved: () {
                   setState(() {
                     _trabajadorEnEdicion = null;
-                    _trabajadoresFuture = _cargarTrabajadoresConGrupo();
                   });
+                  ref.invalidate(trabajadoresProvider);
+                  ref.invalidate(gruposProvider);
                 },
               ))
         : bodyContent;

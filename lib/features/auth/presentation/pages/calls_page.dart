@@ -14,17 +14,14 @@ import 'package:frontend_cuidemjunts/core/widgets/general_widgets.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/widgets/supervisor_drawer.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/trabajador_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/data/datasources/grupo_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/calls_page_enums.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/calls_scaffold_body.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/calls/widgets/call_detail_dialog.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/trabajador_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/call_create_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/providers/usuario_provider.dart';
 
 // -------- PANTALLA DE LLAMADAS --------
 // Controlador principal de la vista de llamadas.
@@ -47,9 +44,6 @@ class LlamadasPage extends ConsumerStatefulWidget {
 }
 
 class _LlamadasPageState extends ConsumerState<LlamadasPage> {
-  // Resultado de la petición al servidor con todas las llamadas.
-  late Future<List<Llamadas>> _llamadasFuture;
-
   // Filtro actualmente seleccionado (por defecto todos).
   late CallsPageFilter filtroSeleccionado;
 
@@ -73,12 +67,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
   // Solo se usa cuando el usuario conectado es supervisor.
   List<TeleoperadorBusqueda>? _teleoperadoresCached;
 
-  // Inicializa el estado y carga los datos al abrir la página.
+  // Inicializa el estado y precarga teleoperadores al abrir la página.
+  // La lista de llamadas viene del provider con polling.
   @override
   void initState() {
     super.initState();
     filtroSeleccionado = CallsPageFilter.all;
-    _llamadasFuture = _cargarLlamadasConGrupo();
 
     // Si venimos con una llamada para editar (desde notificación), la activamos.
     if (widget.llamadaParaEditar != null) {
@@ -112,69 +106,6 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             .toList();
       });
     } catch (_) {}
-  }
-
-  // Obtiene todas las llamadas del servidor y les añade el nombre del grupo.
-  // Si la llamada ya tiene el nombre del grupo, no hace una petición extra.
-  Future<List<Llamadas>> _cargarLlamadasConGrupo() async {
-    try {
-      final llamadasService = ref.read(llamadasServiceProvider);
-      final gruposService = ref.read(grupoServiceProvider);
-
-      final llamadas = await llamadasService.getAll();
-
-      // Mapa para guardar los nombres de grupos ya consultados y evitar repeticiones.
-      final Map<int, String?> cache = {};
-
-      // Para cada llamada, intentamos añadir el nombre del grupo si aún no lo tiene.
-      final enriched = await Future.wait(
-        llamadas.map((llamada) async {
-          // Si la llamada ya trae el nombre del grupo, no necesitamos consultarlo.
-          if (llamada.grupoNombre != null && llamada.grupoNombre!.isNotEmpty) {
-            return llamada;
-          }
-
-          final grupoId = llamada.grupoId;
-          // Si el ID de grupo es 0, no tiene grupo asignado.
-          if (grupoId == 0) return llamada;
-
-          final nombreGrupo = await _obtenerNombreGrupo(
-            grupoId,
-            cache,
-            gruposService,
-          );
-          if (nombreGrupo == null) return llamada;
-          return llamada.copyWith(grupoNombre: nombreGrupo);
-        }),
-      );
-
-      return enriched;
-    } catch (e, stack) {
-      debugPrint('Error cargando llamadas: $e');
-      debugPrint('Stacktrace: $stack');
-      rethrow;
-    }
-  }
-
-  // Obtiene el nombre de un grupo por su ID usando un caché para no repetir peticiones.
-  Future<String?> _obtenerNombreGrupo(
-    int grupoId,
-    Map<int, String?> cache,
-    GrupoService gruposService,
-  ) async {
-    // Si ya lo consultamos, devolvemos el valor guardado.
-    if (cache.containsKey(grupoId)) {
-      return cache[grupoId];
-    }
-
-    try {
-      final grupo = await gruposService.getById(grupoId);
-      cache[grupoId] = grupo.nombre;
-      return grupo.nombre;
-    } catch (_) {
-      cache[grupoId] = null;
-      return null;
-    }
   }
 
   // --- Métodos que actualizan el estado cuando los widgets hijos cambian algo ---
@@ -230,10 +161,8 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(l10n.callDeletedSuccessfully)),
               );
-              // Recargamos la lista para reflejar el borrado.
-              setState(() {
-                _llamadasFuture = _cargarLlamadasConGrupo();
-              });
+              // Forzamos un refresco inmediato del provider para reflejar el borrado.
+              ref.invalidate(llamadasProvider);
             } catch (e) {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
@@ -321,12 +250,12 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
         await llamadasService.update(_llamadaEnEdicion!.id, payload);
       }
 
-      // Volvemos a la lista y recargamos los datos.
+      // Volvemos a la lista y forzamos refresco inmediato.
       setState(() {
         _llamadaEnEdicion = null;
         _esCreacion = false;
-        _llamadasFuture = _cargarLlamadasConGrupo();
       });
+      ref.invalidate(llamadasProvider);
 
       // Mostramos un mensaje diferente según si creamos o editamos.
       ScaffoldMessenger.of(context).showSnackBar(
@@ -467,6 +396,19 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     final authState = ref.watch(authProvider);
     final userName = authState.nombre;
     final userRole = authState.rol;
+    final esTeleoperador = (userRole ?? '').toLowerCase() == AppRoles.teleoperador;
+
+    // Lista de llamadas enriquecida con nombres de grupo, en tiempo real.
+    // Para teleoperadores filtramos a solo las llamadas de su grupo; los
+    // supervisores ven todas.
+    final todasLasLlamadasAsync = ref.watch(llamadasConGrupoProvider);
+    final llamadasAsync = esTeleoperador
+        ? todasLasLlamadasAsync.whenData((calls) {
+            final grupoId = authState.grupoId;
+            if (grupoId == null || grupoId == 0) return <Llamadas>[];
+            return calls.where((c) => c.grupoId == grupoId).toList();
+          })
+        : todasLasLlamadasAsync;
     // Número de notificaciones para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
 
@@ -482,7 +424,6 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
         ? CallFormPage(
             llamadaInicial: _llamadaEnEdicion,
             isEdit: _llamadaEnEdicion != null,
-            buscarUsuarios: _buscarUsuarios,
             onSubmit: _guardarLlamada,
             teleoperadores: _teleoperadoresCached,
             // Al cancelar, volvemos a la lista.
@@ -494,7 +435,7 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
             },
           )
         : CallsScaffoldBody(
-            llamadasFuture: _llamadasFuture,
+            llamadasAsync: llamadasAsync,
             filtroSeleccionado: filtroSeleccionado,
             ordenSeleccionado: ordenSeleccionado,
             textoFiltro: textoFiltro,
@@ -619,24 +560,4 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
     );
   }
 
-  // Busca usuarios en el servidor que coincidan con el texto de búsqueda.
-  // Se usa en el formulario de llamada para buscar al usuario que recibió la llamada.
-  Future<List<UsuarioBusqueda>> _buscarUsuarios(String query) async {
-    final usuarioService = ref.read(usuarioServiceProvider);
-    final usuarios = await usuarioService.getAll();
-    final lower = query.trim().toLowerCase();
-
-    // Filtramos por nombre, apellidos, teléfono o DNI que contengan el texto buscado.
-    return usuarios
-        .where((u) =>
-            u.nombre.toLowerCase().contains(lower) ||
-            u.apellidos.toLowerCase().contains(lower) ||
-            u.telefono.toLowerCase().contains(lower) ||
-            u.dni.toLowerCase().contains(lower))
-        .map((u) => UsuarioBusqueda(
-              id: u.dni,
-              nombreCompleto: '${u.nombre} ${u.apellidos}'.trim(),
-            ))
-        .toList();
-  }
 }

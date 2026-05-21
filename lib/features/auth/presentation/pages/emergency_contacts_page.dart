@@ -44,9 +44,6 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
   // Servicio para comunicarse con el servidor sobre contactos de emergencia.
   late final ContactoEmergenciaService _contactoService;
 
-  // Resultado de la petición al servidor con todos los contactos.
-  late Future<List<ContactoEmergencia>> _contactosFuture;
-
   // Texto que el usuario escribe en el buscador.
   String textoFiltro = '';
 
@@ -62,25 +59,16 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
   // Contacto que se está editando. Si es null, no hay edición activa.
   ContactoEmergencia? _contactoEnEdicion;
 
-  // Inicializa el servicio y carga los contactos al abrir la página.
+  // Inicializa el servicio. La lista de contactos viene del provider con polling.
   @override
   void initState() {
     super.initState();
     _contactoService = ref.read(contactoEmergenciaServiceProvider);
-    _contactosFuture = _cargarContactos();
   }
 
-  // Pide al servidor la lista de todos los contactos de emergencia.
-  Future<List<ContactoEmergencia>> _cargarContactos() async {
-    return _contactoService.getAll();
-  }
-
-  // Vuelve a cargar los contactos y actualiza la interfaz.
-  // Se llama después de crear, editar o eliminar un contacto.
+  // Fuerza al provider a refrescar inmediatamente sin esperar al próximo tick.
   void _recargarContactos() {
-    setState(() {
-      _contactosFuture = _cargarContactos();
-    });
+    ref.invalidate(contactosEmergenciaProvider);
   }
 
   // Actualiza el texto de búsqueda y refiltra la lista.
@@ -399,13 +387,15 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
 
     // Número de notificaciones para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+    // Lista de contactos en tiempo real (polling cada 10s).
+    final contactosAsync = ref.watch(contactosEmergenciaProvider);
 
     // Determinamos si hay que mostrar el formulario o la lista.
     final showForm = _esCreacion || _contactoEnEdicion != null;
 
     // Cuerpo con la lista de contactos, buscador, filtros y ordenación.
     final listBody = EmergencyContactsScaffoldBody(
-      contactosFuture: _contactosFuture,
+      contactosAsync: contactosAsync,
       textoFiltro: textoFiltro,
       filtroSeleccionado: filtroSeleccionado,
       ordenSeleccionado: ordenSeleccionado,
@@ -429,9 +419,9 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               setState(() {
                 _esCreacion = false;
                 _contactoEnEdicion = null;
-                // Recargamos los contactos para reflejar los cambios.
-                _contactosFuture = _cargarContactos();
               });
+              // Forzamos un refresco inmediato para reflejar los cambios.
+              ref.invalidate(contactosEmergenciaProvider);
             },
           )
         : listBody;

@@ -1,8 +1,14 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/llamadas_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
+
+// Intervalo de polling al servidor para refrescar las listas en segundo plano.
+// Compartido por todos los providers de lista para mantener una cadencia única.
+const Duration kListPollInterval = Duration(seconds: 10);
 
 // ----- Provider de LlamadasService -----
 // Este archivo gestiona el estado de todas las llamadas del sistema:
@@ -18,13 +24,64 @@ final llamadasServiceProvider = Provider<LlamadasService>((ref) {
   return LlamadasService(dio: dio);
 });
 
-// Provider base que descarga TODAS las llamadas del servidor.
-// Es un FutureProvider porque la operación es asíncrona (tarda un poco en cargar).
-// Los demás providers de llamadas se construyen encima de este.
-final llamadasProvider = FutureProvider<List<Llamadas>>((ref) async {
+// StreamProvider base que descarga TODAS las llamadas del servidor en tiempo real.
+// Hace polling cada kListPollInterval para que cualquier widget que lo observe
+// se reconstruya automáticamente cuando los datos del servidor cambian, sin
+// necesidad de salir y volver a entrar en la pantalla.
+final llamadasProvider = StreamProvider<List<Llamadas>>((ref) {
   final service = ref.watch(llamadasServiceProvider);
-  // Pedimos al servidor todas las llamadas y esperamos la respuesta
-  return service.getAll();
+  final controller = StreamController<List<Llamadas>>();
+
+  Future<void> fetch() async {
+    try {
+      final fresh = await service.getAll();
+      if (!controller.isClosed) controller.add(fresh);
+    } catch (_) {
+      // Errores transitorios de red: los silenciamos para no romper el stream.
+    }
+  }
+
+  // Carga inicial inmediata + polling periódico.
+  fetch();
+  final timer = Timer.periodic(kListPollInterval, (_) => fetch());
+
+  ref.onDispose(() {
+    timer.cancel();
+    controller.close();
+  });
+
+  return controller.stream;
+});
+
+// Provider derivado que devuelve las llamadas con el nombre de su grupo
+// rellenado a partir de la lista global de grupos. Se actualiza solo cuando
+// cambian las llamadas o los grupos.
+final llamadasConGrupoProvider = Provider<AsyncValue<List<Llamadas>>>((ref) {
+  final llamadasAsync = ref.watch(llamadasProvider);
+  final gruposAsync = ref.watch(gruposProvider);
+
+  return llamadasAsync.when(
+    loading: () => const AsyncValue.loading(),
+    error: (e, s) => AsyncValue.error(e, s),
+    data: (llamadas) => gruposAsync.when(
+      // Si los grupos aún cargan, devolvemos las llamadas sin enriquecer en
+      // lugar de bloquear la pantalla con un spinner.
+      loading: () => AsyncValue.data(llamadas),
+      error: (_, __) => AsyncValue.data(llamadas),
+      data: (grupos) {
+        final nombrePorId = {for (final g in grupos) g.id: g.nombre};
+        final enriched = llamadas.map((l) {
+          // Si la llamada ya trae el nombre del grupo, la dejamos tal cual.
+          if (l.grupoNombre != null && l.grupoNombre!.isNotEmpty) return l;
+          if (l.grupoId == 0) return l;
+          final nombre = nombrePorId[l.grupoId];
+          if (nombre == null) return l;
+          return l.copyWith(grupoNombre: nombre);
+        }).toList();
+        return AsyncValue.data(enriched);
+      },
+    ),
+  );
 });
 
 // Provider filtrado que devuelve solo las llamadas programadas para HOY.

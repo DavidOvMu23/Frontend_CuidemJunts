@@ -45,9 +45,6 @@ enum GrupoSort { nameAZ, nameZA, mostTeleoperators, fewestTeleoperators }
 
 // Estado y lógica interna de la página de grupos.
 class _GruposPageState extends ConsumerState<GruposPage> {
-  // Resultado de la petición al servidor con todos los grupos.
-  late Future<List<Grupo>> _gruposFuture;
-
   // Filtro actualmente seleccionado (por defecto todos).
   GrupoFilter filtroSeleccionado = GrupoFilter.all;
 
@@ -63,25 +60,10 @@ class _GruposPageState extends ConsumerState<GruposPage> {
   // Grupo que se está editando. Si es null, no hay edición activa.
   Grupo? _grupoEnEdicion;
 
-  // Carga los grupos al abrir la página por primera vez.
-  @override
-  void initState() {
-    super.initState();
-    _gruposFuture = _cargarGrupos();
-  }
-
-  // Pide al servidor la lista de todos los grupos.
-  Future<List<Grupo>> _cargarGrupos() async {
-    final grupoService = ref.read(grupoServiceProvider);
-    return grupoService.findAll();
-  }
-
-  // Vuelve a cargar los grupos desde el servidor y actualiza la interfaz.
-  // Se llama después de crear, editar o eliminar un grupo.
+  // Fuerza al provider a refrescar inmediatamente (sin esperar al siguiente
+  // tick del polling). Se llama después de crear, editar o eliminar un grupo.
   void _recargarGrupos() {
-    setState(() {
-      _gruposFuture = _cargarGrupos();
-    });
+    ref.invalidate(gruposProvider);
   }
 
   // Filtra y ordena la lista de grupos según el texto buscado,
@@ -406,6 +388,8 @@ class _GruposPageState extends ConsumerState<GruposPage> {
     final isSupervisor = userRole?.toLowerCase() == AppRoles.supervisor;
     // Número de notificaciones sin leer para la barra superior.
     final notificacionesSinLeerAsync = ref.watch(notificacionesSinLeerProvider);
+    // Lista de grupos en tiempo real (polling cada 10s vía gruposProvider).
+    final gruposAsync = ref.watch(gruposProvider);
 
     // El botón flotante para crear grupos solo aparece si es supervisor.
     final fab = isSupervisor
@@ -520,26 +504,15 @@ class _GruposPageState extends ConsumerState<GruposPage> {
                       ),
                       // Área principal que muestra la lista o mensajes de estado.
                       Expanded(
-                        child: FutureBuilder<List<Grupo>>(
-                          future: _gruposFuture,
-                          builder: (context, snapshot) {
-                            // Mientras carga, mostramos una animación de esqueleto.
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const AppSkeletonList(count: 4);
-                            }
-
-                            // Si hay un error al cargar, mostramos un mensaje.
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  l10n.noGroupsFound,
-                                  style: textTheme.bodyMedium,
-                                ),
-                              );
-                            }
-
-                            final grupos = snapshot.data ?? [];
+                        child: gruposAsync.when(
+                          loading: () => const AppSkeletonList(count: 4),
+                          error: (_, __) => Center(
+                            child: Text(
+                              l10n.noGroupsFound,
+                              style: textTheme.bodyMedium,
+                            ),
+                          ),
+                          data: (grupos) {
                             // Aplicamos los filtros y el orden a los datos cargados.
                             final gruposFiltrados = _aplicarFiltros(grupos);
 
@@ -635,12 +608,12 @@ class _GruposPageState extends ConsumerState<GruposPage> {
               _grupoEnEdicion = null;
             }),
             onSaved: () {
-              // Al guardar, volvemos a la lista y recargamos los datos.
+              // Al guardar, volvemos a la lista y forzamos refresco inmediato.
               setState(() {
                 _esCreacion = false;
                 _grupoEnEdicion = null;
-                _gruposFuture = _cargarGrupos();
               });
+              ref.invalidate(gruposProvider);
             },
           )
         : bodyContent;

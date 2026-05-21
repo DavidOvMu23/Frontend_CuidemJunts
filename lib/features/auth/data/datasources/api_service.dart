@@ -84,4 +84,30 @@ class AuthService {
       throw const LoginException(LoginErrorType.noConnection);
     }
   }
+
+  // Verifica si un token JWT sigue siendo válido pidiendo el perfil al servidor.
+  // Devuelve los datos del payload (id, correo, nombre, rol, nia, grupoId si
+  // aplica) cuando el token es válido, o `null` si el servidor lo rechaza o
+  // no se puede contactar.
+  Future<Map<String, dynamic>?> getProfile(String token) async {
+    final url = Uri.parse('$baseUrl/auth/profile');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      // 401/403 → token caducado o revocado.
+      return null;
+    } catch (_) {
+      // Sin red u otro error: tratamos como token no verificable; el llamador
+      // decide qué hacer (típicamente usar los datos cacheados).
+      return null;
+    }
+  }
 }

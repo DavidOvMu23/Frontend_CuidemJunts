@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/notificaciones_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/notificacion.dart';
@@ -18,15 +19,45 @@ final notificacionServiceProvider = Provider<NotificacionService>((ref) {
   return NotificacionService(dio: dio);
 });
 
-// Provider que descarga del servidor TODAS las notificaciones del usuario logueado.
-// Es un FutureProvider porque la petición al servidor tarda un momento.
-// Solo carga las notificaciones del teleoperador que ha iniciado sesión.
-final notificacionesProvider = FutureProvider<List<Notificacion>>((ref) async {
+// Intervalo de polling al servidor para refrescar las notificaciones en segundo plano.
+const Duration _notificacionesPollInterval = Duration(seconds: 5);
+
+// StreamProvider que mantiene la lista de notificaciones del usuario en tiempo real.
+// Hace polling al servidor cada _notificacionesPollInterval y emite la lista
+// actualizada, de modo que el badge y la página de notificaciones se reconstruyen
+// automáticamente cuando llega algo nuevo (sin necesidad de salir y entrar).
+final notificacionesProvider = StreamProvider<List<Notificacion>>((ref) {
   final service = ref.watch(notificacionServiceProvider);
-  // Obtenemos el ID del usuario logueado para filtrar sus notificaciones
   final userId = ref.watch(authProvider).id;
-  // Pedimos al servidor las notificaciones de este teleoperador concreto
-  return service.getAll(teleoperadorId: userId);
+
+  final controller = StreamController<List<Notificacion>>();
+
+  // Si no hay sesión, emitimos lista vacía y cerramos.
+  if (userId == null || userId == 0) {
+    controller.add(const []);
+    controller.close();
+    return controller.stream;
+  }
+
+  Future<void> fetch() async {
+    try {
+      final fresh = await service.getAll(teleoperadorId: userId, take: 100);
+      if (!controller.isClosed) controller.add(fresh);
+    } catch (_) {
+      // Silenciamos errores transitorios de red para no romper el stream.
+    }
+  }
+
+  // Carga inicial inmediata + polling periódico.
+  fetch();
+  final timer = Timer.periodic(_notificacionesPollInterval, (_) => fetch());
+
+  ref.onDispose(() {
+    timer.cancel();
+    controller.close();
+  });
+
+  return controller.stream;
 });
 
 // Provider que cuenta cuántas notificaciones NO han sido leídas aún.

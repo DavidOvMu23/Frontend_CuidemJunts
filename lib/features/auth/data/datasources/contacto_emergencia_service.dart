@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart'
+    show kListPollInterval;
 import '../models/usuario.dart';
 
 // -------- CONTACTO EMERGENCIA SERVICE --------
@@ -92,4 +95,32 @@ final contactoEmergenciaServiceProvider = Provider<ContactoEmergenciaService>((r
   final dio = ref.watch(dioClientProvider);
   // Creamos el servicio con ese cliente y lo devolvemos para que la app lo use
   return ContactoEmergenciaService(dio: dio);
+});
+
+// StreamProvider con la lista completa de contactos de emergencia en tiempo real.
+// Hace polling cada kListPollInterval para que las pantallas que muestran
+// contactos se refresquen automáticamente al cambiar los datos en el servidor.
+final contactosEmergenciaProvider =
+    StreamProvider<List<ContactoEmergencia>>((ref) {
+  final service = ref.watch(contactoEmergenciaServiceProvider);
+  final controller = StreamController<List<ContactoEmergencia>>();
+
+  Future<void> fetch() async {
+    try {
+      final fresh = await service.getAll();
+      if (!controller.isClosed) controller.add(fresh);
+    } catch (_) {
+      // Silenciamos errores transitorios de red para no romper el stream.
+    }
+  }
+
+  fetch();
+  final timer = Timer.periodic(kListPollInterval, (_) => fetch());
+
+  ref.onDispose(() {
+    timer.cancel();
+    controller.close();
+  });
+
+  return controller.stream;
 });

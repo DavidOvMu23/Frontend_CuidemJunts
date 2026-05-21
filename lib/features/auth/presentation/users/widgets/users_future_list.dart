@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/core/widgets/loading_skeleton.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
@@ -8,12 +9,12 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/users/users_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/user_card.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/users/widgets/users_sort_bottom_sheet.dart';
 
-// Lista de usuarios que gestiona los estados de carga, error y vacío mediante
-// un FutureBuilder — espera a que lleguen los datos del servidor y pinta el
-// resultado apropiado en cada caso.
+// Lista de usuarios que se reconstruye automáticamente cuando cambia el
+// AsyncValue<List<Usuario>> recibido. La fuente del AsyncValue es el
+// StreamProvider con polling, así que la lista se refresca sola en tiempo real.
 class UsersFutureList extends StatelessWidget {
-  // La petición al servidor que traerá la lista de usuarios
-  final Future<List<Usuario>> usuariosFuture;
+  // Estado actual de la lista de usuarios (cargando / error / datos).
+  final AsyncValue<List<Usuario>> usuariosAsync;
   // Función que aplica los filtros y el orden activos sobre la lista completa
   final List<Usuario> Function(List<Usuario>) aplicarFiltros;
   // Texto que el usuario ha escrito en el buscador
@@ -33,7 +34,7 @@ class UsersFutureList extends StatelessWidget {
 
   const UsersFutureList({
     super.key,
-    required this.usuariosFuture,
+    required this.usuariosAsync,
     required this.aplicarFiltros,
     required this.textoFiltro,
     required this.filtroSeleccionado,
@@ -50,41 +51,32 @@ class UsersFutureList extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    // FutureBuilder espera la respuesta del servidor y muestra el widget correspondiente
-    // según el estado: girando (cargando), error o datos disponibles.
-    return FutureBuilder<List<Usuario>>(
-      future: usuariosFuture,
-      builder: (context, snapshot) {
-        // 1. Estado de carga
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const AppSkeletonList(count: 4);
-        }
-
-        // 2. Estado de error
-        if (snapshot.hasError) {
-          return Center(
-            child: Card(
-              margin: EdgeInsets.zero,
-              color: colorScheme.error.withValues(alpha: 0.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(
-                  l10n.errorUsersLoading,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.error,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+    return usuariosAsync.when(
+      // 1. Estado de carga inicial: solo se muestra el esqueleto cuando aún no
+      // tenemos datos previos; tras la primera carga, las actualizaciones del
+      // polling no provocan flicker porque el AsyncValue conserva el valor.
+      loading: () => const AppSkeletonList(count: 4),
+      // 2. Estado de error
+      error: (_, __) => Center(
+        child: Card(
+          margin: EdgeInsets.zero,
+          color: colorScheme.error.withValues(alpha: 0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Text(
+              l10n.errorUsersLoading,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.error,
+                fontWeight: FontWeight.w700,
               ),
             ),
-          );
-        }
-
-        final usuarios = snapshot.data ?? [];
-
+          ),
+        ),
+      ),
+      data: (usuarios) {
         // 3. Estado vacío (sin usuarios en la BD)
         if (usuarios.isEmpty) {
           return Center(
@@ -135,9 +127,7 @@ class UsersFutureList extends StatelessWidget {
                 ),
               ],
             ),
-            // Eliminamos el SizedBox para reducir la separación
 
-            // Mensaje informativo
             const SizedBox(height: 10),
 
             // 4. Lista filtrada vacía (no hay coincidencias)
