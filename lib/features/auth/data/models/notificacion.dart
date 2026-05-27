@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 
 // -------- NOTIFICACION MODEL --------
 
@@ -86,16 +87,17 @@ class Notificacion {
   // Devuelve true si la notificación fue cancelada antes de ser vista
   bool get esCancelada => estado == 'cancelada';
 
-  // tipoLegible: convierte el código interno del tipo en un texto entendible por el usuario.
-  // El servidor guarda 'call', 'system', etc., pero en la pantalla mostramos "Llamada", "Sistema"...
-  String get tipoLegible {
+  // tipoLegible: convierte el código interno del tipo en un texto entendible
+  // por el usuario, traducido al idioma activo. El servidor guarda 'call',
+  // 'system', etc., pero en la pantalla mostramos "Llamada"/"Trucada"/"Call"…
+  String tipoLegible(AppLocalizations l10n) {
     switch (tipo) {
       case 'call':
-        return 'Llamada';
+        return l10n.notifTypeCall;
       case 'system':
-        return 'Sistema';
+        return l10n.notifTypeSystem;
       case 'supervision':
-        return 'Supervisión';
+        return l10n.notifTypeSupervision;
       default:
         // Si es un tipo desconocido, mostramos el código tal cual
         return tipo;

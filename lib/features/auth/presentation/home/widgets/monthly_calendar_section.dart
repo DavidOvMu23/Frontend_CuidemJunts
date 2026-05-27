@@ -219,6 +219,7 @@ class _CalendarGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toLanguageTag();
     final raw = DateFormat('MMMM yyyy', locale).format(focusedMonth);
     final monthLabel = raw[0].toUpperCase() + raw.substring(1);
@@ -280,12 +281,12 @@ class _CalendarGrid extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StatPill(color: Colors.green.shade400, count: monthCompleted, label: 'Comp.'),
+              _StatPill(color: Colors.green.shade400, count: monthCompleted, label: l10n.monthStatsShortCompleted),
               const SizedBox(width: 6),
-              _StatPill(color: Colors.orange.shade400, count: monthPending, label: 'Pend.'),
+              _StatPill(color: Colors.orange.shade400, count: monthPending, label: l10n.monthStatsShortPending),
               if (monthNoAnswer > 0) ...[
                 const SizedBox(width: 6),
-                _StatPill(color: Colors.red.shade400, count: monthNoAnswer, label: 'No cont.'),
+                _StatPill(color: Colors.red.shade400, count: monthNoAnswer, label: l10n.monthStatsShortNoAnswer),
               ],
             ],
           ),
@@ -624,7 +625,7 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
                               style: textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w700)),
                           Text(
-                            '${_calls.length} llamada${_calls.length != 1 ? 's' : ''} · toca una para ver detalle',
+                            l10n.dayCallsCountHeader(_calls.length),
                             style: textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
@@ -653,7 +654,7 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
                     child: Row(
                       children: [
                         _FilterChip(
-                          label: 'Todas',
+                          label: l10n.all,
                           selected: _filter == _CallFilter.all,
                           color: colorScheme.primary,
                           onTap: () => setState(() => _filter = _CallFilter.all),
@@ -697,7 +698,7 @@ class _DayCallsDialogState extends ConsumerState<_DayCallsDialog> {
                     ? Padding(
                         padding: const EdgeInsets.all(24),
                         child: Text(
-                          'No hay llamadas con este estado',
+                          l10n.noCallsWithStatus,
                           style: textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface.withValues(alpha: 0.5),
                           ),

@@ -43,7 +43,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get preferences => 'Preferencias';
 
   @override
-  String get mainPage => 'Dashboard';
+  String get mainPage => 'Inicio';
 
   @override
   String get appPreferences => 'Preferencias de la app';
@@ -58,7 +58,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get theme => 'Tema';
 
   @override
-  String get supervisonPanel => 'Dashboard';
+  String get supervisonPanel => 'Panel de supervisión';
 
   @override
   String get programedCalls => 'Llamadas programadas hoy';
@@ -1014,4 +1014,46 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get confirmDeactivateGroupContent =>
       'Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?';
+
+  @override
+  String get notifTypeCall => 'Llamada';
+
+  @override
+  String get notifTypeSystem => 'Sistema';
+
+  @override
+  String get notifTypeSupervision => 'Supervisión';
+
+  @override
+  String get monthStatsShortCompleted => 'Comp.';
+
+  @override
+  String get monthStatsShortPending => 'Pend.';
+
+  @override
+  String get monthStatsShortNoAnswer => 'No cont.';
+
+  @override
+  String dayCallsCountHeader(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count llamadas · toca una para ver detalle',
+      one: '1 llamada · toca para ver detalle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noCallsWithStatus => 'No hay llamadas con este estado';
+
+  @override
+  String get removeFilter => 'Quitar filtro';
+
+  @override
+  String get today => 'Hoy';
+
+  @override
+  String get confirmRemoveEmergencyContactFromAll =>
+      'Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?';
 }

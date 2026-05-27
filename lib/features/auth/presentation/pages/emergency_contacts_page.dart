@@ -329,7 +329,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                 await showConfirmDialog(
                   context,
                   title: l10n.delete,
-                  content: 'Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?',
+                  content: l10n.confirmRemoveEmergencyContactFromAll,
                   confirmText: l10n.accept,
                   cancelText: l10n.cancel,
                   onConfirm: () async {

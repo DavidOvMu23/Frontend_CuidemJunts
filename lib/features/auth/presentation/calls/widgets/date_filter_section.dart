@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 // Sección de filtro por fecha con campos "Fecha Desde" y "Fecha Hasta".
@@ -48,6 +49,7 @@ class DateFilterSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     // Formato de fecha que se mostrará en los botones (día/mes/año corto)
     final dateFormat = DateFormat('dd/MM/yy');
 
@@ -60,7 +62,7 @@ class DateFilterSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Fecha Desde',
+                l10n.initDate,
                 style: textTheme.bodySmall?.copyWith(
                   color: colorScheme.primary,
                   fontSize: 13,
@@ -104,7 +106,7 @@ class DateFilterSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Fecha Hasta',
+                l10n.endDate,
                 style: textTheme.bodySmall?.copyWith(
                   color: colorScheme.primary,
                   fontSize: 13,
@@ -128,7 +130,7 @@ class DateFilterSection extends StatelessWidget {
                   child: Text(
                     fechaHasta != null
                         ? dateFormat.format(fechaHasta!)
-                        : 'Hoy',
+                        : l10n.today,
                     style: textTheme.bodyMedium?.copyWith(
                       color: fechaHasta != null
                           ? colorScheme.onSurface
@@ -154,7 +156,7 @@ class DateFilterSection extends StatelessWidget {
               Icon(Icons.calendar_today, color: colorScheme.primary, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Filtrar por fecha:',
+                l10n.filterDate,
                 style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -169,7 +171,7 @@ class DateFilterSection extends StatelessWidget {
                   onPressed: onClearDates,
                   icon: Icon(Icons.clear, color: colorScheme.error),
                   label: Text(
-                    'Quitar filtro',
+                    l10n.removeFilter,
                     style: textTheme.bodySmall?.copyWith(color: colorScheme.error),
                   ),
                   style: TextButton.styleFrom(
@@ -194,7 +196,7 @@ class DateFilterSection extends StatelessWidget {
             Icon(Icons.calendar_today, color: colorScheme.primary, size: 20),
             const SizedBox(width: 8),
             Text(
-              'Filtrar por fecha:',
+              l10n.filterDate,
               style: textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -212,7 +214,7 @@ class DateFilterSection extends StatelessWidget {
                 onPressed: onClearDates,
                 icon: Icon(Icons.clear, color: colorScheme.error),
                 label: Text(
-                  'Quitar filtro',
+                  l10n.removeFilter,
                   style: textTheme.bodySmall?.copyWith(color: colorScheme.error),
                 ),
                 style: TextButton.styleFrom(

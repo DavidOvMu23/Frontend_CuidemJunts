@@ -163,14 +163,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                 onTap: () => setState(() => _selectedTipo = 'todos'),
                               ),
                               _TipoChip(
-                                label: 'Llamada',
+                                label: l10n.notifTypeCall,
                                 selected: _selectedTipo == 'call',
                                 color: _tipoColors['call']!,
                                 icon: Icons.call_outlined,
                                 onTap: () => setState(() => _selectedTipo = 'call'),
                               ),
                               _TipoChip(
-                                label: 'Sistema',
+                                label: l10n.notifTypeSystem,
                                 selected: _selectedTipo == 'system',
                                 color: _tipoColors['system']!,
                                 icon: Icons.settings_outlined,
@@ -179,7 +179,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                               // Chip "Supervisión": solo visible para supervisores.
                               if (isSupervisor)
                                 _TipoChip(
-                                  label: 'Supervisión',
+                                  label: l10n.notifTypeSupervision,
                                   selected: _selectedTipo == 'supervision',
                                   color: _tipoColors['supervision']!,
                                   icon: Icons.supervisor_account_outlined,
@@ -421,6 +421,7 @@ class _NotificationCardState extends State<_NotificationCard> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final notif = widget.notif;
 
     // Obtenemos el mapa de colores definido en la pantalla padre.
@@ -511,7 +512,7 @@ class _NotificationCardState extends State<_NotificationCard> {
                                   children: [
                                     // Título de la notificación (más negrita si no leída).
                                     Text(
-                                      notif.titulo ?? notif.tipoLegible,
+                                      notif.titulo ?? notif.tipoLegible(l10n),
                                       style: textTheme.bodyMedium?.copyWith(
                                         fontWeight: notif.esSinLeer ? FontWeight.w700 : FontWeight.w600,
                                       ),
@@ -525,7 +526,7 @@ class _NotificationCardState extends State<_NotificationCard> {
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: Text(
-                                        notif.tipoLegible,
+                                        notif.tipoLegible(l10n),
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,

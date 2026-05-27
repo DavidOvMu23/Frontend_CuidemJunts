@@ -43,7 +43,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferences => 'Preferences';
 
   @override
-  String get mainPage => 'Dashboard';
+  String get mainPage => 'Home';
 
   @override
   String get appPreferences => 'App Preferences';
@@ -58,7 +58,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get theme => 'Theme';
 
   @override
-  String get supervisonPanel => 'Dashboard';
+  String get supervisonPanel => 'Supervision panel';
 
   @override
   String get programedCalls => 'Scheduled calls today';
@@ -1000,4 +1000,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get confirmDeactivateGroupContent =>
       'Deactivating this group will automatically deactivate all its teleoperators and they will not be able to log in.\n\nContinue?';
+
+  @override
+  String get notifTypeCall => 'Call';
+
+  @override
+  String get notifTypeSystem => 'System';
+
+  @override
+  String get notifTypeSupervision => 'Supervision';
+
+  @override
+  String get monthStatsShortCompleted => 'Done';
+
+  @override
+  String get monthStatsShortPending => 'Pend.';
+
+  @override
+  String get monthStatsShortNoAnswer => 'No ans.';
+
+  @override
+  String dayCallsCountHeader(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calls · tap one to see details',
+      one: '1 call · tap to see details',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noCallsWithStatus => 'No calls with this status';
+
+  @override
+  String get removeFilter => 'Clear filter';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get confirmRemoveEmergencyContactFromAll =>
+      'This contact is associated with one or more users. Do you want to unlink it from all users and delete it?';
 }

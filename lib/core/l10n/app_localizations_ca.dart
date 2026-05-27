@@ -43,7 +43,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get preferences => 'Preferències';
 
   @override
-  String get mainPage => 'Dashboard';
+  String get mainPage => 'Inici';
 
   @override
   String get appPreferences => 'Preferències de l\'app';
@@ -58,7 +58,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get theme => 'Tema';
 
   @override
-  String get supervisonPanel => 'Dashboard';
+  String get supervisonPanel => 'Panell de supervisió';
 
   @override
   String get programedCalls => 'Trucades programades per avui';
@@ -1016,4 +1016,46 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get confirmDeactivateGroupContent =>
       'En desactivar aquest grup, tots els seus teleoperadors seran desactivats automàticament i no podran iniciar sessió.\n\nContinuar?';
+
+  @override
+  String get notifTypeCall => 'Trucada';
+
+  @override
+  String get notifTypeSystem => 'Sistema';
+
+  @override
+  String get notifTypeSupervision => 'Supervisió';
+
+  @override
+  String get monthStatsShortCompleted => 'Comp.';
+
+  @override
+  String get monthStatsShortPending => 'Pend.';
+
+  @override
+  String get monthStatsShortNoAnswer => 'No cont.';
+
+  @override
+  String dayCallsCountHeader(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trucades · toca\'n una per veure el detall',
+      one: '1 trucada · toca per veure el detall',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noCallsWithStatus => 'No hi ha trucades amb aquest estat';
+
+  @override
+  String get removeFilter => 'Treure filtre';
+
+  @override
+  String get today => 'Avui';
+
+  @override
+  String get confirmRemoveEmergencyContactFromAll =>
+      'Aquest contacte està associat a un o més usuaris. Vols desvincular-lo de tots els usuaris i eliminar-lo?';
 }

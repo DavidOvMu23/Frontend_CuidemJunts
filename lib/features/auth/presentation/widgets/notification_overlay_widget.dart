@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_cuidemjunts/core/l10n/app_localizations.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/notificacion.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notification_overlay_provider.dart';
@@ -143,6 +144,7 @@ class _NotificationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final tipoColor = _colorPorTipo(colorScheme);
     final titulo = (notificacion.titulo ?? '').trim();
 
@@ -208,7 +210,7 @@ class _NotificationCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        notificacion.tipoLegible.toUpperCase(),
+                        notificacion.tipoLegible(l10n).toUpperCase(),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: tipoColor,
                           fontWeight: FontWeight.w700,
@@ -249,7 +251,7 @@ class _NotificationCard extends StatelessWidget {
                 child: IconButton(
                   onPressed: onDismiss,
                   padding: EdgeInsets.zero,
-                  tooltip: 'Cerrar',
+                  tooltip: l10n.close,
                   icon: Icon(
                     Icons.close_rounded,
                     size: 18,

@@ -196,7 +196,7 @@ Drawer appDrawer({
                 title: Text(
                   // Si no se recibe el nombre, mostramos "Usuario" como valor por defecto
                   userName ??
-                      'Usuario',
+                      l10n.user,
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

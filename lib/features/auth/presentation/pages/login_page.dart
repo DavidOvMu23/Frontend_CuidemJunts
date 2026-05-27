@@ -284,7 +284,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                       children: [
                                         // Campo de texto para escribir el correo electrónico.
                                         general_textfield(
-                                          'Correo Electrónico',
+                                          l10n.email,
                                           false, // false = no ocultar el texto (no es contraseña)
                                           icono: Icons.email,
                                           controller: correoController,
@@ -292,7 +292,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                         const SizedBox(height: 16),
                                         // Campo de texto para escribir la contraseña (texto oculto).
                                         general_textfield(
-                                          'Contraseña',
+                                          l10n.password,
                                           true, // true = ocultar el texto (es contraseña)
                                           icono: Icons.lock,
                                           controller: contrasenaController,
@@ -352,7 +352,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   children: [
                                     // Campo de correo electrónico.
                                     general_textfield(
-                                      'Correo Electrónico',
+                                      l10n.email,
                                       false,
                                       icono: Icons.email,
                                       controller: correoController,
@@ -360,7 +360,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     const SizedBox(height: 16),
                                     // Campo de contraseña (texto oculto).
                                     general_textfield(
-                                      'Contraseña',
+                                      l10n.password,
                                       true,
                                       icono: Icons.lock,
                                       controller: contrasenaController,

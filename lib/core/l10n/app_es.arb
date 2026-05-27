@@ -11,12 +11,12 @@
   "forgotPassword": "¿Olvidaste tu cuenta?",
   "forgotPasswordSnackbar": "Contacta a un supervisor para recuperar tu cuenta.",
   "preferences": "Preferencias",
-  "mainPage": "Dashboard",
+  "mainPage": "Inicio",
   "appPreferences": "Preferencias de la app",
   "mainMenu": "Menu Principal",
   "lenguagePreferences": "Idioma de preferencia",
   "theme": "Tema",
-  "supervisonPanel": "Dashboard",
+  "supervisonPanel": "Panel de supervisión",
   "programedCalls": "Llamadas programadas hoy",
   "completedCalls": "Completadas hoy",
   "todayCalls": "Llamadas de hoy",
@@ -336,5 +336,21 @@
   "inactiveGroupWorkersWarning": "Inactivo · Los teleoperadores del grupo serán desactivados",
   "cannotActivateWorkerInactiveGroup": "No puedes activar este trabajador porque su grupo está inactivo. Reactiva el grupo primero.",
   "confirmDeactivateGroup": "¿Desactivar grupo?",
-  "confirmDeactivateGroupContent": "Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?"
+  "confirmDeactivateGroupContent": "Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?",
+  "notifTypeCall": "Llamada",
+  "notifTypeSystem": "Sistema",
+  "notifTypeSupervision": "Supervisión",
+  "monthStatsShortCompleted": "Comp.",
+  "monthStatsShortPending": "Pend.",
+  "monthStatsShortNoAnswer": "No cont.",
+  "dayCallsCountHeader": "{count, plural, =1{1 llamada · toca para ver detalle} other{{count} llamadas · toca una para ver detalle}}",
+  "@dayCallsCountHeader": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noCallsWithStatus": "No hay llamadas con este estado",
+  "removeFilter": "Quitar filtro",
+  "today": "Hoy",
+  "confirmRemoveEmergencyContactFromAll": "Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?"
 }

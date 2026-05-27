@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @mainPage.
   ///
   /// In es, this message translates to:
-  /// **'Dashboard'**
+  /// **'Inicio'**
   String get mainPage;
 
   /// No description provided for @appPreferences.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @supervisonPanel.
   ///
   /// In es, this message translates to:
-  /// **'Dashboard'**
+  /// **'Panel de supervisión'**
   String get supervisonPanel;
 
   /// No description provided for @programedCalls.
@@ -1989,6 +1989,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Al desactivar este grupo, todos sus teleoperadores serán desactivados automáticamente y no podrán iniciar sesión.\n\n¿Continuar?'**
   String get confirmDeactivateGroupContent;
+
+  /// No description provided for @notifTypeCall.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamada'**
+  String get notifTypeCall;
+
+  /// No description provided for @notifTypeSystem.
+  ///
+  /// In es, this message translates to:
+  /// **'Sistema'**
+  String get notifTypeSystem;
+
+  /// No description provided for @notifTypeSupervision.
+  ///
+  /// In es, this message translates to:
+  /// **'Supervisión'**
+  String get notifTypeSupervision;
+
+  /// No description provided for @monthStatsShortCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Comp.'**
+  String get monthStatsShortCompleted;
+
+  /// No description provided for @monthStatsShortPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pend.'**
+  String get monthStatsShortPending;
+
+  /// No description provided for @monthStatsShortNoAnswer.
+  ///
+  /// In es, this message translates to:
+  /// **'No cont.'**
+  String get monthStatsShortNoAnswer;
+
+  /// No description provided for @dayCallsCountHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 llamada · toca para ver detalle} other{{count} llamadas · toca una para ver detalle}}'**
+  String dayCallsCountHeader(int count);
+
+  /// No description provided for @noCallsWithStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay llamadas con este estado'**
+  String get noCallsWithStatus;
+
+  /// No description provided for @removeFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar filtro'**
+  String get removeFilter;
+
+  /// No description provided for @today.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get today;
+
+  /// No description provided for @confirmRemoveEmergencyContactFromAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Este contacto está asociado a uno o varios usuarios. ¿Deseas desvincularlo de todos los usuarios y eliminarlo?'**
+  String get confirmRemoveEmergencyContactFromAll;
 }
 
 class _AppLocalizationsDelegate

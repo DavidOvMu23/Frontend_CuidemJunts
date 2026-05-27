@@ -11,12 +11,12 @@
   "forgotPassword": "Has oblidat el teu compte?",
   "forgotPasswordSnackbar": "Parla amb un supervisor per recuperar el teu compte.",
   "preferences": "Preferències",
-  "mainPage": "Dashboard",
+  "mainPage": "Inici",
   "appPreferences": "Preferències de l'app",
   "mainMenu": "Menú principal",
   "lenguagePreferences": "Idioma de preferència",
   "theme": "Tema",
-  "supervisonPanel": "Dashboard",
+  "supervisonPanel": "Panell de supervisió",
   "programedCalls": "Trucades programades per avui",
   "completedCalls": "Completades avui",
   "todayCalls": "Trucades d'avui",
@@ -95,7 +95,6 @@
   "sortBirthdateOldYoung": "Per data de naixement (més gran a més jove)",
   "sortDependencyLowHigh": "Per nivell de dependència (baix a alt)",
   "sortDependencyHighLow": "Per nivell de dependència (alt a baix)",
-  "sortAccountStatus": "Per estat de compte (actius a inactius)",
   "usersFound": "Usuaris trobats:",
   "workersFound": "Traballadors trobats:",
   "editCall": "Editar trucada",
@@ -116,7 +115,6 @@
   "totalWorkers": "Total de treballadors",
   "sortType": "Mostra per ordre",
   "noSortedUsers": "Ordenació predefinida (Nom A-Z)",
-  "noSortedUsersSnackbar": "Usuaris ordenats per defecte.",
   "sortedZASnackbar": "Usuaris ordenats per nom Z-A.",
   "sortedAZSnackbar": "Usuaris ordenats per nom A-Z.",
   "sortedDependencyLevelHighLow": "Usuaris ordenats per nivell de dependència (alt a baix).",
@@ -331,5 +329,21 @@
   "inactiveGroupWorkersWarning": "Inactiu · Els teleoperadors del grup seran desactivats",
   "cannotActivateWorkerInactiveGroup": "No pots activar aquest treballador perquè el seu grup està inactiu. Reactiva el grup primer.",
   "confirmDeactivateGroup": "Desactivar grup?",
-  "confirmDeactivateGroupContent": "En desactivar aquest grup, tots els seus teleoperadors seran desactivats automàticament i no podran iniciar sessió.\n\nContinuar?"
+  "confirmDeactivateGroupContent": "En desactivar aquest grup, tots els seus teleoperadors seran desactivats automàticament i no podran iniciar sessió.\n\nContinuar?",
+  "notifTypeCall": "Trucada",
+  "notifTypeSystem": "Sistema",
+  "notifTypeSupervision": "Supervisió",
+  "monthStatsShortCompleted": "Comp.",
+  "monthStatsShortPending": "Pend.",
+  "monthStatsShortNoAnswer": "No cont.",
+  "dayCallsCountHeader": "{count, plural, =1{1 trucada · toca per veure el detall} other{{count} trucades · toca'n una per veure el detall}}",
+  "@dayCallsCountHeader": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noCallsWithStatus": "No hi ha trucades amb aquest estat",
+  "removeFilter": "Treure filtre",
+  "today": "Avui",
+  "confirmRemoveEmergencyContactFromAll": "Aquest contacte està associat a un o més usuaris. Vols desvincular-lo de tots els usuaris i eliminar-lo?"
 }

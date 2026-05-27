@@ -177,7 +177,7 @@ class CallDetailDialog extends StatelessWidget {
               _buildDetailRow(
                 context,
                 Icons.verified_user,
-                'Estado de la llamada',
+                l10n.callStatus,
                 llamada.estado.isNotEmpty ? estadoLegible(llamada.estado) : l10n.noStatus,
               ),
             ],
