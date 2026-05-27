@@ -31,6 +31,43 @@
 
     <title>Cuidem-nos en xarxa</title>
     <link rel="manifest" href="manifest.json" />
+
+    <!--
+      Evita el "white flash" al hacer F5: mientras el navegador descarga
+      flutter_bootstrap.js y arranca el engine, el body se ve por defecto
+      en blanco. Pintamos el fondo aquí con los mismos colores del tema
+      (AppPalette.backgroundDark / backgroundLight) para que el cambio
+      al primer frame de Flutter sea invisible.
+    -->
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        /* Fondo por defecto: tema oscuro */
+        background-color: #0a1524;
+      }
+      @media (prefers-color-scheme: light) {
+        html, body { background-color: #DEEEFA; }
+      }
+    </style>
+    <script>
+      // Si el usuario ha forzado un tema concreto en preferencias, lo
+      // respetamos por encima de la preferencia del sistema. shared_preferences
+      // en web guarda las claves bajo el prefijo "flutter." y los strings
+      // entre comillas dobles JSON.
+      (function () {
+        try {
+          var raw = window.localStorage.getItem('flutter.themeMode');
+          if (!raw) return;
+          var mode = raw.replace(/^"|"$/g, '');
+          if (mode === 'ThemeMode.dark' || mode === 'dark') {
+            document.documentElement.style.backgroundColor = '#0a1524';
+          } else if (mode === 'ThemeMode.light' || mode === 'light') {
+            document.documentElement.style.backgroundColor = '#DEEEFA';
+          }
+        } catch (_) { /* localStorage no disponible: usamos media query */ }
+      })();
+    </script>
   </head>
   <body>
     <script src="flutter_bootstrap.js" async></script>

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart'
     show kListPollInterval;
 import '../models/usuario.dart';
@@ -103,7 +104,16 @@ final contactoEmergenciaServiceProvider = Provider<ContactoEmergenciaService>((r
 final contactosEmergenciaProvider =
     StreamProvider<List<ContactoEmergencia>>((ref) {
   final service = ref.watch(contactoEmergenciaServiceProvider);
+  // Sin sesión no polleamos para no bloquear el pool de conexiones del
+  // navegador con peticiones 401 que el login tendría que esperar.
+  final isAuthenticated = ref.watch(authProvider).isAuthenticated;
   final controller = StreamController<List<ContactoEmergencia>>();
+
+  if (!isAuthenticated) {
+    controller.add(const []);
+    controller.close();
+    return controller.stream;
+  }
 
   Future<void> fetch() async {
     try {

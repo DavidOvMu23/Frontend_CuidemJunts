@@ -233,16 +233,26 @@ class _CalendarGrid extends StatelessWidget {
     // Número de filas necesarias para mostrar todos los días en semanas de 7
     final rowCount = (totalCells / 7).ceil();
 
-    // Calcula aspecto dinámico usando el ancho real del contenedor
+    final totalMonth = monthCompleted + monthPending + monthNoAnswer;
+
+    // Calcula aspecto dinámico usando el ancho real del contenedor.
+    // Hay que descontar TODA la altura no-grid: header (mes + flechas), la fila
+    // de pastillas de resumen si está visible, el row de nombres de día y los
+    // espacios entre secciones. Si se olvida alguno, la última fila se sale por
+    // abajo (el clásico "BOTTOM OVERFLOWED BY N PIXELS" amarillo a rayas).
     const headerH = 36.0;
     const dayNamesH = 22.0;
     const spacingH = 16.0;
+    // Fila de _StatPill (padding vertical 3*2 + texto fontSize 11 ≈ 14 + border 2)
+    // más la SizedBox(height: 8) que la precede cuando se muestra.
+    final statsH = totalMonth > 0 ? 30.0 : 0.0;
     double aspectRatio = 1.3;
     final w = availableWidth;
     if (w != null && w > 0) {
       final cellW = w / 7;
       if (availableHeight != null && availableHeight! > 0) {
-        final gridH = availableHeight! - headerH - dayNamesH - spacingH;
+        final gridH =
+            availableHeight! - headerH - dayNamesH - spacingH - statsH;
         final cellH = (gridH - (rowCount - 1) * 2) / rowCount;
         aspectRatio = (cellW / cellH).clamp(0.5, 4.0);
       } else {
@@ -251,8 +261,6 @@ class _CalendarGrid extends StatelessWidget {
         aspectRatio = cellW / cellH;
       }
     }
-
-    final totalMonth = monthCompleted + monthPending + monthNoAnswer;
 
     return Column(
       children: [

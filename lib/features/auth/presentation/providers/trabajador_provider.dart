@@ -4,6 +4,7 @@ import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/trabajador_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/trabajador.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart'
     show kListPollInterval;
@@ -28,7 +29,16 @@ final trabajadorServiceProvider = Provider<TrabajadorService>((ref) {
 // trabajadores se refresquen automáticamente al cambiar los datos en el servidor.
 final trabajadoresProvider = StreamProvider<List<Trabajador>>((ref) {
   final service = ref.watch(trabajadorServiceProvider);
+  // Sin sesión no polleamos para no bloquear el pool de conexiones del
+  // navegador con peticiones 401 que el login tendría que esperar.
+  final isAuthenticated = ref.watch(authProvider).isAuthenticated;
   final controller = StreamController<List<Trabajador>>();
+
+  if (!isAuthenticated) {
+    controller.add(const []);
+    controller.close();
+    return controller.stream;
+  }
 
   Future<void> fetch() async {
     try {

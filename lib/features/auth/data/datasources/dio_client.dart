@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/core/navigation/navigator_key.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/jwt_interceptor.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/preferences_provider.dart';
 
@@ -42,22 +40,21 @@ final dioClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(JwtInterceptor(
     preferencesService: preferencesService,
     onUnauthorized: () async {
-      // Guard: si ya estamos sin sesión, otra petición 401 ya hizo logout +
-      // push. No repetimos el push porque destruye el LoginPage actual (y con
-      // él los TextEditingController), borrando lo que el usuario esté
-      // escribiendo. Los timers de polling que no son autoDispose siguen
-      // vivos tras logout y disparan 401s adicionales; aquí los ignoramos.
+      // Guard: si ya estamos sin sesión, otra petición 401 ya hizo el logout.
+      // No repetimos el trabajo porque podríamos pisar lo que el usuario está
+      // escribiendo en LoginPage.
       if (!ref.read(authProvider).isAuthenticated) {
         return;
       }
-      // Limpiamos la sesión del usuario (borra el token guardado)
+      // Limpiamos la sesión: _AuthGate (la home route) detecta el cambio de
+      // auth state y muestra LoginPage automáticamente.
       await ref.read(authProvider.notifier).logout();
-      // Navegamos a la pantalla de login eliminando todas las pantallas anteriores,
-      // para que el usuario no pueda volver atrás con el botón "atrás"
-      appNavigatorKey.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-        (route) => false,
-      );
+      // Popeamos las sub-rutas que estuvieran encima del home (creación de
+      // usuario, detalle, etc.) para volver al _AuthGate ya en modo LoginPage.
+      // IMPORTANTE: NO usamos pushAndRemoveUntil(LoginPage(), (r)=>false)
+      // porque eso eliminaría _AuthGate del stack y el próximo login no podría
+      // navegar a SupervisorShellPage (state cambia pero nadie reacciona).
+      appNavigatorKey.currentState?.popUntil((route) => route.isFirst);
     },
   ));
 

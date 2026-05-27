@@ -17,7 +17,6 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/pages/calls_page
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/emergency_contacts_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_operador_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/home_supervisor_page.dart';
-import 'package:frontend_cuidemjunts/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/notifications_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/preferences_page.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/pages/grupos_page.dart';
@@ -88,19 +87,22 @@ class _SupervisorShellPageState extends ConsumerState<SupervisorShellPage> {
   }
 
   // -------- CERRAR SESIÓN --------
-  // Limpia el estado de autenticación y lleva al usuario de vuelta al login.
+  // Limpia el estado de autenticación. _AuthGate (la home route) detecta el
+  // cambio y muestra LoginPage automáticamente — por eso NO empujamos una
+  // LoginPage aquí: hacerlo con pushAndRemoveUntil((route) => false) eliminaría
+  // _AuthGate del stack del Navigator, y la próxima vez que el usuario hiciera
+  // login el cambio de auth state no provocaría ninguna navegación (spinner
+  // colgado para siempre).
   Future<void> _logout() async {
-    // Borramos token y datos del usuario del estado global.
+    // Borramos token y datos del usuario del estado global. Al setear el state
+    // a isAuthenticated=false, _AuthGate reconstruye y muestra LoginPage; esta
+    // misma SupervisorShellPage queda desmontada en ese rebuild.
     await ref.read(authProvider.notifier).logout();
     if (!mounted) return;
 
-    // Navegamos al login eliminando todas las rutas anteriores del stack.
-    // Así el botón "atrás" no devuelve al usuario a la app.
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
-    );
+    // Si quedaban sub-rutas pusheadas encima del home (por ejemplo dialogs o
+    // pantallas de creación abiertas), las popeamos para volver a la home.
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   // -------- TÍTULO DE LA SECCIÓN ACTIVA --------

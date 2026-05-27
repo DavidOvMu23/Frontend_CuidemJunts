@@ -4,6 +4,7 @@ import 'package:frontend_cuidemjunts/core/constants/app_constants.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/llamadas_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/llamadas.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/grupo_provider.dart';
 
 // Intervalo de polling al servidor para refrescar las listas en segundo plano.
@@ -30,7 +31,17 @@ final llamadasServiceProvider = Provider<LlamadasService>((ref) {
 // necesidad de salir y volver a entrar en la pantalla.
 final llamadasProvider = StreamProvider<List<Llamadas>>((ref) {
   final service = ref.watch(llamadasServiceProvider);
+  // Sin sesión no hacemos polling: las peticiones devolverían 401 y, además,
+  // bloquearían el pool de conexiones del navegador (compartido con el POST
+  // de login), dejando el spinner de "Entrar" colgado tras un logout.
+  final isAuthenticated = ref.watch(authProvider).isAuthenticated;
   final controller = StreamController<List<Llamadas>>();
+
+  if (!isAuthenticated) {
+    controller.add(const []);
+    controller.close();
+    return controller.stream;
+  }
 
   Future<void> fetch() async {
     try {

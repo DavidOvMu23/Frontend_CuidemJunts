@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/dio_client.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/datasources/usuario_service.dart';
 import 'package:frontend_cuidemjunts/features/auth/data/models/usuario.dart';
+import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/llamadas_provider.dart'
     show kListPollInterval;
 
@@ -26,7 +27,16 @@ final usuarioServiceProvider = Provider<UsuarioService>((ref) {
 // provider se redibuja automáticamente cuando cambian los datos en el servidor.
 final usuariosProvider = StreamProvider<List<Usuario>>((ref) {
   final service = ref.watch(usuarioServiceProvider);
+  // Sin sesión no polleamos para no bloquear el pool de conexiones del
+  // navegador con peticiones 401 que el login tendría que esperar.
+  final isAuthenticated = ref.watch(authProvider).isAuthenticated;
   final controller = StreamController<List<Usuario>>();
+
+  if (!isAuthenticated) {
+    controller.add(const []);
+    controller.close();
+    return controller.stream;
+  }
 
   Future<void> fetch() async {
     try {
