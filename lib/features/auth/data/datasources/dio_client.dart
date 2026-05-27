@@ -42,6 +42,14 @@ final dioClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(JwtInterceptor(
     preferencesService: preferencesService,
     onUnauthorized: () async {
+      // Guard: si ya estamos sin sesión, otra petición 401 ya hizo logout +
+      // push. No repetimos el push porque destruye el LoginPage actual (y con
+      // él los TextEditingController), borrando lo que el usuario esté
+      // escribiendo. Los timers de polling que no son autoDispose siguen
+      // vivos tras logout y disparan 401s adicionales; aquí los ignoramos.
+      if (!ref.read(authProvider).isAuthenticated) {
+        return;
+      }
       // Limpiamos la sesión del usuario (borra el token guardado)
       await ref.read(authProvider.notifier).logout();
       // Navegamos a la pantalla de login eliminando todas las pantallas anteriores,
