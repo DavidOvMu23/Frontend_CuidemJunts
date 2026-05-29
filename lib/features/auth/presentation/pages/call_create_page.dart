@@ -647,7 +647,13 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                                   controller: _duracionController,
                                   borderRadius: 12.0,
                                   validator: (v) {
-                                    if (v == null || v.isEmpty) return l10n.requiredField;
+                                    // Si la llamada está pendiente (por hacer), la
+                                    // duración no es obligatoria, pero si se rellena
+                                    // debe seguir siendo un número válido.
+                                    final esPendiente = _estado == CallStatus.pendiente;
+                                    if (v == null || v.isEmpty) {
+                                      return esPendiente ? null : l10n.requiredField;
+                                    }
                                     if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return l10n.onlyNumbers;
                                     return null;
                                   },
@@ -710,7 +716,13 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                             controller: _duracionController,
                             borderRadius: 12.0,
                             validator: (v) {
-                              if (v == null || v.isEmpty) return l10n.requiredField;
+                              // Si la llamada está pendiente (por hacer), la
+                              // duración no es obligatoria, pero si se rellena
+                              // debe seguir siendo un número válido.
+                              final esPendiente = _estado == CallStatus.pendiente;
+                              if (v == null || v.isEmpty) {
+                                return esPendiente ? null : l10n.requiredField;
+                              }
                               if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return l10n.onlyNumbers;
                               return null;
                             },
@@ -729,12 +741,17 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         label(l10n.summary),
-                        // Campo de resumen obligatorio.
+                        // El resumen es obligatorio salvo que la llamada esté
+                        // pendiente (por hacer): en ese caso aún no hay nada que
+                        // resumir, así que se permite dejarlo vacío.
                         general_textfield_NoICON(
                           l10n.summary,
                           controller: _resumenController,
                           borderRadius: 12.0,
-                          validator: (v) => v == null || v.isEmpty ? l10n.requiredField : null,
+                          validator: (v) {
+                            if (_estado == CallStatus.pendiente) return null;
+                            return v == null || v.isEmpty ? l10n.requiredField : null;
+                          },
                         ),
                         SizedBox(height: gap),
                         label(l10n.comments),
