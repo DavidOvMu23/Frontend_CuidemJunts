@@ -311,13 +311,18 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
       return;
     }
 
+    // Duración, resumen y observaciones solo tienen sentido en llamadas
+    // completadas; en pendiente o no contestada esos campos están ocultos y
+    // se envían vacíos para no arrastrar valores antiguos al editar.
+    final bool esCompletada = _estado == CallStatus.completada;
+
     // Construimos el objeto con todos los datos del formulario.
     final data = CallFormData(
       usuarioId: _usuarioSeleccionado!.id,
-      resumen: _resumenController.text.trim(),
-      duracion: _duracionController.text.trim(),
+      resumen: esCompletada ? _resumenController.text.trim() : '',
+      duracion: esCompletada ? _duracionController.text.trim() : '',
       estado: _estado!,
-      observaciones: _observacionesController.text.trim(),
+      observaciones: esCompletada ? _observacionesController.text.trim() : '',
       fecha: _fecha!,
       hora: _horaController.text.trim(),
       // El grupo seleccionado por el supervisor (null para teleoperadores).
@@ -635,6 +640,9 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                               ],
                             ),
                           ),
+                          // Duración solo en llamadas completadas: en pendiente o
+                          // no contestada no aplica, así que se oculta el campo.
+                          if (_estado == CallStatus.completada) ...[
                           SizedBox(width: gap),
                           Expanded(
                             child: Column(
@@ -666,6 +674,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                               ],
                             ),
                           ),
+                          ],
                         ],
                       )
                     else
@@ -709,6 +718,8 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                           label(l10n.time),
                           // Campo de hora con selector visual (TimePicker).
                           _buildHoraField(l10n),
+                          // Duración solo en llamadas completadas.
+                          if (_estado == CallStatus.completada) ...[
                           SizedBox(height: gap),
                           label(l10n.duration),
                           general_textfield_NoICON(
@@ -732,11 +743,16 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                               LengthLimitingTextInputFormatter(3),
                             ],
                           ),
+                          ],
                         ],
                       ),
+                    // Resumen y observaciones solo en llamadas completadas: en
+                    // pendiente o no contestada no hay nada que resumir, así que
+                    // se ocultan ambos campos.
+                    if (_estado == CallStatus.completada) ...[
                     SizedBox(height: gap),
 
-                    // Campos de resumen y observaciones (siempre en columna).
+                    // Campos de resumen y observaciones (solo en completadas).
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -764,6 +780,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                         ),
                       ],
                     ),
+                    ],
 
                     // Selector de grupo (solo visible para supervisores).
                     // Obligatorio al crear: la llamada queda vinculada al grupo seleccionado.
