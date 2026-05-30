@@ -218,7 +218,11 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       'duracion': data.duracion,
       'estado': data.estado,
       if (data.observaciones.isNotEmpty) 'observaciones': data.observaciones,
-      'fecha': data.fecha.toIso8601String(),
+      // Enviamos solo la fecha (YYYY-MM-DD) sin componente horaria ni zona
+      // horaria. Si se envía un timestamp ISO completo, PostgreSQL lo
+      // convierte a UTC y el día puede retroceder uno (bug de zona horaria).
+      'fecha':
+          '${data.fecha.year.toString().padLeft(4, '0')}-${data.fecha.month.toString().padLeft(2, '0')}-${data.fecha.day.toString().padLeft(2, '0')}',
       'hora': data.hora,
       'grupoId': grupoIdToUse,
       // Solo añadimos el ID del teleoperador si existe.
