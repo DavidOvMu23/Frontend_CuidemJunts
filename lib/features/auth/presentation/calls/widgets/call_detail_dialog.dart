@@ -170,6 +170,12 @@ class CallDetailDialog extends StatelessWidget {
               ),
               _buildDetailRow(
                 context,
+                Icons.support_agent,
+                l10n.supervisorInfoForOperator,
+                llamada.informacionSupervisor.isNotEmpty ? llamada.informacionSupervisor : '-',
+              ),
+              _buildDetailRow(
+                context,
                 Icons.info_outline,
                 l10n.comments,
                 llamada.observaciones.isNotEmpty ? llamada.observaciones : '-',

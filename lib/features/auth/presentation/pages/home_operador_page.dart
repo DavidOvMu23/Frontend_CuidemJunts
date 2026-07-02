@@ -161,11 +161,9 @@ class HomeOperadorPage extends ConsumerWidget {
             children: [
               buildStatsRow(false),
               const SizedBox(height: 20),
-              // Lista de llamadas de hoy del teleoperador, con acciones rápidas
-              // (marcar completada / no contestó) habilitadas.
+              // Lista de llamadas de hoy del teleoperador.
               TodayCallsSection(
                 callsAsync: misLlamadasHoyAsync,
-                showQuickActions: true,
               ),
               const SizedBox(height: 20),
               // Calendario mensual mostrando solo las llamadas del teleoperador.
@@ -204,7 +202,6 @@ class HomeOperadorPage extends ConsumerWidget {
                         child: TodayCallsSection(
                           callsAsync: misLlamadasHoyAsync,
                           expandContent: true,
-                          showQuickActions: true,
                         ),
                       ),
                       const SizedBox(width: 20),

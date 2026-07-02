@@ -28,13 +28,10 @@ import 'package:frontend_cuidemjunts/features/auth/presentation/providers/locale
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/auth_provider.dart';
 // Provider con el contador de notificaciones sin leer.
 import 'package:frontend_cuidemjunts/features/auth/presentation/providers/notificacion_provider.dart';
-// Pantalla de catálogo de widgets (solo para desarrolladores).
-import 'package:frontend_cuidemjunts/catalog/catalog_page.dart';
 
 // -------- PANTALLA DE PREFERENCIAS --------
 // Permite al usuario cambiar el idioma de la app y alternar entre tema claro y oscuro.
 // Los cambios se aplican en tiempo real sin necesidad de reiniciar la app.
-// También contiene un botón al catálogo de widgets (herramienta para desarrolladores).
 class PreferencesPage extends ConsumerStatefulWidget {
   // Si embedded es true, se muestra dentro del shell (sin AppBar ni Drawer propios).
   final bool embedded;
@@ -222,23 +219,6 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // -------- BOTÓN: VER CATÁLOGO DE WIDGETS --------
-            // Herramienta de desarrollo para ver todos los widgets de la app
-            // en una sola pantalla. Útil para probar estilos y componentes.
-            Center(
-              child: general_filledbutton(
-                l10n.viewWidgetCatalog,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CatalogPage(),
-                    ),
-                  );
-                },
               ),
             ),
           ],

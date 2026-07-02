@@ -146,7 +146,7 @@ class AuthNotifier extends Notifier<AuthState> {
     // - null  → 401/403 explícito → token inválido → hacer logout
     // - throw → error de red/timeout → no podemos saber → mantener sesión
     try {
-      final profile = await AuthService(baseUrl: 'http://localhost:3000')
+      final profile = await AuthService(baseUrl: 'http://cuidemnosenxarxa.local:3000')
           .getProfile(token);
       if (profile == null) {
         await logout();

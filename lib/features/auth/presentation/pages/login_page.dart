@@ -44,7 +44,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void initState() {
     super.initState();
     // Apuntamos al servidor local en el puerto 3000 (donde corre el backend NestJS).
-    authService = AuthService(baseUrl: 'http://localhost:3000');
+    authService = AuthService(baseUrl: 'http://cuidemnosenxarxa.local:3000');
   }
 
   // -------- FUNCIÓN PRINCIPAL: HACER LOGIN --------

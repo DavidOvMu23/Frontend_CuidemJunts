@@ -218,6 +218,8 @@ class _LlamadasPageState extends ConsumerState<LlamadasPage> {
       'duracion': data.duracion,
       'estado': data.estado,
       if (data.observaciones.isNotEmpty) 'observaciones': data.observaciones,
+      if (data.informacionSupervisor.isNotEmpty)
+        'informacion_supervisor': data.informacionSupervisor,
       // Enviamos solo la fecha (YYYY-MM-DD) sin componente horaria ni zona
       // horaria. Si se envía un timestamp ISO completo, PostgreSQL lo
       // convierte a UTC y el día puede retroceder uno (bug de zona horaria).

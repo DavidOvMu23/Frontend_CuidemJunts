@@ -127,7 +127,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get duration => 'Duration';
 
   @override
-  String get comments => 'Comments';
+  String get comments => 'Call summary';
+
+  @override
+  String get supervisorInfoForOperator => 'Information for the operator';
 
   @override
   String get topicsCovered => 'Topics covered';

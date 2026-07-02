@@ -128,7 +128,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get duration => 'Duración';
 
   @override
-  String get comments => 'Observaciones';
+  String get comments => 'Resumen de la llamada';
+
+  @override
+  String get supervisorInfoForOperator => 'Información para el teleoperador';
 
   @override
   String get topicsCovered => 'Temas tratados';

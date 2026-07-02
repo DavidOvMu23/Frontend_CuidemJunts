@@ -23,7 +23,7 @@ final dioClientProvider = Provider<Dio>((ref) {
     BaseOptions(
       // URL del servidor al que se conectará la app
       // En producción habría que cambiar esto por la URL real
-      baseUrl: 'http://localhost:3000',
+      baseUrl: 'http://cuidemnosenxarxa.local:3000',
       // Tiempo máximo de espera para conectar con el servidor (10 segundos)
       connectTimeout: const Duration(seconds: 10),
       // Tiempo máximo de espera para recibir la respuesta completa (10 segundos)

@@ -24,6 +24,11 @@ class Llamadas {
   // (incidencias, estado del paciente, etc.)
   final String observaciones;
 
+  // Información que deja el supervisor para el teleoperador que hará la
+  // llamada. Solo el supervisor puede escribirla; el teleoperador únicamente
+  // la lee.
+  final String informacionSupervisor;
+
   // Estado actual de la llamada en el flujo del sistema
   // (ej: "pendiente", "completada", "cancelada")
   final String estado;
@@ -34,9 +39,10 @@ class Llamadas {
   // Nombre del grupo (ej: "Grupo Mañana") — se guarda para mostrarlo sin buscar el grupo
   final String? grupoNombre;
 
-  // ID interno del usuario/paciente que recibió la llamada.
+  // DNI del usuario/paciente que recibió la llamada (es texto, no un número:
+  // el DNI español lleva una letra final, ej. "12345678Z").
   // Es opcional porque puede no estar asignado todavía.
-  final int? usuarioId;
+  final String? usuarioId;
 
   // Nombre del paciente que recibió la llamada — para mostrarlo en la interfaz
   final String? usuarioNombre;
@@ -62,6 +68,7 @@ class Llamadas {
     required this.duracion,
     required this.resumen,
     required this.observaciones,
+    this.informacionSupervisor = '',
     required this.estado,
     required this.grupoId,
     required this.grupoNombre,
@@ -82,10 +89,11 @@ class Llamadas {
     String? duracion,
     String? resumen,
     String? observaciones,
+    String? informacionSupervisor,
     String? estado,
     int? grupoId,
     String? grupoNombre,
-    int? usuarioId,
+    String? usuarioId,
     String? usuarioNombre,
     String? usuarioApellidos,
     int? teleoperadorId,
@@ -100,6 +108,7 @@ class Llamadas {
       duracion: duracion ?? this.duracion,
       resumen: resumen ?? this.resumen,
       observaciones: observaciones ?? this.observaciones,
+      informacionSupervisor: informacionSupervisor ?? this.informacionSupervisor,
       estado: estado ?? this.estado,
       grupoId: grupoId ?? this.grupoId,
       grupoNombre: grupoNombre ?? this.grupoNombre,
@@ -132,6 +141,7 @@ class Llamadas {
       duracion: (json['duracion'] ?? '') as String,
       resumen: (json['resumen'] ?? '') as String,
       observaciones: (json['observaciones'] ?? '') as String,
+      informacionSupervisor: (json['informacion_supervisor'] ?? '') as String,
       estado: (json['estado'] ?? '') as String,
 
       // El grupo puede venir como objeto anidado {id_grup, nombre} o como campos planos
@@ -144,12 +154,11 @@ class Llamadas {
           ? (json['grupo']['nombre'] as String?)
           : (json['grupoNombre'] as String?),
 
-      // El usuario también puede venir anidado o como campos planos
+      // El usuario también puede venir anidado o como campos planos.
+      // El identificador es el DNI (texto alfanumérico), nunca un número.
       usuarioId: (json['usuario'] is Map)
-          ? (json['usuario']['id_usu'] is int
-                ? json['usuario']['id_usu'] as int
-                : int.tryParse('${json['usuario']['id_usu']}') ?? 0)
-          : (json['usuarioId'] as int?),
+          ? json['usuario']['id_usu']?.toString()
+          : json['usuarioId']?.toString(),
       usuarioNombre: (json['usuario'] is Map)
           ? (json['usuario']['nombre'] as String?)
           : (json['usuarioNombre'] as String?),

@@ -74,6 +74,8 @@ class CallFormData {
   final String estado;
   // Observaciones adicionales sobre la llamada.
   final String observaciones;
+  // Información que deja el supervisor para el teleoperador que hará la llamada.
+  final String informacionSupervisor;
   // Fecha en que se realizó la llamada.
   final DateTime fecha;
   // Hora en que se realizó la llamada (formato HH:MM).
@@ -87,6 +89,7 @@ class CallFormData {
     required this.duracion,
     required this.estado,
     required this.observaciones,
+    required this.informacionSupervisor,
     required this.fecha,
     required this.hora,
     this.grupoIdFormulario,
@@ -112,9 +115,9 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
   bool _submitAttempted = false;
 
   // Controladores de texto para los campos del formulario.
-  late TextEditingController _resumenController;
   late TextEditingController _duracionController;
   late TextEditingController _observacionesController;
+  late TextEditingController _infoSupervisorController;
   late TextEditingController _horaController;
 
   // Fecha seleccionada mediante el selector de fechas.
@@ -144,9 +147,9 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
   void initState() {
     super.initState();
     final llamada = widget.llamadaInicial;
-    _resumenController = TextEditingController(text: llamada?.resumen ?? '');
     _duracionController = TextEditingController(text: llamada?.duracion ?? '');
     _observacionesController = TextEditingController(text: llamada?.observaciones ?? '');
+    _infoSupervisorController = TextEditingController(text: llamada?.informacionSupervisor ?? '');
     _horaController = TextEditingController(text: llamada?.hora ?? '');
     _fecha = llamada?.fecha;
     _estado = llamada?.estado;
@@ -154,7 +157,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
     // Si la llamada tiene usuario asignado, lo pre-seleccionamos en el buscador.
     if (llamada != null && llamada.usuarioId != null) {
       _usuarioSeleccionado = UsuarioBusqueda(
-        id: llamada.usuarioId.toString(),
+        id: llamada.usuarioId!,
         nombreCompleto: '${llamada.usuarioNombre ?? ''}${llamada.usuarioApellidos != null ? ' ${llamada.usuarioApellidos}' : ''}',
       );
     }
@@ -168,9 +171,9 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
   // Libera los controladores al cerrar el formulario.
   @override
   void dispose() {
-    _resumenController.dispose();
     _duracionController.dispose();
     _observacionesController.dispose();
+    _infoSupervisorController.dispose();
     _horaController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -311,18 +314,25 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
       return;
     }
 
-    // Duración, resumen y observaciones solo tienen sentido en llamadas
-    // completadas; en pendiente o no contestada esos campos están ocultos y
-    // se envían vacíos para no arrastrar valores antiguos al editar.
+    // Duración, resumen y "resumen de la llamada" (observaciones) solo tienen
+    // sentido en llamadas completadas; en pendiente o no contestada esos
+    // campos están ocultos y se envían vacíos para no arrastrar valores
+    // antiguos al editar (ej. si la llamada estaba completada y se cambia a
+    // pendiente). La información del supervisor sí se envía siempre: es
+    // independiente del resultado de la llamada.
     final bool esCompletada = _estado == CallStatus.completada;
 
     // Construimos el objeto con todos los datos del formulario.
+    // El servidor todavía guarda "resumen" como campo separado internamente,
+    // así que reutilizamos el texto de "Resumen de la llamada" para no pedirle
+    // al usuario que escriba lo mismo dos veces.
     final data = CallFormData(
       usuarioId: _usuarioSeleccionado!.id,
-      resumen: esCompletada ? _resumenController.text.trim() : '',
+      resumen: esCompletada ? _observacionesController.text.trim() : '',
       duracion: esCompletada ? _duracionController.text.trim() : '',
       estado: _estado!,
       observaciones: esCompletada ? _observacionesController.text.trim() : '',
+      informacionSupervisor: _infoSupervisorController.text.trim(),
       fecha: _fecha!,
       hora: _horaController.text.trim(),
       // El grupo seleccionado por el supervisor (null para teleoperadores).
@@ -640,8 +650,9 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                               ],
                             ),
                           ),
-                          // Duración solo en llamadas completadas: en pendiente o
-                          // no contestada no aplica, así que se oculta el campo.
+                          // Duración solo tiene sentido en llamadas completadas:
+                          // en pendiente o no contestada aún no se sabe cuánto
+                          // duró, así que se oculta el campo.
                           if (_estado == CallStatus.completada) ...[
                           SizedBox(width: gap),
                           Expanded(
@@ -655,13 +666,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                                   controller: _duracionController,
                                   borderRadius: 12.0,
                                   validator: (v) {
-                                    // Si la llamada está pendiente (por hacer), la
-                                    // duración no es obligatoria, pero si se rellena
-                                    // debe seguir siendo un número válido.
-                                    final esPendiente = _estado == CallStatus.pendiente;
-                                    if (v == null || v.isEmpty) {
-                                      return esPendiente ? null : l10n.requiredField;
-                                    }
+                                    if (v == null || v.isEmpty) return l10n.requiredField;
                                     if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return l10n.onlyNumbers;
                                     return null;
                                   },
@@ -718,7 +723,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                           label(l10n.time),
                           // Campo de hora con selector visual (TimePicker).
                           _buildHoraField(l10n),
-                          // Duración solo en llamadas completadas.
+                          // Duración solo tiene sentido en llamadas completadas.
                           if (_estado == CallStatus.completada) ...[
                           SizedBox(height: gap),
                           label(l10n.duration),
@@ -727,13 +732,7 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                             controller: _duracionController,
                             borderRadius: 12.0,
                             validator: (v) {
-                              // Si la llamada está pendiente (por hacer), la
-                              // duración no es obligatoria, pero si se rellena
-                              // debe seguir siendo un número válido.
-                              final esPendiente = _estado == CallStatus.pendiente;
-                              if (v == null || v.isEmpty) {
-                                return esPendiente ? null : l10n.requiredField;
-                              }
+                              if (v == null || v.isEmpty) return l10n.requiredField;
                               if (!RegExp(r'^\d{1,3}$').hasMatch(v)) return l10n.onlyNumbers;
                               return null;
                             },
@@ -746,40 +745,45 @@ class _CallFormPageState extends ConsumerState<CallFormPage> {
                           ],
                         ],
                       ),
-                    // Resumen y observaciones solo en llamadas completadas: en
-                    // pendiente o no contestada no hay nada que resumir, así que
-                    // se ocultan ambos campos.
-                    if (_estado == CallStatus.completada) ...[
                     SizedBox(height: gap),
 
-                    // Campos de resumen y observaciones (solo en completadas).
+                    // Información que el supervisor deja para el teleoperador
+                    // (instrucciones, contexto...). Siempre visible: son notas
+                    // previas a la llamada, independientes de su resultado.
+                    // Solo el supervisor puede escribirla; el teleoperador
+                    // únicamente la ve (campo deshabilitado).
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        label(l10n.summary),
-                        // El resumen es obligatorio salvo que la llamada esté
-                        // pendiente (por hacer): en ese caso aún no hay nada que
-                        // resumir, así que se permite dejarlo vacío.
+                        label(l10n.supervisorInfoForOperator),
                         general_textfield_NoICON(
-                          l10n.summary,
-                          controller: _resumenController,
+                          l10n.supervisorInfoForOperator,
+                          controller: _infoSupervisorController,
                           borderRadius: 12.0,
-                          validator: (v) {
-                            if (_estado == CallStatus.pendiente) return null;
-                            return v == null || v.isEmpty ? l10n.requiredField : null;
-                          },
-                        ),
-                        SizedBox(height: gap),
-                        label(l10n.comments),
-                        // Campo de observaciones opcional, acepta varias líneas.
-                        general_textfield_NoICON(
-                          l10n.comments,
-                          controller: _observacionesController,
-                          borderRadius: 12.0,
-                          maxLines: 3,
+                          enabled: widget.grupos != null,
                         ),
                       ],
                     ),
+
+                    // Resumen de la llamada: solo tiene sentido una vez la
+                    // llamada está completada (no hay nada que resumir de una
+                    // llamada pendiente o no contestada).
+                    if (_estado == CallStatus.completada) ...[
+                      SizedBox(height: gap),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l10n.comments),
+                          general_textfield_NoICON(
+                            l10n.comments,
+                            controller: _observacionesController,
+                            borderRadius: 12.0,
+                            maxLines: 3,
+                            validator: (v) =>
+                                v == null || v.isEmpty ? l10n.requiredField : null,
+                          ),
+                        ],
+                      ),
                     ],
 
                     // Selector de grupo (solo visible para supervisores).

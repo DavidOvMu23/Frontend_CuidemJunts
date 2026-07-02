@@ -128,7 +128,10 @@ class AppLocalizationsCa extends AppLocalizations {
   String get duration => 'Durada';
 
   @override
-  String get comments => 'Observacions';
+  String get comments => 'Resum de la trucada';
+
+  @override
+  String get supervisorInfoForOperator => 'Informació per al teleoperador';
 
   @override
   String get topicsCovered => 'Temes tractats';

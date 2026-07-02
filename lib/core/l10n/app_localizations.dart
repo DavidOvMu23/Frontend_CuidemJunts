@@ -337,8 +337,14 @@ abstract class AppLocalizations {
   /// No description provided for @comments.
   ///
   /// In es, this message translates to:
-  /// **'Observaciones'**
+  /// **'Resumen de la llamada'**
   String get comments;
+
+  /// No description provided for @supervisorInfoForOperator.
+  ///
+  /// In es, this message translates to:
+  /// **'Información para el teleoperador'**
+  String get supervisorInfoForOperator;
 
   /// No description provided for @topicsCovered.
   ///
